@@ -1,0 +1,7 @@
+node_modules/
+.nyc_output/
+coverage/
+dist/
+tmp/
+npm-debug.log*
+.DS_Store
