@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% for msg in msgs %}
+  <section class="message">
+    <header>
+      <img class="avatar" src="{{ msg.value.meta.author.avatar.url }}">
+
+      <span class="text">
+        <span class="author">
+          {{ msg.value.meta.author.name}}
+        </span>
+
+        <span class="timestamp">
+          ({{ msg.value.meta.timestamp.received.since }})
+        </span>
+
+      {% if msg.value.content.root == null %}
+        🌱
+      {% endif %}
+      </span>
+    </header>
+
+    <section class="content">
+    {{ msg.value.meta.md.block() }}
+    </section>
+
+    <footer>
+      <a href="ssb:{{ msg.key }}">link</a>
+      {% if msg.value.content.root %}
+      <a href="ssb:{{ msg.value.content.root }}">root</a>
+      {% endif %}
+
+      {% if msg.value.content.fork %}
+      <a href="ssb:{{ msg.value.content.fork }}">fork</a>
+      {% endif %}
+    </footer>
+
+  </section>
+{% endfor %}
+
+{% endblock %}

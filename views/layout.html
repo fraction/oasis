@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %}Oasis{% endblock %}</title>
+		<style>
+      html {
+        font-family: system-ui, 
+          -apple-system, BlinkMacSystemFont, 
+          "Segoe UI", "Roboto", "Oxygen", 
+          "Ubuntu", "Cantarell", "Fira Sans", 
+          "Droid Sans", "Helvetica Neue", sans-serif;
+        line-height: 1.5;
+        font-size: 12pt;
+        margin: 0;
+        padding: 0;
+      
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+/* https://www.desmos.com/calculator/3elcf5cwhn */
+    h1 { font-size: 150%; }
+    h2 { font-size: 128%; }
+    h3 { font-size: 120%; }
+    h4 { font-size: 116%; }
+    h5 { font-size: 113%; }
+    h6 { font-size: 111%; }
+
+    h1 {
+			margin-bottom: 0.5em;
+			border-bottom: 1px solid #0000001a;
+		}
+
+    .message pre {
+      overflow-x: scroll;
+    }
+
+    .message code {
+      color: hsl(330, 75%, 50%)
+    }
+
+		@media screen {
+			html {
+				min-height: 100%;
+				background: hsl(240, 100%, 99%);
+			}
+			body {
+				max-width: 40rem;
+				padding: 1.5rem;
+			}
+		}
+
+    .message {
+      background: #fff;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 2px;
+      border: 1px solid #ddd;
+       
+    }
+    .message > header {
+      height: 1.5rem;
+      display: flex;
+    }
+    .message > header > .avatar {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .message > header > .text > .author {
+      margin-left: 0.5rem;
+      font-weight: bold;
+    }
+    .message > footer > a {
+      color: #888;
+      margin-right: 0.5rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+
+		</style>
+	</head>
+	<body>
+		<section id="content">
+			{% block content %}
+			<p>Missing content!</p>
+			{% endblock %}
+		</section>
+	</body>
+</html>
