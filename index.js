@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const Koa = require('koa')
 const path = require('path')
 const pull = require('pull-stream')

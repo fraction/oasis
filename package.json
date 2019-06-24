@@ -1,5 +1,5 @@
 {
-  "name": "oasis",
+  "name": "@fraction/oasis",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Christian Bundy <christianbundy@fraction.io>",
@@ -17,6 +17,9 @@
     "ssb-client": "^4.7.7",
     "ssb-markdown": "^5.0.1",
     "swig": "^1.4.2"
+  },
+  "bin": {
+    "oasis": "./index.js"
   },
   "description": "friendly neighborhood scuttlebutt interface",
   "repository": "git@github.com:fraction/oasis.git"
