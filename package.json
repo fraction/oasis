@@ -13,7 +13,8 @@
     "pretty-ms": "^5.0.0",
     "pull-stream": "^3.6.12",
     "ssb-client": "^4.7.7",
-    "ssb-markdown": "^5.0.1"
+    "ssb-markdown": "^5.0.1",
+    "ssb-uri": "^1.0.1"
   },
   "bin": {
     "oasis": "./index.js"
@@ -26,6 +27,7 @@
     "standard": "^12.0.1"
   },
   "scripts": {
+    "start": "node index.js",
     "test": "standard && dependency-check ./package.json --unused --no-dev --ignore ejs && ejslint **/*.html"
   }
 }

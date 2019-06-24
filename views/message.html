@@ -1,0 +1,37 @@
+<section class="message">
+  <header>
+    <img class="avatar" src="<%= msg.value.meta.author.avatar.url %>">
+
+    <span class="text">
+      <span class="author">
+        <a href="/author/<%= encodeURIComponent(msg.value.author) %>"><%= msg.value.meta.author.name %></a>
+      </span>
+
+      <span class="timestamp">
+        (<%= msg.value.meta.timestamp.received.since %>)
+      </span>
+
+      <% if (msg.value.meta.private === true) { %>
+      <abbr title="Private">
+        🔒
+      </abbr>
+      <% } %>
+
+    </span>
+  </header>
+
+  <section class="content">
+    <%- msg.value.meta.md.block() %>
+  </section>
+
+  <footer>
+    <a href="/message/<%= encodeURIComponent(msg.key) %>">link</a>
+    <% if (msg.value.content.root != null) { %>
+    <a href="/message/<%= encodeURIComponent(msg.value.content.root) %>">root</a>
+    <% } %>
+
+    <% if (msg.value.content.fork != null) { %>
+    <a href="/message/<%= encodeURIComponent(msg.value.content.fork) %>">fork</a>
+    <% } %>
+  </footer>
+</section>
