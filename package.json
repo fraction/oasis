@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "Christian Bundy <christianbundy@fraction.io>",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "ejs": "^2.6.2",
     "handlebars": "^4.1.2",
@@ -17,5 +17,7 @@
     "ssb-client": "^4.7.7",
     "ssb-markdown": "^5.0.1",
     "swig": "^1.4.2"
-  }
+  },
+  "description": "friendly neighborhood scuttlebutt interface",
+  "repository": "git@github.com:fraction/oasis.git"
 }
