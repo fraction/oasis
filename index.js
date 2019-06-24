@@ -13,7 +13,7 @@ const prettyMs = require('pretty-ms')
 const app = module.exports = new Koa()
 
 app.use(views(path.join(__dirname, 'views'), {
-  map: { html: 'swig' }
+  map: { html: 'ejs' }
 }))
 
 router
