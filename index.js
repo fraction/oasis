@@ -88,4 +88,8 @@ async function home (ctx) {
   await ctx.render('home', { whoami, msgs, userName })
 }
 
-if (!module.parent) app.listen(3000)
+if (!module.parent) {
+  const port = 3000
+  app.listen(port)
+  console.log(`open your browser to http://localhost:${port}/`)
+}
