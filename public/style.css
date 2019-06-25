@@ -28,7 +28,7 @@ pre {
   overflow-x: auto;
 }
 
-.message img {
+.message img, .message video {
   max-width: 100%;
 }
 
@@ -124,6 +124,11 @@ nav a {
   height: 4rem;
   margin-right: 1rem;
   border-radius: 2px;
+}
+
+.message code {
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 ul {
