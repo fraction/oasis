@@ -9,6 +9,7 @@ const ssbRef = require('ssb-ref')
 
 const cooler = require('./lib/cooler')
 const renderMsg = require('./lib/render-msg')
+const renderMd = require('./lib/render-markdown')
 
 const app = module.exports = new Koa()
 
@@ -41,6 +42,19 @@ async function author (ctx) {
   }
   var ssb = await cooler.connect()
 
+  var rawDescription = await cooler.get(
+    ssb.about.socialValue,
+    { key: 'description', dest: ctx.params.id }
+  )
+
+  const name = await cooler.get(
+    ssb.about.socialValue, { key: 'name',
+      dest: ctx.params.id
+    }
+  )
+
+  const description = renderMd(rawDescription)
+
   var msgSource = await cooler.read(
     ssb.createUserStream, {
       id: ctx.params.id,
@@ -66,7 +80,7 @@ async function author (ctx) {
 
   const msgs = await Promise.all(rawMsgs.map(renderMsg(ssb)))
 
-  await ctx.render('home', { msgs })
+  await ctx.render('author', { msgs, name, description })
 }
 
 async function home (ctx) {
