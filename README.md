@@ -16,13 +16,13 @@ oasis
 With [npm](https://npmjs.org/):
 
 ```shell
-npm -g install oasis
+npm -g install @fractin/oasis
 ```
 
 With [yarn](https://yarnpkg.com/en/):
 
 ```shell
-yarn global add oasis
+yarn global add @fraction/oasis
 ```
 
 ## See Also
