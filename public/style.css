@@ -26,7 +26,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .message pre {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .message img {
@@ -45,6 +45,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .message code {
   color: hsl(330, 75%, 50%)
+}
+
+.message pre code {
+  color: inherit;
 }
 
 @media screen {
@@ -117,4 +121,8 @@ nav a {
 
 ul {
   padding-left: 1rem;
+}
+
+a {
+  color: hsl(240, 66%, 66%);
 }

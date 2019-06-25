@@ -5,6 +5,7 @@ const path = require('path')
 const router = require('koa-router')()
 const views = require('koa-views')
 const koaStatic = require('koa-static')
+const mount = require('koa-mount')
 
 const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
@@ -12,7 +13,22 @@ const home = require('./routes/home')
 const profile = require('./routes/profile')
 const thread = require('./routes/thread')
 
+const assets = new Koa()
+assets.use(koaStatic(path.join(__dirname, 'public')))
+
+const hljs = new Koa()
+hljs.use(koaStatic(path.join(__dirname, 'node_modules', 'highlight.js', 'styles')))
+
 const app = module.exports = new Koa()
+
+app.use(mount('/static/public', assets))
+app.use(mount('/static/hljs', hljs))
+
+// app.use(koaStatic(path.join(__dirname, 'public')))
+
+app.use(views(path.join(__dirname, 'views'), {
+  map: { html: 'ejs' }
+}))
 
 router
   .get('/', home)
@@ -20,12 +36,6 @@ router
   .get('/hashtag/:id', hashtag)
   .get('/profile/', profile)
   .get('/thread/:id', thread)
-
-app.use(views(path.join(__dirname, 'views'), {
-  map: { html: 'ejs' }
-}))
-
-app.use(koaStatic(path.join(__dirname, 'public')))
 
 app.use(router.routes())
 
