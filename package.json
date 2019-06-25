@@ -14,7 +14,8 @@
     "pull-stream": "^3.6.12",
     "ssb-client": "^4.7.7",
     "ssb-markdown": "^5.0.1",
-    "ssb-uri": "^1.0.1"
+    "ssb-msgs": "^5.2.0",
+    "ssb-ref": "^2.13.9"
   },
   "bin": {
     "oasis": "./index.js"
