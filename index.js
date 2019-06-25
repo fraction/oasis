@@ -6,6 +6,7 @@ const router = require('koa-router')()
 const views = require('koa-views')
 const koaStatic = require('koa-static')
 const mount = require('koa-mount')
+const open = require('open')
 
 const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
@@ -44,6 +45,8 @@ if (!module.parent) {
     host: 'localhost',
     port: 3000
   }
+  const uri = `http://${opts.host}:${opts.port}/`
   app.listen(opts)
-  console.log(`open your browser to http://${opts.host}:${opts.port}/`)
+  console.log(`Listening on http://${uri}`)
+  open(uri)
 }

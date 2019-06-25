@@ -13,6 +13,7 @@
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
     "lodash": "^4.17.11",
+    "open": "^6.3.0",
     "pretty-ms": "^5.0.0",
     "pull-stream": "^3.6.12",
     "ssb-client": "^4.7.7",
