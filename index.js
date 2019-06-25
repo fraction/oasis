@@ -4,7 +4,7 @@ const Koa = require('koa')
 const path = require('path')
 const router = require('koa-router')()
 const views = require('koa-views')
-const static = require('koa-static')
+const koaStatic = require('koa-static')
 
 const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
@@ -25,7 +25,7 @@ app.use(views(path.join(__dirname, 'views'), {
   map: { html: 'ejs' }
 }))
 
-app.use(static(path.join(__dirname, 'public')))
+app.use(koaStatic(path.join(__dirname, 'public')))
 
 app.use(router.routes())
 
