@@ -12,6 +12,38 @@ module.exports = async function thread (ctx) {
     private: true
   })
 
+  const parents = []
+
+  const getParents = (msg) => new Promise(async (resolve, reject) => {
+    if (typeof msg.value.content === 'string') {
+      return resolve(parents)
+    }
+
+    if (typeof msg.value.content.fork === 'string') {
+      const fork = await cooler.get(ssb.get, {
+        id: msg.value.content.fork,
+        meta: true,
+        private: true
+      })
+
+      parents.push(fork)
+      resolve(getParents(fork))
+    } else if (typeof msg.value.content.root === 'string') {
+      const root = await cooler.get(ssb.get, {
+        id: msg.value.content.root,
+        meta: true,
+        private: true
+      })
+
+      parents.push(root)
+      resolve(getParents(root))
+    } else {
+      resolve(parents)
+    }
+  })
+
+  const ancestors = await getParents(rawMsg)
+
   const root = rawMsg.key
 
   var filterQuery = {
@@ -25,7 +57,7 @@ module.exports = async function thread (ctx) {
     index: 'DTA' // use asserted timestamps
   })
 
-  const rawMsgs = await new Promise((resolve, reject) =>
+  const replies = await new Promise((resolve, reject) =>
     pull(
       backlinkStream,
       pull.filter(msg => {
@@ -52,7 +84,7 @@ module.exports = async function thread (ctx) {
     )
   )
 
-  const allMsgs = [rawMsg, ...rawMsgs]
+  const allMsgs = [...ancestors, rawMsg, ...replies]
   const msgs = await Promise.all(allMsgs.map(renderMsg(ssb)))
 
   await ctx.render('home', { msgs })

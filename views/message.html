@@ -27,16 +27,7 @@
   </section>
 
   <footer>
-    <a href="/thread/<%= encodeURIComponent(msg.key) %>">link</a>
-
-    <% if (msg.value.content.root != null) { %>
-      <% if (msg.value.content.fork != null) { %>
-      <a href="/thread/<%= encodeURIComponent(msg.value.content.fork) %>">parent</a>
-      <a href="/thread/<%= encodeURIComponent(msg.value.content.root) %>">root</a>
-      <% } else {%>
-      <a href="/thread/<%= encodeURIComponent(msg.value.content.root) %>">parent</a>
-      <% } %>
-    <% } %>
+    <a href="/thread/<%= encodeURIComponent(msg.key) %>">context</a>
 
     <a href="/raw/<%= encodeURIComponent(msg.key) %>">raw</a>
   </footer>
