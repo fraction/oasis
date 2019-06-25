@@ -28,12 +28,15 @@
 
   <footer>
     <a href="/thread/<%= encodeURIComponent(msg.key) %>">link</a>
+
     <% if (msg.value.content.root != null) { %>
-    <a href="/thread/<%= encodeURIComponent(msg.value.content.root) %>">root</a>
+      <% if (msg.value.content.fork != null) { %>
+      <a href="/thread/<%= encodeURIComponent(msg.value.content.fork) %>">parent</a>
+      <a href="/thread/<%= encodeURIComponent(msg.value.content.root) %>">root</a>
+      <% } else {%>
+      <a href="/thread/<%= encodeURIComponent(msg.value.content.root) %>">parent</a>
+      <% } %>
     <% } %>
 
-    <% if (msg.value.content.fork != null) { %>
-    <a href="/thread/<%= encodeURIComponent(msg.value.content.fork) %>">fork</a>
-    <% } %>
   </footer>
 </section>

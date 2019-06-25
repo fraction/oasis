@@ -4,6 +4,7 @@ const Koa = require('koa')
 const path = require('path')
 const router = require('koa-router')()
 const views = require('koa-views')
+const static = require('koa-static')
 
 const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
@@ -13,18 +14,18 @@ const thread = require('./routes/thread')
 
 const app = module.exports = new Koa()
 
-app.use(views(path.join(__dirname, 'views'), {
-  map: { html: 'ejs' }
-}))
-
-app.use(require('koa-static')('public'))
-
 router
   .get('/', home)
   .get('/author/:id', author)
   .get('/hashtag/:id', hashtag)
   .get('/profile/', profile)
   .get('/thread/:id', thread)
+
+app.use(views(path.join(__dirname, 'views'), {
+  map: { html: 'ejs' }
+}))
+
+app.use(static(path.join(__dirname, 'public')))
 
 app.use(router.routes())
 
