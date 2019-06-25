@@ -22,6 +22,18 @@ module.exports = async function (ctx) {
     }
   )
 
+  const avatarMsg = await cooler.get(
+    ssb.about.socialValue, { key: 'image',
+      dest: ctx.params.id
+    }
+  )
+
+  const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
+    ? avatarMsg.link
+    : avatarMsg
+
+  const avatarUrl = `http://localhost:8989/blobs/get/${avatarId}`
+
   const description = renderMd(rawDescription)
 
   var msgSource = await cooler.read(
@@ -50,5 +62,5 @@ module.exports = async function (ctx) {
 
   const msgs = await Promise.all(rawMsgs.map(renderMsg(ssb)))
 
-  await ctx.render('author', { msgs, name, description })
+  await ctx.render('author', { msgs, name, description, avatarUrl })
 }

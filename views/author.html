@@ -1,8 +1,16 @@
 <%- include('partials/header.html'); %>
 
-<h1><%= name %></h1>
+<header class="profile">
+  <img class="avatar" src="<%= avatarUrl %>">
+  <h1><%= name %></h1>
+</header>
 
+<!-- HACK: this shouldn't pass through ssb-markdown at all -->
+<% if (description !== '<p>null</p>\n') { %>
+<section class="message">
 <%- description %>
+</section>
+<% } %>
 
 <%- include('feed.html', { msgs }); %>
 
