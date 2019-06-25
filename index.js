@@ -26,8 +26,6 @@ const app = module.exports = new Koa()
 app.use(mount('/static/public', assets))
 app.use(mount('/static/hljs', hljs))
 
-// app.use(koaStatic(path.join(__dirname, 'public')))
-
 app.use(views(path.join(__dirname, 'views'), {
   map: { html: 'ejs' }
 }))
@@ -42,13 +40,12 @@ router
 
 app.use(router.routes())
 
-if (!module.parent) {
-  const opts = {
-    host: 'localhost',
-    port: 3000
-  }
-  const uri = `http://${opts.host}:${opts.port}/`
-  app.listen(opts)
-  console.log(`Listening on http://${uri}`)
-  open(uri)
+const opts = {
+  host: 'localhost',
+  port: 3000
 }
+
+const uri = `http://${opts.host}:${opts.port}/`
+app.listen(opts)
+console.log(`Listening on http://${uri}`)
+open(uri)

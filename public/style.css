@@ -43,7 +43,7 @@ pre {
 }
 
 .message code {
-  color: hsl(330, 75%, 50%)
+  color: hsl(330, 66%, 50%)
 }
 
 .message pre code {
@@ -131,5 +131,6 @@ ul {
 }
 
 a {
-  color: hsl(240, 66%, 66%);
+  color: hsl(240, 66%, 50%);
+
 }
