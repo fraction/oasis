@@ -12,6 +12,7 @@ const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
 const home = require('./routes/home')
 const profile = require('./routes/profile')
+const raw = require('./routes/raw')
 const thread = require('./routes/thread')
 
 const assets = new Koa()
@@ -37,6 +38,7 @@ router
   .get('/hashtag/:id', hashtag)
   .get('/profile/', profile)
   .get('/thread/:id', thread)
+  .get('/raw/:id', raw)
 
 app.use(router.routes())
 
