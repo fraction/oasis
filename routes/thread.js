@@ -12,7 +12,7 @@ module.exports = async function thread (ctx) {
     private: true
   })
 
-  const root = rawMsg.key // lodash.get(rawMsg, 'value.content.root', rawMsg.key)
+  const root = rawMsg.key
 
   var filterQuery = {
     $filter: {
@@ -28,8 +28,22 @@ module.exports = async function thread (ctx) {
   const rawMsgs = await new Promise((resolve, reject) =>
     pull(
       backlinkStream,
-      pull.filter(msg =>
-        lodash.get(msg, 'value.content.type') === 'post'
+      pull.filter(msg => {
+        const isPost = lodash.get(msg, 'value.content.type') === 'post'
+        if (isPost === false) {
+          return false
+        }
+
+        const root = lodash.get(msg, 'value.content.root')
+        const fork = lodash.get(msg, 'value.content.fork')
+
+        if (root !== rawMsg.key && fork !== rawMsg.key) {
+          // mention
+          return false
+        }
+
+        return true
+      }
       ),
       pull.collect((err, msgs) => {
         if (err) return reject(err)
