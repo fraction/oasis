@@ -16,7 +16,7 @@ oasis
 With [npm](https://npmjs.org/):
 
 ```shell
-npm -g install @fractin/oasis
+npm -g install @fraction/oasis
 ```
 
 With [yarn](https://yarnpkg.com/en/):
