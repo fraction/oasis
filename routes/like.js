@@ -3,7 +3,6 @@ const cooler = require('../lib/cooler')
 module.exports = async function like (ctx) {
   const ssb = await cooler.connect()
 
-  console.log(ctx.request.body.voteValue)
   await cooler.get(ssb.publish, {
     type: 'vote',
     vote: {
