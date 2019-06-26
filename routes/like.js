@@ -2,11 +2,13 @@ const cooler = require('../lib/cooler')
 
 module.exports = async function like (ctx) {
   const ssb = await cooler.connect()
+
+  console.log(ctx.request.body.voteValue)
   await cooler.get(ssb.publish, {
     type: 'vote',
     vote: {
       link: ctx.params.id,
-      value: 1
+      value: Number(ctx.request.body.voteValue)
     }
   })
 

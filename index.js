@@ -7,6 +7,7 @@ const views = require('koa-views')
 const koaStatic = require('koa-static')
 const mount = require('koa-mount')
 const open = require('open')
+const koaBody = require('koa-body')
 
 const author = require('./routes/author')
 const hashtag = require('./routes/hashtag')
@@ -38,7 +39,7 @@ router
   .get('/profile/', profile)
   .get('/thread/:id', thread)
   .get('/raw/:id', raw)
-  .post('/like/:id', like)
+  .post('/like/:id', koaBody(), like)
 
 app.use(router.routes())
 

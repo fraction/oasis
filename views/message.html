@@ -29,13 +29,13 @@
   <footer>
     <% if (msg.value.meta.voted === false) { %>
       <form action="/like/<%= encodeURIComponent(msg.key) %>" method="post">
-        <button name="button" type="submit" value="1">
+        <button name="voteValue" name="button" type="submit" value="1">
           ❤&nbsp;<%= msg.value.meta.votes.length %>
         </button>
       </form>
       <% } else { %>
       <form action="/like/<%= encodeURIComponent(msg.key) %>" method="post">
-        <button class="liked" name="button" type="submit" value="0">
+        <button name="voteValue" class="liked" name="button" type="submit" value="0">
           ❤&nbsp;<%= msg.value.meta.votes.length %>
         </button>
       </form>

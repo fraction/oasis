@@ -8,6 +8,7 @@
     "ejs": "^2.6.2",
     "highlight.js": "^9.15.8",
     "koa": "^2.7.0",
+    "koa-body": "^4.1.0",
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
