@@ -86,11 +86,30 @@ pre {
   color: black;
   text-decoration: none;
 }
-.message > footer > a {
-  color: #888;
+.message > footer > * {
   margin-right: 1rem;
   text-decoration: none;
+}
+
+.message > footer > a, .message > footer > form > button {
+  color: #888;
   font-weight: bold;
+}
+
+.message > footer > form > button.liked {
+  color: hsl(330, 66%, 50%)
+}
+
+.message > footer > form {
+  display: inline-block;
+}
+
+.message > footer > form > button{
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
 }
 
 nav {
@@ -137,5 +156,4 @@ ul {
 
 a {
   color: hsl(240, 66%, 50%);
-
 }

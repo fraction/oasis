@@ -14,6 +14,7 @@ const home = require('./routes/home')
 const profile = require('./routes/profile')
 const raw = require('./routes/raw')
 const thread = require('./routes/thread')
+const like = require('./routes/like')
 
 const assets = new Koa()
 assets.use(koaStatic(path.join(__dirname, 'public')))
@@ -37,6 +38,7 @@ router
   .get('/profile/', profile)
   .get('/thread/:id', thread)
   .get('/raw/:id', raw)
+  .post('/like/:id', like)
 
 app.use(router.routes())
 
