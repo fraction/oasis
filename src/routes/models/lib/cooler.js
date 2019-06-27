@@ -10,6 +10,9 @@ module.exports = {
       })
     })
   },
+  /**
+   * @param {function} method
+   */
   get: function (method, ...opts) {
     return new Promise((resolve, reject) => {
       method(...opts, (err, val) => {

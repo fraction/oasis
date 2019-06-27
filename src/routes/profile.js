@@ -3,7 +3,7 @@ const ssbRef = require('ssb-ref')
 const about = require('./models/about')
 const post = require('./models/post')
 const meta = require('./models/meta')
-const views = require('./views')
+const authorView = require('./views/author')
 
 module.exports = async function (ctx) {
   const whoami = await meta.whoami()
@@ -21,7 +21,7 @@ module.exports = async function (ctx) {
 
   const avatarUrl = `http://localhost:8989/blobs/get/${image}`
 
-  ctx.body = await views('author', {
+  ctx.body = authorView({
     msgs,
     name,
     description,

@@ -2,7 +2,7 @@ const ssbRef = require('ssb-ref')
 
 const about = require('./models/about')
 const post = require('./models/post')
-const views = require('./views')
+const authorView = require('./views/author')
 
 module.exports = async function (ctx) {
   const feedId = ctx.params.id
@@ -19,7 +19,7 @@ module.exports = async function (ctx) {
 
   const avatarUrl = `http://localhost:8989/blobs/get/${image}`
 
-  ctx.body = await views('author', {
+  ctx.body = authorView({
     msgs,
     name,
     description,
