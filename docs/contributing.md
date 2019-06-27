@@ -1,4 +1,4 @@
-# src
+# Contributing
 
 Hey, welcome! This project is still very experimental so I won't make any
 promises about the future architechture, but today it's pretty simple:
