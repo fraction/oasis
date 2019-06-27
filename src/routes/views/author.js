@@ -8,7 +8,7 @@ const {
   section
 } = require('hyperaxe')
 
-module.exports = ({ avatarUrl, name, description, msgs }) => {
+module.exports = ({ avatarUrl, name, description, messages }) => {
   const authorHeader =
     header({ class: 'profile' },
       img({ class: 'avatar', src: avatarUrl }),
@@ -23,7 +23,7 @@ module.exports = ({ avatarUrl, name, description, msgs }) => {
   return template(
     authorHeader,
     authorDescription,
-    msgs.map(msg =>
+    messages.map(msg =>
       post({ msg })
     )
   )

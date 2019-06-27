@@ -18,7 +18,7 @@
     "pull-stream": "^3.6.12",
     "ssb-client": "^4.7.7",
     "ssb-markdown": "^5.0.1",
-    "ssb-msgs": "^5.2.0",
+    "ssb-messages": "^5.2.0",
     "ssb-ref": "^2.13.9"
   },
   "bin": {
@@ -27,11 +27,12 @@
   "description": "friendly neighborhood scuttlebutt interface",
   "repository": "git@github.com:fraction/oasis.git",
   "devDependencies": {
+    "cspell": "^4.0.23",
     "dependency-check": "^3.3.0",
     "standard": "^12.0.1"
   },
   "scripts": {
     "start": "node index.js",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js"
+    "test": "test/script.sh"
   }
 }

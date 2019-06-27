@@ -19,7 +19,7 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
 
   const whoami = await cooler.get(ssb.whoami)
 
-  const backlinkStream = await cooler.read(ssb.backlinks.read, {
+  const referenceStream = await cooler.read(ssb.backlinks.read, {
     query: [ filterQuery ],
     index: 'DTA', // use asserted timestamps
     private: true,
@@ -28,7 +28,7 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
 
   const rawVotes = await new Promise((resolve, reject) => {
     pull(
-      backlinkStream,
+      referenceStream,
       pull.filter(ref =>
         typeof ref.value.content !== 'string' &&
         ref.value.content.type === 'vote' &&
@@ -37,9 +37,9 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
         ref.value.content.vote.value >= 0 &&
         ref.value.content.vote.link === msg.key
       ),
-      pull.collect((err, msgs) => {
+      pull.collect((err, messages) => {
         if (err) return reject(err)
-        resolve(msgs)
+        resolve(messages)
       })
     )
   })
@@ -109,9 +109,9 @@ module.exports = {
           msg.value.content.type === 'post'
         ),
         pull.take(32),
-        pull.collect((err, msgs) => {
+        pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, msgs))
+          resolve(transform(ssb, messages))
         })
       )
     })
@@ -140,9 +140,9 @@ module.exports = {
           msg.value.content.type === 'post'
         ),
         pull.take(32),
-        pull.collect((err, msgs) => {
+        pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, msgs))
+          resolve(transform(ssb, messages))
         })
       )
     })
@@ -164,9 +164,9 @@ module.exports = {
     const messages = await new Promise((resolve, reject) => {
       pull(
         source,
-        pull.collect((err, msgs) => {
+        pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, msgs))
+          resolve(transform(ssb, messages))
         })
       )
     })
@@ -218,14 +218,14 @@ module.exports = {
       }
     }
 
-    const backlinkStream = await cooler.read(ssb.backlinks.read, {
+    const referenceStream = await cooler.read(ssb.backlinks.read, {
       query: [filterQuery],
       index: 'DTA' // use asserted timestamps
     })
 
     const replies = await new Promise((resolve, reject) =>
       pull(
-        backlinkStream,
+        referenceStream,
         pull.filter(msg => {
           const isPost = lodash.get(msg, 'value.content.type') === 'post'
           if (isPost === false) {
@@ -243,9 +243,9 @@ module.exports = {
           return true
         }
         ),
-        pull.collect((err, msgs) => {
+        pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(msgs)
+          resolve(messages)
         })
       )
     )

@@ -15,12 +15,12 @@ module.exports = async function (ctx) {
   const name = await about.name(feedId)
   const image = await about.image(feedId)
 
-  const msgs = await post.fromFeed(feedId)
+  const messages = await post.fromFeed(feedId)
 
   const avatarUrl = `http://localhost:8989/blobs/get/${image}`
 
   ctx.body = authorView({
-    msgs,
+    messages,
     name,
     description,
     avatarUrl

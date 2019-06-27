@@ -1,9 +1,9 @@
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = ({ msgs }) => {
+module.exports = ({ messages }) => {
   return template(
-    msgs.map(msg =>
+    messages.map(msg =>
       post({ msg })
     )
   )

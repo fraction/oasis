@@ -2,7 +2,7 @@ const listView = require('./views/list')
 const post = require('./models/post')
 
 module.exports = async function home (ctx) {
-  const msgs = await post.latest()
+  const messages = await post.latest()
 
-  ctx.body = listView({ msgs })
+  ctx.body = listView({ messages })
 }

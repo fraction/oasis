@@ -1,11 +1,11 @@
 const md = require('ssb-markdown')
-const ssbMsgs = require('ssb-msgs')
+const ssbMessages = require('ssb-messages')
 const ssbRef = require('ssb-ref')
 
 const toUrl = (mentions = []) => {
   var mentionNames = {}
 
-  ssbMsgs.links(mentions, 'feed').forEach(function (link) {
+  ssbMessages.links(mentions, 'feed').forEach(function (link) {
     if (link.name && typeof link.name === 'string') {
       var name = (link.name.charAt(0) === '@') ? link.name : '@' + link.name
       mentionNames[name] = link.link

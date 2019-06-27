@@ -11,14 +11,12 @@ const {
 
 var doctypeString = '<!DOCTYPE html>'
 
-const desertIslandEmoji = '\ud83c' + '\udfdd' + '\ufe0f'
-
 module.exports = (...elements) => {
   const nodes = html(
     head(
-      title(`${desertIslandEmoji} Oasis`),
+      title(`🏝️  Oasis`),
       link({ rel: 'stylesheet', href: '/static/assets/style.css' }),
-      link({ rel: 'stylesheet', href: '/static/hljs/github.css' })
+      link({ rel: 'stylesheet', href: '/static/highlight.js/github.css' })
     ),
     body(
       nav(

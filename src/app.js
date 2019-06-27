@@ -18,13 +18,13 @@ module.exports = (options) => {
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
 
-  const hljs = new Koa()
-  hljs.use(koaStatic(path.join(__dirname, '..', 'node_modules', 'highlight.js', 'styles')))
+  const highlightJs = new Koa()
+  highlightJs.use(koaStatic(path.join(__dirname, '..', 'node_modules', 'highlight.js', 'styles')))
 
   const app = module.exports = new Koa()
 
   app.use(mount('/static/assets', assets))
-  app.use(mount('/static/hljs', hljs))
+  app.use(mount('/static/highlight.js', highlightJs))
 
   router
     .get('/', home)
