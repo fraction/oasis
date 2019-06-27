@@ -4,5 +4,5 @@ const defaultOptions = {
   meta: true
 }
 
-module.exports = (customOptions) =>
-  Object.assign({}, customOptions, defaultOptions)
+module.exports = (...customOptions) =>
+  Object.assign({}, defaultOptions, ...customOptions)
