@@ -1,11 +1,9 @@
-const ssbRef = require('ssb-ref')
+const md = require('ssb-markdown')
 const ssbMsgs = require('ssb-msgs')
-const lodash = require('lodash')
+const ssbRef = require('ssb-ref')
 
-module.exports = (msg) => {
+const toUrl = (mentions = []) => {
   var mentionNames = {}
-
-  const mentions = lodash.get(msg, 'value.content.mentions', [])
 
   ssbMsgs.links(mentions, 'feed').forEach(function (link) {
     if (link.name && typeof link.name === 'string') {
@@ -32,3 +30,8 @@ module.exports = (msg) => {
     return ''
   }
 }
+
+module.exports = (input, mentions) =>
+  md.block(input, {
+    toUrl: toUrl(mentions)
+  })
