@@ -1,5 +1,5 @@
 const md = require('ssb-markdown')
-const ssbMessages = require('ssb-messages')
+const ssbMessages = require('ssb-msgs')
 const ssbRef = require('ssb-ref')
 
 const toUrl = (mentions = []) => {

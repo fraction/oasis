@@ -18,7 +18,7 @@
     "pull-stream": "^3.6.12",
     "ssb-client": "^4.7.7",
     "ssb-markdown": "^5.0.1",
-    "ssb-messages": "^5.2.0",
+    "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9"
   },
   "bin": {

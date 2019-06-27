@@ -7,4 +7,4 @@ IFS=$'\n\t'
 
 standard
 dependency-check ./package.json --unused --no-dev --ignore-module highlight.js
-cspell "src/**/*.js"
+cspell --no-summary "src/**/*.js"
