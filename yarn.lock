@@ -3215,9 +3215,9 @@ ssb-markdown@^5.0.1:
     markdown-it-hashtag "^0.4.0"
     node-emoji "^1.10.0"
 
-ssb-messages@^5.2.0:
+ssb-msgs@^5.2.0:
   version "5.2.0"
-  resolved "https://registry.yarnpkg.com/ssb-messages/-/ssb-messages-5.2.0.tgz#c681da5cd70c574c922dca4f03c521538135c243"
+  resolved "https://registry.yarnpkg.com/ssb-msgs/-/ssb-msgs-5.2.0.tgz#c681da5cd70c574c922dca4f03c521538135c243"
   integrity sha1-xoHaXNcMV0ySLcpPA8UhU4E1wkM=
   dependencies:
     ssb-ref "^2.0.0"
