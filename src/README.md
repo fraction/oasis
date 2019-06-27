@@ -41,7 +41,7 @@ require('./wat') // same as `require('./wat/index')
 ```
 
 **Note:** I want to make *very* clear that this is an experiment, not a claim
-that this is Objectively Better. It's also important to note that the important
+that this is Objectively Better. It's also important to note that the essential
 bit here is the [dependency graph][dep-graph], not the directory tree. I'm using
 the directory tree as a proxy for the dependency graph because it's simple, but
 the dependency graph of the following directory trees are identical:
