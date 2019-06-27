@@ -32,7 +32,7 @@ require('./lib/configurator')
 require('./tools/quark-smasher')
 ```
 
-### Anti-pattern
+#### Anti-pattern
 
 ```javascript
 require('../../../great-grandparent-skyler')
