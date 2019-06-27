@@ -18,7 +18,7 @@ module.exports = ({ msg }) => {
     likeForm: `/like/${encodedKey}`,
     context: `/thread/${encodedKey}#${encodedKey}`,
     avatar: msg.value.meta.author.avatar.url,
-    raw: `raw/${encodedKey}`
+    raw: `/raw/${encodedKey}`
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
