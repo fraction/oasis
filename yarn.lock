@@ -3203,10 +3203,9 @@ ssb-keys@^7.0.13, ssb-keys@^7.1.4:
     mkdirp "~0.5.0"
     private-box "^0.3.0"
 
-ssb-markdown@^5.0.1:
+"ssb-markdown@github:ssbc/ssb-markdown#no-target-blank":
   version "5.0.1"
-  resolved "https://registry.yarnpkg.com/ssb-markdown/-/ssb-markdown-5.0.1.tgz#136ffd70b883cfe5a072e000a608c6ace881b300"
-  integrity sha512-qN7p4GJZm2kHqqzdP6p/yf9lVjfjllqMkwpAybxpEljxc+ybkIWJ35VR1ZRwGe5MUWC3RT7StMXxaEdmO+R/LA==
+  resolved "https://codeload.github.com/ssbc/ssb-markdown/tar.gz/3427018024963724205cd8989ac7a74fc09cb77b"
   dependencies:
     emoji-regex "^8.0.0"
     highlight.js "^9.15.8"
