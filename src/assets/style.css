@@ -67,8 +67,9 @@ pre {
   margin: 1rem 0;
   border-radius: 2px;
   border: 1px solid #ddd;
-
+  word-wrap: break-word;
 }
+
 .message > header {
   height: 1.5rem;
   display: flex;

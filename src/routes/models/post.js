@@ -1,12 +1,19 @@
 const lodash = require('lodash')
 const pull = require('pull-stream')
+const prettyMs = require('pretty-ms')
+const debug = require('debug')('oasis')
 
 const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
-const prettyMs = require('pretty-ms')
 
 const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
+  debug('transforming %s', msg.key)
+
+  if (msg == null) {
+    return
+  }
+
   lodash.set(msg, 'value.meta.md.block', () =>
     markdown(msg.value.content.text, msg.value.content.mentions)
   )
@@ -180,50 +187,47 @@ module.exports = {
 
     const parents = []
 
-    const getParents = (msg) => new Promise(async (resolve, reject) => {
+    const getRootAncestor = (msg) => new Promise(async (resolve, reject) => {
       if (typeof msg.value.content === 'string') {
+        // Private message we can't decrypt, stop looking for parents.
         return resolve(parents)
       }
 
       if (typeof msg.value.content.fork === 'string') {
+        // It's a message reply, get the parent!
         const fork = await cooler.get(ssb.get, {
           id: msg.value.content.fork,
           meta: true,
           private: true
         })
 
-        parents.push(fork)
-        resolve(getParents(fork))
+        resolve(getRootAncestor(fork))
       } else if (typeof msg.value.content.root === 'string') {
+        // It's a thread reply, get the parent!
         const root = await cooler.get(ssb.get, {
           id: msg.value.content.root,
           meta: true,
           private: true
         })
 
-        parents.push(root)
-        resolve(getParents(root))
+        resolve(getRootAncestor(root))
       } else {
-        resolve(parents)
+        resolve(msg)
       }
     })
 
-    const ancestors = await getParents(rawMsg)
-
-    const root = rawMsg.key
-
-    var filterQuery = {
-      $filter: {
-        dest: root
+    const getReplies = (key) => new Promise(async (resolve, reject) => {
+      var filterQuery = {
+        $filter: {
+          dest: key
+        }
       }
-    }
 
-    const referenceStream = await cooler.read(ssb.backlinks.read, {
-      query: [filterQuery],
-      index: 'DTA' // use asserted timestamps
-    })
+      const referenceStream = await cooler.read(ssb.backlinks.read, {
+        query: [filterQuery],
+        index: 'DTA' // use asserted timestamps
+      })
 
-    const replies = await new Promise((resolve, reject) =>
       pull(
         referenceStream,
         pull.filter(msg => {
@@ -235,22 +239,62 @@ module.exports = {
           const root = lodash.get(msg, 'value.content.root')
           const fork = lodash.get(msg, 'value.content.fork')
 
-          if (root !== rawMsg.key && fork !== rawMsg.key) {
+          if (root !== key && fork !== key) {
             // mention
             return false
           }
 
+          if (root === key && fork != null) {
+            // message reply, not a thread reply to this message
+            return false
+          }
+
           return true
-        }
-        ),
+        }),
         pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(messages)
+          resolve(messages || undefined)
         })
       )
-    )
+    })
 
-    const allMessages = [...ancestors, rawMsg, ...replies]
-    return transform(ssb, allMessages)
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+    function flattenDeep (arr1) {
+      return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), [])
+    }
+
+    const getDeepReplies = (key) => new Promise(async (resolve, reject) => {
+      const oneDeeper = async (replyKey, depth) => {
+        const replies = await getReplies(replyKey)
+        debug('replies', replies.map(m => m.key))
+
+        debug('found %s replies for %s', replies.length, replyKey)
+
+        if (replies.length === 0) {
+          return replies
+        } else {
+          return Promise.all(replies.map(async (reply) => {
+            const deeperReplies = await oneDeeper(reply.key, depth + 1)
+            lodash.set(reply, 'value.meta.thread.depth', depth)
+            return [ reply, deeperReplies ]
+          }))
+        }
+      }
+
+      const nestedReplies = [ ...await oneDeeper(key, 1) ]
+      const deepReplies = flattenDeep(nestedReplies)
+
+      resolve(deepReplies)
+    })
+
+    const rootAncestor = await getRootAncestor(rawMsg)
+    const deepReplies = await getDeepReplies(rootAncestor.key)
+
+    debug('deep replies: %O', deepReplies)
+
+    const allMessages = [rootAncestor, ...deepReplies]
+
+    const transformed = await transform(ssb, allMessages)
+    return transformed
   }
 }
