@@ -13,6 +13,9 @@ src: you are here!
         └── components: shared components that are reused across pages
 ```
 
+I'd really appreciate any issues or pull requests on GitHub. Please let me know
+if there's anything I can do to help support your work on this project.
+
 ## Experiments
 
 ### Always forward, never back
