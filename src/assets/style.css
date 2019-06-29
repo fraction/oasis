@@ -61,6 +61,7 @@ pre {
     background: hsl(240, 100%, 99%);
   }
   body {
+    width: 100%;
     max-width: 40rem;
     margin: 1.5rem;
   }
