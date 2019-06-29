@@ -15,8 +15,8 @@ module.exports = (...elements) => {
   const nodes = html(
     head(
       title(`🏝️  Oasis`),
-      link({ rel: 'stylesheet', href: '/static/assets/style.css' }),
-      link({ rel: 'stylesheet', href: '/static/highlight.js/github.css' })
+      link({ rel: 'stylesheet', href: '/assets/style.css' }),
+      link({ rel: 'stylesheet', href: '/highlight/github.css' })
     ),
     body(
       nav(

@@ -14,26 +14,24 @@ const raw = require('./routes/raw')
 const thread = require('./routes/thread')
 const like = require('./routes/like')
 const status = require('./routes/status')
+const highlight = require('./routes/highlight')
 
 module.exports = (config) => {
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
 
-  const highlightJs = new Koa()
-  highlightJs.use(koaStatic(path.join(__dirname, '..', 'node_modules', 'highlight.js', 'styles')))
-
   const app = module.exports = new Koa()
 
-  app.use(mount('/static/assets', assets))
-  app.use(mount('/static/highlight.js', highlightJs))
+  app.use(mount('/assets', assets))
 
   router
     .get('/', home)
     .get('/author/:id', author)
-    .get('/status/', status)
     .get('/hashtag/:id', hashtag)
+    .get('/highlight/:id', highlight)
     .get('/profile/', profile)
     .get('/raw/:id', raw)
+    .get('/status/', status)
     .get('/thread/:id', thread)
     .post('/like/:id', koaBody(), like)
 
