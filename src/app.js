@@ -15,7 +15,7 @@ const thread = require('./routes/thread')
 const like = require('./routes/like')
 const status = require('./routes/status')
 
-module.exports = (options) => {
+module.exports = (config) => {
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
 
@@ -39,15 +39,11 @@ module.exports = (options) => {
 
   app.use(router.routes())
 
-  const defaultConfig = {
-    host: 'localhost',
-    port: 3000
-  }
-
-  const config = Object.assign({}, defaultConfig, options)
-
   const uri = `http://${config.host}:${config.port}/`
-  app.listen(config)
+  app.listen(config.port)
   console.log(`Listening on http://${uri}`)
-  open(uri)
+
+  if (config.open === true) {
+    open(uri)
+  }
 }

@@ -30,7 +30,8 @@
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
     "ssb-replicate": "^1.3.0",
-    "ssb-ws": "^6.2.3"
+    "ssb-ws": "^6.2.3",
+    "yargs": "^13.2.4"
   },
   "bin": {
     "oasis": "./index.js"
