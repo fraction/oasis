@@ -1,6 +1,7 @@
 const {
   a,
   abbr,
+  div,
   header,
   img,
   section,
@@ -67,6 +68,18 @@ module.exports = ({ msg }) => {
       )
     ),
     article({ class: 'content', innerHTML: markdownContent }),
+
+    // HACK: centered-footer
+    //
+    // Here we create an empty div with an anchor tag that can be linked to.
+    // In our CSS we ensure that this gets centered on the screen when we
+    // link to this anchor tag.
+    //
+    // This is used for redirecting users after they like a post, when we
+    // want the like button that they just clicked to remain close-ish to
+    // where it was before they clicked the button.
+    div({ id: `centered-footer-${encoded.key}`, class: 'centered-footer' }),
+
     footer(
       form({ action: url.likeForm, method: 'post' },
         button({

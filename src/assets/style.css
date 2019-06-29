@@ -87,6 +87,32 @@ pre {
   color: black;
   text-decoration: none;
 }
+
+/*
+ * HACK: centered-footer
+ *
+ * When someone likes a message we want to submit the form and then redirect
+ * them back to the original page. Unfortunately when you link to anchor tags
+ * that scrolls the browser so that they're at the *top* of the page, not the
+ * center of the page. In our view we have an empty div with an appropriate
+ * anchor tag, so here we use CSS to center it on the screen.
+ *
+ * The code below creates padding-top that takes up 50% of the height of the
+ * viewport and then gets rid of it with negative margin. This has no effect
+ * on the display of the item, but means that when we link to the anchor tag
+ * it centers this empty element vertically on the screen.
+ *
+ * We also use `pointer-events: none` to ensure that this invisible div doesn't
+ * capture cursor events (clicks, drags, etc) on surrounding elements, because
+ * otherwise we could have a problem where someone clicks above the invisible
+ * div but the browser things they're clicking the gigantic amount of padding.
+ */
+.message > .centered-footer {
+  padding-top: 50vh;
+  margin-top: -50vh;
+  pointer-events: none;
+}
+
 .message > footer > * {
   margin-right: 1rem;
   text-decoration: none;

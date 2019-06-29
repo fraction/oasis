@@ -7,6 +7,6 @@ module.exports = async function like (ctx) {
 
   await vote.publish(msgId, value)
 
-  referer.hash = encodeURIComponent(ctx.params.id)
+  referer.hash = `centered-footer-${encodeURIComponent(ctx.params.id)}`
   ctx.redirect(referer)
 }
