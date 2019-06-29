@@ -166,3 +166,8 @@ ul, ol {
 a {
   color: hsl(240, 66%, 50%);
 }
+
+progress {
+  display: block;
+  width: 100%;
+}

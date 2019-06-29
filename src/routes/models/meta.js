@@ -12,5 +12,9 @@ module.exports = {
       meta: true,
       private: true
     })
+  },
+  status: async () => {
+    const ssb = await cooler.connect()
+    return cooler.get(ssb.status)
   }
 }

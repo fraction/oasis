@@ -13,6 +13,7 @@ const profile = require('./routes/profile')
 const raw = require('./routes/raw')
 const thread = require('./routes/thread')
 const like = require('./routes/like')
+const status = require('./routes/status')
 
 module.exports = (options) => {
   const assets = new Koa()
@@ -29,10 +30,11 @@ module.exports = (options) => {
   router
     .get('/', home)
     .get('/author/:id', author)
+    .get('/status/', status)
     .get('/hashtag/:id', hashtag)
     .get('/profile/', profile)
-    .get('/thread/:id', thread)
     .get('/raw/:id', raw)
+    .get('/thread/:id', thread)
     .post('/like/:id', koaBody(), like)
 
   app.use(router.routes())
