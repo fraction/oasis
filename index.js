@@ -4,6 +4,7 @@ const yargs = require('yargs')
 const app = require('./src/app')
 
 const config = yargs
+  .env('OASIS')
   .usage('Usage: $0 [options]')
   .options('open', {
     describe: 'automatically open app in web browser',
