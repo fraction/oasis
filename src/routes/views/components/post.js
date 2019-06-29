@@ -31,11 +31,12 @@ module.exports = ({ msg }) => {
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
+  const isThreadTarget = Boolean(lodash.get(msg, 'value.meta.thread.target', false))
 
   const name = msg.value.meta.author.name
   const timeAgo = msg.value.meta.timestamp.received.since
 
-  const depth = lodash.get(msg, 'value.meta.thread.depth')
+  const depth = lodash.get(msg, 'value.meta.thread.depth', 0)
 
   const markdownContent = msg.value.meta.md.block()
 
@@ -49,10 +50,20 @@ module.exports = ({ msg }) => {
     ? a({ href: url.parent }, 'parent')
     : null
 
+  const messageClasses = ['message']
+
+  if (isPrivate) {
+    messageClasses.push('private')
+  }
+
+  if (isThreadTarget) {
+    messageClasses.push('thread-target')
+  }
+
   const fragment =
     section({
       id: msg.key,
-      class: 'message',
+      class: messageClasses.join(' '),
       style: `margin-left: ${depth * 1.5}rem`
     },
     header(

@@ -293,7 +293,11 @@ module.exports = {
 
     debug('deep replies: %O', deepReplies)
 
-    const allMessages = [rootAncestor, ...deepReplies]
+    const allMessages = [rootAncestor, ...deepReplies].map(message => {
+      const isThreadTarget = message.key === msgId
+      lodash.set(message, 'value.meta.thread.target', isThreadTarget)
+      return message
+    })
 
     const transformed = await transform(ssb, allMessages)
     return transformed

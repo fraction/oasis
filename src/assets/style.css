@@ -28,6 +28,11 @@ pre {
   overflow-x: auto;
 }
 
+.message.thread-target {
+  border-color: hsl(240, 66%, 75%);
+  box-shadow: 0 0 0 .17rem hsl(240, 66%, 92%);
+}
+
 .message img, .message video {
   max-width: 100%;
 }
