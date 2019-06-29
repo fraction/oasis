@@ -3610,9 +3610,9 @@ npm-bundled@^1.0.1:
   integrity sha512-8/JCaftHwbd//k6y2rEWp6k1wxVfpFzB6t1p825+cUb7Ym2XQfhwIC5KwhrvzZRJu+LtDE585zVaS32+CGtf0g==
 
 npm-packlist@^1.1.6:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.4.2.tgz#a9d63153d4fb0547e6d4342e4102ba6c3bd2b2c7"
-  integrity sha512-pyJclkNoBBckB6K/XPcMp8fP60MaqSZBPQVsNY7Yyc9VP1TUnPMYwck5YaBejf0L7xYr8f4l16+IENeZ0by+yw==
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.4.3.tgz#44baf075a36ec9217b307eb77a3f4eb3db0ec1ff"
+  integrity sha512-YABl09v5EoSw3uea9/gUfmqPUSbhhv7Qht8f7VKQWzTEEeUr5q+9w3jOvjIZ31v8qmR4UrkwpPvIk43MDevvsg==
   dependencies:
     ignore-walk "^3.0.1"
     npm-bundled "^1.0.1"
@@ -5101,9 +5101,9 @@ ssb-keys@^7.0.13, ssb-keys@^7.0.14, ssb-keys@^7.1.3, ssb-keys@^7.1.4:
     mkdirp "~0.5.0"
     private-box "^0.3.0"
 
-"ssb-markdown@github:ssbc/ssb-markdown#no-target-blank":
+"ssb-markdown@github:ssbc/ssb-markdown#backcompat":
   version "5.0.1"
-  resolved "https://codeload.github.com/ssbc/ssb-markdown/tar.gz/3427018024963724205cd8989ac7a74fc09cb77b"
+  resolved "https://codeload.github.com/ssbc/ssb-markdown/tar.gz/9b9fbafa447ca108009b43fb8260b098f9408918"
   dependencies:
     emoji-regex "^8.0.0"
     highlight.js "^9.15.8"

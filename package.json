@@ -25,7 +25,7 @@
     "ssb-config": "^3.3.1",
     "ssb-db": "^19.3.0",
     "ssb-gossip": "^1.1.0",
-    "ssb-markdown": "github:ssbc/ssb-markdown#no-target-blank",
+    "ssb-markdown": "github:ssbc/ssb-markdown#backcompat",
     "ssb-master": "^1.0.3",
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
