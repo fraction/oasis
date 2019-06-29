@@ -244,8 +244,9 @@ module.exports = {
             return false
           }
 
-          if (root === key && fork != null) {
-            // message reply, not a thread reply to this message
+          if (fork === key) {
+            // not a reply to this post
+            // it's a reply *to a reply* of this post
             return false
           }
 
