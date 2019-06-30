@@ -74,7 +74,7 @@ module.exports = ({ msg }) => {
         span({ class: 'author' },
           a({ href: url.author }, name)
         ),
-        span({ class: 'timestamp' }, ` (${timeAgo})`),
+        span({ class: 'timestamp' }, ` ${timeAgo} ago`),
         isPrivate ? abbr({ title: 'Private' }, '🔒') : null
       )
     ),
