@@ -21,6 +21,11 @@ const config = yargs
     default: 3000,
     type: 'number'
   })
+  .options('debug', {
+    describe: 'console debug output',
+    default: false,
+    type: 'boolean'
+  })
   .argv
 
 app(config)

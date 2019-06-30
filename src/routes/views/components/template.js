@@ -5,7 +5,7 @@ const {
   html,
   link,
   nav,
-  section,
+  main,
   title
 } = require('hyperaxe')
 
@@ -27,7 +27,7 @@ module.exports = (...elements) => {
           a({ href: 'https://github.com/fraction/oasis' }, 'source'),
           a({ href: 'https://github.com/fraction/oasis/issues/new' }, 'help')
         ),
-        section({ id: 'content' }, ...elements)
+        main({ id: 'content' }, ...elements)
       )
     )
 

@@ -47,7 +47,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "DEBUG=oasis nodemon index.js",
+    "dev": "nodemon index.js --debug",
     "test": "test/script.sh",
     "preversion": "test/script.sh"
   }
