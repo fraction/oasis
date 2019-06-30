@@ -1,8 +1,8 @@
 const meta = require('./models/meta')
 const statusView = require('./views/status')
 
-module.exports = async function hashtag (ctx) {
+module.exports = async function () {
   const status = await meta.status()
 
-  ctx.body = statusView({ status })
+  return statusView({ status })
 }

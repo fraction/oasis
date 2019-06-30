@@ -1,10 +1,8 @@
 const post = require('./models/post')
 const listView = require('./views/list')
 
-module.exports = async function hashtag (ctx) {
-  const hashtag = ctx.params.id
+module.exports = async function hashtag (channel) {
+  const messages = await post.fromHashtag(channel)
 
-  const messages = await post.fromHashtag(hashtag)
-
-  ctx.body = listView({ messages })
+  return listView({ messages })
 }
