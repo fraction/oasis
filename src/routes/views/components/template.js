@@ -4,6 +4,7 @@ const {
   head,
   html,
   link,
+  meta,
   nav,
   main,
   title
@@ -11,13 +12,20 @@ const {
 
 var doctypeString = '<!DOCTYPE html>'
 
+const toAttributes = (obj) =>
+  Object.entries(obj).map(entry =>
+    `${entry[0]}=${entry[1]}`
+  ).join(', ')
+
 module.exports = (...elements) => {
   const nodes =
     html({ lang: 'en' },
       head(
         title(`🏝️  Oasis`),
         link({ rel: 'stylesheet', href: '/assets/style.css' }),
-        link({ rel: 'stylesheet', href: '/highlight/github.css' })
+        link({ rel: 'stylesheet', href: '/highlight/github.css' }),
+        meta({ name: 'description', content: 'friendly neighborhood scuttlebutt interface' }),
+        meta({ name: 'viewport', content: toAttributes({ width: 'device-width', 'initial-scale': 1 }) })
       ),
       body(
         nav(
