@@ -11,18 +11,18 @@ const config = yargs
     default: true,
     type: 'boolean'
   })
-  .options('host', {
-    describe: 'hostname to listen on',
+  .options('web-host', {
+    describe: 'hostname for web app to listen on',
     default: 'localhost',
     type: 'string'
   })
-  .options('port', {
-    describe: 'port to listen on',
+  .options('web-port', {
+    describe: 'port for web app to listen on',
     default: 3000,
     type: 'number'
   })
   .options('debug', {
-    describe: 'console debug output',
+    describe: 'verbose output for debugging',
     default: false,
     type: 'boolean'
   })

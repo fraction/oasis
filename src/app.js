@@ -42,11 +42,14 @@ module.exports = (config) => {
 
   app.use(router.routes())
 
-  const uri = `http://${config.host}:${config.port}/`
-  app.listen(config.port)
+  const host = config['web-host']
+  const port = config['web-port']
+  const uri = `http://${host}:${port}/`
 
   debug.enabled = true
-  debug(`Listening on http://${uri}`)
+  debug(`Listening on ${uri}`)
+
+  app.listen({ host, port })
 
   if (config.open === true) {
     open(uri)
