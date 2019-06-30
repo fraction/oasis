@@ -10,6 +10,7 @@ module.exports = (config) => {
   const mount = require('koa-mount')
   const open = require('open')
   const koaBody = require('koa-body')
+  const debug = require('debug')('oasis')
 
   const author = require('./routes/author')
   const hashtag = require('./routes/hashtag')
@@ -43,7 +44,9 @@ module.exports = (config) => {
 
   const uri = `http://${config.host}:${config.port}/`
   app.listen(config.port)
-  console.log(`Listening on http://${uri}`)
+
+  debug.enabled = true
+  debug(`Listening on http://${uri}`)
 
   if (config.open === true) {
     open(uri)

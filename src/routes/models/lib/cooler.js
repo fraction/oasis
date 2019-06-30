@@ -1,6 +1,7 @@
 const ssbClient = require('ssb-client')
 const secretStack = require('secret-stack')
 const ssbConfig = require('ssb-config')
+const debug = require('debug')('oasis')
 
 const server = secretStack()
 
@@ -31,10 +32,11 @@ const db = {
   }
 }
 
+debug.enabled = true
 db.connect().then(() =>
-  console.log('Using pre-existing Scuttlebutt server instead of starting one')
+  debug('Using pre-existing Scuttlebutt server instead of starting one')
 ).catch(() => {
-  console.log('Starting Scuttlebutt server')
+  debug('Starting Scuttlebutt server')
 
   server
     .use(require('ssb-db'))
