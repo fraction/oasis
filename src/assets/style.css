@@ -9,6 +9,7 @@
   --red: hsl(330, 75%, 50%);
   --secondary: hsl(240, 8%, 38%);
   --thin-stroke: 1px;
+  --medium-stroke: 3px;
   --heavy-stroke: 6px;
 }
 html {
@@ -46,7 +47,7 @@ pre {
 }
 
 .message.thread-target {
-  box-shadow: 0 0 0 var(--heavy-stroke) var(--highlight-shadow);
+  box-shadow: 0 0 0 var(--medium-stroke) var(--highlight-shadow);
   border-color: var(--highlight);
 }
 
