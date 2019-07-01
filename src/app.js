@@ -31,13 +31,20 @@ module.exports = (config) => {
   app.use(mount('/assets', assets))
 
   router
+    .param('message', (message, ctx, next) => {
+      ctx.assert(ssbRef.isMsg(message), 400, 'Invalid message link')
+      return next()
+    })
+    .param('feed', (message, ctx, next) => {
+      ctx.assert(ssbRef.isFeedId(message), 400, 'Invalid feed link')
+      return next()
+    })
     .get('/', async (ctx) => {
       ctx.body = await home()
     })
-    .get('/author/:feedId', async (ctx) => {
-      const { feedId } = ctx.params
-      ctx.assert(ssbRef.isFeedId(feedId), 400)
-      ctx.body = await author(feedId)
+    .get('/author/:feed', async (ctx) => {
+      const { feed } = ctx.params
+      ctx.body = await author(feed)
     })
     .get('/hashtag/:channel', async (ctx) => {
       const { channel } = ctx.params
@@ -52,7 +59,6 @@ module.exports = (config) => {
     })
     .get('/raw/:message', async (ctx) => {
       const { message } = ctx.params
-      ctx.assert(ssbRef.isMsg(message), 400)
       ctx.type = 'application/json'
       ctx.body = await raw(message)
     })
@@ -61,12 +67,10 @@ module.exports = (config) => {
     })
     .get('/thread/:message', async (ctx) => {
       const { message } = ctx.params
-      ctx.assert(ssbRef.isMsg(message), 400)
       ctx.body = await thread(message)
     })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
-      ctx.assert(ssbRef.isMsg(message), 400)
 
       const voteValue = Number(ctx.request.body.voteValue)
       const referer = new URL(ctx.request.header.referer)
