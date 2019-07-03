@@ -61,7 +61,6 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
   // [ @key, @key, @key ]
   const voters = Object.entries(reducedVotes).filter(e => e[1] === 1).map(e => e[0])
 
-
   const pendingName = cooler.get(
     ssb.about.socialValue, { key: 'name',
       dest: msg.value.author
@@ -331,7 +330,6 @@ module.exports = {
       lodash.set(message, 'value.meta.thread.target', isThreadTarget)
       return message
     })
-
 
     const transformed = await transform(ssb, allMessages, myFeedId)
     return transformed
