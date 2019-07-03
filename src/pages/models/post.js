@@ -7,7 +7,7 @@ const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
 
-const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
+const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (msg) => {
   debug('transforming %s', msg.key)
 
   if (msg == null) {
@@ -23,8 +23,6 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
       dest: msg.key
     }
   }
-
-  const whoami = await cooler.get(ssb.whoami)
 
   const referenceStream = await cooler.read(ssb.backlinks.read, {
     query: [ filterQuery ],
@@ -93,7 +91,7 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
   })
 
   lodash.set(msg, 'value.meta.votes', voters)
-  lodash.set(msg, 'value.meta.voted', voters.includes(whoami.id))
+  lodash.set(msg, 'value.meta.voted', voters.includes(myFeedId))
 
   return msg
 }))
@@ -101,8 +99,11 @@ const transform = (ssb, messages) => Promise.all(messages.map(async (msg) => {
 module.exports = {
   fromFeed: async (feedId, customOptions = {}) => {
     const ssb = await cooler.connect()
-    const options = configure({ id: feedId }, customOptions)
 
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({ id: feedId }, customOptions)
     const source = await cooler.read(
       ssb.createUserStream,
       options
@@ -118,7 +119,7 @@ module.exports = {
         pull.take(32),
         pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, messages))
+          resolve(transform(ssb, messages, myFeedId))
         })
       )
     })
@@ -127,6 +128,10 @@ module.exports = {
   },
   fromHashtag: async (hashtag, customOptions = {}) => {
     const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
     const query = [ {
       $filter: {
         dest: '#' + hashtag
@@ -149,7 +154,7 @@ module.exports = {
         pull.take(32),
         pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, messages))
+          resolve(transform(ssb, messages, myFeedId))
         })
       )
     })
@@ -158,6 +163,10 @@ module.exports = {
   },
   latest: async (customOptions = {}) => {
     const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
     const options = configure({
       type: 'post',
       limit: 32
@@ -173,7 +182,7 @@ module.exports = {
         source,
         pull.collect((err, messages) => {
           if (err) return reject(err)
-          resolve(transform(ssb, messages))
+          resolve(transform(ssb, messages, myFeedId))
         })
       )
     })
@@ -183,6 +192,10 @@ module.exports = {
   fromThread: async (msgId, customOptions) => {
     debug('thread: %s', msgId)
     const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
     const options = configure({ id: msgId }, customOptions)
     const rawMsg = await cooler.get(ssb.get, options)
     debug('got raw message')
@@ -315,7 +328,8 @@ module.exports = {
       return message
     })
 
-    const transformed = await transform(ssb, allMessages)
+
+    const transformed = await transform(ssb, allMessages, myFeedId)
     return transformed
   }
 }
