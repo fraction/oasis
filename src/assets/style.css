@@ -93,10 +93,11 @@ pre {
   word-wrap: break-word;
 }
 
-.message > header {
+.message > header.metadata {
   height: 1.5rem;
   display: flex;
 }
+
 .message > header > a > .avatar {
   width: 1.5rem;
   height: 1.5rem;

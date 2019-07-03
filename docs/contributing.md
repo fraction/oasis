@@ -4,17 +4,26 @@ Hey, welcome! This project is still very experimental so I won't make any
 promises about the future architechture, but today it's pretty simple:
 
 ```
-src: you are here!
-├── assets: static resources like CSS and images
-└── routes: URL handlers that integrate views with models
-    ├── models:	abstractions for working with the database
-    │   └── lib:  code shared by models (like Markdown rendering)
-    └── views: page renderers that receive data and output HTML
-        └── components: shared components that are reused across pages
+index.js: take command-line arguments and give an application over HTTP
+ └── src: take HTTP requests and give an asset or a dynamic HTML page
+     ├── assets: give static assets like CSS and images
+     └── pages: take parameters and give an HTML page that with inline data
+         ├── models: give an abstract interface for interacting with data
+         │   └── lib: give database driver, Markdown renderer, etc.
+         └── views: take data and give an HTML page
+             └── components: take data and give HTML components (sub-views)
 ```
 
 I'd really appreciate any issues or pull requests on GitHub. Please let me know
 if there's anything I can do to help support your work on this project.
+
+## Debugging
+
+Debugging is never going to be easy, but the debug script helps a bit. You can
+use `oasis --debug` or debug the source with `npm run debug` / `yarn debug`.
+Please feel free to add `debug()` statements to the code wherever you think
+they might be helpful -- as long as we aren't using them hundreds of times per
+second I don't think they'll have a noticeable effect on performance.
 
 ## Experiments
 
@@ -96,3 +105,4 @@ the templates to use hyperaxe. Oops. I think hyperaxe has a cooler name anyway.
 [dep-graph]: https://en.wikipedia.org/wiki/Dependency_graph
 [koa-blog]: https://github.com/koajs/examples/blob/1fd531698cc5ef21a61b627058ad0aafe9e55360/blog/lib/render.js#L13
 [hyperaxe-gh]: https://github.com/ungoldman/hyperaxe
+[debug-gh]: https://github.com/visionmedia/debug

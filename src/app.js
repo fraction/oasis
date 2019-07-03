@@ -13,15 +13,15 @@ module.exports = (config) => {
   const debug = require('debug')('oasis')
   const ssbRef = require('ssb-ref')
 
-  const author = require('./routes/author')
-  const hashtag = require('./routes/hashtag')
-  const home = require('./routes/home')
-  const profile = require('./routes/profile')
-  const raw = require('./routes/raw')
-  const thread = require('./routes/thread')
-  const like = require('./routes/like')
-  const status = require('./routes/status')
-  const highlight = require('./routes/highlight')
+  const author = require('./pages/author')
+  const hashtag = require('./pages/hashtag')
+  const home = require('./pages/home')
+  const profile = require('./pages/profile')
+  const raw = require('./pages/raw')
+  const thread = require('./pages/thread')
+  const like = require('./pages/like')
+  const status = require('./pages/status')
+  const highlight = require('./pages/highlight')
 
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
@@ -52,6 +52,7 @@ module.exports = (config) => {
     })
     .get('/highlight/:style', (ctx) => {
       const { style } = ctx.params
+      ctx.type = 'text/css'
       ctx.body = highlight(style)
     })
     .get('/profile/', async (ctx) => {

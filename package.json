@@ -59,7 +59,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js --debug",
+    "debug": "nodemon --inspect index.js --debug",
     "test": "test/script.sh",
     "preversion": "test/script.sh"
   }

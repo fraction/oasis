@@ -66,7 +66,7 @@ module.exports = ({ msg }) => {
       class: messageClasses.join(' '),
       style: `margin-left: ${depth * 1.5}rem`
     },
-    header(
+    header({ class: 'metadata' },
       a({ href: url.author },
         img({ class: 'avatar', src: url.avatar, alt: 'profile image' })
       ),
