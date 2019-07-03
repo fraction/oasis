@@ -61,17 +61,21 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
   // [ @key, @key, @key ]
   const voters = Object.entries(reducedVotes).filter(e => e[1] === 1).map(e => e[0])
 
-  const name = await cooler.get(
+
+  const pendingName = cooler.get(
     ssb.about.socialValue, { key: 'name',
       dest: msg.value.author
     }
   )
 
-  const avatarMsg = await cooler.get(
+  const pendingAvatarMsg = cooler.get(
     ssb.about.socialValue, { key: 'image',
       dest: msg.value.author
     }
   )
+
+  const pending = [ pendingName, pendingAvatarMsg ]
+  const [ name, avatarMsg ] = await Promise.all(pending)
 
   const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
     ? avatarMsg.link
