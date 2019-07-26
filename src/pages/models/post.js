@@ -25,7 +25,7 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
   }
 
   const referenceStream = await cooler.read(ssb.backlinks.read, {
-    query: [ filterQuery ],
+    query: [filterQuery],
     index: 'DTA', // use asserted timestamps
     private: true,
     meta: true
@@ -73,8 +73,8 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
     }
   )
 
-  const pending = [ pendingName, pendingAvatarMsg ]
-  const [ name, avatarMsg ] = await Promise.all(pending)
+  const pending = [pendingName, pendingAvatarMsg]
+  const [name, avatarMsg] = await Promise.all(pending)
 
   const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
     ? avatarMsg.link
@@ -135,11 +135,11 @@ module.exports = {
     const whoami = await cooler.get(ssb.whoami)
     const myFeedId = whoami.id
 
-    const query = [ {
+    const query = [{
       $filter: {
         dest: '#' + hashtag
       }
-    } ]
+    }]
 
     const options = configure({ query, index: 'DTA' }, customOptions)
 
@@ -308,12 +308,12 @@ module.exports = {
           return Promise.all(replies.map(async (reply) => {
             const deeperReplies = await oneDeeper(reply.key, depth + 1)
             lodash.set(reply, 'value.meta.thread.depth', depth)
-            return [ reply, deeperReplies ]
+            return [reply, deeperReplies]
           }))
         }
       }
 
-      const nestedReplies = [ ...await oneDeeper(key, 1) ]
+      const nestedReplies = [...await oneDeeper(key, 1)]
       const deepReplies = flattenDeep(nestedReplies)
 
       resolve(deepReplies)

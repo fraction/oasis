@@ -5,7 +5,7 @@ module.exports = ({ status }) => {
   const max = status.sync.since
 
   const progressElements = Object.entries(status.sync.plugins).map(e => {
-    const [ key, val ] = e
+    const [key, val] = e
     const id = `progress-${key}`
     return [
       label({ for: id }, key),
