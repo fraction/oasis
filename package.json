@@ -55,7 +55,7 @@
     "cspell": "^4.0.23",
     "dependency-check": "^3.3.0",
     "nodemon": "^1.19.1",
-    "standard": "^12.0.1"
+    "standard": "^13.1.0"
   },
   "scripts": {
     "start": "node index.js",
