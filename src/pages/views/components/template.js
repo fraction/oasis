@@ -30,6 +30,7 @@ module.exports = (...elements) => {
       body(
         nav(
           a({ href: '/' }, 'home'),
+          a({ href: '/mentions' }, 'mentions'),
           a({ href: '/profile' }, 'profile'),
           a({ href: '/status' }, 'status'),
           a({ href: 'https://github.com/fraction/oasis' }, 'source'),

@@ -22,6 +22,7 @@ module.exports = (config) => {
   const like = require('./pages/like')
   const status = require('./pages/status')
   const highlight = require('./pages/highlight')
+  const mentions = require('./pages/mentions')
 
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
@@ -65,6 +66,9 @@ module.exports = (config) => {
     })
     .get('/status/', async (ctx) => {
       ctx.body = await status()
+    })
+    .get('/mentions/', async (ctx) => {
+      ctx.body = await mentions()
     })
     .get('/thread/:message', async (ctx) => {
       const { message } = ctx.params

@@ -129,6 +129,41 @@ module.exports = {
 
     return messages
   },
+  mentionsMe: async (customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const query = [{
+      $filter: {
+        dest: myFeedId
+      }
+    }]
+
+    const options = configure({ query, index: 'DTA' }, customOptions)
+
+    const source = await cooler.read(
+      ssb.backlinks.read, options
+    )
+
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter(msg =>
+          typeof msg.value.content !== 'string' &&
+          msg.value.content.type === 'post'
+        ),
+        pull.take(32),
+        pull.collect((err, messages) => {
+          if (err) return reject(err)
+          resolve(transform(ssb, messages, myFeedId))
+        })
+      )
+    })
+
+    return messages
+  },
   fromHashtag: async (hashtag, customOptions = {}) => {
     const ssb = await cooler.connect()
 
