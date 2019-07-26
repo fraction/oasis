@@ -1,5 +1,15 @@
 const template = require('./components/template')
-const { h1, h2, label, progress, ul, li, section } = require('hyperaxe')
+const {
+  h1,
+  h2,
+  h3,
+  label,
+  li,
+  pre,
+  progress,
+  section,
+  ul
+} = require('hyperaxe')
 
 module.exports = ({ status }) => {
   const max = status.sync.since
@@ -13,7 +23,11 @@ module.exports = ({ status }) => {
     ]
   })
 
-  const gossipElements = Object.keys(status.gossip).map(key => {
+  const localPeers = Object.keys(status.local).map(key => {
+    return li(key)
+  })
+
+  const remotePeers = Object.keys(status.gossip).map(key => {
     return li(key)
   })
 
@@ -23,7 +37,12 @@ module.exports = ({ status }) => {
       h2('Indexes'),
       progressElements,
       h2('Peers'),
-      ul(gossipElements)
+      h3('Local'),
+      ul(localPeers),
+      h3('Remote'),
+      ul(remotePeers),
+      h2('Raw'),
+      pre(JSON.stringify(status, null, 2))
     )
   )
 }

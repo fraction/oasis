@@ -119,7 +119,7 @@ module.exports = {
           typeof msg.value.content !== 'string' &&
           msg.value.content.type === 'post'
         ),
-        pull.take(32),
+        pull.take(60),
         pull.collect((err, messages) => {
           if (err) return reject(err)
           resolve(transform(ssb, messages, myFeedId))
@@ -154,7 +154,7 @@ module.exports = {
           typeof msg.value.content !== 'string' &&
           msg.value.content.type === 'post'
         ),
-        pull.take(32),
+        pull.take(60),
         pull.collect((err, messages) => {
           if (err) return reject(err)
           resolve(transform(ssb, messages, myFeedId))
@@ -189,7 +189,7 @@ module.exports = {
           typeof msg.value.content !== 'string' &&
           msg.value.content.type === 'post'
         ),
-        pull.take(32),
+        pull.take(60),
         pull.collect((err, messages) => {
           if (err) return reject(err)
           resolve(transform(ssb, messages, myFeedId))
@@ -207,7 +207,7 @@ module.exports = {
 
     const options = configure({
       type: 'post',
-      limit: 32
+      limit: 60
     }, customOptions)
 
     const source = await cooler.read(
