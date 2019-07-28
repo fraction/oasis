@@ -1,3 +1,4 @@
+'use strict'
 const meta = require('./models/meta')
 const statusView = require('./views/status')
 

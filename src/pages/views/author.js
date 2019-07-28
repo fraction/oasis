@@ -1,3 +1,4 @@
+'use strict'
 const template = require('./components/template')
 const post = require('./components/post')
 

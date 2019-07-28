@@ -1,3 +1,4 @@
+'use strict'
 const md = require('ssb-markdown')
 const ssbMessages = require('ssb-msgs')
 const ssbRef = require('ssb-ref')

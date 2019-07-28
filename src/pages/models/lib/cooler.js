@@ -1,3 +1,4 @@
+'use strict'
 const ssbClient = require('ssb-client')
 const secretStack = require('secret-stack')
 const ssbConfig = require('ssb-config')

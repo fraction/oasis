@@ -1,3 +1,4 @@
+'use strict'
 const requireStyle = require('require-style')
 
 module.exports = function (style) {

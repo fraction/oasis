@@ -1,3 +1,4 @@
+'use strict'
 const post = require('./models/post')
 const listView = require('./views/list')
 

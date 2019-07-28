@@ -1,3 +1,4 @@
+'use strict'
 const debug = require('debug')('oasis:route-thread')
 
 const listView = require('./views/list')

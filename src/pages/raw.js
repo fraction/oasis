@@ -1,3 +1,4 @@
+'use strict'
 const meta = require('./models/meta')
 
 module.exports = async function (message) {

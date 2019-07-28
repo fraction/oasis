@@ -1,3 +1,4 @@
+'use strict'
 const lodash = require('lodash')
 const pull = require('pull-stream')
 const prettyMs = require('pretty-ms')

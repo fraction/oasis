@@ -1,3 +1,4 @@
+'use strict'
 const about = require('./models/about')
 const post = require('./models/post')
 const meta = require('./models/meta')

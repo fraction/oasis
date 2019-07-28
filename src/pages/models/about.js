@@ -1,3 +1,4 @@
+'use strict'
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
 

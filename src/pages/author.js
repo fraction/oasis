@@ -1,3 +1,4 @@
+'use strict'
 const about = require('./models/about')
 const post = require('./models/post')
 const authorView = require('./views/author')
