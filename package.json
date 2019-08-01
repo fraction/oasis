@@ -32,7 +32,7 @@
     "ssb-links": "^3.0.8",
     "ssb-local": "^1.0.0",
     "ssb-logging": "^1.0.0",
-    "ssb-markdown": "github:ssbc/ssb-markdown#backcompat",
+    "ssb-markdown": "^5.0.2",
     "ssb-master": "^1.0.3",
     "ssb-msgs": "^5.2.0",
     "ssb-no-auth": "^1.0.0",
