@@ -242,7 +242,13 @@ module.exports = {
     const parents = []
 
     const getRootAncestor = (msg) => new Promise((resolve, reject) => {
+      if (msg.key == null) {
+        debug('something is very wrong, we used `{ meta: true }`')
+        return resolve(parents)
+      }
+
       debug('getting root ancestor of %s', msg.key)
+
       if (typeof msg.value.content === 'string') {
         debug('private message')
         // Private message we can't decrypt, stop looking for parents.
@@ -265,7 +271,7 @@ module.exports = {
           resolve(msg)
         }
       } else if (typeof msg.value.content.root === 'string') {
-        debug('thread reply')
+        debug('thread reply: %s', msg.value.content.root)
         try {
           // It's a thread reply, get the parent!
           cooler.get(ssb.get, {

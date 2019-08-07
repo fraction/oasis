@@ -61,6 +61,10 @@ module.exports = ({ msg }) => {
     messageClasses.push('thread-target')
   }
 
+  if (depth > 0) {
+    messageClasses.push('reply')
+  }
+
   const fragment =
     section({
       id: msg.key,
