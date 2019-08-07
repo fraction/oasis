@@ -46,6 +46,11 @@ pre {
   background-color: var(--discreet);
 }
 
+.message.reply {
+  margin-top: 0;
+  margin-bottom: -1px;
+}
+
 .message.thread-target {
   box-shadow: 0 0 0 var(--medium-stroke) var(--highlight-shadow);
   border-color: var(--highlight);
@@ -219,4 +224,10 @@ a {
 progress {
   display: block;
   width: 100%;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  height: 8rem;
 }

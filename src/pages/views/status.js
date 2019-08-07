@@ -24,11 +24,11 @@ module.exports = ({ status }) => {
     ]
   })
 
-  const localPeers = Object.keys(status.local).map(key => {
+  const localPeers = Object.keys(status.local || []).map(key => {
     return li(key)
   })
 
-  const remotePeers = Object.keys(status.gossip).map(key => {
+  const remotePeers = Object.keys(status.gossip || []).map(key => {
     return li(key)
   })
 

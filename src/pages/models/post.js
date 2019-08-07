@@ -242,7 +242,13 @@ module.exports = {
     const parents = []
 
     const getRootAncestor = (msg) => new Promise((resolve, reject) => {
+      if (msg.key == null) {
+        debug('something is very wrong, we used `{ meta: true }`')
+        return resolve(parents)
+      }
+
       debug('getting root ancestor of %s', msg.key)
+
       if (typeof msg.value.content === 'string') {
         debug('private message')
         // Private message we can't decrypt, stop looking for parents.
@@ -265,7 +271,7 @@ module.exports = {
           resolve(msg)
         }
       } else if (typeof msg.value.content.root === 'string') {
-        debug('thread reply')
+        debug('thread reply: %s', msg.value.content.root)
         try {
           // It's a thread reply, get the parent!
           cooler.get(ssb.get, {
@@ -371,5 +377,27 @@ module.exports = {
 
     const transformed = await transform(ssb, allMessages, myFeedId)
     return transformed
+  },
+  get: async (msgId, customOptions) => {
+    debug('get: %s', msgId)
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({ id: msgId }, customOptions)
+    const rawMsg = await cooler.get(ssb.get, options)
+    debug('got raw message')
+
+    const transformed = await transform(ssb, [rawMsg], myFeedId)
+    debug('transformed: %O', transformed)
+    return transformed[0]
+  },
+  publish: async (options) => {
+    const ssb = await cooler.connect()
+    const body = { type: 'post', ...options }
+
+    console.log(body)
+    return cooler.get(ssb.publish, body)
   }
 }
