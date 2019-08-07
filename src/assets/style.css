@@ -137,8 +137,12 @@ pre {
   pointer-events: none;
 }
 
+.message > footer {
+  display: flex;
+  justify-content: space-between;
+}
+
 .message > footer > * {
-  margin-right: 1rem;
   text-decoration: none;
 }
 

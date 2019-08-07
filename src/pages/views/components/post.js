@@ -28,7 +28,9 @@ module.exports = ({ msg }) => {
     context: `/thread/${encoded.key}#${encoded.key}`,
     parent: `/thread/${encoded.parent}#${encoded.parent}`,
     avatar: msg.value.meta.author.avatar.url,
-    raw: `/raw/${encoded.key}`
+    raw: `/raw/${encoded.key}`,
+    reply: `/reply/${encoded.key}`,
+    replyAll: `/reply-all/${encoded.key}`
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
@@ -92,21 +94,23 @@ module.exports = ({ msg }) => {
     // where it was before they clicked the button.
     div({ id: `centered-footer-${encoded.key}`, class: 'centered-footer' }),
 
-    footer(
-      form({ action: url.likeForm, method: 'post' },
-        button({
-          name: 'voteValue',
-          type: 'submit',
-          value: likeButton.value,
-          class: likeButton.class
-        },
-        `❤ ${likeCount}`
-        )
-      ),
-      a({ href: url.context }, 'context'),
-      parentLink,
-      a({ href: url.raw }, 'raw')
-    )
+      footer(
+        form({ action: url.likeForm, method: 'post' },
+          button({
+            name: 'voteValue',
+            type: 'submit',
+            value: likeButton.value,
+            class: likeButton.class
+          },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.reply }, 'reply'),
+        a({ href: url.replyAll }, 'reply all'),
+        a({ href: url.context }, 'context'),
+        parentLink,
+        a({ href: url.raw }, 'raw')
+      )
     )
 
   return fragment
