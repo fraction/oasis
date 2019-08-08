@@ -28,7 +28,8 @@ module.exports = ({ msg }) => {
     context: `/thread/${encoded.key}#${encoded.key}`,
     parent: `/thread/${encoded.parent}#${encoded.parent}`,
     avatar: msg.value.meta.author.avatar.url,
-    raw: `/raw/${encoded.key}`
+    raw: `/raw/${encoded.key}`,
+    reply: `/reply/${encoded.key}`
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
@@ -107,6 +108,7 @@ module.exports = ({ msg }) => {
         `❤ ${likeCount}`
         )
       ),
+      a({ href: url.reply }, 'reply'),
       a({ href: url.context }, 'context'),
       parentLink,
       a({ href: url.raw }, 'raw')

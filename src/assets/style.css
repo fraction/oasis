@@ -142,8 +142,12 @@ pre {
   pointer-events: none;
 }
 
+.message > footer {
+  display: flex;
+  justify-content: space-between;
+}
+
 .message > footer > * {
-  margin-right: 1rem;
   text-decoration: none;
 }
 
@@ -220,4 +224,10 @@ a {
 progress {
   display: block;
   width: 100%;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  height: 8rem;
 }

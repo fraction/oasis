@@ -1,4 +1,5 @@
 'use strict'
+
 module.exports = (config) => {
   if (config.debug) {
     process.env.DEBUG = '*'
@@ -24,6 +25,8 @@ module.exports = (config) => {
   const status = require('./pages/status')
   const highlight = require('./pages/highlight')
   const mentions = require('./pages/mentions')
+  const reply = require('./pages/reply')
+  const publishReply = require('./pages/publish-reply')
 
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
@@ -75,18 +78,27 @@ module.exports = (config) => {
       const { message } = ctx.params
       ctx.body = await thread(message)
     })
+    .get('/reply/:message', async (ctx) => {
+      const { message } = ctx.params
+      ctx.body = await reply(message, false)
+    })
+    .post('/reply/:message', koaBody(), async (ctx) => {
+      const { message } = ctx.params
+      const text = String(ctx.request.body.text)
+      ctx.body = await publishReply({ message, text })
+      ctx.redirect('/')
+    })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
 
       const voteValue = Number(ctx.request.body.voteValue)
-      const referer = new URL(ctx.request.header.referer)
 
+      const referer = new URL(ctx.request.header.referer)
       const encoded = {
         message: encodeURIComponent(message)
       }
 
       referer.hash = `centered-footer-${encoded.message}`
-
       ctx.body = await like({ message, voteValue })
       ctx.redirect(referer)
     })

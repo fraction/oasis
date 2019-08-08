@@ -377,5 +377,27 @@ module.exports = {
 
     const transformed = await transform(ssb, allMessages, myFeedId)
     return transformed
+  },
+  get: async (msgId, customOptions) => {
+    debug('get: %s', msgId)
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({ id: msgId }, customOptions)
+    const rawMsg = await cooler.get(ssb.get, options)
+    debug('got raw message')
+
+    const transformed = await transform(ssb, [rawMsg], myFeedId)
+    debug('transformed: %O', transformed)
+    return transformed[0]
+  },
+  publish: async (options) => {
+    const ssb = await cooler.connect()
+    const body = { type: 'post', ...options }
+
+    console.log(body)
+    return cooler.get(ssb.publish, body)
   }
 }
