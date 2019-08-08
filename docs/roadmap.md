@@ -1,0 +1,37 @@
+# Roadmap
+
+- [ ] Get
+  - [ ] Author
+    - [x] Name
+    - [x] Description
+    - [x] Image
+    - [ ] Follow / unfollow (public)
+    - [ ] Listen / ignore  (private)
+    - [ ] Block / unblock (public)
+  - [ ] Posts
+    - [x] Render Markdown
+    - [x] From author
+    - [x] About hashtag
+    - [x] Threading
+    - [ ] Pagination to view older posts
+    - [ ] Search to filter posts by content
+    - [ ] Notifications
+      - [x] Author mention
+      - [ ] Message mention
+- [ ] Set
+  - [ ] Author
+    - [ ] Self
+      - [ ] Name
+      - [ ] Description
+      - [ ] Image
+    - [ ] Others
+      - [ ] Follow / unfollow (public)
+      - [ ] Listen / ignore  (private)
+      - [ ] Block / unblock (public)
+  - [ ] Posts
+    - [ ] New
+    - [x] Reply
+    - [ ] Reply all
+    - [ ] Easy message / author reference
+    - [ ] Pre-publish preview
+  - [x] Like / unlike
