@@ -90,6 +90,8 @@ module.exports = (config) => {
     })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
+      // TODO: convert all so `message` is full message and `messageKey` is key
+      const messageKey = message
 
       const voteValue = Number(ctx.request.body.voteValue)
 
@@ -99,7 +101,7 @@ module.exports = (config) => {
       }
 
       referer.hash = `centered-footer-${encoded.message}`
-      ctx.body = await like({ message, voteValue })
+      ctx.body = await like({ messageKey, voteValue })
       ctx.redirect(referer)
     })
 

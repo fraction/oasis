@@ -2,14 +2,15 @@
 const cooler = require('./lib/cooler')
 
 module.exports = {
-  publish: async (messageId, value) => {
+  publish: async ({ messageKey, value, recps }) => {
     const ssb = await cooler.connect()
     await cooler.get(ssb.publish, {
       type: 'vote',
       vote: {
-        link: messageId,
+        link: messageKey,
         value: Number(value)
-      }
+      },
+      recps
     })
   }
 }
