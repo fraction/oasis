@@ -1,5 +1,6 @@
 'use strict'
 const template = require('./components/template')
+const highlightJs = require('highlight.js')
 const {
   h1,
   h2,
@@ -31,6 +32,9 @@ module.exports = ({ status }) => {
   const remotePeers = Object.keys(status.gossip || []).map(key => {
     return li(key)
   })
+  
+  const raw = JSON.stringify(status, null, 2)
+  const rawHighlighted = highlightJs.highlight('json', raw).value
 
   return template(
     section({ class: 'message' },
@@ -43,7 +47,7 @@ module.exports = ({ status }) => {
       h3('Remote'),
       ul(remotePeers),
       h2('Raw'),
-      pre(JSON.stringify(status, null, 2))
+      pre({ innerHTML: rawHighlighted })
     )
   )
 }
