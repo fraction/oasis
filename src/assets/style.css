@@ -234,7 +234,8 @@ textarea {
 
 /* content warning! */
 summary {
-    padding: 1rem 0.5rem;
-    background-color: hsl(30, 100%, 83%);
-    margin: 1rem 0;
+  padding: 1rem 0.5rem;
+  background-color: hsl(30, 100%, 83%);
+  margin: 1rem 0;
+  cursor: pointer;
 }
