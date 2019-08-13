@@ -31,5 +31,4 @@ const config = yargs
   })
   .argv
 
-console.log(config)
 app(config)
