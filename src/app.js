@@ -1,6 +1,13 @@
 'use strict'
 
 module.exports = (config) => {
+  // This hides arguments from other upstream modules who might parse them.
+  //
+  // Unfortunately some modules think that our CLI options are meant for them,
+  // and since there's no way to disable that behavior (!) we have to hide them
+  // manually by setting the args property to an empty array.
+  process.argv = []
+
   if (config.debug) {
     process.env.DEBUG = '*'
   }
@@ -107,8 +114,8 @@ module.exports = (config) => {
 
   app.use(router.routes())
 
-  const host = config['web-host']
-  const port = config['web-port']
+  const host = config.host
+  const port = config.port
   const uri = `http://${host}:${port}/`
 
   debug.enabled = true

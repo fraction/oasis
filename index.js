@@ -8,25 +8,28 @@ const config = yargs
   .env('OASIS')
   .usage('Usage: $0 [options]')
   .options('open', {
-    describe: 'automatically open app in web browser',
+    describe: 'Automatically open app in web browser',
     default: true,
     type: 'boolean'
   })
-  .options('web-host', {
-    describe: 'hostname for web app to listen on',
+  .options('host', {
+    describe: 'Hostname for web app to listen on',
     default: 'localhost',
-    type: 'string'
+    type: 'string',
+    alias: 'web-host' // deprecated
   })
-  .options('web-port', {
-    describe: 'port for web app to listen on',
+  .options('port', {
+    describe: 'Set port for web app to listen on',
     default: 3000,
-    type: 'number'
+    type: 'number',
+    alias: 'web-port' // deprecated
   })
   .options('debug', {
-    describe: 'verbose output for debugging',
+    describe: 'Use verbose output for debugging',
     default: false,
     type: 'boolean'
   })
   .argv
 
+console.log(config)
 app(config)
