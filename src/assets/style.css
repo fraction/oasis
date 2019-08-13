@@ -231,3 +231,10 @@ textarea {
   width: 100%;
   height: 8rem;
 }
+
+/* content warning! */
+summary {
+    padding: 1rem 0.5rem;
+    background-color: hsl(30, 100%, 83%);
+    margin: 1rem 0;
+}

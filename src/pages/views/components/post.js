@@ -2,15 +2,17 @@
 const {
   a,
   abbr,
+  article,
+  button,
+  details,
   div,
+  footer,
+  form,
   header,
   img,
   section,
-  article,
   span,
-  form,
-  button,
-  footer
+  summary
 } = require('hyperaxe')
 
 const lodash = require('lodash')
@@ -42,6 +44,8 @@ module.exports = ({ msg }) => {
 
   const markdownContent = msg.value.meta.md.block()
 
+  const hasContentWarning = typeof msg.value.content.contentWarning === 'string'
+
   const likeButton = msg.value.meta.voted
     ? { value: 0, class: 'liked' }
     : { value: 1, class: null }
@@ -66,6 +70,15 @@ module.exports = ({ msg }) => {
     messageClasses.push('reply')
   }
 
+  const articleElement = article({ class: 'content', innerHTML: markdownContent })
+
+  const articleContent = hasContentWarning
+    ? details(
+      summary(msg.value.content.contentWarning),
+      articleElement
+    )
+    : articleElement
+
   const fragment =
     section({
       id: msg.key,
@@ -84,7 +97,7 @@ module.exports = ({ msg }) => {
         isPrivate ? abbr({ title: 'Private' }, '🔒') : null
       )
     ),
-    article({ class: 'content', innerHTML: markdownContent }),
+    articleContent,
 
     // HACK: centered-footer
     //
