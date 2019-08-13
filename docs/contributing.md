@@ -1,7 +1,7 @@
 # Contributing
 
 Hey, welcome! This project is still very experimental so I won't make any
-promises about the future architechture, but today it's pretty simple:
+promises about the future architecture, but today it's pretty simple:
 
 ```
 index.js: take command-line arguments and give an application over HTTP
@@ -34,20 +34,20 @@ easy to create spaghetti code that's difficult to learn and maintain. I don't
 know whether that's true, but I'm experimenting with a layer-based approach
 where modules always `require('./some-layer/some-module')`. I don't know
 whether this *actually* has any interesting properties, but I'm trying it out
-to see whether it results in simpler software architechtures.
+to see whether it results in simpler software architectures.
 
 #### Pattern
 
 ```javascript
 require('./foo/bar')
-require('./lib/configurator')
+require('./lib/widget-factory')
 require('./tools/quark-smasher')
 ```
 
 #### Anti-pattern
 
 ```javascript
-require('../../../great-grandparent-skyler')
+require('../../../great-grandparent-frankie')
 require('./sibling-jamie')
 require('./wat') // same as `require('./wat/index')
 ```
@@ -89,9 +89,9 @@ which had all of the features I wanted to see:
 
 - Compact JavaScript syntax, not HTML-in-JS (see: nanohtml)
 - HTML tags as exported functions, not arbitrary strings (see: HyperScript)
-- Meant to be used alone "bring your own HyperScript" (see: hyperscript-helpers)
+- Meant to be used alone, not "bring your own HyperScript" (see: hyperscript-helpers)
 - Uses HyperScript under the hood, which I've had lots of experience with
-- Maintained by someone in my city (!) which is always a nice bonux
+- Maintained by someone in my city (!) which is always a nice bonus
 - Fun and friendly readme that's both light and super informative
 
 The only bummer is that I can't find any other modules using it in production,
