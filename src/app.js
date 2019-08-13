@@ -40,6 +40,12 @@ module.exports = (config) => {
 
   const app = module.exports = new Koa()
 
+  app.on('error', (err) => {
+    // Output full error objects
+    err.message = err.stack
+    err.expose = true
+  })
+
   app.use(mount('/assets', assets))
 
   router
