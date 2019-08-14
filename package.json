@@ -19,6 +19,7 @@
     "pull-stream": "^3.6.12",
     "require-style": "^1.1.0",
     "secret-stack": "^6.2.0",
+    "sharp": "^0.23.0",
     "ssb-about": "^2.0.1",
     "ssb-backlinks": "^0.7.3",
     "ssb-blobs": "^1.2.1",

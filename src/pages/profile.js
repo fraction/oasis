@@ -14,7 +14,7 @@ module.exports = async function () {
 
   const messages = await post.fromFeed(feedId)
 
-  const avatarUrl = `http://localhost:8989/blobs/get/${image}`
+  const avatarUrl = `/image/64/${encodeURIComponent(image)}`
 
   return authorView({
     messages,

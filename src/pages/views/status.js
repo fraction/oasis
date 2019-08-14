@@ -32,7 +32,7 @@ module.exports = ({ status }) => {
   const remotePeers = Object.keys(status.gossip || []).map(key => {
     return li(key)
   })
-  
+
   const raw = JSON.stringify(status, null, 2)
   const rawHighlighted = highlightJs.highlight('json', raw).value
 

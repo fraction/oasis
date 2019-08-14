@@ -34,6 +34,7 @@ module.exports = (config) => {
   const mentions = require('./pages/mentions')
   const reply = require('./pages/reply')
   const publishReply = require('./pages/publish-reply')
+  const image = require('./pages/image')
 
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
@@ -49,6 +50,15 @@ module.exports = (config) => {
   app.use(mount('/assets', assets))
 
   router
+    .param('imageSize', (imageSize, ctx, next) => {
+      const size = Number(imageSize)
+      ctx.assert(typeof size === 'number' && size % 1 === 0 && size > 2 && size < 1e10, 'Invalid image size')
+      return next()
+    })
+    .param('blobId', (blobId, ctx, next) => {
+      ctx.assert(ssbRef.isBlob(blobId), 400, 'Invalid blob link')
+      return next()
+    })
     .param('message', (message, ctx, next) => {
       ctx.assert(ssbRef.isMsg(message), 400, 'Invalid message link')
       return next()
@@ -80,6 +90,11 @@ module.exports = (config) => {
       const { message } = ctx.params
       ctx.type = 'application/json'
       ctx.body = await raw(message)
+    })
+    .get('/image/:imageSize/:blobId', async (ctx) => {
+      const { blobId, imageSize } = ctx.params
+      ctx.type = 'image/png'
+      ctx.body = await image({ blobId, imageSize: Number(imageSize) })
     })
     .get('/status/', async (ctx) => {
       ctx.body = await status()

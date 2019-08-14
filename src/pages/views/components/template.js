@@ -22,7 +22,7 @@ module.exports = (...elements) => {
   const nodes =
     html({ lang: 'en' },
       head(
-        title(`🏝️  Oasis`),
+        title('🏝️  Oasis'),
         link({ rel: 'stylesheet', href: '/assets/style.css' }),
         link({ rel: 'stylesheet', href: '/highlight/github.css' }),
         meta({ name: 'description', content: 'friendly neighborhood scuttlebutt interface' }),

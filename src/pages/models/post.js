@@ -81,7 +81,7 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
     ? avatarMsg.link
     : avatarMsg
 
-  const avatarUrl = `http://localhost:8989/blobs/get/${avatarId}`
+  const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
 
   const ts = new Date(msg.value.timestamp)
   lodash.set(msg, 'value.meta.timestamp.received.iso8601', ts.toISOString())
@@ -397,7 +397,7 @@ module.exports = {
     const ssb = await cooler.connect()
     const body = { type: 'post', ...options }
 
-    console.log(body)
+    debug('Published: %O', body)
     return cooler.get(ssb.publish, body)
   }
 }
