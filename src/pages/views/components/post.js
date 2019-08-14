@@ -12,9 +12,11 @@ const {
   img,
   section,
   span,
-  summary
+  summary,
+  pre
 } = require('hyperaxe')
 
+const highlightJs = require('highlight.js')
 const lodash = require('lodash')
 
 module.exports = ({ msg }) => {
@@ -70,7 +72,12 @@ module.exports = ({ msg }) => {
     messageClasses.push('reply')
   }
 
-  const articleElement = article({ class: 'content', innerHTML: markdownContent })
+  const emptyContent = '<p>undefined</p>\n'
+  const articleElement = markdownContent === emptyContent
+    ? article({ class: 'content' }, pre({
+      innerHTML: highlightJs.highlight('json', JSON.stringify(msg, null, 2)).value
+    }))
+    : article({ class: 'content', innerHTML: markdownContent })
 
   const articleContent = hasContentWarning
     ? details(
