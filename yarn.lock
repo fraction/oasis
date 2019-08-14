@@ -6025,10 +6025,23 @@ ssb-markdown@^5.0.2:
     markdown-it-hashtag "^0.4.0"
     node-emoji "^1.10.0"
 
+ssb-marked@^0.7.0:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/ssb-marked/-/ssb-marked-0.7.4.tgz#31714f16548531c99a03a24e22c7e1ebbbce7875"
+  integrity sha1-MXFPFlSFMcmaA6JOIsfh67vOeHU=
+
 ssb-master@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/ssb-master/-/ssb-master-1.0.3.tgz#0d33e9ead15a97cd9b0b7b1773c6227757b93aea"
   integrity sha512-N1Cxm9WscGD9VEZrWbF2amyQai2U2g9gtq57W5zTqbhlQTLUUvl84U9A6fg6GPkECnUXadulnTw+mMYVkLLHjQ==
+
+ssb-mentions@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/ssb-mentions/-/ssb-mentions-0.5.0.tgz#6cef859594455308ed267d41a1f38e46ef9624a4"
+  integrity sha512-tXFr8CSNPKwCkRftm8Z0H5mXhfHLNhwNgo7PdR8GobxCSSoaHXfxsGbAJVKDl/kCkgL92nPidS3SlsFqtjFE7Q==
+  dependencies:
+    ssb-marked "^0.7.0"
+    ssb-ref "^2.11.0"
 
 ssb-msgs@^5.0.0, ssb-msgs@^5.2.0:
   version "5.2.0"
@@ -6094,7 +6107,7 @@ ssb-query@^2.4.2:
     flumeview-query "^7.0.0"
     pull-stream "^3.6.2"
 
-ssb-ref@^2.0.0, ssb-ref@^2.12.0, ssb-ref@^2.13.3, ssb-ref@^2.13.9, ssb-ref@^2.3.0, ssb-ref@^2.6.2, ssb-ref@^2.7.1, ssb-ref@^2.9.0, ssb-ref@^2.9.1:
+ssb-ref@^2.0.0, ssb-ref@^2.11.0, ssb-ref@^2.12.0, ssb-ref@^2.13.3, ssb-ref@^2.13.9, ssb-ref@^2.3.0, ssb-ref@^2.6.2, ssb-ref@^2.7.1, ssb-ref@^2.9.0, ssb-ref@^2.9.1:
   version "2.13.9"
   resolved "https://registry.yarnpkg.com/ssb-ref/-/ssb-ref-2.13.9.tgz#1de8c5b4f12e5b743be95705656ad2706c0e3cd0"
   integrity sha512-TfatNqLvoP+eW/pMIbCmNcaoDq4R2k8jCtWkwDKx4AtluN/LwtyP931d5Mh+2gmzA04W7kxkr6f5ENGgdadMYg==

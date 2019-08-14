@@ -1,24 +1,32 @@
 'use strict'
-const template = require('./components/template')
+const highlightJs = require('highlight.js')
 const post = require('./components/post')
-
 const {
   article,
   header,
   img,
   h1,
-  section
+  section,
+  pre
 } = require('hyperaxe')
 
-module.exports = ({ avatarUrl, name, description, messages }) => {
+const template = require('./components/template')
+
+module.exports = ({ avatarUrl, name, description, messages, feedId }) => {
+  const markdownMention = highlightJs.highlight('markdown', `[${name}](${feedId})`).value
+
   const prefix = section({ class: 'message' },
     header({ class: 'profile' },
       img({ class: 'avatar', src: avatarUrl }),
       h1(name)
     ),
+    pre({
+      class: 'md-mention',
+      innerHTML: markdownMention
+    }),
     description !== '<p>null</p>\n'
       ? article({ innerHTML: description })
-      : null
+    : null,
   )
 
   return template(

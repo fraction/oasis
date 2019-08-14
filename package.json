@@ -35,6 +35,7 @@
     "ssb-logging": "^1.0.0",
     "ssb-markdown": "^5.0.2",
     "ssb-master": "^1.0.3",
+    "ssb-mentions": "^0.5.0",
     "ssb-msgs": "^5.2.0",
     "ssb-no-auth": "^1.0.0",
     "ssb-onion": "^1.0.0",

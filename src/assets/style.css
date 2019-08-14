@@ -239,3 +239,10 @@ summary {
   margin: 1rem 0;
   cursor: pointer;
 }
+
+.md-mention {
+  -moz-user-select: all;
+  -ms-user-select: all;
+  -webkit-user-select: all;
+  user-select: all;
+}

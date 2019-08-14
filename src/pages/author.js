@@ -12,6 +12,7 @@ module.exports = async function (feedId) {
   const avatarUrl = `/image/128/${encodeURIComponent(image)}`
 
   return authorView({
+    feedId,
     messages,
     name,
     description,
