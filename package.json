@@ -55,7 +55,7 @@
   "repository": "git@github.com:fraction/oasis.git",
   "devDependencies": {
     "cspell": "^4.0.23",
-    "dependency-check": "^3.3.0",
+    "dependency-check": "4.1.0",
     "nodemon": "^1.19.1",
     "standard": "^13.1.0"
   },

@@ -26,7 +26,7 @@ module.exports = ({ avatarUrl, name, description, messages, feedId }) => {
     }),
     description !== '<p>null</p>\n'
       ? article({ innerHTML: description })
-    : null,
+      : null
   )
 
   return template(
