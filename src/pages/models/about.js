@@ -2,7 +2,7 @@
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
 
-const nullImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+const nullImage = `&${'0'.repeat(43)}=.sha256`
 
 module.exports = {
   name: async (feedId) => {

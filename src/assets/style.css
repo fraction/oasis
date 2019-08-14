@@ -58,6 +58,7 @@ pre {
 
 .message img, .message video {
   max-width: 100%;
+  border: var(--thin-stroke) dotted var(--off-white)
 }
 
 .message > :first-child {

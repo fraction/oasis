@@ -77,9 +77,10 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
   const pending = [pendingName, pendingAvatarMsg]
   const [name, avatarMsg] = await Promise.all(pending)
 
+  const nullImage = `&${'0'.repeat(43)}=.sha256`
   const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
-    ? avatarMsg.link
-    : avatarMsg
+    ? avatarMsg.link || nullImage
+    : avatarMsg || nullImage
 
   const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
 

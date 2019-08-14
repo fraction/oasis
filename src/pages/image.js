@@ -13,7 +13,21 @@ module.exports = async function ({ blobId, imageSize }) {
     pull(
       bufferSource,
       pull.collect((err, bufferArray) => {
-        if (err) return resolve(null)
+        if (err) {
+          return sharp({
+            create: {
+              width: imageSize,
+              height: imageSize,
+              channels: 4,
+              background: { r: 0, g: 0, b: 0, alpha: 0.5 }
+            }
+          })
+            .png()
+            .toBuffer()
+            .then(data => {
+              resolve(data)
+            })
+        }
 
         const buffer = Buffer.concat(bufferArray)
         sharp(buffer)
