@@ -1,4 +1,5 @@
 'use strict'
+
 const vote = require('./models/vote')
 const post = require('./models/post')
 
@@ -9,7 +10,7 @@ module.exports = async function like ({ messageKey, voteValue }) {
   const isPrivate = message.value.meta.private === true
   const messageRecipients = isPrivate ? message.value.content.recps : []
 
-  const normalized = messageRecipients.map(recipient => {
+  const normalized = messageRecipients.map((recipient) => {
     if (typeof recipient === 'string') {
       return recipient
     }
@@ -17,6 +18,8 @@ module.exports = async function like ({ messageKey, voteValue }) {
     if (typeof recipient.link === 'string') {
       return recipient.link
     }
+
+    return null
   })
 
   const recipients = normalized.length > 0 ? normalized : undefined

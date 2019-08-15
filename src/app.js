@@ -1,50 +1,41 @@
 'use strict'
 
+const Koa = require('koa')
+const path = require('path')
+const router = require('koa-router')()
+const koaStatic = require('koa-static')
+const mount = require('koa-mount')
+const open = require('open')
+const koaBody = require('koa-body')
+const debug = require('debug')('oasis')
+const ssbRef = require('ssb-ref')
+
+const author = require('./pages/author')
+const hashtag = require('./pages/hashtag')
+const home = require('./pages/home')
+const profile = require('./pages/profile')
+const raw = require('./pages/raw')
+const thread = require('./pages/thread')
+const like = require('./pages/like')
+const status = require('./pages/status')
+const highlight = require('./pages/highlight')
+const mentions = require('./pages/mentions')
+const reply = require('./pages/reply')
+const publishReply = require('./pages/publish-reply')
+const image = require('./pages/image')
+
 module.exports = (config) => {
-  // This hides arguments from other upstream modules who might parse them.
-  //
-  // Unfortunately some modules think that our CLI options are meant for them,
-  // and since there's no way to disable that behavior (!) we have to hide them
-  // manually by setting the args property to an empty array.
-  process.argv = []
-
-  if (config.debug) {
-    process.env.DEBUG = '*'
-  }
-
-  const Koa = require('koa')
-  const path = require('path')
-  const router = require('koa-router')()
-  const koaStatic = require('koa-static')
-  const mount = require('koa-mount')
-  const open = require('open')
-  const koaBody = require('koa-body')
-  const debug = require('debug')('oasis')
-  const ssbRef = require('ssb-ref')
-
-  const author = require('./pages/author')
-  const hashtag = require('./pages/hashtag')
-  const home = require('./pages/home')
-  const profile = require('./pages/profile')
-  const raw = require('./pages/raw')
-  const thread = require('./pages/thread')
-  const like = require('./pages/like')
-  const status = require('./pages/status')
-  const highlight = require('./pages/highlight')
-  const mentions = require('./pages/mentions')
-  const reply = require('./pages/reply')
-  const publishReply = require('./pages/publish-reply')
-  const image = require('./pages/image')
-
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
 
-  const app = module.exports = new Koa()
+  const app = new Koa()
+  module.exports = app
 
-  app.on('error', (err) => {
+  app.on('error', (e) => {
     // Output full error objects
-    err.message = err.stack
-    err.expose = true
+    e.message = e.stack
+    e.expose = true
+    return null
   })
 
   app.use(mount('/assets', assets))
@@ -135,8 +126,8 @@ module.exports = (config) => {
 
   app.use(router.routes())
 
-  const host = config.host
-  const port = config.port
+  const { host } = config
+  const { port } = config
   const uri = `http://${host}:${port}/`
 
   debug.enabled = true

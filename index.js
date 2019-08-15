@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 'use strict'
+
 const yargs = require('yargs')
-const app = require('./src/app')
 
 const config = yargs
   .env('OASIS')
@@ -30,5 +30,17 @@ const config = yargs
     type: 'boolean'
   })
   .argv
+
+// This hides arguments from other upstream modules who might parse them.
+//
+// Unfortunately some modules think that our CLI options are meant for them,
+// and since there's no way to disable that behavior (!) we have to hide them
+// manually by setting the args property to an empty array.
+process.argv = []
+
+if (config.debug) {
+  process.env.DEBUG = '*'
+}
+const app = require('./src/app')
 
 app(config)

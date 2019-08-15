@@ -1,10 +1,11 @@
 'use strict'
+
 const about = require('./models/about')
 const post = require('./models/post')
 const meta = require('./models/meta')
 const authorView = require('./views/author')
 
-module.exports = async function () {
+module.exports = async function profilePage () {
   const whoami = await meta.whoami()
   const feedId = whoami.id
 

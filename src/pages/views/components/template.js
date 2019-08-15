@@ -1,4 +1,5 @@
 'use strict'
+
 const {
   a,
   body,
@@ -11,12 +12,9 @@ const {
   title
 } = require('hyperaxe')
 
-var doctypeString = '<!DOCTYPE html>'
+const doctypeString = '<!DOCTYPE html>'
 
-const toAttributes = (obj) =>
-  Object.entries(obj).map(entry =>
-    `${entry[0]}=${entry[1]}`
-  ).join(', ')
+const toAttributes = (obj) => Object.entries(obj).map((entry) => `${entry[0]}=${entry[1]}`).join(', ')
 
 module.exports = (...elements) => {
   const nodes =
@@ -38,8 +36,7 @@ module.exports = (...elements) => {
           a({ href: 'https://github.com/fraction/oasis/issues/new' }, 'help')
         ),
         main({ id: 'content' }, ...elements)
-      )
-    )
+      ))
 
   const result = doctypeString + nodes.outerHTML
 

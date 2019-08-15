@@ -1,4 +1,5 @@
 'use strict'
+
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
 
@@ -11,7 +12,8 @@ module.exports = {
       ssb.about.socialValue, {
         key: 'name',
         dest: feedId
-      })
+      }
+    )
   },
   image: async (feedId) => {
     const ssb = await cooler.connect()
@@ -24,11 +26,10 @@ module.exports = {
 
     if (raw == null || raw.link == null) {
       return nullImage
-    } else if (typeof raw.link === 'string') {
+    } if (typeof raw.link === 'string') {
       return raw.link
-    } else {
-      return raw
     }
+    return raw
   },
   description: async (feedId) => {
     const ssb = await cooler.connect()
@@ -36,7 +37,8 @@ module.exports = {
       ssb.about.socialValue, {
         key: 'description',
         dest: feedId
-      })
+      }
+    )
     return markdown(raw)
   }
 }

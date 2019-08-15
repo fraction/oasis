@@ -30,7 +30,6 @@ module.exports = ({ message }) => {
       textarea({ autofocus: true, required: true, name: 'text' }, markdownMention),
       button({
         type: 'submit'
-      }, 'reply (public!!!)')
-    )
+      }, 'reply (public!!!)'))
   )
 }

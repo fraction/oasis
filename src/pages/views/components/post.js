@@ -1,4 +1,5 @@
 'use strict'
+
 const {
   a,
   abbr,
@@ -39,7 +40,7 @@ module.exports = ({ msg }) => {
   const isPrivate = Boolean(msg.value.meta.private)
   const isThreadTarget = Boolean(lodash.get(msg, 'value.meta.thread.target', false))
 
-  const name = msg.value.meta.author.name
+  const { name } = msg.value.meta.author
   const timeAgo = msg.value.meta.timestamp.received.since
 
   const depth = lodash.get(msg, 'value.meta.thread.depth', 0)
@@ -94,16 +95,12 @@ module.exports = ({ msg }) => {
     },
     header({ class: 'metadata' },
       a({ href: url.author },
-        img({ class: 'avatar', src: url.avatar, alt: 'profile image' })
-      ),
+        img({ class: 'avatar', src: url.avatar, alt: 'profile image' })),
       span({ class: 'text' },
         span({ class: 'author' },
-          a({ href: url.author }, name)
-        ),
+          a({ href: url.author }, name)),
         span({ class: 'timestamp' }, ` ${timeAgo} ago`),
-        isPrivate ? abbr({ title: 'Private' }, '🔒') : null
-      )
-    ),
+        isPrivate ? abbr({ title: 'Private' }, '🔒') : null)),
     articleContent,
 
     // HACK: centered-footer
@@ -125,15 +122,12 @@ module.exports = ({ msg }) => {
           value: likeButton.value,
           class: likeButton.class
         },
-        `❤ ${likeCount}`
-        )
-      ),
+        `❤ ${likeCount}`)),
       a({ href: url.reply }, 'reply'),
       a({ href: url.context }, 'context'),
       parentLink,
       a({ href: url.raw }, 'raw')
-    )
-    )
+    ))
 
   return fragment
 }

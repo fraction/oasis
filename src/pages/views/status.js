@@ -1,5 +1,5 @@
 'use strict'
-const template = require('./components/template')
+
 const highlightJs = require('highlight.js')
 const {
   h1,
@@ -12,11 +12,12 @@ const {
   section,
   ul
 } = require('hyperaxe')
+const template = require('./components/template')
 
 module.exports = ({ status }) => {
   const max = status.sync.since
 
-  const progressElements = Object.entries(status.sync.plugins).map(e => {
+  const progressElements = Object.entries(status.sync.plugins).map((e) => {
     const [key, val] = e
     const id = `progress-${key}`
     return [
@@ -25,13 +26,9 @@ module.exports = ({ status }) => {
     ]
   })
 
-  const localPeers = Object.keys(status.local || []).map(key => {
-    return li(key)
-  })
+  const localPeers = Object.keys(status.local || []).map((key) => li(key))
 
-  const remotePeers = Object.keys(status.gossip || []).map(key => {
-    return li(key)
-  })
+  const remotePeers = Object.keys(status.gossip || []).map((key) => li(key))
 
   const raw = JSON.stringify(status, null, 2)
   const rawHighlighted = highlightJs.highlight('json', raw).value
@@ -47,7 +44,6 @@ module.exports = ({ status }) => {
       h3('Remote'),
       ul(remotePeers),
       h2('Raw'),
-      pre({ innerHTML: rawHighlighted })
-    )
+      pre({ innerHTML: rawHighlighted }))
   )
 }

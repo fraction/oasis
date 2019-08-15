@@ -1,7 +1,7 @@
 'use strict'
 
-const cooler = require('./lib/cooler')
 const debug = require('debug')('oasis')
+const cooler = require('./lib/cooler')
 
 module.exports = {
   get: async ({ blobId }) => {
