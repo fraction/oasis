@@ -95,7 +95,7 @@ module.exports = ({ msg }) => {
     },
     header({ class: 'metadata' },
       a({ href: url.author },
-        img({ class: 'avatar', src: url.avatar, alt: 'profile image' })),
+        img({ class: 'avatar', src: url.avatar, alt: '' })),
       span({ class: 'text' },
         span({ class: 'author' },
           a({ href: url.author }, name)),
