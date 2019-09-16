@@ -14,7 +14,7 @@ const {
 
 const doctypeString = '<!DOCTYPE html>'
 
-const toAttributes = (obj) => Object.entries(obj).map((entry) => `${entry[0]}=${entry[1]}`).join(', ')
+const toAttributes = (obj) => Object.entries(obj).map(([key, val]) => `${key}=${val}`).join(', ')
 
 module.exports = (...elements) => {
   const nodes =
