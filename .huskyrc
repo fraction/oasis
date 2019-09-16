@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "scripts/test"
+    "pre-commit": "npm test"
   }
 }

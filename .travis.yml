@@ -1,10 +1,21 @@
+# Fix problem where Windows cache would time out.
+cache: false
+
+# Use Node.js configuration.
 language: node_js
 
+# Both latest Node.js and latest LTS.
 node_js: 
   - lts/*
   - node
 
+# All of the operating systems!
+# Note: Windows support is very iffy.
 os:
   - linux
   - osx
   - windows
+
+# This keeps Yarn from hanging the build.
+env:
+  - YARN_GPG=no

@@ -26,7 +26,7 @@
     "ssb-mentions": "^0.5.0",
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
-    "yargs": "^13.2.4"
+    "yargs": "14.0.0"
   },
   "bin": {
     "oasis": "./index.js"
@@ -38,12 +38,12 @@
     "dependency-check": "4.1.0",
     "husky": "^3.0.5",
     "nodemon": "^1.19.1",
-    "standard": "^13.1.0"
+    "standard": "14.3.0"
   },
   "scripts": {
-    "start": "scripts/start",
-    "debug": "scripts/debug",
-    "test": "scripts/test",
-    "preversion": "scripts/test"
+    "start": "node index.js",
+    "debug": "nodemon --inspect index.js --debug",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js && cspell --no-summary '**/*.{js,md}'",
+    "preversion": "npm test"
   }
 }
