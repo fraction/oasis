@@ -36,6 +36,7 @@
   "devDependencies": {
     "cspell": "^4.0.23",
     "dependency-check": "4.1.0",
+    "husky": "^3.0.5",
     "nodemon": "^1.19.1",
     "standard": "^13.1.0"
   },
