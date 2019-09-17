@@ -33,7 +33,7 @@ module.exports = (...elements) => {
           a({ href: '/profile' }, 'profile'),
           a({ href: '/status' }, 'status'),
           a({ href: 'https://github.com/fraction/oasis' }, 'source'),
-          a({ href: 'https://github.com/fraction/oasis/issues/new' }, 'help')
+          a({ href: 'https://github.com/fraction/oasis/issues/new/choose' }, 'help')
         ),
         main({ id: 'content' }, ...elements)
       ))
