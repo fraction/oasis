@@ -1,6 +1,3 @@
-# Fix problem where Windows cache would time out.
-cache: false
-
 # Use Node.js configuration.
 language: node_js
 
