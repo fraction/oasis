@@ -180,14 +180,18 @@ pre {
   padding-left: 1rem;
 }
 
-nav {
+nav > ul {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
   margin: 1rem;
+  padding: 0;
 }
 
-nav a {
+nav > ul > li {
+  list-style: none;
+}
+
+nav > ul > li > a {
   color: var(--secondary);
   text-decoration: none;
   font-weight: bold;

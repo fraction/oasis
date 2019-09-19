@@ -5,11 +5,13 @@ const {
   body,
   head,
   html,
+  li,
   link,
+  main,
   meta,
   nav,
-  main,
-  title
+  title,
+  ul
 } = require('hyperaxe')
 
 const doctypeString = '<!DOCTYPE html>'
@@ -28,13 +30,15 @@ module.exports = (...elements) => {
       ),
       body(
         nav(
-          a({ href: '/' }, 'home'),
-          a({ href: '/mentions' }, 'mentions'),
-          a({ href: '/compose' }, 'compose'),
-          a({ href: '/profile' }, 'profile'),
-          a({ href: '/status' }, 'status'),
-          a({ href: 'https://github.com/fraction/oasis' }, 'source'),
-          a({ href: 'https://github.com/fraction/oasis/issues/new/choose' }, 'help')
+          ul(
+            li(a({ href: '/' }, 'home')),
+            li(a({ href: '/mentions' }, 'mentions')),
+            li(a({ href: '/compose' }, 'compose')),
+            li(a({ href: '/profile' }, 'profile')),
+            li(a({ href: '/status' }, 'status')),
+            li(a({ href: 'https://github.com/fraction/oasis' }, 'source')),
+            li(a({ href: 'https://github.com/fraction/oasis/issues/new/choose' }, 'help'))
+          )
         ),
         main({ id: 'content' }, ...elements)
       ))
