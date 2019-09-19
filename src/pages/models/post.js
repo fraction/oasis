@@ -155,8 +155,11 @@ module.exports = {
     const messages = await new Promise((resolve, reject) => {
       pull(
         source,
-        pull.filter((msg) => typeof msg.value.content !== 'string' &&
-          msg.value.content.type === 'post'),
+        pull.filter((msg) =>
+          typeof msg.value.content !== 'string' &&
+          msg.value.content.type === 'post' &&
+          msg.value.author !== myFeedId
+        ),
         pull.take(60),
         pull.collect((err, collectedMessages) => {
           if (err) {
