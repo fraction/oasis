@@ -8,7 +8,19 @@ const ssbConfig = require('ssb-config')
 const server = flotilla()
 
 const rawConnect = () => new Promise((resolve, reject) => {
-  ssbClient((err, api) => {
+  ssbClient({
+    manifest: {
+      about: { socialValue: 'async' },
+      backlinks: { read: 'source' },
+      blobs: { get: 'source' },
+      createUserStream: 'source',
+      get: 'sync',
+      messagesByType: 'source',
+      publish: 'async',
+      status: 'async',
+      whoami: 'sync'
+    }
+  }, (err, api) => {
     if (err) {
       reject(err)
     } else {
