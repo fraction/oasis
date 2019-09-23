@@ -12,8 +12,9 @@ module.exports = async function imagePage ({ blobId, imageSize }) {
   return new Promise((resolve) => {
     pull(
       bufferSource,
-      pull.collect((err, bufferArray) => {
+      pull.collect(async (err, bufferArray) => {
         if (err) {
+          await blob.want({ blobId })
           sharp({
             create: {
               width: imageSize,
