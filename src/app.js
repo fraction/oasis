@@ -23,6 +23,7 @@ const mentions = require('./pages/mentions')
 const reply = require('./pages/reply')
 const publishReply = require('./pages/publish-reply')
 const image = require('./pages/image')
+const blob = require('./pages/blob')
 const compose = require('./pages/compose')
 const publish = require('./pages/publish')
 
@@ -83,6 +84,10 @@ module.exports = (config) => {
       const { message } = ctx.params
       ctx.type = 'application/json'
       ctx.body = await raw(message)
+    })
+    .get('/blob/:blobId', async (ctx) => {
+      const { blobId } = ctx.params
+      ctx.body = await blob({ blobId })
     })
     .get('/image/:imageSize/:blobId', async (ctx) => {
       const { blobId, imageSize } = ctx.params

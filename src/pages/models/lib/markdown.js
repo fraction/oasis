@@ -25,7 +25,7 @@ const toUrl = (mentions = []) => {
     } if (ssbRef.isMsgId(ref)) {
       return `/thread/${encodeURIComponent(ref)}`
     } if (ssbRef.isBlobId(ref)) {
-      return `http://localhost:8989/blobs/get/${encodeURIComponent(ref)}`
+      return `/blob/${encodeURIComponent(ref)}`
     } if (ref && ref[0] === '#') {
       return `/hashtag/${encodeURIComponent(ref.substr(1))}`
     }

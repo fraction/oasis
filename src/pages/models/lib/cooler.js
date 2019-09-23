@@ -5,7 +5,7 @@ const flotilla = require('@fraction/flotilla')
 const ssbClient = require('ssb-client')
 const ssbConfig = require('ssb-config')
 
-const server = flotilla()
+const server = flotilla({ ws: { http: false } })
 
 const rawConnect = () => new Promise((resolve, reject) => {
   ssbClient({
