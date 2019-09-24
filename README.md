@@ -42,6 +42,7 @@ yarn global add @fraction/oasis
 
 - [patchbay](https://github.com/ssbc/patchbay)
 - [patchwork](https://github.com/ssbc/patchwork)
+- [ssb-browser-demo](https://github.com/arj03/ssb-browser-demo)
 - [ssb-server](https://github.com/ssbc/ssb-server)
 - [yap](https://github.com/dominictarr/yap)
 
