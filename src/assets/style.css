@@ -262,4 +262,8 @@ summary {
   -ms-user-select: all;
   -webkit-user-select: all;
   user-select: all;
+  background: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
