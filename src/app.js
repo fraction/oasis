@@ -26,6 +26,7 @@ const image = require('./pages/image')
 const blob = require('./pages/blob')
 const compose = require('./pages/compose')
 const publish = require('./pages/publish')
+const markdown = require('./pages/markdown')
 
 module.exports = (config) => {
   const assets = new Koa()
@@ -96,6 +97,9 @@ module.exports = (config) => {
     })
     .get('/status/', async (ctx) => {
       ctx.body = await status()
+    })
+    .get('/readme/', async (ctx) => {
+      ctx.body = await markdown(config.readme)
     })
     .get('/mentions/', async (ctx) => {
       ctx.body = await mentions()

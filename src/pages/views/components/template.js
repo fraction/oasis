@@ -36,8 +36,7 @@ module.exports = (...elements) => {
             li(a({ href: '/compose' }, 'compose')),
             li(a({ href: '/profile' }, 'profile')),
             li(a({ href: '/status' }, 'status')),
-            li(a({ href: 'https://github.com/fraction/oasis' }, 'source')),
-            li(a({ href: 'https://github.com/fraction/oasis/issues/new/choose' }, 'help'))
+            li(a({ href: '/readme' }, 'readme'))
           )
         ),
         main({ id: 'content' }, ...elements)

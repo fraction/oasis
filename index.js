@@ -3,6 +3,8 @@
 'use strict'
 
 const yargs = require('yargs')
+const fs = require('fs').promises
+const path = require('path')
 
 const config = yargs
   .env('OASIS')
@@ -39,6 +41,12 @@ process.argv = []
 if (config.debug) {
   process.env.DEBUG = '*'
 }
+
 const app = require('./src/app')
 
-app(config)
+const start = async () => {
+  config.readme = await fs.readFile(path.join(__dirname, 'README.md'), 'utf8')
+  app(config)
+}
+
+start()
