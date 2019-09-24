@@ -14,14 +14,12 @@ $ oasis --help
 Usage: oasis [options]
 
 Options:
-  --help              Show help                                        [boolean]
-  --version           Show version number                              [boolean]
-  --open              Automatically open app in web browser
-                                                       [boolean] [default: true]
-  --host, --web-host  Hostname for web app to listen on
-                                                 [string] [default: "localhost"]
-  --port, --web-port  Set port for web app to listen on [number] [default: 3000]
-  --debug             Use verbose output for debugging[boolean] [default: false]
+  --help     Show help                                                 [boolean]
+  --version  Show version number                                       [boolean]
+  --open     Automatically open app in web browser     [boolean] [default: true]
+  --host     Hostname for web app to listen on   [string] [default: "localhost"]
+  --port     Set port for web app to listen on          [number] [default: 3000]
+  --debug    Use verbose output for debugging         [boolean] [default: false]
 ```
 
 ## Installation

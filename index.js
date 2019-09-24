@@ -15,14 +15,12 @@ const config = yargs
   .options('host', {
     describe: 'Hostname for web app to listen on',
     default: 'localhost',
-    type: 'string',
-    alias: 'web-host' // deprecated
+    type: 'string'
   })
   .options('port', {
     describe: 'Set port for web app to listen on',
     default: 3000,
-    type: 'number',
-    alias: 'web-port' // deprecated
+    type: 'number'
   })
   .options('debug', {
     describe: 'Use verbose output for debugging',
