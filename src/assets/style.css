@@ -183,7 +183,7 @@ pre {
 nav > ul {
   display: flex;
   justify-content: space-between;
-  margin: 1rem;
+  margin: 1rem 0;
   padding: 0;
 }
 
