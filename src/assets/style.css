@@ -3,6 +3,7 @@
   --common-radius: 2px;
   --highlight-shadow: hsl(240, 66%, 92%);
   --highlight: hsl(240, 88%, 88%);
+  --almost-white: hsl(240, 12.5%, 96.9%);
   --off-white: hsl(240, 12%, 92%);
   --discreet: hsl(240, 12%, 96%);
   --primary: hsl(240, 17%, 17%);
@@ -12,6 +13,7 @@
   --medium-stroke: 3px;
   --heavy-stroke: 6px;
 }
+
 html {
   display: flex;
   font-family: system-ui, 
@@ -40,6 +42,11 @@ h1, h2, h3, h4, h5, h6 {
 
 pre {
   overflow-x: auto;
+  background-color: var(--almost-white);
+  padding: 1rem;
+  font-size: 92%;
+  border-radius: var(--common-radius);
+  border: var(--thin-stroke) solid var(--off-white);
 }
 
 .message.private {
@@ -87,7 +94,7 @@ pre {
   }
   body {
     width: 100%;
-    max-width: 40rem;
+    max-width: 42rem;
     margin: 0 1rem;
   }
 }
