@@ -16,7 +16,7 @@ module.exports = ({ messages }) => {
       textarea({ autofocus: true, required: true, name: 'text' }),
       button({
         type: 'submit'
-      }, 'publish')),
+      }, 'submit')),
     messages.map((msg) => post({ msg }))
   )
 }

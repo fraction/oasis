@@ -100,7 +100,7 @@ module.exports = ({ msg }) => {
         span({ class: 'author' },
           a({ href: url.author }, name)),
         span({ class: 'timestamp' }, ` ${timeAgo} ago`),
-        isPrivate ? abbr({ title: 'Private' }, '🔒') : null)),
+        isPrivate ? abbr({ title: 'private' }, '🔒') : null)),
     articleContent,
 
     // HACK: centered-footer
@@ -123,7 +123,7 @@ module.exports = ({ msg }) => {
           class: likeButton.class
         },
         `❤ ${likeCount}`)),
-      a({ href: url.reply }, 'reply'),
+      isPrivate ? null : a({ href: url.reply }, 'reply'),
       a({ href: url.context }, 'context'),
       parentLink,
       a({ href: url.raw }, 'raw')
