@@ -12,7 +12,7 @@ const ssbRef = require('ssb-ref')
 
 const author = require('./pages/author')
 const hashtag = require('./pages/hashtag')
-const home = require('./pages/home')
+const publicPage = require('./pages/public')
 const profile = require('./pages/profile')
 const raw = require('./pages/raw')
 const thread = require('./pages/thread')
@@ -24,7 +24,6 @@ const reply = require('./pages/reply')
 const publishReply = require('./pages/publish-reply')
 const image = require('./pages/image')
 const blob = require('./pages/blob')
-const compose = require('./pages/compose')
 const publish = require('./pages/publish')
 const markdown = require('./pages/markdown')
 
@@ -63,7 +62,7 @@ module.exports = (config) => {
       return next()
     })
     .get('/', async (ctx) => {
-      ctx.body = await home()
+      ctx.body = await publicPage()
     })
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
@@ -111,9 +110,6 @@ module.exports = (config) => {
     .get('/reply/:message', async (ctx) => {
       const { message } = ctx.params
       ctx.body = await reply(message, false)
-    })
-    .get('/compose/', async (ctx) => {
-      ctx.body = await compose()
     })
     .post('/reply/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params

@@ -241,11 +241,12 @@ progress {
 }
 
 textarea {
+  box-sizing: border-box;
   display: block;
-  width: 100%;
-  height: 16rem;
   font-size: 1rem;
-  padding: 0.5rem;
+  padding: 1rem;
+  resize: vertical;
+  width: 100%;
 }
 
 /* content warning! */

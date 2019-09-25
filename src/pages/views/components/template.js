@@ -31,9 +31,8 @@ module.exports = (...elements) => {
       body(
         nav(
           ul(
-            li(a({ href: '/' }, 'home')),
+            li(a({ href: '/' }, 'public')),
             li(a({ href: '/mentions' }, 'mentions')),
-            li(a({ href: '/compose' }, 'compose')),
             li(a({ href: '/profile' }, 'profile')),
             li(a({ href: '/status' }, 'status')),
             li(a({ href: '/readme' }, 'readme'))
