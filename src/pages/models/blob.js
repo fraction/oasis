@@ -12,6 +12,8 @@ module.exports = {
   want: async ({ blobId }) => {
     debug('want blob: %s', blobId)
     const ssb = await cooler.connect()
-    return cooler.get(ssb.blobs.want, blobId)
+
+    // This does not wait for the blob.
+    cooler.get(ssb.blobs.want, blobId)
   }
 }
