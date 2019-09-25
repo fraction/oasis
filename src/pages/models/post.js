@@ -114,7 +114,18 @@ const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (m
   const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
 
   const ts = new Date(msg.value.timestamp)
-  lodash.set(msg, 'value.meta.timestamp.received.iso8601', ts.toISOString())
+  let isoTs
+
+  try {
+    isoTs = ts.toISOString()
+  } catch (e) {
+    // Just in case it's an invalid date. :(
+    debug(e)
+    const receivedTs = new Date(msg.timestamp)
+    isoTs = receivedTs.toISOString()
+  }
+
+  lodash.set(msg, 'value.meta.timestamp.received.iso8601', isoTs)
 
   const ago = Date.now() - Number(ts)
   lodash.set(msg, 'value.meta.timestamp.received.since', prettyMs(ago, { compact: true }))
