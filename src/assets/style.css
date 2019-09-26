@@ -103,13 +103,24 @@ pre {
 }
 
 .message code {
-  color: var(--red);
   max-width: 100%;
   overflow-wrap: break-word;
+  padding: 0.125em 0.25em;
+  margin: 0;
+  font-size: 85%;
+  background-color: var(--almost-white);
+  border-radius: var(--common-radius);
+  border: var(--thin-stroke) solid var(--off-white);
 }
 
 .message pre code {
   color: inherit;
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  background-color: initial;
+  border: initial;
+  border-radius: initial;
 }
 
 @media screen {
