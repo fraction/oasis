@@ -38,12 +38,14 @@
     "dependency-check": "4.1.0",
     "husky": "^3.0.5",
     "nodemon": "^1.19.1",
-    "standard": "14.3.0"
+    "standard": "14.3.0",
+    "stylelint": "^11.0.0",
+    "stylelint-config-recommended": "^3.0.0"
   },
   "scripts": {
     "start": "node index.js",
     "debug": "nodemon --inspect index.js --debug",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js && cspell --no-summary '**/*.{js,md}'",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/style.css",
     "preversion": "npm test"
   }
 }

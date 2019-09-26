@@ -40,6 +40,14 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.5em 0;
 }
 
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+a {
+  color: var(--blue)
+}
+
 pre {
   overflow-x: auto;
   background-color: var(--almost-white);
@@ -81,6 +89,8 @@ pre {
 
 .message code {
   color: var(--red);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .message pre code {
@@ -100,6 +110,12 @@ pre {
   }
 }
 
+nav > ul > li > a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
 .message {
   padding: 1.5rem;
   margin: 1rem 0;
@@ -113,12 +129,19 @@ pre {
   display: flex;
 }
 
+
 .message > header > a > .avatar {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: var(--common-radius);
   margin-right: 0.5rem;
 }
+
+.message > footer > a, .message > footer > form > button {
+  color: var(--secondary);
+  font-weight: bold;
+}
+
 .message > header > .text > .author {
   font-weight: bold;
 }
@@ -161,11 +184,6 @@ pre {
   text-decoration: none;
 }
 
-.message > footer > a, .message > footer > form > button {
-  color: var(--secondary);
-  font-weight: bold;
-}
-
 .message > footer > form > button.liked {
   color: var(--red)
 }
@@ -199,11 +217,6 @@ nav > ul > li {
   list-style: none;
 }
 
-nav > ul > li > a {
-  color: var(--secondary);
-  text-decoration: none;
-  font-weight: bold;
-}
 
 .profile {
   margin-top: 1.5rem;
@@ -222,18 +235,6 @@ nav > ul > li > a {
   border-radius: var(--common-radius);
 }
 
-.message code {
-  max-width: 100%;
-  overflow-wrap: break-word;
-}
-
-ul, ol {
-  padding-left: 1.5rem;
-}
-
-a {
-  color: var(--blue)
-}
 
 progress {
   display: block;
@@ -251,7 +252,7 @@ textarea {
 }
 
 textarea:focus {
-  height: 9rem;
+  height: 12rem;
 }
 
 /* content warning! */
