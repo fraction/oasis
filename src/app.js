@@ -89,6 +89,9 @@ module.exports = (config) => {
     .get('/blob/:blobId', async (ctx) => {
       const { blobId } = ctx.params
       ctx.body = await blob({ blobId })
+
+      // This prevents an auto-download when visiting the URL.
+      ctx.attachment(blobId, { type: 'inline' })
     })
     .get('/image/:imageSize/:blobId', async (ctx) => {
       const { blobId, imageSize } = ctx.params
