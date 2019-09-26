@@ -265,10 +265,15 @@ textarea {
   resize: vertical;
   width: 100%;
   margin: 1rem 0;
+  height: 6rem;
+  transition: 0.0625s all ease;
+  border: var(--thin-stroke) solid var(--off-white);
+  border-radius: var(--common-radius);
 }
 
-textarea:focus {
+form:focus-within > textarea {
   height: 12rem;
+  border-color: var(--highlight);
 }
 
 /* content warning! */
