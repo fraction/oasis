@@ -16,7 +16,8 @@ const template = require('./components/template')
 module.exports = ({
   avatarUrl, name, description, messages, feedId
 }) => {
-  const markdownMention = highlightJs.highlight('markdown', `[@${name}](${feedId})`).value
+  const mention = `[@${name}](${feedId})`
+  const markdownMention = highlightJs.highlight('markdown', mention).value
 
   const prefix = section({ class: 'message' },
     header({ class: 'profile' },

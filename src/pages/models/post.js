@@ -36,110 +36,117 @@ const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
   })
 }
 
-const transform = (ssb, messages, myFeedId) => Promise.all(messages.map(async (msg) => {
-  debug('transforming %s', msg.key)
+const transform = (ssb, messages, myFeedId) =>
+  Promise.all(messages.map(async (msg) => {
+    debug('transforming %s', msg.key)
 
-  if (msg == null) {
-    return null
-  }
-
-  lodash.set(msg, 'value.meta.md.block', () => markdown(msg.value.content.text, msg.value.content.mentions))
-
-  const filterQuery = {
-    $filter: {
-      dest: msg.key
+    if (msg == null) {
+      return null
     }
-  }
 
-  const referenceStream = await cooler.read(ssb.backlinks.read, {
-    query: [filterQuery],
-    index: 'DTA', // use asserted timestamps
-    private: true,
-    meta: true
-  })
-
-  const rawVotes = await new Promise((resolve, reject) => {
-    pull(
-      referenceStream,
-      pull.filter((ref) => typeof ref.value.content !== 'string' &&
-        ref.value.content.type === 'vote' &&
-        ref.value.content.vote &&
-        typeof ref.value.content.vote.value === 'number' &&
-        ref.value.content.vote.value >= 0 &&
-        ref.value.content.vote.link === msg.key),
-      pull.collect((err, collectedMessages) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(collectedMessages)
-        }
-      })
+    lodash.set(msg, 'value.meta.md.block', () =>
+      markdown(msg.value.content.text, msg.value.content.mentions)
     )
-  })
 
-  // { @key: 1, @key2: 0, @key3: 1 }
-  //
-  // only one vote per person!
-  const reducedVotes = rawVotes.reduce((acc, vote) => {
-    acc[vote.value.author] = vote.value.content.vote.value
-    return acc
-  }, {})
-
-  // gets *only* the people who voted 1
-  // [ @key, @key, @key ]
-  const voters = Object.entries(reducedVotes).filter((e) => e[1] === 1).map((e) => e[0])
-
-  const pendingName = cooler.get(
-    ssb.about.socialValue, {
-      key: 'name',
-      dest: msg.value.author
+    const filterQuery = {
+      $filter: {
+        dest: msg.key
+      }
     }
-  )
 
-  const pendingAvatarMsg = cooler.get(
-    ssb.about.socialValue, {
-      key: 'image',
-      dest: msg.value.author
+    const referenceStream = await cooler.read(ssb.backlinks.read, {
+      query: [filterQuery],
+      index: 'DTA', // use asserted timestamps
+      private: true,
+      meta: true
+    })
+
+    const rawVotes = await new Promise((resolve, reject) => {
+      pull(
+        referenceStream,
+        pull.filter((ref) => typeof ref.value.content !== 'string' &&
+          ref.value.content.type === 'vote' &&
+          ref.value.content.vote &&
+          typeof ref.value.content.vote.value === 'number' &&
+          ref.value.content.vote.value >= 0 &&
+          ref.value.content.vote.link === msg.key),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(collectedMessages)
+          }
+        })
+      )
+    })
+
+    // { @key: 1, @key2: 0, @key3: 1 }
+    //
+    // only one vote per person!
+    const reducedVotes = rawVotes.reduce((acc, vote) => {
+      acc[vote.value.author] = vote.value.content.vote.value
+      return acc
+    }, {})
+
+    // gets *only* the people who voted 1
+    // [ @key, @key, @key ]
+    const voters = Object
+      .entries(reducedVotes)
+      .filter(([key, value]) => value === 1)
+      .map(([key]) => key)
+
+    const pendingName = cooler.get(
+      ssb.about.socialValue, {
+        key: 'name',
+        dest: msg.value.author
+      }
+    )
+
+    const pendingAvatarMsg = cooler.get(
+      ssb.about.socialValue, {
+        key: 'image',
+        dest: msg.value.author
+      }
+    )
+
+    const pending = [pendingName, pendingAvatarMsg]
+    const [name, avatarMsg] = await Promise.all(pending)
+
+    const nullImage = `&${'0'.repeat(43)}=.sha256`
+    const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
+      ? avatarMsg.link || nullImage
+      : avatarMsg || nullImage
+
+    const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
+
+    const ts = new Date(msg.value.timestamp)
+    let isoTs
+
+    try {
+      isoTs = ts.toISOString()
+    } catch (e) {
+      // Just in case it's an invalid date. :(
+      debug(e)
+      const receivedTs = new Date(msg.timestamp)
+      isoTs = receivedTs.toISOString()
     }
-  )
 
-  const pending = [pendingName, pendingAvatarMsg]
-  const [name, avatarMsg] = await Promise.all(pending)
+    lodash.set(msg, 'value.meta.timestamp.received.iso8601', isoTs)
 
-  const nullImage = `&${'0'.repeat(43)}=.sha256`
-  const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
-    ? avatarMsg.link || nullImage
-    : avatarMsg || nullImage
+    const ago = Date.now() - Number(ts)
+    const prettyAgo = prettyMs(ago, { compact: true })
+    lodash.set(msg, 'value.meta.timestamp.received.since', prettyAgo)
+    lodash.set(msg, 'value.meta.author.name', name)
+    lodash.set(msg, 'value.meta.author.avatar', {
+      id: avatarId,
+      url: avatarUrl
+    })
 
-  const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
+    lodash.set(msg, 'value.meta.votes', voters)
+    lodash.set(msg, 'value.meta.voted', voters.includes(myFeedId))
 
-  const ts = new Date(msg.value.timestamp)
-  let isoTs
-
-  try {
-    isoTs = ts.toISOString()
-  } catch (e) {
-    // Just in case it's an invalid date. :(
-    debug(e)
-    const receivedTs = new Date(msg.timestamp)
-    isoTs = receivedTs.toISOString()
-  }
-
-  lodash.set(msg, 'value.meta.timestamp.received.iso8601', isoTs)
-
-  const ago = Date.now() - Number(ts)
-  lodash.set(msg, 'value.meta.timestamp.received.since', prettyMs(ago, { compact: true }))
-  lodash.set(msg, 'value.meta.author.name', name)
-  lodash.set(msg, 'value.meta.author.avatar', {
-    id: avatarId,
-    url: avatarUrl
-  })
-
-  lodash.set(msg, 'value.meta.votes', voters)
-  lodash.set(msg, 'value.meta.voted', voters.includes(myFeedId))
-
-  return msg
-}))
+    return msg
+  }))
 
 module.exports = {
   fromFeed: async (feedId, customOptions = {}) => {
@@ -346,7 +353,11 @@ module.exports = {
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
     const flattenDeep = (arr1) => arr1.reduce(
-      (acc, val) => (Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val)), []
+      (acc, val) => (Array.isArray(val)
+        ? acc.concat(flattenDeep(val))
+        : acc.concat(val)
+      ),
+      []
     )
 
     const getDeepReplies = (key) => new Promise((resolve, reject) => {

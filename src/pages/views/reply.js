@@ -19,7 +19,11 @@ module.exports = ({ message }) => {
   return template(
     post({ msg: message }),
     form({ action: likeForm, method: 'post' },
-      textarea({ autofocus: true, required: true, name: 'text' }, markdownMention),
+      textarea({
+        autofocus: true,
+        required: true,
+        name: 'text'
+      }, markdownMention),
       button({
         type: 'submit'
       }, 'reply'))

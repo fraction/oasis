@@ -14,7 +14,7 @@ const toUrl = (mentions = []) => {
     }
   })
 
-  return (ref, isImage) => {
+  return (ref) => {
     // @mentions
     if (ref in mentionNames) {
       return `/author/${encodeURIComponent(mentionNames[ref])}`

@@ -46,7 +46,8 @@ module.exports = (config) => {
   router
     .param('imageSize', (imageSize, ctx, next) => {
       const size = Number(imageSize)
-      ctx.assert(typeof size === 'number' && size % 1 === 0 && size > 2 && size < 1e10, 'Invalid image size')
+      const isInteger = size % 1 === 0
+      ctx.assert(isInteger && size > 2 && size < 1e10, 'Invalid image size')
       return next()
     })
     .param('blobId', (blobId, ctx, next) => {

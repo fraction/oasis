@@ -38,7 +38,11 @@ module.exports = ({ msg }) => {
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
-  const isThreadTarget = Boolean(lodash.get(msg, 'value.meta.thread.target', false))
+  const isThreadTarget = Boolean(lodash.get(
+    msg,
+    'value.meta.thread.target',
+    false
+  ))
 
   const { name } = msg.value.meta.author
   const timeAgo = msg.value.meta.timestamp.received.since
@@ -76,7 +80,10 @@ module.exports = ({ msg }) => {
   const emptyContent = '<p>undefined</p>\n'
   const articleElement = markdownContent === emptyContent
     ? article({ class: 'content' }, pre({
-      innerHTML: highlightJs.highlight('json', JSON.stringify(msg, null, 2)).value
+      innerHTML: highlightJs.highlight(
+        'json',
+        JSON.stringify(msg, null, 2)
+      ).value
     }))
     : article({ class: 'content', innerHTML: markdownContent })
 

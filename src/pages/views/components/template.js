@@ -16,7 +16,8 @@ const {
 
 const doctypeString = '<!DOCTYPE html>'
 
-const toAttributes = (obj) => Object.entries(obj).map(([key, val]) => `${key}=${val}`).join(', ')
+const toAttributes = (obj) =>
+  Object.entries(obj).map(([key, val]) => `${key}=${val}`).join(', ')
 
 module.exports = (...elements) => {
   const nodes =
@@ -25,8 +26,14 @@ module.exports = (...elements) => {
         title('🏝️  Oasis'),
         link({ rel: 'stylesheet', href: '/assets/style.css' }),
         link({ rel: 'stylesheet', href: '/highlight/github.css' }),
-        meta({ name: 'description', content: 'friendly neighborhood scuttlebutt interface' }),
-        meta({ name: 'viewport', content: toAttributes({ width: 'device-width', 'initial-scale': 1 }) })
+        meta({
+          name: 'description',
+          content: 'friendly neighborhood scuttlebutt interface'
+        }),
+        meta({
+          name: 'viewport',
+          content: toAttributes({ width: 'device-width', 'initial-scale': 1 })
+        })
       ),
       body(
         nav(

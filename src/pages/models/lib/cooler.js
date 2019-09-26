@@ -49,7 +49,7 @@ const db = {
     })
   },
   read (method, ...args) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve(method(...args))
     })
   }
@@ -57,7 +57,7 @@ const db = {
 
 debug.enabled = true
 
-const handle = new Promise((resolve, reject) => {
+const handle = new Promise((resolve) => {
   rawConnect().then((ssb) => {
     debug('Using pre-existing Scuttlebutt server instead of starting one')
     resolve(ssb)

@@ -45,7 +45,8 @@ if (config.debug) {
 const app = require('./src/app')
 
 const start = async () => {
-  config.readme = await fs.readFile(path.join(__dirname, 'README.md'), 'utf8')
+  const filePath = path.join(__dirname, 'README.md')
+  config.readme = await fs.readFile(filePath, 'utf8')
   app(config)
 }
 
