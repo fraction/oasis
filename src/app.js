@@ -47,7 +47,9 @@ module.exports = (config) => {
     .param('imageSize', (imageSize, ctx, next) => {
       const size = Number(imageSize)
       const isInteger = size % 1 === 0
-      ctx.assert(isInteger && size > 2 && size < 1e10, 'Invalid image size')
+      const overMinSize = size > 2
+      const underMaxSize = size < 256
+      ctx.assert(isInteger && overMinSize && underMaxSize, 'Invalid image size')
       return next()
     })
     .param('blobId', (blobId, ctx, next) => {
