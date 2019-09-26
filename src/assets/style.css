@@ -16,11 +16,19 @@
 
 html {
   display: flex;
-  font-family: system-ui, 
-  -apple-system, BlinkMacSystemFont, 
-  "Segoe UI", "Roboto", "Oxygen", 
-  "Ubuntu", "Cantarell", "Fira Sans", 
-  "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   justify-content: center;
   font-size: 12pt;
   line-height: 1.5;
@@ -36,16 +44,22 @@ h4 { font-size: 116%; }
 h5 { font-size: 113%; }
 h6 { font-size: 111%; }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0.5em 0;
 }
 
-ul, ol {
+ul,
+ol {
   padding-left: 1.5rem;
 }
 
 a {
-  color: var(--blue)
+  color: var(--blue);
 }
 
 pre {
@@ -71,7 +85,8 @@ pre {
   border-color: var(--highlight);
 }
 
-.message img, .message video {
+.message img,
+.message video {
   max-width: 100%;
   max-height: 30em;
   border: var(--thin-stroke) dotted var(--off-white);
@@ -102,6 +117,7 @@ pre {
     min-height: 100%;
     color: var(--primary);
   }
+
   body {
     width: 100%;
     max-width: 42rem;
@@ -129,7 +145,6 @@ nav > ul > li > a {
   display: flex;
 }
 
-
 .message > header > a > .avatar {
   width: 1.5rem;
   height: 1.5rem;
@@ -137,7 +152,8 @@ nav > ul > li > a {
   margin-right: 0.5rem;
 }
 
-.message > footer > a, .message > footer > form > button {
+.message > footer > a,
+.message > footer > form > button {
   color: var(--secondary);
   font-weight: bold;
 }
@@ -145,6 +161,7 @@ nav > ul > li > a {
 .message > header > .text > .author {
   font-weight: bold;
 }
+
 .message > header > .text > .author > a {
   color: black;
   text-decoration: none;
@@ -185,14 +202,14 @@ nav > ul > li > a {
 }
 
 .message > footer > form > button.liked {
-  color: var(--red)
+  color: var(--red);
 }
 
 .message > footer > form {
   display: inline-block;
 }
 
-.message > footer > form > button{
+.message > footer > form > button {
   display: inline-block;
   border: 0;
   background: transparent;
@@ -217,14 +234,14 @@ nav > ul > li {
   list-style: none;
 }
 
-
 .profile {
   margin-top: 1.5rem;
   display: flex;
   margin-bottom: 1.5rem;
 }
 
-.profile > img, .profile > h1 {
+.profile > img,
+.profile > h1 {
   display: inline-block;
 }
 
@@ -234,7 +251,6 @@ nav > ul > li {
   margin-right: 2rem;
   border-radius: var(--common-radius);
 }
-
 
 progress {
   display: block;
