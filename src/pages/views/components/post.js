@@ -38,8 +38,6 @@ module.exports = ({ msg }) => {
     replyAll: `/reply-all/${encoded.key}`
   }
 
-  const isRoot = msg.value.content.root == null
-
   const isPrivate = Boolean(msg.value.meta.private)
   const isThreadTarget = Boolean(lodash.get(
     msg,
@@ -134,7 +132,7 @@ module.exports = ({ msg }) => {
         },
         `❤ ${likeCount}`)),
       isPrivate ? null : a({ href: url.reply }, 'reply'),
-      isPrivate || isRoot ? null : a({ href: url.replyAll }, 'reply all'),
+      isPrivate ? null : a({ href: url.replyAll }, 'reply all'),
       a({ href: url.context }, 'context'),
       parentLink,
       a({ href: url.raw }, 'raw')

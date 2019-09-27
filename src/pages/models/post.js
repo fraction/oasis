@@ -8,6 +8,7 @@ const debug = require('debug')('oasis:model-post')
 const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
+const { isMsg } = require('ssb-ref')
 
 const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
@@ -271,7 +272,7 @@ const post = {
           resolve(parents)
         }
 
-        if (typeof msg.value.content.fork === 'string') {
+        if (typeof msg.value.content.fork === 'string' && isMsg(msg.value.content.fork)) {
           debug('fork, get the parent')
           try {
             // It's a message reply, get the parent!
@@ -286,7 +287,7 @@ const post = {
             debug(e)
             resolve(msg)
           }
-        } else if (typeof msg.value.content.root === 'string') {
+        } else if (typeof msg.value.content.root === 'string' && isMsg(msg.value.content.root)) {
           debug('thread reply: %s', msg.value.content.root)
           try {
             // It's a thread reply, get the parent!
@@ -430,14 +431,19 @@ const post = {
     return post.publish(message)
   },
   replyAll: async ({ parent, message }) => {
-    const ssb = await cooler.connect()
-    const parentMsg = await cooler.get(ssb.get, parent)
-    const branch = await cooler.get(ssb.tangle.branch, parent)
-
-    message.root = parentMsg.content.root
-    message.branch = branch
+    message.root = lodash.get(parent, 'value.content.root', parent.key)
+    message.branch = await post.branch({ root: parent.key })
 
     return post.publish(message)
+  },
+  branch: async ({ root }) => {
+    const ssb = await cooler.connect()
+    const keys = await cooler.get(ssb.tangle.branch, root)
+
+    return Promise.all(keys
+      .map((key) => post.get(key))
+      .filter((message) => lodash.get(message, 'value.content.type') === 'post')
+    )
   }
 }
 

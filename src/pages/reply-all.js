@@ -1,12 +1,19 @@
 'use strict'
 
-const debug = require('debug')('oasis')
 const post = require('./models/post')
 const replyAllView = require('./views/reply-all')
+const ssbRef = require('ssb-ref')
 
 module.exports = async function replyPage (parentId) {
-  const message = await post.get(parentId)
-  debug('%O', message)
+  const parentMessage = await post.get(parentId)
 
-  return replyAllView({ message })
+  const messages = [parentMessage]
+
+  const hasRoot = typeof parentMessage.value.content.root === 'string' && ssbRef.isMsg(parentMessage.value.content.root)
+  console.log('got root ', parentMessage.value.content)
+  if (hasRoot) {
+    messages.push(await post.get(parentMessage.value.content.root))
+  }
+
+  return replyAllView({ messages })
 }
