@@ -230,6 +230,9 @@ const post = {
     const messages = await new Promise((resolve, reject) => {
       pull(
         source,
+        pull.filter((message) => // avoid private messages (!)
+          typeof message.value.content !== 'string'
+        ),
         pull.collect((err, collectedMessages) => {
           if (err) {
             reject(err)
