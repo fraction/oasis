@@ -148,7 +148,7 @@ const transform = (ssb, messages, myFeedId) =>
     return msg
   }))
 
-module.exports = {
+const post = {
   fromFeed: async (feedId, customOptions = {}) => {
     const ssb = await cooler.connect()
 
@@ -419,5 +419,23 @@ module.exports = {
 
     debug('Published: %O', body)
     return cooler.get(ssb.publish, body)
+  },
+  reply: async ({ parent, message }) => {
+    message.root = parent
+    message.branch = parent
+
+    return post.publish(message)
+  },
+  replyAll: async ({ parent, message }) => {
+    const ssb = await cooler.connect()
+    const parentMsg = await cooler.get(ssb.get, parent)
+    const branch = await cooler.get(ssb.tangle.branch, parent)
+
+    message.root = parentMsg.content.root
+    message.branch = branch
+
+    return post.publish(message)
   }
 }
+
+module.exports = post

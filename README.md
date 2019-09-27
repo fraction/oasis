@@ -52,4 +52,4 @@ yarn global add @fraction/oasis
 
 ## License
 
-ISC
+AGPL-3.0

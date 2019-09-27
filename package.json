@@ -3,7 +3,7 @@
   "version": "2.1.3",
   "main": "index.js",
   "author": "Christian Bundy <christianbundy@fraction.io>",
-  "license": "ISC",
+  "license": "AGPL-3.0",
   "dependencies": {
     "@fraction/flotilla": "^1.0.1",
     "debug": "^4.1.1",

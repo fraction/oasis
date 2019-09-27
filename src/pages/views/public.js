@@ -13,7 +13,7 @@ module.exports = ({ messages }) => {
 
   return template(
     form({ action: publishForm, method: 'post' },
-      textarea({ autofocus: true, required: true, name: 'text' }),
+      textarea({ required: true, name: 'text' }),
       button({
         type: 'submit'
       }, 'submit')),
