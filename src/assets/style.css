@@ -4,7 +4,7 @@
   --heavy-stroke: 6px;
   --common-radius: 2px;
 
-  /* light
+  /* light mode */
   --blue: hsl(240, 75%, 50%);
   --highlight-shadow: hsl(240, 66%, 92%);
   --highlight: hsl(240, 88%, 88%);
@@ -14,9 +14,10 @@
   --primary: hsl(240, 17%, 17%);
   --red: hsl(330, 75%, 50%);
   --secondary: hsl(240, 8%, 38%);
-  --background: white;
+  --background: var(--almost-white);
   --heavy: black;
-  */
+
+  /* dark mode
   --blue: hsl(240, 50%, 50%);
   --highlight-shadow: hsl(240, 66%, 25%);
   --highlight: hsl(240, 88%, 33%);
@@ -28,6 +29,7 @@
   --secondary: hsl(240, 8%, 62%);
   --background: var(--almost-white);
   --heavy: hsl(240, 12.5%, 75%);
+  */
 }
 
 html {
@@ -304,6 +306,13 @@ textarea {
   border-radius: var(--common-radius);
 }
 
+/*
+ * Make textaarea big when textarea siblings are active.
+ * Make textarea big when focus is in form.
+ *
+ * This ensures that trying to click the submit button doesn't change the form.
+ */
+*:active ~ textarea,
 form:focus-within > textarea {
   height: 12rem;
   border-color: var(--highlight);
