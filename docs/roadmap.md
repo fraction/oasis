@@ -29,9 +29,11 @@
       - [ ] Listen / ignore  (private)
       - [ ] Block / unblock (public)
   - [ ] Posts
-    - [ ] New
+    - [x] New
     - [x] Reply
-    - [ ] Reply all
+    - [x] Reply all
     - [ ] Easy message / author reference
     - [ ] Pre-publish preview
+    - [ ] Add blob attachment(s)
   - [x] Like / unlike
+    - [ ] Correctly set `branch`
