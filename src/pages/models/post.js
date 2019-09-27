@@ -377,10 +377,11 @@ const post = {
         return Promise.all(replies.map(async (reply) => {
           const deeperReplies = await oneDeeper(reply.key, depth + 1)
           lodash.set(reply, 'value.meta.thread.depth', depth)
+          lodash.set(reply, 'value.meta.thread.reply', true)
           return [reply, deeperReplies]
         }))
       }
-      oneDeeper(key, 1).then((nested) => {
+      oneDeeper(key, 0).then((nested) => {
         const nestedReplies = [...nested]
         const deepReplies = flattenDeep(nestedReplies)
         resolve(deepReplies)

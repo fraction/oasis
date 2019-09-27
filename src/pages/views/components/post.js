@@ -44,6 +44,11 @@ module.exports = ({ msg }) => {
     'value.meta.thread.target',
     false
   ))
+  const isReply = Boolean(lodash.get(
+    msg,
+    'value.meta.thread.reply',
+    false
+  ))
 
   const { name } = msg.value.meta.author
   const timeAgo = msg.value.meta.timestamp.received.since
@@ -74,7 +79,7 @@ module.exports = ({ msg }) => {
     messageClasses.push('thread-target')
   }
 
-  if (depth > 0) {
+  if (isReply) {
     messageClasses.push('reply')
   }
 
