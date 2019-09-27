@@ -1,6 +1,11 @@
 :root {
-  --blue: hsl(240, 75%, 50%);
+  --thin-stroke: 1px;
+  --medium-stroke: 3px;
+  --heavy-stroke: 6px;
   --common-radius: 2px;
+
+  /* light
+  --blue: hsl(240, 75%, 50%);
   --highlight-shadow: hsl(240, 66%, 92%);
   --highlight: hsl(240, 88%, 88%);
   --almost-white: hsl(240, 12.5%, 98.4%);
@@ -9,9 +14,20 @@
   --primary: hsl(240, 17%, 17%);
   --red: hsl(330, 75%, 50%);
   --secondary: hsl(240, 8%, 38%);
-  --thin-stroke: 1px;
-  --medium-stroke: 3px;
-  --heavy-stroke: 6px;
+  --background: white;
+  --heavy: black;
+  */
+  --blue: hsl(240, 50%, 50%);
+  --highlight-shadow: hsl(240, 66%, 25%);
+  --highlight: hsl(240, 88%, 33%);
+  --almost-white: hsl(240, 12.5%, 1.6%);
+  --off-white: hsl(240, 12%, 12.5%);
+  --discreet: hsl(240, 12%, 4%);
+  --primary: hsl(240, 8.3%, 66%);
+  --red: hsl(330, 75%, 50%);
+  --secondary: hsl(240, 8%, 62%);
+  --background: var(--almost-white);
+  --heavy: hsl(240, 12.5%, 75%);
 }
 
 html {
@@ -131,6 +147,7 @@ pre {
   html {
     min-height: 100%;
     color: var(--primary);
+    background-color: var(--background);
   }
 
   body {
@@ -178,7 +195,7 @@ nav > ul > li > a {
 }
 
 .message > header > .text > .author > a {
-  color: black;
+  color: var(--heavy);
   text-decoration: none;
 }
 
@@ -273,6 +290,7 @@ progress {
 }
 
 textarea {
+  background-color: var(--background);
   box-sizing: border-box;
   display: block;
   font-size: 1rem;
