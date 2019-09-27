@@ -81,7 +81,6 @@ module.exports = (config) => {
       const { style } = ctx.params
       ctx.type = 'text/css'
       ctx.body = highlight(style)
-      ctx.set('Cache-Control', 'max-age=31536000')
     })
     .get('/profile/', async (ctx) => {
       ctx.body = await profile()
@@ -97,13 +96,11 @@ module.exports = (config) => {
 
       // This prevents an auto-download when visiting the URL.
       ctx.attachment(blobId, { type: 'inline' })
-      ctx.set('Cache-Control', 'max-age=31536000')
     })
     .get('/image/:imageSize/:blobId', async (ctx) => {
       const { blobId, imageSize } = ctx.params
       ctx.type = 'image/png'
       ctx.body = await image({ blobId, imageSize: Number(imageSize) })
-      ctx.set('Cache-Control', 'max-age=31536000')
     })
     .get('/status/', async (ctx) => {
       ctx.body = await status()
