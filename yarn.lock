@@ -6718,6 +6718,11 @@ ssb-mentions@^0.5.0:
     ssb-marked "^0.7.0"
     ssb-ref "^2.11.0"
 
+ssb-msg-content@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ssb-msg-content/-/ssb-msg-content-1.0.1.tgz#08d61181ea2b4676185ed0ae7062a32e67773dfa"
+  integrity sha512-M6W0Ef+jif829USmGvh6XeS4lYb/F2lgFhfEoCE/md7ESILNOGidp8frJE2uVOzSr2wVRA265tPrnVb7rYHkug==
+
 ssb-msgs@^5.0.0, ssb-msgs@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/ssb-msgs/-/ssb-msgs-5.2.0.tgz#c681da5cd70c574c922dca4f03c521538135c243"
@@ -6781,7 +6786,7 @@ ssb-query@^2.4.3:
     flumeview-query "^7.0.0"
     pull-stream "^3.6.2"
 
-ssb-ref@^2.0.0, ssb-ref@^2.11.0, ssb-ref@^2.12.0, ssb-ref@^2.13.3, ssb-ref@^2.13.9, ssb-ref@^2.3.0, ssb-ref@^2.6.2, ssb-ref@^2.7.1, ssb-ref@^2.9.0, ssb-ref@^2.9.1, ssb-ref@~2.13.9:
+ssb-ref@^2.0.0, ssb-ref@^2.11.0, ssb-ref@^2.12.0, ssb-ref@^2.13.3, ssb-ref@^2.13.6, ssb-ref@^2.13.9, ssb-ref@^2.3.0, ssb-ref@^2.6.2, ssb-ref@^2.7.1, ssb-ref@^2.9.0, ssb-ref@^2.9.1, ssb-ref@~2.13.9:
   version "2.13.9"
   resolved "https://registry.yarnpkg.com/ssb-ref/-/ssb-ref-2.13.9.tgz#1de8c5b4f12e5b743be95705656ad2706c0e3cd0"
   integrity sha512-TfatNqLvoP+eW/pMIbCmNcaoDq4R2k8jCtWkwDKx4AtluN/LwtyP931d5Mh+2gmzA04W7kxkr6f5ENGgdadMYg==
@@ -6806,6 +6811,13 @@ ssb-replicate@^1.3.0:
     pull-pushable "^2.2.0"
     pull-stream "^3.6.9"
     ssb-ref "^2.13.9"
+
+ssb-schema-definitions@^1.1.5:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ssb-schema-definitions/-/ssb-schema-definitions-1.2.0.tgz#13325886c1e00398956bb0b269e0d30e43acc55f"
+  integrity sha512-/7wTiguWX26c5n14lm2SpDkIgPPoyQ2AGAhX/3mnJXVgBrI1wcWiCI8YubSH6zQkllbLFj+pCUuYQHrmMxNRqw==
+  dependencies:
+    ssb-ref "^2.13.6"
 
 ssb-social-index@^1.0.0:
   version "1.0.0"
@@ -6833,6 +6845,15 @@ ssb-tangle@^1.0.1:
     pull-stream "^3.6.11"
     ssb-ref "^2.13.9"
     ssb-sort "^1.1.3"
+
+ssb-thread-schema@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/ssb-thread-schema/-/ssb-thread-schema-1.0.3.tgz#55f6b026babfeb9a872dddf13a51c2a9bd89cb7f"
+  integrity sha512-pq2hIeyZdRNjJpCCp6tONVIJezyMWtmIYCnbp3fP6L1w2/qnzUtTqYr9jvw+KpFJzuprN1BwyL5Kri57slMekg==
+  dependencies:
+    is-my-json-valid "^2.20.0"
+    ssb-msg-content "^1.0.1"
+    ssb-schema-definitions "^1.1.5"
 
 ssb-typescript@^1.4.0:
   version "1.4.0"

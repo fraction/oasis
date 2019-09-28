@@ -10,7 +10,6 @@ module.exports = async function replyPage (parentId) {
   const messages = [parentMessage]
 
   const hasRoot = typeof parentMessage.value.content.root === 'string' && ssbRef.isMsg(parentMessage.value.content.root)
-  console.log('got root ', parentMessage.value.content)
   if (hasRoot) {
     messages.push(await post.get(parentMessage.value.content.root))
   }

@@ -334,8 +334,6 @@ summary {
   -webkit-user-select: all;
   user-select: all;
   background: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
   font-size: 50%;
+  text-align: center;
 }

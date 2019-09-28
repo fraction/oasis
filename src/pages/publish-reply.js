@@ -7,8 +7,9 @@ module.exports = async function publishReplyPage ({ message, text }) {
   // TODO: rename `message` to `parent` or `ancestor` or similar
   const mentions = ssbMentions(text) || undefined
 
+  const parent = await post.get(message)
   return post.reply({
-    parent: message,
+    parent,
     message: { text, mentions }
   })
 }

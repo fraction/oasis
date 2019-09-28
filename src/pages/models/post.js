@@ -3,12 +3,12 @@
 const lodash = require('lodash')
 const pull = require('pull-stream')
 const prettyMs = require('pretty-ms')
+const { isRoot, isNestedReply, isReply } = require('ssb-thread-schema')
 const debug = require('debug')('oasis:model-post')
 
 const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
-const { isMsg } = require('ssb-ref')
 
 const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
@@ -272,7 +272,11 @@ const post = {
           resolve(parents)
         }
 
-        if (typeof msg.value.content.fork === 'string' && isMsg(msg.value.content.fork)) {
+        if (msg.value.content.type !== 'post') {
+          resolve(msg)
+        }
+
+        if (isNestedReply(msg)) {
           debug('fork, get the parent')
           try {
             // It's a message reply, get the parent!
@@ -287,7 +291,7 @@ const post = {
             debug(e)
             resolve(msg)
           }
-        } else if (typeof msg.value.content.root === 'string' && isMsg(msg.value.content.root)) {
+        } else if (isReply(msg)) {
           debug('thread reply: %s', msg.value.content.root)
           try {
             // It's a thread reply, get the parent!
@@ -302,8 +306,13 @@ const post = {
             debug(e)
             resolve(msg)
           }
-        } else {
+        } else if (isRoot(msg)) {
           debug('got root ancestor')
+          resolve(msg)
+        } else {
+          // type !== "post", probably
+          // this should show up as JSON
+          debug('got mysterious root ancestor')
           resolve(msg)
         }
       }
@@ -426,14 +435,29 @@ const post = {
     return cooler.get(ssb.publish, body)
   },
   reply: async ({ parent, message }) => {
-    message.root = parent
-    message.branch = parent
+    message.root = parent.key
+    message.fork = lodash.get(parent, 'value.content.root')
+    message.branch = await post.branch({ root: parent.key })
+    message.type = 'post' // redundant but used for validation
+
+    if (isNestedReply(message) !== true) {
+      const messageString = JSON.stringify(message, null, 2)
+      throw new Error(`message should be valid reply: ${messageString}`)
+    }
 
     return post.publish(message)
   },
   replyAll: async ({ parent, message }) => {
-    message.root = lodash.get(parent, 'value.content.root', parent.key)
+    const fork = parent.key
+    const root = lodash.get(parent, 'value.content.root', parent.key)
+    message.root = fork || root
     message.branch = await post.branch({ root: parent.key })
+    message.type = 'post' // redundant but used for validation
+
+    if (isReply(message) !== true) {
+      const messageString = JSON.stringify(message, null, 2)
+      throw new Error(`message should be valid replyAll: ${messageString}`)
+    }
 
     return post.publish(message)
   },
