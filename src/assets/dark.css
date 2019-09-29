@@ -1,6 +1,6 @@
 :root {
-  --thin-stroke: 1px;
-  --medium-stroke: 3px;
+  --thin-stroke: 2px;
+  --medium-stroke: 4px;
   --heavy-stroke: 6px;
   --common-radius: var(--thin-stroke);
   --blue: hsl(240, 50%, 50%);
