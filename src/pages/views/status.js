@@ -2,14 +2,18 @@
 
 const highlightJs = require('highlight.js')
 const {
+  button,
+  form,
   h1,
   h2,
   h3,
   label,
   li,
+  option,
   pre,
   progress,
   section,
+  select,
   ul
 } = require('hyperaxe')
 const template = require('./components/template')
@@ -35,6 +39,17 @@ module.exports = ({ status }) => {
 
   return template(
     section({ class: 'message' },
+      h1('Theme'),
+      form({ action: '/theme.css', method: 'post' },
+        select({ name: 'theme' },
+          option({ value: 'light' }, 'light'),
+          option({ value: 'dark' }, 'dark'),
+          option({ value: 'solarized-light' }, 'solarized light')
+        ),
+        button({
+          type: 'submit'
+        }, 'set theme'
+        )),
       h1('Status'),
       h2('Indexes'),
       progressElements,

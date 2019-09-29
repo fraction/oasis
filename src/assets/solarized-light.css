@@ -1,0 +1,17 @@
+:root {
+  --thin-stroke: 1px;
+  --medium-stroke: 3px;
+  --heavy-stroke: 6px;
+  --common-radius: var(--thin-stroke);
+  --blue: #268bd2;
+  --highlight: #6c71c4;
+  --highlight-shadow: rgba(108, 113, 196, 0.33);
+  --almost-white: #fdf6e3;
+  --off-white: #eee8d5;
+  --discreet: #eee8d5;
+  --primary: #657b83;
+  --red: #dc322f;
+  --secondary: var(--primary);
+  --background: var(--almost-white);
+  --heavy: var(--primary);
+}

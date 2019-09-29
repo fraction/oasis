@@ -9,6 +9,7 @@ const open = require('open')
 const koaBody = require('koa-body')
 const debug = require('debug')('oasis')
 const ssbRef = require('ssb-ref')
+const requireStyle = require('require-style')
 
 const author = require('./pages/author')
 const hashtag = require('./pages/hashtag')
@@ -18,7 +19,6 @@ const raw = require('./pages/raw')
 const thread = require('./pages/thread')
 const like = require('./pages/like')
 const status = require('./pages/status')
-const highlight = require('./pages/highlight')
 const mentions = require('./pages/mentions')
 const reply = require('./pages/reply')
 const replyAll = require('./pages/reply-all')
@@ -79,8 +79,16 @@ module.exports = (config) => {
     })
     .get('/highlight/:style', (ctx) => {
       const { style } = ctx.params
+      const filePath = `highlight.js/styles/${style}`
+
       ctx.type = 'text/css'
-      ctx.body = highlight(style)
+      ctx.body = requireStyle(filePath)
+    })
+    .get('/theme.css', (ctx) => {
+      const defaultTheme = 'light'
+      const theme = ctx.cookies.get('theme') || defaultTheme
+      debug('current theme: %s', theme)
+      ctx.redirect(`/assets/${theme}.css`)
     })
     .get('/profile/', async (ctx) => {
       ctx.body = await profile()
@@ -147,13 +155,21 @@ module.exports = (config) => {
 
       const voteValue = Number(ctx.request.body.voteValue)
 
-      const referer = new URL(ctx.request.header.referer)
       const encoded = {
         message: encodeURIComponent(message)
       }
 
+      const referer = new URL(ctx.request.header.referer)
       referer.hash = `centered-footer-${encoded.message}`
+
       ctx.body = await like({ messageKey, voteValue })
+      ctx.redirect(referer)
+    })
+    .post('/theme.css', koaBody(), async (ctx) => {
+      const theme = String(ctx.request.body.theme)
+      debug('setting theme: %s', theme)
+      ctx.cookies.set('theme', theme)
+      const referer = new URL(ctx.request.header.referer)
       ctx.redirect(referer)
     })
 

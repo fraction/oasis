@@ -1,0 +1,17 @@
+:root {
+  --thin-stroke: 1px;
+  --medium-stroke: 3px;
+  --heavy-stroke: 6px;
+  --common-radius: var(--thin-stroke);
+  --blue: hsl(240, 50%, 50%);
+  --highlight-shadow: hsl(240, 66%, 25%);
+  --highlight: hsl(240, 88%, 33%);
+  --almost-white: hsl(240, 12.5%, 1.6%);
+  --off-white: hsl(240, 12%, 25%);
+  --discreet: hsl(240, 12%, 25%);
+  --primary: hsl(240, 8.3%, 66%);
+  --red: hsl(330, 75%, 50%);
+  --secondary: hsl(240, 8%, 62%);
+  --background: var(--almost-white);
+  --heavy: hsl(240, 12.5%, 75%);
+}
