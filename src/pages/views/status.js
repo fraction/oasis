@@ -37,7 +37,18 @@ module.exports = ({ status, theme }) => {
   const raw = JSON.stringify(status, null, 2)
   const rawHighlighted = highlightJs.highlight('json', raw).value
 
-  const themes = ['light', 'dark', 'solarized-light']
+  const themes = [
+    'atelier-cave',
+    'github',
+    'ir-black',
+    'monokai',
+    'nord',
+    'ocean',
+    'railscasts',
+    'solarized-dark',
+    'solarized-light',
+    'tomorrow'
+  ]
 
   const themeElements = themes.map((cur) => {
     const isCurrentTheme = cur === theme

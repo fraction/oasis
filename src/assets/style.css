@@ -1,3 +1,34 @@
+:root {
+  --red: var(--base08);
+  --orange: var(--base09);
+  --yellow: var(--base0A);
+  --green: var(--base0B);
+  --cyan: var(--base0C);
+  --blue: var(--base0D);
+  --violet: var(--base0E);
+  --rust: var(--base0F);
+  --bg: var(--base00);
+  --bg-status: var(--base01);
+  --bg-selection: var(--base02);
+  --fg-alt: var(--base03);
+  --fg-status: var(--base04);
+  --fg: var(--base05);
+  --fg-light: var(--base06);
+  --bg-light: var(--base07);
+  --thin-stroke: 1px;
+  --medium-stroke: 3px;
+  --heavy-stroke: 6px;
+  --common-radius: var(--thin-stroke);
+  --highlight-shadow: var(--violet);
+  --almost-white: var(--background);
+  --off-white: var(--bg-status);
+  --discreet: var(--bg-status);
+  --primary: var(--fg);
+  --secondary: var(--fg-light);
+  --background: var(--bg);
+  --heavy: var(--fg-light);
+}
+
 html {
   display: flex;
   font-family:
@@ -69,8 +100,7 @@ pre {
 }
 
 .message.thread-target {
-  box-shadow: 0 0 0 var(--medium-stroke) var(--highlight-shadow);
-  border-color: var(--highlight);
+  border-color: var(--blue);
 }
 
 .message img,
@@ -127,7 +157,7 @@ pre {
 }
 
 nav > ul > li > a {
-  color: var(--secondary);
+  color: var(--primary);
   text-decoration: none;
   font-weight: bold;
 }
@@ -154,7 +184,7 @@ nav > ul > li > a {
 
 .message > footer > a,
 .message > footer > form > button {
-  color: var(--secondary);
+  color: var(--primary);
   font-weight: bold;
 }
 

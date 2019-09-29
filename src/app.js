@@ -77,18 +77,22 @@ module.exports = (config) => {
       const { channel } = ctx.params
       ctx.body = await hashtag(channel)
     })
-    .get('/highlight/:style', (ctx) => {
-      const { style } = ctx.params
+    .get('/highlight.css', (ctx) => {
+      const defaultTheme = 'tomorrow'
+      const style = ctx.cookies.get('theme') || defaultTheme
       const filePath = `highlight.js/styles/${style}`
 
       ctx.type = 'text/css'
+      console.log(filePath)
       ctx.body = requireStyle(filePath)
     })
     .get('/theme.css', (ctx) => {
-      const defaultTheme = 'light'
+      const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
       debug('current theme: %s', theme)
-      ctx.redirect(`/assets/${theme}.css`)
+      const filePath = `base16-styles/css-variables/base16-${theme}.css`
+      ctx.type = 'text/css'
+      ctx.body = requireStyle(filePath)
     })
     .get('/profile/', async (ctx) => {
       ctx.body = await profile()
@@ -111,7 +115,7 @@ module.exports = (config) => {
       ctx.body = await image({ blobId, imageSize: Number(imageSize) })
     })
     .get('/status/', async (ctx) => {
-      const defaultTheme = 'light'
+      const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
       ctx.body = await status({ theme })
     })

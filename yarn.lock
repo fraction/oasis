@@ -522,6 +522,10 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
+"base16-styles@github:samme/base16-styles":
+  version "0.0.0"
+  resolved "https://codeload.github.com/samme/base16-styles/tar.gz/8db4f00ca9e5575ba52d98a204ee44a53e13d546"
+
 base64-url@^2.2.0:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/base64-url/-/base64-url-2.3.2.tgz#d7ea32e80ce3c3ad49f823e77c4dd247c6b81759"

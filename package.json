@@ -6,6 +6,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@fraction/flotilla": "^1.0.1",
+    "base16-styles": "github:samme/base16-styles",
     "debug": "^4.1.1",
     "highlight.js": "^9.15.8",
     "hyperaxe": "^1.3.0",
@@ -46,7 +47,7 @@
   "scripts": {
     "start": "node index.js",
     "debug": "nodemon --inspect index.js --debug",
-    "test": "standard --fix && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js && cspell --no-summary '**/*.{js,md}' && stylelint --fix src/assets/style.css",
+    "test": "standard --fix && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module base16-styles && cspell --no-summary '**/*.{js,md}' && stylelint --fix src/assets/style.css",
     "preversion": "npm test"
   }
 }
