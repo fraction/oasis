@@ -111,7 +111,9 @@ module.exports = (config) => {
       ctx.body = await image({ blobId, imageSize: Number(imageSize) })
     })
     .get('/status/', async (ctx) => {
-      ctx.body = await status()
+      const defaultTheme = 'light'
+      const theme = ctx.cookies.get('theme') || defaultTheme
+      ctx.body = await status({ theme })
     })
     .get('/readme/', async (ctx) => {
       ctx.body = await markdown(config.readme)
