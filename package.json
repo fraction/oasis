@@ -47,7 +47,7 @@
   "scripts": {
     "start": "node index.js",
     "debug": "nodemon --inspect index.js --debug",
-    "test": "standard --fix && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module base16-styles && cspell --no-summary '**/*.{js,md}' && stylelint --fix src/assets/style.css",
+    "test": "standard --fix && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module base16-styles && cspell --no-summary '**/*.{js,md}' && stylelint --fix src/assets/*.css",
     "preversion": "npm test"
   }
 }

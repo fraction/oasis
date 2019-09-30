@@ -1,4 +1,15 @@
 :root {
+  /*
+   * according to https://www.color-blindness.com/color-name-hue/
+   *
+   * amber
+   * chartreuse
+   * free-speech-green (lime)
+   * aqua
+   * blue
+   * electric-indigo
+   * hot-magenta
+   */
   --red: var(--base08);
   --orange: var(--base09);
   --yellow: var(--base0A);
@@ -6,7 +17,9 @@
   --cyan: var(--base0C);
   --blue: var(--base0D);
   --violet: var(--base0E);
-  --rust: var(--base0F);
+  --magenta: var(--base0F);
+
+  /* convenience */
   --bg: var(--base00);
   --bg-status: var(--base01);
   --bg-selection: var(--base02);
@@ -15,18 +28,12 @@
   --fg: var(--base05);
   --fg-light: var(--base06);
   --bg-light: var(--base07);
+
+  /* size */
   --thin-stroke: 1px;
   --medium-stroke: 3px;
-  --heavy-stroke: 6px;
+  --fg-light-stroke: 6px;
   --common-radius: var(--thin-stroke);
-  --highlight: var(--blue);
-  --almost-white: var(--background);
-  --off-white: var(--bg-status);
-  --discreet: var(--bg-status);
-  --primary: var(--fg);
-  --secondary: var(--fg-light);
-  --background: var(--bg);
-  --heavy: var(--fg-light);
 }
 
 html {
@@ -83,15 +90,15 @@ button {
 
 pre {
   overflow-x: auto;
-  background-color: var(--almost-white);
+  background-color: var(--bg);
   padding: 1rem;
   font-size: 92%;
   border-radius: var(--common-radius);
-  border: var(--thin-stroke) solid var(--off-white);
+  border: var(--thin-stroke) solid var(--bg-status);
 }
 
 .message.private {
-  background-color: var(--discreet);
+  background-color: var(--bg-status);
 }
 
 .message.reply {
@@ -107,7 +114,7 @@ pre {
 .message video {
   max-width: 100%;
   max-height: 30em;
-  border: var(--thin-stroke) dotted var(--off-white);
+  border: var(--thin-stroke) dotted var(--bg-status);
 }
 
 .message audio {
@@ -130,9 +137,9 @@ pre {
   padding: 0.125em 0.25em;
   margin: 0;
   font-size: 85%;
-  background-color: var(--almost-white);
+  background-color: var(--bg);
   border-radius: var(--common-radius);
-  border: var(--thin-stroke) solid var(--off-white);
+  border: var(--thin-stroke) solid var(--bg-status);
 }
 
 .message pre code {
@@ -148,8 +155,8 @@ pre {
 @media screen {
   html {
     min-height: 100%;
-    color: var(--primary);
-    background-color: var(--background);
+    color: var(--fg);
+    background-color: var(--bg);
   }
 
   body {
@@ -161,7 +168,7 @@ pre {
 }
 
 nav > ul > li > a {
-  color: var(--primary);
+  color: var(--fg);
   text-decoration: none;
   font-weight: bold;
 }
@@ -170,7 +177,7 @@ nav > ul > li > a {
   padding: 1.5rem;
   margin: 1rem 0;
   border-radius: var(--common-radius);
-  border: var(--thin-stroke) solid var(--off-white);
+  border: var(--thin-stroke) solid var(--bg-status);
   word-wrap: break-word;
 }
 
@@ -188,7 +195,7 @@ nav > ul > li > a {
 
 .message > footer > a,
 .message > footer > form > button {
-  color: var(--primary);
+  color: var(--fg);
   font-weight: bold;
 }
 
@@ -197,7 +204,7 @@ nav > ul > li > a {
 }
 
 .message > header > .text > .author > a {
-  color: var(--heavy);
+  color: var(--fg-light);
   text-decoration: none;
 }
 
@@ -253,7 +260,7 @@ nav > ul > li > a {
 
 .message blockquote {
   margin-left: 0;
-  border-left: var(--heavy-stroke) solid var(--off-white);
+  border-left: var(--fg-light-stroke) solid var(--bg-status);
   padding-left: 1rem;
 }
 
@@ -299,7 +306,7 @@ progress {
 }
 
 textarea {
-  background-color: var(--background);
+  background-color: var(--bg);
   box-sizing: border-box;
   display: block;
   font-size: 1rem;
@@ -309,9 +316,9 @@ textarea {
   margin: 1rem 0;
   height: 6rem;
   transition: 0.0625s all ease;
-  border: var(--thin-stroke) solid var(--off-white);
+  border: var(--thin-stroke) solid var(--bg-status);
   border-radius: var(--common-radius);
-  color: var(--primary);
+  color: var(--fg);
 }
 
 /*
@@ -323,7 +330,7 @@ textarea {
 *:active ~ textarea,
 form:focus-within > textarea {
   height: 12rem;
-  border-color: var(--highlight);
+  border-color: var(--blue);
 }
 
 /* content warning! */
