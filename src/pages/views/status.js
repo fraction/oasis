@@ -11,6 +11,7 @@ const {
   label,
   li,
   option,
+  p,
   pre,
   progress,
   section,
@@ -160,6 +161,7 @@ module.exports = ({ status, theme }) => {
   return template(
     section({ class: 'message' },
       h1('Theme'),
+      p('Choose from any theme you\'d like. The default theme is Tomorrow.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
