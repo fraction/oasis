@@ -36,6 +36,10 @@
   --common-radius: var(--thin-stroke);
 }
 
+* {
+  scrollbar-color: var(--fg-status)  var(--bg-status);
+}
+
 html {
   display: flex;
   font-family:
@@ -86,6 +90,20 @@ a {
 
 button {
   cursor: pointer;
+  background: var(--bg-status);
+  color: var(--fg-status);
+  border: 0;
+  padding: 0.5rem 1rem;
+}
+
+select {
+  background: var(--bg);
+  color: var(--fg-status);
+  border: var(--thin-stroke) solid var(--bg-status);
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 pre {
@@ -108,6 +126,7 @@ pre {
 
 .message.thread-target {
   border-color: var(--blue);
+
   /* prevents other messages from overlapping */
   margin-top: 1px;
   margin-bottom: 0;
