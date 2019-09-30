@@ -3,6 +3,7 @@
 const highlightJs = require('highlight.js')
 const {
   button,
+  div,
   form,
   h1,
   h2,
@@ -125,12 +126,44 @@ module.exports = ({ status, theme }) => {
     }
   })
 
+  const base16 = [
+    // '00', removed because this is the background
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '0A',
+    '0B',
+    '0C',
+    '0D',
+    '0E',
+    '0F'
+  ]
+
+  const base16Elements = base16.map((base) =>
+    div({
+      style: {
+        'background-color': `var(--base${base})`,
+        width: `${1 / base16.length * 100}%`,
+        height: '1em',
+        'margin-top': '1em',
+        display: 'inline-block'
+      }
+    })
+  )
+
   return template(
     section({ class: 'message' },
       h1('Theme'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
+      base16Elements,
       h1('Status'),
       h2('Indexes'),
       progressElements,
