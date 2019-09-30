@@ -77,19 +77,10 @@ module.exports = (config) => {
       const { channel } = ctx.params
       ctx.body = await hashtag(channel)
     })
-    .get('/highlight.css', (ctx) => {
-      const defaultTheme = 'tomorrow'
-      const style = ctx.cookies.get('theme') || defaultTheme
-      const filePath = `highlight.js/styles/${style}`
-
-      ctx.type = 'text/css'
-      console.log(filePath)
-      ctx.body = requireStyle(filePath)
-    })
     .get('/theme.css', (ctx) => {
       const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
-      debug('current theme: %s', theme)
+
       const filePath = `base16-styles/css-variables/base16-${theme}.css`
       ctx.type = 'text/css'
       ctx.body = requireStyle(filePath)
@@ -173,7 +164,6 @@ module.exports = (config) => {
     })
     .post('/theme.css', koaBody(), async (ctx) => {
       const theme = String(ctx.request.body.theme)
-      debug('setting theme: %s', theme)
       ctx.cookies.set('theme', theme)
       const referer = new URL(ctx.request.header.referer)
       ctx.redirect(referer)

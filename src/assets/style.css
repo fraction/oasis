@@ -19,7 +19,7 @@
   --medium-stroke: 3px;
   --heavy-stroke: 6px;
   --common-radius: var(--thin-stroke);
-  --highlight-shadow: var(--violet);
+  --highlight: var(--blue);
   --almost-white: var(--background);
   --off-white: var(--bg-status);
   --discreet: var(--bg-status);
