@@ -108,6 +108,9 @@ pre {
 
 .message.thread-target {
   border-color: var(--blue);
+  /* prevents other messages from overlapping */
+  margin-top: 1px;
+  margin-bottom: 0;
 }
 
 .message img,
@@ -162,7 +165,7 @@ pre {
   body {
     width: 100%;
     max-width: 42rem;
-    margin: 0 1rem;
+    margin: 1rem;
     overflow: scroll;
   }
 }
@@ -267,7 +270,7 @@ nav > ul > li > a {
 nav > ul {
   display: flex;
   justify-content: space-between;
-  margin: 1rem 0;
+  margin: 0;
   padding: 0;
 }
 
