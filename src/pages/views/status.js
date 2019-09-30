@@ -161,7 +161,7 @@ module.exports = ({ status, theme }) => {
   return template(
     section({ class: 'message' },
       h1('Theme'),
-      p('Choose from any theme you\'d like. The default theme is Tomorrow.'),
+      p('Choose from any theme you\'d like. The default theme is Tomorrow. Other favorites are Ashes, Chalk, Default, Eighties, Google, Harmonic16, IR Black, Monokai, Rebecca, Solarized, Summerfruit, and Unikitty.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
