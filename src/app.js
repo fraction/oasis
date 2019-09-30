@@ -15,7 +15,7 @@ const author = require('./pages/author')
 const hashtag = require('./pages/hashtag')
 const publicPage = require('./pages/public')
 const profile = require('./pages/profile')
-const raw = require('./pages/raw')
+const json = require('./pages/json')
 const thread = require('./pages/thread')
 const like = require('./pages/like')
 const status = require('./pages/status')
@@ -88,10 +88,10 @@ module.exports = (config) => {
     .get('/profile/', async (ctx) => {
       ctx.body = await profile()
     })
-    .get('/raw/:message', async (ctx) => {
+    .get('/json/:message', async (ctx) => {
       const { message } = ctx.params
       ctx.type = 'application/json'
-      ctx.body = await raw(message)
+      ctx.body = await json(message)
     })
     .get('/blob/:blobId', async (ctx) => {
       const { blobId } = ctx.params

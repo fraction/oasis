@@ -30,10 +30,10 @@ module.exports = ({ msg }) => {
   const url = {
     author: `/author/${encoded.author}`,
     likeForm: `/like/${encoded.key}`,
-    context: `/thread/${encoded.key}#${encoded.key}`,
+    link: `/thread/${encoded.key}#${encoded.key}`,
     parent: `/thread/${encoded.parent}#${encoded.parent}`,
     avatar: msg.value.meta.author.avatar.url,
-    raw: `/raw/${encoded.key}`,
+    json: `/json/${encoded.key}`,
     reply: `/reply/${encoded.key}`,
     replyAll: `/reply-all/${encoded.key}`
   }
@@ -138,9 +138,9 @@ module.exports = ({ msg }) => {
         `❤ ${likeCount}`)),
       isPrivate ? null : a({ href: url.reply }, 'reply'),
       isPrivate ? null : a({ href: url.replyAll }, 'reply all'),
-      a({ href: url.context }, 'context'),
+      a({ href: url.link }, 'link'),
       parentLink,
-      a({ href: url.raw }, 'raw')
+      a({ href: url.json }, 'json')
     ))
 
   return fragment
