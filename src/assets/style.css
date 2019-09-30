@@ -128,7 +128,6 @@ pre {
   border-color: var(--blue);
 
   /* prevents other messages from overlapping */
-  margin-top: 1px;
   margin-bottom: 0;
 }
 
@@ -148,7 +147,7 @@ pre {
   padding-top: 0;
 }
 
-.message > :last-child {
+.content > :last-child {
   margin-bottom: 0;
   padding-bottom: 0;
 }
@@ -258,6 +257,7 @@ nav > ul > li > a {
 .message > footer {
   display: flex;
   justify-content: space-between;
+  margin-top: 1rem;
 }
 
 .message > footer > * {
