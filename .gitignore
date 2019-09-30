@@ -3,6 +3,6 @@ node_modules/
 coverage/
 dist/
 tmp/
-npm-debug.log*
+*.log*
 package-lock.json
 .DS_Store
