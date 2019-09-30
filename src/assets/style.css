@@ -110,6 +110,10 @@ pre {
   border: var(--thin-stroke) dotted var(--off-white);
 }
 
+.message audio {
+  width: 100%;
+}
+
 .message > :first-child {
   margin-top: 0;
   padding-top: 0;
