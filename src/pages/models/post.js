@@ -6,6 +6,8 @@ const prettyMs = require('pretty-ms')
 const { isRoot, isNestedReply, isReply } = require('ssb-thread-schema')
 const debug = require('debug')('oasis:model-post')
 
+const parallelMap = require('pull-paramap')
+
 const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
@@ -248,11 +250,11 @@ const post = {
           typeof msg.value.content.vote === 'object' &&
           typeof msg.value.content.vote.link === 'string'
         }),
-        pull.asyncMap(async (val, cb) => {
+        pull.take(60),
+        parallelMap(async (val, cb) => {
           const msg = await post.get(val.value.content.vote.link)
           cb(null, msg)
         }),
-        pull.take(60),
         pull.collect((err, collectedMessages) => {
           if (err) {
             reject(err)
