@@ -30,6 +30,8 @@ const blob = require('./pages/blob')
 const publish = require('./pages/publish')
 const markdown = require('./pages/markdown')
 
+const defaultTheme = 'unikitty-light'
+
 module.exports = (config) => {
   const assets = new Koa()
   assets.use(koaStatic(path.join(__dirname, 'assets')))
@@ -79,7 +81,6 @@ module.exports = (config) => {
       ctx.body = await hashtag(channel)
     })
     .get('/theme.css', (ctx) => {
-      const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
 
       const filePath = `base16-styles/css-variables/base16-${theme}.css`
@@ -107,7 +108,6 @@ module.exports = (config) => {
       ctx.body = await image({ blobId, imageSize: Number(imageSize) })
     })
     .get('/status/', async (ctx) => {
-      const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
       ctx.body = await status({ theme })
     })
