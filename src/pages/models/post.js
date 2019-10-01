@@ -212,6 +212,61 @@ const post = {
 
     return messages
   },
+  likes: async (customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const query = {
+      $filter: {
+        value: {
+          author: myFeedId, // for some reason this `author` isn't being respected
+          content: {
+            type: 'vote'
+          }
+        }
+      }
+    }
+
+    const options = configure({
+      query,
+      index: 'DTA',
+      reverse: true
+    }, customOptions)
+
+    const source = await cooler.read(
+      ssb.query.read, options
+    )
+
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter((msg) => {
+          return typeof msg.value.content === 'object' &&
+          msg.value.author === myFeedId &&
+          typeof msg.value.content.vote === 'object' &&
+          typeof msg.value.content.vote.link === 'string'
+        }),
+        pull.asyncMap(async (val, cb) => {
+          const msg = await post.get(val.value.content.vote.link)
+          cb(null, msg)
+        }),
+        pull.take(60),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(collectedMessages)
+          }
+        })
+      )
+    })
+
+    console.log(messages)
+
+    return messages
+  },
   latest: async (customOptions = {}) => {
     const ssb = await cooler.connect()
 

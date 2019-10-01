@@ -42,6 +42,7 @@ module.exports = (...elements) => {
             li(a({ href: '/' }, 'public')),
             li(a({ href: '/mentions' }, 'mentions')),
             li(a({ href: '/profile' }, 'profile')),
+            li(a({ href: '/likes' }, 'likes')),
             li(a({ href: '/status' }, 'status')),
             li(a({ href: '/readme' }, 'readme'))
           )

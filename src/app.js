@@ -18,6 +18,7 @@ const profile = require('./pages/profile')
 const json = require('./pages/json')
 const thread = require('./pages/thread')
 const like = require('./pages/like')
+const likesPage = require('./pages/likes')
 const status = require('./pages/status')
 const mentions = require('./pages/mentions')
 const reply = require('./pages/reply')
@@ -109,6 +110,9 @@ module.exports = (config) => {
       const defaultTheme = 'tomorrow'
       const theme = ctx.cookies.get('theme') || defaultTheme
       ctx.body = await status({ theme })
+    })
+    .get('/likes/', async (ctx) => {
+      ctx.body = await likesPage()
     })
     .get('/readme/', async (ctx) => {
       ctx.body = await markdown(config.readme)
