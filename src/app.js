@@ -98,6 +98,11 @@ module.exports = (config) => {
     .get('/blob/:blobId', async (ctx) => {
       const { blobId } = ctx.params
       ctx.body = await blob({ blobId })
+      if (ctx.body.length === 0) {
+        ctx.response.status = 404
+      } else {
+        ctx.set('Cache-Control', 'public,max-age=31536000,immutable')
+      }
 
       // This prevents an auto-download when visiting the URL.
       ctx.attachment(blobId, { type: 'inline' })

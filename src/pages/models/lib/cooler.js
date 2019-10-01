@@ -12,7 +12,11 @@ const rawConnect = () => new Promise((resolve, reject) => {
     manifest: {
       about: { socialValue: 'async' },
       backlinks: { read: 'source' },
-      blobs: { get: 'source', want: 'async' },
+      blobs: {
+        get: 'source',
+        ls: 'source',
+        want: 'async'
+      },
       createUserStream: 'source',
       createHistoryStream: 'source',
       get: 'sync',
