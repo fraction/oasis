@@ -265,8 +265,6 @@ const post = {
       )
     })
 
-    console.log(messages)
-
     return messages
   },
   latest: async (customOptions = {}) => {
