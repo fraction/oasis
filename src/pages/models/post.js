@@ -12,6 +12,8 @@ const cooler = require('./lib/cooler')
 const configure = require('./lib/configure')
 const markdown = require('./lib/markdown')
 
+const maxMessages = 128
+
 const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
 
@@ -27,7 +29,7 @@ const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
         msg.value.content.type === 'post' &&
         msg.value.author !== myFeedId
       ),
-      pull.take(60),
+      pull.take(maxMessages),
       pull.collect((err, collectedMessages) => {
         if (err) {
           reject(err)
@@ -169,7 +171,7 @@ const post = {
         source,
         pull.filter((msg) => typeof msg.value.content !== 'string' &&
           msg.value.content.type === 'post'),
-        pull.take(60),
+        pull.take(maxMessages),
         pull.collect((err, collectedMessages) => {
           if (err) {
             reject(err)
@@ -250,7 +252,7 @@ const post = {
           typeof msg.value.content.vote === 'object' &&
           typeof msg.value.content.vote.link === 'string'
         }),
-        pull.take(60),
+        pull.take(maxMessages),
         parallelMap(async (val, cb) => {
           const msg = await post.get(val.value.content.vote.link)
           cb(null, msg)
@@ -275,7 +277,7 @@ const post = {
 
     const options = configure({
       type: 'post',
-      limit: 60
+      limit: maxMessages
     }, customOptions)
 
     const source = await cooler.read(
