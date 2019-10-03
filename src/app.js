@@ -29,6 +29,7 @@ const image = require('./pages/image')
 const blob = require('./pages/blob')
 const publish = require('./pages/publish')
 const markdown = require('./pages/markdown')
+const inboxPage = require('./pages/inbox')
 
 const defaultTheme = 'unikitty-light'
 
@@ -75,6 +76,9 @@ module.exports = (config) => {
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
       ctx.body = await author(feed)
+    })
+    .get('/inbox', async (ctx) => {
+      ctx.body = await inboxPage()
     })
     .get('/hashtag/:channel', async (ctx) => {
       const { channel } = ctx.params

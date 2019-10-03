@@ -40,6 +40,7 @@ module.exports = (...elements) => {
         nav(
           ul(
             li(a({ href: '/' }, 'public')),
+            li(a({ href: '/inbox' }, 'inbox')),
             li(a({ href: '/mentions' }, 'mentions')),
             li(a({ href: '/profile' }, 'profile')),
             li(a({ href: '/likes' }, 'likes')),

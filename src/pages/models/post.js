@@ -526,6 +526,50 @@ const post = {
       .map((key) => post.get(key))
       .filter((message) => lodash.get(message, 'value.content.type') === 'post')
     )
+  },
+  inbox: async (customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({
+      type: 'post',
+      private: true
+    }, customOptions)
+
+    const source = await cooler.read(
+      ssb.messagesByType,
+      options
+    )
+
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter((message) => // avoid private messages (!)
+          typeof message.value.content !== 'string' &&
+          lodash.get(message, 'value.meta.private')
+        ),
+        pull.unique((message) => {
+          const { root } = message.value.content
+          if (root == null) {
+            return message.key
+          } else {
+            return root
+          }
+        }),
+        pull.take(maxMessages),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(transform(ssb, collectedMessages, myFeedId))
+          }
+        })
+      )
+    })
+
+    return messages
   }
 }
 
