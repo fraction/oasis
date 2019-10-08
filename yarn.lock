@@ -6875,10 +6875,10 @@ ssb-tangle@^1.0.1:
     ssb-ref "^2.13.9"
     ssb-sort "^1.1.3"
 
-ssb-thread-schema@^1.0.3:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/ssb-thread-schema/-/ssb-thread-schema-1.1.1.tgz#7fd1c32a228384760ea3e7684b57195811dec5b1"
-  integrity sha512-93RcHfnev5vj7J5UZI47lu7l71bCevUdO80xUDZSgIPGQw+FrHo0LGSxDTfzNngJaJTlat5mEkRwrrY+wYoahg==
+ssb-thread-schema@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/ssb-thread-schema/-/ssb-thread-schema-1.0.3.tgz#55f6b026babfeb9a872dddf13a51c2a9bd89cb7f"
+  integrity sha512-pq2hIeyZdRNjJpCCp6tONVIJezyMWtmIYCnbp3fP6L1w2/qnzUtTqYr9jvw+KpFJzuprN1BwyL5Kri57slMekg==
   dependencies:
     is-my-json-valid "^2.20.0"
     ssb-msg-content "^1.0.1"
