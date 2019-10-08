@@ -371,3 +371,18 @@ summary {
   background: none;
   font-size: 50%;
 }
+
+table {
+  width: 100%;
+}
+
+td,
+th {
+  padding: 0.5rem;
+  outline: var(--thin-stroke) solid var(--bg-status);
+}
+
+th {
+  text-align: left;
+  background-color: var(--bg-status);
+}

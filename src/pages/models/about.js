@@ -2,6 +2,7 @@
 
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
+const pull = require('pull-stream')
 
 const nullImage = `&${'0'.repeat(43)}=.sha256`
 
@@ -40,5 +41,37 @@ module.exports = {
       }
     )
     return markdown(raw)
+  },
+  all: async (feedId) => {
+    const ssb = await cooler.connect()
+    const raw = await cooler.read(
+      ssb.about.read, {
+        dest: feedId
+      }
+    )
+
+    return new Promise((resolve, reject) =>
+      pull(
+        raw,
+        pull.filter((message) => message.value.author === feedId),
+        pull.reduce((acc, cur) => {
+          const metaKeys = ['type', 'about']
+
+          Object.entries(cur.value.content).filter(([key]) =>
+            metaKeys.includes(key) === false
+          ).forEach(([key, value]) => {
+            acc[key] = value
+          })
+
+          return acc
+        }, {}, (err, val) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(val)
+          }
+        })
+      )
+    )
   }
 }
