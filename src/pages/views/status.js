@@ -20,7 +20,7 @@ const {
 } = require('hyperaxe')
 const template = require('./components/template')
 
-module.exports = ({ status, theme }) => {
+module.exports = ({ status, theme, themeNames }) => {
   const max = status.sync.since
 
   const progressElements = Object.entries(status.sync.plugins).map((e) => {
@@ -39,86 +39,7 @@ module.exports = ({ status, theme }) => {
   const raw = JSON.stringify(status, null, 2)
   const rawHighlighted = highlightJs.highlight('json', raw).value
 
-  // copy and pasted from `ls` in module
-  const themes = [
-    '3024',
-    'apathy',
-    'ashes',
-    'atelier-cave',
-    'atelier-dune',
-    'atelier-estuary',
-    'atelier-forest',
-    'atelier-heath',
-    'atelier-lakeside',
-    'atelier-plateau',
-    'atelier-savanna',
-    'atelier-seaside',
-    'atelier-sulphurpool',
-    'bespin',
-    'brewer',
-    'bright',
-    'chalk',
-    'codeschool',
-    'cupcake',
-    'darktooth',
-    'default-dark',
-    'default-light',
-    'dracula',
-    'eighties',
-    'embers',
-    'flat',
-    'github',
-    'google-dark',
-    'google-light',
-    'grayscale-dark',
-    'grayscale-light',
-    'green-screen',
-    'gruvbox-dark-hard',
-    'gruvbox-dark-medium',
-    'gruvbox-dark-pale',
-    'gruvbox-dark-soft',
-    'gruvbox-light-hard',
-    'gruvbox-light-medium',
-    'gruvbox-light-soft',
-    'harmonic16-dark',
-    'harmonic16-light',
-    'hopscotch',
-    'ir-black',
-    'isotope',
-    'london-tube',
-    'macintosh',
-    'marrakesh',
-    'materia',
-    'mexico-light',
-    'mocha',
-    'monokai',
-    'nord',
-    'ocean',
-    'oceanicnext',
-    'onedark',
-    'paraiso',
-    'phd',
-    'pico',
-    'pop',
-    'railscasts',
-    'rebecca',
-    'seti-ui',
-    'shapeshifter',
-    'solar-flare',
-    'solarized-dark',
-    'solarized-light',
-    'spacemacs',
-    'summerfruit-dark',
-    'summerfruit-light',
-    'tomorrow-night',
-    'tomorrow',
-    'twilight',
-    'unikitty-dark',
-    'unikitty-light',
-    'woodland'
-  ]
-
-  const themeElements = themes.map((cur) => {
+  const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme
     if (isCurrentTheme) {
       return option({ value: cur, selected: true }, cur)

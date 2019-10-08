@@ -87,7 +87,8 @@ module.exports = (config) => {
     .get('/theme.css', (ctx) => {
       const theme = ctx.cookies.get('theme') || defaultTheme
 
-      const filePath = `base16-styles/css-variables/base16-${theme}.css`
+      const packageName = '@fraction/base16-css'
+      const filePath = `${packageName}/src/base16-${theme}.css`
       ctx.type = 'text/css'
       ctx.body = requireStyle(filePath)
     })
