@@ -12,6 +12,7 @@ module.exports = async function profilePage () {
   const description = await about.description(feedId)
   const name = await about.name(feedId)
   const image = await about.image(feedId)
+  const aboutPairs = await about.all(feedId)
 
   const messages = await post.fromFeed(feedId)
 
@@ -22,6 +23,7 @@ module.exports = async function profilePage () {
     messages,
     name,
     description,
-    avatarUrl
+    avatarUrl,
+    aboutPairs
   })
 }
