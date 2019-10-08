@@ -10,6 +10,7 @@ const {
   section,
   table,
   tbody,
+  thead,
   td,
   th,
   tr
@@ -39,7 +40,12 @@ module.exports = ({
     .map(([key, value]) => tr(td(key), td(value)))
 
   const metaTable = metaRows.length > 0
-    ? table(tbody(tr(th('key'), th('value')), metaRows))
+    ? table(
+      thead(
+        tr(th('key'), th('value'))
+      ),
+      tbody(metaRows)
+    )
     : null
 
   const prefix = section({ class: 'message' },
