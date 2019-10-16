@@ -1,6 +1,6 @@
 {
   "name": "@fraction/oasis",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "main": "index.js",
   "author": "Christian Bundy <christianbundy@fraction.io>",
   "license": "AGPL-3.0",
