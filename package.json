@@ -5,7 +5,7 @@
   "author": "Christian Bundy <christianbundy@fraction.io>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@fraction/base16-css": "^1.0.0",
+    "@fraction/base16-css": "^1.1.0",
     "@fraction/flotilla": "^1.0.1",
     "debug": "^4.1.1",
     "highlight.js": "^9.15.8",
