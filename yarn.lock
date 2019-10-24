@@ -6506,14 +6506,16 @@ ssb-config@^3.2.5:
     ssb-caps "^1.0.1"
     ssb-keys "^7.1.4"
 
-"ssb-config@github:ssbc/ssb-config#auto-config-incoming":
-  version "3.2.5"
-  resolved "https://codeload.github.com/ssbc/ssb-config/tar.gz/7709f306ba95ad10cc514ca091b36e6d9f09de85"
+ssb-config@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/ssb-config/-/ssb-config-3.4.2.tgz#f1e041801a84d9ba11ac688c5b2b267ea11c3b3f"
+  integrity sha512-y8SQeTsTzkbB7rrugSytdTqnJbQuNe9AayOAuFGlbR5Z81tRskWjDgOvqm/4rPkS6BO8YWRwSaRnHF2LVAT8DA==
   dependencies:
     deep-extend "^0.6.0"
     lodash.get "^4.4.2"
     os-homedir "^1.0.1"
     rc "^1.1.6"
+    ssb-caps "^1.0.1"
     ssb-keys "^7.1.4"
 
 ssb-conn-db@~0.2.1:
