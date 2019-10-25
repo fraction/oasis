@@ -20,7 +20,7 @@ const config = yargs
     type: 'string'
   })
   .options('port', {
-    describe: 'Set port for web app to listen on',
+    describe: 'Port for web app to listen on',
     default: 3000,
     type: 'number'
   })
@@ -28,6 +28,11 @@ const config = yargs
     describe: 'Use verbose output for debugging',
     default: false,
     type: 'boolean'
+  })
+  .options('subdomains', {
+    describe: 'Depth of subdomains of default host',
+    default: 0,
+    type: 'number'
   })
   .argv
 

@@ -212,7 +212,7 @@ module.exports = (config) => {
 
   app.use(router.routes())
 
-  app.subdomainOffset = 1
+  app.subdomainOffset = config.subdomains + 1
 
   const { host } = config
   const { port } = config
