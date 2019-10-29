@@ -29,11 +29,6 @@ const config = yargs
     default: false,
     type: 'boolean'
   })
-  .options('subdomains', {
-    describe: 'Depth of subdomains of default host',
-    default: 0,
-    type: 'number'
-  })
   .argv
 
 // This hides arguments from other upstream modules who might parse them.

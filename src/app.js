@@ -53,8 +53,16 @@ module.exports = (config) => {
   app.use(async (ctx, next) => {
     await next()
 
+    const csp = [
+      'default-src \'none\'',
+      'img-src \'self\'',
+      'form-action \'self\'',
+      'media-src \'self\'',
+      'style-src \'self\''
+    ].join('; ')
+
     // Disallow scripts.
-    ctx.set('Content-Security-Policy', 'script-src none')
+    ctx.set('Content-Security-Policy', csp)
 
     // Disallow <iframe> embeds from other domains.
     ctx.set('X-Frame-Options', 'SAMEORIGIN')
@@ -64,6 +72,14 @@ module.exports = (config) => {
 
     // Disallow sharing referrer with other domains.
     ctx.set('Referrer-Policy', 'same-origin')
+
+    if (ctx.method !== 'GET') {
+      const referer = ctx.request.header.referer
+      ctx.assert(referer != null, `HTTP ${ctx.method} must include referer`)
+      const refererUrl = new URL(referer)
+      const isBlobUrl = refererUrl.pathname.startsWith('/blob/')
+      ctx.assert(isBlobUrl === false, `HTTP ${ctx.method} from blob URL not allowed`)
+    }
   })
 
   router
@@ -118,18 +134,9 @@ module.exports = (config) => {
       ctx.body = await json(message)
     })
     .get('/blob/:blobId', async (ctx) => {
-      const subdomains = JSON.stringify(ctx.subdomains)
-      const singleBlob = JSON.stringify(['blob'])
-
-      if (subdomains !== singleBlob) {
-        const u = ctx.request.URL
-        u.host = `blob.${u.host}`
-        ctx.redirect(u)
-        return
-      }
-
       const { blobId } = ctx.params
       ctx.body = await blob({ blobId })
+
       if (ctx.body.length === 0) {
         ctx.response.status = 404
       } else {
@@ -211,8 +218,6 @@ module.exports = (config) => {
     })
 
   app.use(router.routes())
-
-  app.subdomainOffset = config.subdomains + 1
 
   const { host } = config
   const { port } = config

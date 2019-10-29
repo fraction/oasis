@@ -29,8 +29,3 @@ yarn
 ```shell
 npm install
 ```
-
-## Domain
-
-If you're hosting this on a subdomain, ensure that you use the `--subdomains`
-option. If you're hosting on `oasis.example.com`, use `--subdomains 1`.

@@ -18,7 +18,6 @@ Options:
   --host        Hostname for web app to listen on[string] [default: "localhost"]
   --port        Port for web app to listen on           [number] [default: 3000]
   --debug       Use verbose output for debugging      [boolean] [default: false]
-  --subdomains  Depth of subdomains of default host        [number] [default: 0]
 ```
 
 ## Installation

@@ -27,6 +27,7 @@ module.exports = (...elements) => {
         link({ rel: 'stylesheet', href: '/theme.css' }),
         link({ rel: 'stylesheet', href: '/assets/style.css' }),
         link({ rel: 'stylesheet', href: '/assets/highlight.css' }),
+        meta({ charset: 'utf-8' }),
         meta({
           name: 'description',
           content: 'friendly neighborhood scuttlebutt interface'
