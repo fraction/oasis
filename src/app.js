@@ -73,6 +73,9 @@ module.exports = (config) => {
     // Disallow sharing referrer with other domains.
     ctx.set('Referrer-Policy', 'same-origin')
 
+    // Disallow extra browser features except audio output.
+    ctx.set('Feature-Policy', 'speaker \'self\'')
+
     if (ctx.method !== 'GET') {
       const referer = ctx.request.header.referer
       ctx.assert(referer != null, `HTTP ${ctx.method} must include referer`)
