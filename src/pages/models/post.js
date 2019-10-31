@@ -14,7 +14,7 @@ const markdown = require('./lib/markdown')
 
 const maxMessages = 128
 
-const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
+const getMessages = async ({ myFeedId, customOptions, ssb, query, filter }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
 
   const source = await cooler.read(
@@ -27,7 +27,7 @@ const getMessages = async ({ myFeedId, customOptions, ssb, query }) => {
       pull.filter((msg) =>
         typeof msg.value.content !== 'string' &&
         msg.value.content.type === 'post' &&
-        msg.value.author !== myFeedId
+        (filter == null || filter(msg) === true)
       ),
       pull.take(maxMessages),
       pull.collect((err, collectedMessages) => {
@@ -196,7 +196,13 @@ const post = {
       }
     }]
 
-    const messages = await getMessages({ myFeedId, customOptions, ssb, query })
+    const messages = await getMessages({
+      myFeedId,
+      customOptions,
+      ssb,
+      query,
+      filter: (msg) => msg.value.author !== myFeedId
+    })
 
     return messages
   },
