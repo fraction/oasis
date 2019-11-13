@@ -33,13 +33,11 @@ module.exports = async function imagePage ({ blobId, imageSize }) {
         bufferSource,
         pull.collect(async (err, bufferArray) => {
           if (err) {
-            debug('err')
             await blob.want({ blobId })
             const result = fakeImage(imageSize)
             debug({ result })
             resolve(result)
           } else {
-            debug('no err')
             const buffer = Buffer.concat(bufferArray)
             sharp(buffer)
               .resize(imageSize, imageSize)

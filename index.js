@@ -39,7 +39,7 @@ const config = yargs
 process.argv = []
 
 if (config.debug) {
-  process.env.DEBUG = '*'
+  process.env.DEBUG = 'oasis,oasis:*'
 }
 
 const app = require('./src/app')
