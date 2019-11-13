@@ -1,15 +1,17 @@
 'use strict'
 
-const lodash = require('lodash')
-const pull = require('pull-stream')
-const prettyMs = require('pretty-ms')
-const { isRoot, isNestedReply, isReply } = require('ssb-thread-schema')
 const debug = require('debug')('oasis:model-post')
-
+const lodash = require('lodash')
 const parallelMap = require('pull-paramap')
+const prettyMs = require('pretty-ms')
+const pull = require('pull-stream')
+const { isRoot, isReply } = require('ssb-thread-schema')
 
-const cooler = require('./lib/cooler')
+// HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
+const isNestedReply = require('ssb-thread-schema/post/nested-reply/validator')
+
 const configure = require('./lib/configure')
+const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
 
 const maxMessages = 128
@@ -336,6 +338,7 @@ const post = {
         }
 
         if (msg.value.content.type !== 'post') {
+          debug('not a post')
           resolve(msg)
         }
 
@@ -375,7 +378,8 @@ const post = {
         } else {
           // type !== "post", probably
           // this should show up as JSON
-          debug('got mysterious root ancestor')
+          debug('got mysterious root ancestor that fails all known schemas')
+          debug('%O', msg)
           resolve(msg)
         }
       }
@@ -540,8 +544,7 @@ const post = {
     const myFeedId = whoami.id
 
     const options = configure({
-      type: 'post',
-      private: true
+      type: 'post'
     }, customOptions)
 
     const source = await cooler.read(
