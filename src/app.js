@@ -58,7 +58,7 @@ module.exports = (config) => {
       'img-src \'self\'',
       'form-action \'self\'',
       'media-src \'self\'',
-      'style-src \'self\''
+      'style-src \'self\' \'unsafe-inline\''
     ].join('; ')
 
     // Disallow scripts.

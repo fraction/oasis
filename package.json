@@ -8,7 +8,7 @@
     "@fraction/base16-css": "^1.1.0",
     "@fraction/flotilla": "^1.0.1",
     "debug": "^4.1.1",
-    "highlight.js": "^9.15.8",
+    "highlight.js": "^9.16.2",
     "hyperaxe": "^1.3.0",
     "koa": "^2.7.0",
     "koa-body": "^4.1.0",
@@ -23,13 +23,13 @@
     "require-style": "^1.1.0",
     "sharp": "^0.23.0",
     "ssb-client": "^4.7.7",
-    "ssb-config": "^3.4.2",
-    "ssb-markdown": "6.0.0",
+    "ssb-config": "^3.4.3",
+    "ssb-markdown": "^6.0.0",
     "ssb-mentions": "^0.5.0",
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
-    "ssb-thread-schema": "1.0.3",
-    "yargs": "14.0.0"
+    "ssb-thread-schema": "^1.1.1",
+    "yargs": "^14.2.1"
   },
   "bin": {
     "oasis": "./index.js"
@@ -37,11 +37,11 @@
   "description": "friendly neighborhood scuttlebutt interface",
   "repository": "git@github.com:fraction/oasis.git",
   "devDependencies": {
-    "cspell": "^4.0.23",
-    "dependency-check": "4.1.0",
+    "cspell": "^4.0.33",
+    "dependency-check": "^4.1.0",
     "husky": "^3.0.5",
     "nodemon": "^1.19.1",
-    "standard": "14.3.0",
+    "standard": "^14.3.0",
     "stylelint": "^11.0.0",
     "stylelint-config-standard": "^19.0.0"
   },
