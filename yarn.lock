@@ -749,9 +749,9 @@ camelcase@^5.0.0:
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
 caniuse-lite@^1.0.30001004, caniuse-lite@^1.0.30001006:
-  version "1.0.30001008"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001008.tgz#b8841b1df78a9f5ed9702537ef592f1f8772c0d9"
-  integrity sha512-b8DJyb+VVXZGRgJUa30cbk8gKHZ3LOZTBLaUEEVr2P4xpmFigOCc62CO4uzquW641Ouq1Rm9N+rWLWdSYDaDIw==
+  version "1.0.30001009"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001009.tgz#69b77997b882a7aee6af24c8d7d2fa27ee41f348"
+  integrity sha512-M3rEqHN6SaVjgo4bIik7HsGcWXsi+lI9WA0p51RPMFx5gXfduyOXWJrc0R4xBkSK1pgNf4CNgy5M+6H+WiEP8g==
 
 capture-stack-trace@^1.0.0:
   version "1.0.1"
@@ -3038,9 +3038,9 @@ import-fresh@^2.0.0:
     resolve-from "^3.0.0"
 
 import-fresh@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-3.1.0.tgz#6d33fa1dcef6df930fae003446f33415af905118"
-  integrity sha512-PpuksHKGt8rXfWEr9m9EHIpgyyaltBy8+eF6GJM0QCAxMgxCfucMF3mjecK2QsJr0amJW7gTqh5/wht0z2UhEQ==
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-3.2.1.tgz#633ff618506e793af5ac91bf48b72677e15cbe66"
+  integrity sha512-6e1q1cnWP2RXD9/keSkxHScg508CdXqXWgWBaETNhyuBFz+kUZlKboh+ISK+bU++DmbHimVBrOz/zzPe0sZ3sQ==
   dependencies:
     parent-module "^1.0.0"
     resolve-from "^4.0.0"
@@ -4447,16 +4447,16 @@ muxrpc-validation@^3.0.0:
     pull-stream "^3.6.11"
     zerr "^1.0.4"
 
-muxrpc@^6.4.0, muxrpc@^6.4.2:
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/muxrpc/-/muxrpc-6.4.2.tgz#4115bffcae61c8aaa7fd8a0905520a1773aa91c9"
-  integrity sha512-1wRnouHgHO3JYN3xbyzQGTFsd/wo12/zaikmQusP8ma+lmL+ewNvuvuwKSEJasKQTRnbTwbzh/OPdt9N76CA4g==
+muxrpc@^6.4.0, muxrpc@^6.4.8:
+  version "6.4.8"
+  resolved "https://registry.yarnpkg.com/muxrpc/-/muxrpc-6.4.8.tgz#35534192d9f2918486b377ee83f2f8dcfc79b971"
+  integrity sha512-9oLoLbiAWZAhgxQzquApj0eSfiTYPWLq4AV5mvCBjsicJKWOJlxAAxypHdlnmHeUbOxrPRweneHI7l+nzY/+aQ==
   dependencies:
     explain-error "^1.0.1"
     packet-stream "~2.0.0"
     packet-stream-codec "^1.1.1"
     pull-goodbye "0.0.2"
-    pull-stream "^3.2.3"
+    pull-stream "^3.6.10"
 
 muxrpcli@^3.1.2:
   version "3.1.2"
@@ -5597,7 +5597,7 @@ pull-sort@^1.0.1:
     pull-defer "^0.2.3"
     pull-stream "^3.6.9"
 
-pull-stream@^3.2.3, pull-stream@^3.3.0, pull-stream@^3.4.0, pull-stream@^3.4.3, pull-stream@^3.4.5, pull-stream@^3.5.0, pull-stream@^3.6.0, pull-stream@^3.6.1, pull-stream@^3.6.11, pull-stream@^3.6.12, pull-stream@^3.6.13, pull-stream@^3.6.2, pull-stream@^3.6.7, pull-stream@^3.6.8, pull-stream@^3.6.9, pull-stream@~3.6.9:
+pull-stream@^3.2.3, pull-stream@^3.3.0, pull-stream@^3.4.0, pull-stream@^3.4.3, pull-stream@^3.4.5, pull-stream@^3.5.0, pull-stream@^3.6.0, pull-stream@^3.6.1, pull-stream@^3.6.10, pull-stream@^3.6.11, pull-stream@^3.6.12, pull-stream@^3.6.13, pull-stream@^3.6.2, pull-stream@^3.6.7, pull-stream@^3.6.8, pull-stream@^3.6.9, pull-stream@~3.6.9:
   version "3.6.14"
   resolved "https://registry.yarnpkg.com/pull-stream/-/pull-stream-3.6.14.tgz#529dbd5b86131f4a5ed636fdf7f6af00781357ee"
   integrity sha512-KIqdvpqHHaTUA2mCYcLG1ibEbu/LCKoJZsBWyv9lSYtPkJPBq8m3Hxa103xHi6D2thj5YXa0TqK3L3GUkwgnew==
@@ -6190,16 +6190,16 @@ secret-stack-decorators@1.0.0, secret-stack-decorators@~1.0.0:
   integrity sha512-IOg/RCXS6q5rRuGPV0fsExG5D5wGVk+evvPl0pdZJrfBwDQiWGi4yxPhDNxvZb/So4TiVj8iQRxVdkWwrPFaBg==
 
 secret-stack@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/secret-stack/-/secret-stack-6.3.0.tgz#46ed285cf3ce6acaaa76945a6ad736971a1659df"
-  integrity sha512-abIfcP1tlJ3gbfgAkp6mgqEc7M70GvXVTyE//iHDXMQz21zQxOD5WcWAiMg1Lgw5FgLfHM1WF+c8PqFNNE3WOg==
+  version "6.3.1"
+  resolved "https://registry.yarnpkg.com/secret-stack/-/secret-stack-6.3.1.tgz#6aa2e575bf02d7e0cc37fb81bfe76f86c431510f"
+  integrity sha512-SyYRGgjxq8lbQyqdIbaNfteZ77B3Bd2TH+k5WpI6gHjTCOKZZmD8aiat+bUfhjsiqf0LMQauRH3KD6vIMdDPLg==
   dependencies:
     debug "^4.1.0"
     hoox "0.0.1"
     ip "^1.1.5"
     map-merge "^1.1.0"
     multiserver "^3.1.0"
-    muxrpc "^6.4.0"
+    muxrpc "^6.4.8"
     non-private-ip "^1.4.3"
     pull-inactivity "~2.1.1"
     pull-rate "^1.0.2"
@@ -6553,14 +6553,14 @@ ssb-caps@^1.0.1:
   integrity sha512-qe3qpvchJ+gnH8M/ge4rpL+7eRbSmsEAzNwHkDdrW06OBcziQ6/KuAdmcR6joxCbNeoAXAZF+inkefgE16okXA==
 
 ssb-client@^4.7.4, ssb-client@^4.7.7:
-  version "4.7.8"
-  resolved "https://registry.yarnpkg.com/ssb-client/-/ssb-client-4.7.8.tgz#63eb262d85b94b6301d891cd63a52a030cb55290"
-  integrity sha512-0oQhsa8EZtXbq2tdb/Pvf9h22tW4q7BZ4gbuaxVqIyYqw79Hq6Sr3xFa6+Mj6DX0Gb00TbI/Ft/jts2NyDfbmQ==
+  version "4.7.9"
+  resolved "https://registry.yarnpkg.com/ssb-client/-/ssb-client-4.7.9.tgz#c49260c12736155ef343bbda02728db95655c845"
+  integrity sha512-koVuazgGa+Pz7KHnPTsOFvaKSrE0T38wSO7n6P7ZQp+1BpaoBCI4z8Kq2SvMw521Sz9dK9Rwh2bTakEDRgx84A==
   dependencies:
     explain-error "^1.0.1"
     multicb "^1.2.1"
     multiserver "^3.1.2"
-    muxrpc "^6.4.2"
+    muxrpc "^6.4.8"
     pull-hash "^1.0.0"
     pull-stream "^3.6.0"
     ssb-config "^3.2.5"
@@ -6889,9 +6889,9 @@ ssb-ref@^2.0.0, ssb-ref@^2.11.0, ssb-ref@^2.12.0, ssb-ref@^2.13.3, ssb-ref@^2.13
     multiserver-address "^1.0.1"
 
 ssb-replicate@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/ssb-replicate/-/ssb-replicate-1.3.0.tgz#d267fbee6ee57c4ff309de0baa4253317a0cfbf0"
-  integrity sha512-FLizJ+eHtGrySb61v3asIKpZkje77a6Cl7ZotUjD3YjNUOC7y+HN0AWaupbiiFiQXDGrIZ0ti0Mr8bHkMOJurQ==
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/ssb-replicate/-/ssb-replicate-1.3.1.tgz#850ddabc6425bc711fffd94461c26854271bcd34"
+  integrity sha512-m7j0JQS4csizK5VJH5zQkPyWys/9E8S5NEOtVk1su8enSeAl2OVZ5xOtw9Q5Vzi/c8iUmD8O2pVD+ejCPxtBew==
   dependencies:
     deep-equal "^1.0.1"
     observ-debounce "^1.1.1"
