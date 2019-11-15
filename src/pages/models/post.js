@@ -16,7 +16,7 @@ const markdown = require('./lib/markdown')
 
 const maxMessages = 64
 
-const getMessages = async ({ myFeedId, customOptions, ssb, query, filter }) => {
+const getMessages = async ({ myFeedId, customOptions, ssb, query, filter = null }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
 
   const source = await cooler.read(

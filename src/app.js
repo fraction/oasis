@@ -180,11 +180,11 @@ module.exports = (config) => {
     })
     .get('/reply/:message', async (ctx) => {
       const { message } = ctx.params
-      ctx.body = await reply(message, false)
+      ctx.body = await reply(message)
     })
     .get('/reply-all/:message', async (ctx) => {
       const { message } = ctx.params
-      ctx.body = await replyAll(message, false)
+      ctx.body = await replyAll(message)
     })
     .post('/reply/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
