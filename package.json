@@ -43,13 +43,14 @@
     "nodemon": "^1.19.1",
     "standard": "^14.3.0",
     "stylelint": "^11.0.0",
-    "stylelint-config-standard": "^19.0.0"
+    "stylelint-config-standard": "^19.0.0",
+    "typescript": "^3.7.2"
   },
   "scripts": {
     "start": "node index.js",
     "debug": "nodemon --inspect index.js --debug",
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck *.js",
     "preversion": "npm test"
   }
 }
