@@ -6,18 +6,21 @@
     - [x] Description
     - [x] Image
     - [ ] Follow / unfollow (public)
-    - [ ] Listen / ignore  (private)
     - [ ] Block / unblock (public)
+    - [x] Likes
+    - [x] Metadata ("about" messages)
+    - [x] Markdown mention
   - [ ] Posts
     - [x] Render Markdown
-    - [x] From author
-    - [x] About hashtag
-    - [x] Threading
+    - [x] Posts from author
+    - [x] Posts about hashtag
+    - [x] Posts that are thread roots
+    - [x] Posts that are thread comments
+    - [x] Nested comments in threads
     - [ ] Pagination to view older posts
     - [ ] Search to filter posts by content
-    - [ ] Notifications
-      - [x] Author mention
-      - [ ] Message mention
+    - [x] Notifications (by author mention)
+    - [x] Content warning
 - [ ] Set
   - [ ] Author
     - [ ] Self
@@ -26,14 +29,16 @@
       - [ ] Image
     - [ ] Others
       - [ ] Follow / unfollow (public)
-      - [ ] Listen / ignore  (private)
       - [ ] Block / unblock (public)
   - [ ] Posts
     - [x] New
     - [x] Reply
     - [x] Reply all
-    - [ ] Easy message / author reference
     - [ ] Pre-publish preview
     - [ ] Add blob attachment(s)
-  - [x] Like / unlike
-    - [ ] Correctly set `branch`
+    - [x] Correctly set `branch`
+    - [ ] Content warning
+  - [x] Votes
+    - [x] Like
+    - [x] Unlike
+    - [x] Correctly set `branch`
