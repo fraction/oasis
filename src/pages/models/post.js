@@ -274,7 +274,7 @@ const post = {
 
     return messages
   },
-  latest: async (customOptions = {}) => {
+  comments: async (customOptions = {}) => {
     const ssb = await cooler.connect()
 
     const whoami = await cooler.get(ssb.whoami)
@@ -293,7 +293,9 @@ const post = {
       pull(
         source,
         pull.filter((message) => // avoid private messages (!)
-          typeof message.value.content !== 'string'
+          typeof message.value.content !== 'string' &&
+          message.value.author !== myFeedId &&
+          isRoot(message) === false
         ),
         pull.take(maxMessages),
         pull.collect((err, collectedMessages) => {
@@ -328,6 +330,7 @@ const post = {
         source,
         pull.filter((message) => // avoid private messages (!)
           typeof message.value.content !== 'string' &&
+          message.value.author !== myFeedId &&
           isRoot(message)
         ),
         pull.take(maxMessages),

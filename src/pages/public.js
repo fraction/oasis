@@ -6,7 +6,7 @@ const post = require('./models/post')
 module.exports = async function publicPage ({ rootsOnly } = {}) {
   const messages = rootsOnly
     ? await post.threads({ private: false })
-    : await post.latest({ private: false })
+    : await post.comments({ private: false })
 
   return listView({ messages })
 }
