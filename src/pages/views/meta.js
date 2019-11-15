@@ -1,20 +1,18 @@
 'use strict'
 
-const highlightJs = require('highlight.js')
 const {
   a,
   button,
+  code,
   div,
   form,
   h1,
   h2,
   h3,
-  h4,
   label,
   li,
   option,
   p,
-  pre,
   progress,
   section,
   select,
@@ -22,24 +20,27 @@ const {
 } = require('hyperaxe')
 const template = require('./components/template')
 
-module.exports = ({ status, theme, themeNames }) => {
+module.exports = ({ status, peers, theme, themeNames }) => {
   const max = status.sync.since
 
   const progressElements = Object.entries(status.sync.plugins).map((e) => {
     const [key, val] = e
     const id = `progress-${key}`
-    return [
+    return div(
       label({ for: id }, key),
       progress({ id, value: val, max }, val)
-    ]
+    )
   })
 
-  const localPeers = Object.keys(status.local || []).map((key) => li(key))
-
-  const remotePeers = Object.keys(status.gossip || []).map((key) => li(key))
-
-  const raw = JSON.stringify(status, null, 2)
-  const rawHighlighted = highlightJs.highlight('json', raw).value
+  const peerList = (peers || [])
+    .map(([key, data]) =>
+      li(
+        a(
+          { href: `/author/${encodeURIComponent(data.key)}` },
+          code(data.key)
+        )
+      )
+    )
 
   const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme
@@ -98,12 +99,9 @@ module.exports = ({ status, theme, themeNames }) => {
       h2('Status'),
       h3('Indexes'),
       progressElements,
-      h3('Peers'),
-      h4('Local'),
-      ul(localPeers),
-      h4('Remote'),
-      ul(remotePeers),
-      h2('Raw'),
-      pre({ innerHTML: rawHighlighted }))
+      peerList.length > 0
+        ? [h3('Peers'), ul(peerList)]
+        : null
+    )
   )
 }

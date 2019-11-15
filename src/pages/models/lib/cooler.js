@@ -20,6 +20,9 @@ const rawConnect = () => new Promise((resolve, reject) => {
         ls: 'source',
         want: 'async'
       },
+      conn: {
+        peers: 'source'
+      },
       createUserStream: 'source',
       createHistoryStream: 'source',
       get: 'sync',

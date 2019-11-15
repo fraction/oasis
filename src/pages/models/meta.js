@@ -1,6 +1,7 @@
 'use strict'
 
 const cooler = require('./lib/cooler')
+const pull = require('pull-stream')
 
 module.exports = {
   whoami: async () => {
@@ -21,6 +22,18 @@ module.exports = {
   },
   peers: async () => {
     const ssb = await cooler.connect()
-    return cooler.get(ssb.conn)
+    const peersSource = await cooler.read(ssb.conn.peers)
+
+    return new Promise((resolve, reject) => {
+      pull(
+        peersSource,
+        // https://github.com/staltz/ssb-conn/issues/9
+        pull.take(1),
+        pull.collect((err, val) => {
+          if (err) return reject(err)
+          resolve(val[0])
+        })
+      )
+    })
   }
 }
