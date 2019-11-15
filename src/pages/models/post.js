@@ -567,10 +567,7 @@ const post = {
     const ssb = await cooler.connect()
     const keys = await cooler.get(ssb.tangle.branch, root)
 
-    return Promise.all(keys
-      .map((key) => post.get(key))
-      .filter((message) => lodash.get(message, 'value.content.type') === 'post')
-    )
+    return keys
   },
   inbox: async (customOptions = {}) => {
     const ssb = await cooler.connect()
