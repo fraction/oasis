@@ -18,7 +18,7 @@ module.exports = async function profilePage () {
   const avatarUrl = `/image/64/${encodeURIComponent(image)}`
 
   return authorView({
-    myFeedId,
+    feedId: myFeedId,
     messages,
     name,
     description,
