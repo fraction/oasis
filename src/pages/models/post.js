@@ -294,7 +294,6 @@ const post = {
         source,
         pull.filter((message) => // avoid private messages (!)
           typeof message.value.content !== 'string' &&
-          message.value.author !== myFeedId &&
           isRoot(message) === false
         ),
         pull.take(maxMessages),
@@ -330,7 +329,6 @@ const post = {
         source,
         pull.filter((message) => // avoid private messages (!)
           typeof message.value.content !== 'string' &&
-          message.value.author !== myFeedId &&
           isRoot(message)
         ),
         pull.take(maxMessages),
