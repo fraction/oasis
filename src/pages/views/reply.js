@@ -9,12 +9,16 @@ const {
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = ({ message }) => {
+module.exports = ({ message, myFeedId }) => {
   const likeForm = `/reply/${encodeURIComponent(message.key)}`
 
   const authorName = message.value.meta.author.name
   const authorFeedId = message.value.author
-  const markdownMention = `[@${authorName}](${authorFeedId})\n\n`
+
+  console.log({ authorFeedId, myFeedId })
+  const markdownMention = authorFeedId !== myFeedId
+    ? `[@${authorName}](${authorFeedId})\n\n`
+    : null
 
   return template(
     post({ msg: message }),

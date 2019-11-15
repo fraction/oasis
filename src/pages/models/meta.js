@@ -4,9 +4,10 @@ const cooler = require('./lib/cooler')
 const pull = require('pull-stream')
 
 module.exports = {
-  whoami: async () => {
+  myFeedId: async () => {
     const ssb = await cooler.connect()
-    return cooler.get(ssb.whoami)
+    const whoami = await cooler.get(ssb.whoami)
+    return whoami.id
   },
   get: async (msgId) => {
     const ssb = await cooler.connect()

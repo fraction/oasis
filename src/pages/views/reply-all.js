@@ -11,14 +11,16 @@ const debug = require('debug')('oasis:views:reply-all')
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = async ({ messages }) => {
+module.exports = async ({ messages, myFeedId }) => {
   let markdownMention
 
   const messageElements = await Promise.all(messages.reverse().map((message) => {
     debug('%O', message)
     const authorName = message.value.meta.author.name
     const authorFeedId = message.value.author
-    markdownMention = `[@${authorName}](${authorFeedId})\n\n`
+    if (authorFeedId !== myFeedId) {
+      markdownMention = `[@${authorName}](${authorFeedId})\n\n`
+    }
     return post({ msg: message })
   }))
 
