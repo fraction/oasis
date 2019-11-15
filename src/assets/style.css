@@ -309,7 +309,7 @@ nav > ul > li {
 .profile > img {
   width: 4rem;
   height: 4rem;
-  margin-right: 2rem;
+  margin-right: 1rem;
   border-radius: var(--common-radius);
 }
 

@@ -18,5 +18,9 @@ module.exports = {
   status: async () => {
     const ssb = await cooler.connect()
     return cooler.get(ssb.status)
+  },
+  peers: async () => {
+    const ssb = await cooler.connect()
+    return cooler.get(ssb.conn)
   }
 }

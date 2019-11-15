@@ -14,7 +14,7 @@ const configure = require('./lib/configure')
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
 
-const maxMessages = 128
+const maxMessages = 64
 
 const getMessages = async ({ myFeedId, customOptions, ssb, query, filter }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
@@ -224,22 +224,19 @@ const post = {
 
     return messages
   },
-  likes: async (customOptions = {}) => {
+  likes: async ({ feed }, customOptions = {}) => {
     const ssb = await cooler.connect()
 
-    const whoami = await cooler.get(ssb.whoami)
-    const myFeedId = whoami.id
-
-    const query = {
+    const query = [{
       $filter: {
         value: {
-          author: myFeedId, // for some reason this `author` isn't being respected
+          author: feed,
           content: {
             type: 'vote'
           }
         }
       }
-    }
+    }]
 
     const options = configure({
       query,
@@ -256,7 +253,7 @@ const post = {
         source,
         pull.filter((msg) => {
           return typeof msg.value.content === 'object' &&
-          msg.value.author === myFeedId &&
+          msg.value.author === feed &&
           typeof msg.value.content.vote === 'object' &&
           typeof msg.value.content.vote.link === 'string'
         }),
@@ -284,8 +281,7 @@ const post = {
     const myFeedId = whoami.id
 
     const options = configure({
-      type: 'post',
-      limit: maxMessages
+      type: 'post'
     }, customOptions)
 
     const source = await cooler.read(
@@ -299,6 +295,42 @@ const post = {
         pull.filter((message) => // avoid private messages (!)
           typeof message.value.content !== 'string'
         ),
+        pull.take(maxMessages),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(transform(ssb, collectedMessages, myFeedId))
+          }
+        })
+      )
+    })
+
+    return messages
+  },
+  threads: async (customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({
+      type: 'post'
+    }, customOptions)
+
+    const source = await cooler.read(
+      ssb.messagesByType,
+      options
+    )
+
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter((message) => // avoid private messages (!)
+          typeof message.value.content !== 'string' &&
+          isRoot(message)
+        ),
+        pull.take(maxMessages),
         pull.collect((err, collectedMessages) => {
           if (err) {
             reject(err)

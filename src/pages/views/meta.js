@@ -2,12 +2,14 @@
 
 const highlightJs = require('highlight.js')
 const {
+  a,
   button,
   div,
   form,
   h1,
   h2,
   h3,
+  h4,
   label,
   li,
   option,
@@ -81,19 +83,25 @@ module.exports = ({ status, theme, themeNames }) => {
 
   return template(
     section({ class: 'message' },
-      h1('Theme'),
+      h1('Meta'),
+      p(
+        'Check out ',
+        a({ href: '/meta/readme' }, 'the readme'),
+        ', configure your theme, or view debugging information below.'
+      ),
+      h2('Theme'),
       p('Choose from any theme you\'d like. The default theme is Unikitty Light. Other favorites are Ashes, Chalk, Default, Eighties, Google, Harmonic16, IR Black, Monokai, Rebecca, Solarized, Summerfruit, and Tomorrow.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
       base16Elements,
-      h1('Status'),
-      h2('Indexes'),
+      h2('Status'),
+      h3('Indexes'),
       progressElements,
-      h2('Peers'),
-      h3('Local'),
+      h3('Peers'),
+      h4('Local'),
       ul(localPeers),
-      h3('Remote'),
+      h4('Remote'),
       ul(remotePeers),
       h2('Raw'),
       pre({ innerHTML: rawHighlighted }))

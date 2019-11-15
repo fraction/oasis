@@ -48,7 +48,8 @@
   "scripts": {
     "start": "node index.js",
     "debug": "nodemon --inspect index.js --debug",
-    "test": "standard --fix && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint --fix src/assets/*.css",
+    "fix": "standard --fix && stylelint --fix src/assets/*.css",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css",
     "preversion": "npm test"
   }
 }

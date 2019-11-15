@@ -2,7 +2,9 @@
 
 const highlightJs = require('highlight.js')
 const {
+  a,
   article,
+  footer,
   h1,
   header,
   img,
@@ -10,9 +12,9 @@ const {
   section,
   table,
   tbody,
-  thead,
   td,
   th,
+  thead,
   tr
 } = require('hyperaxe')
 const post = require('./components/post')
@@ -59,7 +61,10 @@ module.exports = ({
     description !== '<p>null</p>\n'
       ? article({ innerHTML: description })
       : null,
-    metaTable
+    metaTable,
+    footer(
+      a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes')
+    )
   )
 
   return template(
