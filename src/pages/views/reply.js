@@ -15,7 +15,6 @@ module.exports = ({ message, myFeedId }) => {
   const authorName = message.value.meta.author.name
   const authorFeedId = message.value.author
 
-  console.log({ authorFeedId, myFeedId })
   const markdownMention = authorFeedId !== myFeedId
     ? `[@${authorName}](${authorFeedId})\n\n`
     : null
