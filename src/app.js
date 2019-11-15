@@ -190,18 +190,18 @@ module.exports = (config) => {
       const { message } = ctx.params
       const text = String(ctx.request.body.text)
       ctx.body = await publishReply({ message, text })
-      ctx.redirect('/')
+      ctx.redirect(`/thread/${encodeURIComponent(message)}`)
     })
     .post('/reply-all/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
       const text = String(ctx.request.body.text)
       ctx.body = await publishReplyAll({ message, text })
-      ctx.redirect('/')
+      ctx.redirect(`/thread/${encodeURIComponent(message)}`)
     })
     .post('/publish/', koaBody(), async (ctx) => {
       const text = String(ctx.request.body.text)
       ctx.body = await publish({ text })
-      ctx.redirect('/')
+      ctx.redirect('/public/threads')
     })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
