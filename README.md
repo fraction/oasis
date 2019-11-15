@@ -25,13 +25,13 @@ Options:
 With [npm](https://npmjs.org/):
 
 ```shell
-npm -g install @fraction/oasis
+npm -g install @fraction/oasis@latest
 ```
 
 With [yarn](https://yarnpkg.com/en/):
 
 ```shell
-yarn global add @fraction/oasis
+yarn global add @fraction/oasis@latest
 ```
 
 ## Resources
