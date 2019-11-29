@@ -2,7 +2,6 @@
 
 const {
   a,
-  abbr,
   article,
   button,
   details,
@@ -112,8 +111,11 @@ module.exports = ({ msg }) => {
       span({ class: 'text' },
         span({ class: 'author' },
           a({ href: url.author }, name)),
-        span({ class: 'timestamp' }, ` ${timeAgo} ago`),
-        isPrivate ? abbr({ title: 'private' }, '🔒') : null)),
+        isPrivate ? ' privately 🔒' : null,
+        span(` ${msg.value.meta.postType}`),
+        span(` ${timeAgo} ago`),
+        ':'
+      )),
     articleContent,
 
     // HACK: centered-footer

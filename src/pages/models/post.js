@@ -99,7 +99,7 @@ const transform = (ssb, messages, myFeedId) =>
     // [ @key, @key, @key ]
     const voters = Object
       .entries(reducedVotes)
-      .filter(([key, value]) => value === 1)
+      .filter(([, value]) => value === 1)
       .map(([key]) => key)
 
     const pendingName = cooler.get(
@@ -148,6 +148,16 @@ const transform = (ssb, messages, myFeedId) =>
       id: avatarId,
       url: avatarUrl
     })
+
+    if (isRoot(msg)) {
+      lodash.set(msg, 'value.meta.postType', 'posted')
+    } else if (isReply(msg)) {
+      lodash.set(msg, 'value.meta.postType', 'replied to thread')
+    } else if (isNestedReply(msg)) {
+      lodash.set(msg, 'value.meta.postType', 'replied to message')
+    } else {
+      lodash.set(msg, 'value.meta.postType', 'published a mysterious message')
+    }
 
     lodash.set(msg, 'value.meta.votes', voters)
     lodash.set(msg, 'value.meta.voted', voters.includes(myFeedId))
