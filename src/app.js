@@ -115,6 +115,12 @@ module.exports = (config) => {
     .get('/public/threads', async (ctx) => {
       ctx.body = await publicPage({ rootsOnly: true })
     })
+    .get('/public/comments/dogfood', async (ctx) => {
+      ctx.body = await publicPage({ dogFood: true })
+    })
+    .get('/public/threads/dogfood', async (ctx) => {
+      ctx.body = await publicPage({ rootsOnly: true, dogFood: true })
+    })
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
       ctx.body = await author(feed)

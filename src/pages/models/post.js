@@ -16,6 +16,32 @@ const markdown = require('./lib/markdown')
 
 const maxMessages = 64
 
+const dogFoodWords = [
+  'git',
+  'javascript',
+  'js',
+  'manyverse',
+  'multiserver',
+  'muxrpc',
+  'node',
+  'oasis',
+  'patchbay',
+  'patchfoo',
+  'patchfox',
+  'patchwork',
+  'pull-stream',
+  'secret-handshake',
+  'secret-stack',
+  'ssbc'
+]
+
+const dogFoodFilter = pull.filter((message) => {
+  const lower = message.value.content.text.toLowerCase()
+  return dogFoodWords.some((word) =>
+    lower.includes(word)
+  ) === false
+})
+
 const getMessages = async ({ myFeedId, customOptions, ssb, query, filter = null }) => {
   const options = configure({ query, index: 'DTA' }, customOptions)
 
@@ -306,6 +332,9 @@ const post = {
           typeof message.value.content !== 'string' &&
           isRoot(message) === false
         ),
+        customOptions.dogFood === false
+          ? dogFoodFilter
+          : null,
         pull.take(maxMessages),
         pull.collect((err, collectedMessages) => {
           if (err) {
@@ -341,6 +370,9 @@ const post = {
           typeof message.value.content !== 'string' &&
           isRoot(message)
         ),
+        customOptions.dogFood === false
+          ? dogFoodFilter
+          : null,
         pull.take(maxMessages),
         pull.collect((err, collectedMessages) => {
           if (err) {
