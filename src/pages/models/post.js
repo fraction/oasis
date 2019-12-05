@@ -17,6 +17,7 @@ const markdown = require('./lib/markdown')
 const maxMessages = 64
 
 const dogFoodWords = [
+  '```',
   'git',
   'javascript',
   'js',
