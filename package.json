@@ -19,6 +19,7 @@
     "open": "7.0.0",
     "pretty-ms": "^5.0.0",
     "pull-paramap": "^1.2.2",
+    "pull-sort": "^1.0.2",
     "pull-stream": "^3.6.12",
     "require-style": "^1.1.0",
     "sharp": "^0.23.0",

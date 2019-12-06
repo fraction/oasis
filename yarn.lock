@@ -5571,7 +5571,7 @@ pull-sink-through@0.0.0:
   resolved "https://registry.yarnpkg.com/pull-sink-through/-/pull-sink-through-0.0.0.tgz#d3c0492f3a80b4ed204af67c4b4f935680fc5b1f"
   integrity sha1-08BJLzqAtO0gSvZ8S0+TVoD8Wx8=
 
-pull-sort@^1.0.1:
+pull-sort@^1.0.1, pull-sort@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/pull-sort/-/pull-sort-1.0.2.tgz#0ec3d9c7e06f522932f2793cdc9fd513cc4ddb38"
   integrity sha512-jGcAHMP+0Le+bEIhSODlbNNd3jW+S6XrXOlhVzfcKU5HQZjP92OzQSgHHSlwvWRsiTWi+UGgbFpL/5gGgmFoVQ==

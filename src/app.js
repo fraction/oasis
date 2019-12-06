@@ -107,19 +107,16 @@ module.exports = (config) => {
       return next()
     })
     .get('/', async (ctx) => {
-      ctx.redirect('/public/threads')
+      ctx.redirect('/public/popular')
     })
     .get('/public/comments', async (ctx) => {
       ctx.body = await publicPage()
     })
-    .get('/public/threads', async (ctx) => {
-      ctx.body = await publicPage({ rootsOnly: true })
+    .get('/public/popular', async (ctx) => {
+      ctx.body = await publicPage({ sort: 'popular' })
     })
-    .get('/public/comments/dogfood', async (ctx) => {
-      ctx.body = await publicPage({ dogFood: true })
-    })
-    .get('/public/threads/dogfood', async (ctx) => {
-      ctx.body = await publicPage({ rootsOnly: true, dogFood: true })
+    .get('/public/latest', async (ctx) => {
+      ctx.body = await publicPage({ sort: 'latest' })
     })
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
@@ -207,7 +204,7 @@ module.exports = (config) => {
     .post('/publish/', koaBody(), async (ctx) => {
       const text = String(ctx.request.body.text)
       ctx.body = await publish({ text })
-      ctx.redirect('/public/threads')
+      ctx.redirect('/public/popular')
     })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
