@@ -1,6 +1,6 @@
 {
   "name": "@fraction/oasis",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "main": "index.js",
   "author": "Christian Bundy <christianbundy@fraction.io>",
   "license": "AGPL-3.0",
@@ -51,7 +51,7 @@
     "start": "node index.js",
     "dev": "nodemon --inspect index.js --debug --no-open",
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck *.js",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck index.js",
     "preversion": "npm test"
   }
 }
