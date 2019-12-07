@@ -2,6 +2,7 @@
 
 const about = require('./models/about')
 const post = require('./models/post')
+const friend = require('./models/friend')
 const authorView = require('./views/author')
 
 module.exports = async function authorPage (feedId) {
@@ -10,6 +11,7 @@ module.exports = async function authorPage (feedId) {
   const image = await about.image(feedId)
   const aboutPairs = await about.all(feedId)
   const messages = await post.fromFeed(feedId)
+  const relationship = await friend.getRelationship(feedId)
 
   const avatarUrl = `/image/128/${encodeURIComponent(image)}`
 
@@ -19,6 +21,7 @@ module.exports = async function authorPage (feedId) {
     name,
     description,
     avatarUrl,
-    aboutPairs
+    aboutPairs,
+    relationship
   })
 }

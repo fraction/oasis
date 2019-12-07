@@ -10,6 +10,7 @@ const {
   img,
   pre,
   section,
+  span,
   table,
   tbody,
   td,
@@ -27,7 +28,8 @@ module.exports = ({
   description,
   feedId,
   messages,
-  name
+  name,
+  relationship
 }) => {
   const mention = `[@${name}](${feedId})`
   const markdownMention = highlightJs.highlight('markdown', mention).value
@@ -63,7 +65,8 @@ module.exports = ({
       : null,
     metaTable,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes')
+      a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes'),
+      span(relationship)
     )
   )
 

@@ -1,12 +1,12 @@
 # Roadmap
 
 - [ ] Get
-  - [ ] Author
+  - [x] Author
     - [x] Name
     - [x] Description
     - [x] Image
-    - [ ] Follow / unfollow (public)
-    - [ ] Block / unblock (public)
+    - [x] Follow / unfollow (public)
+    - [x] Block / unblock (public)
     - [x] Likes
     - [x] Metadata ("about" messages)
     - [x] Markdown mention

@@ -23,6 +23,7 @@ module.exports = async function profilePage () {
     name,
     description,
     avatarUrl,
-    aboutPairs
+    aboutPairs,
+    relationship: null
   })
 }
