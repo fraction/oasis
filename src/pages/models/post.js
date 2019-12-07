@@ -285,6 +285,40 @@ const post = {
 
     return messages
   },
+  search: async ({ query }) => {
+    const ssb = await cooler.connect()
+
+    const whoami = await cooler.get(ssb.whoami)
+    const myFeedId = whoami.id
+
+    const options = configure({
+      query
+    })
+
+    const source = await cooler.read(
+      ssb.search.query,
+      options
+    )
+
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter((message) => // avoid private messages (!)
+          typeof message.value.content !== 'string'
+        ),
+        pull.take(maxMessages),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(transform(ssb, collectedMessages, myFeedId))
+          }
+        })
+      )
+    })
+
+    return messages
+  },
   latest: async () => {
     const ssb = await cooler.connect()
 

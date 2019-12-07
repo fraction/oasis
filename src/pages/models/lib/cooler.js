@@ -35,6 +35,9 @@ const rawConnect = () => new Promise((resolve, reject) => {
       friends: {
         isFollowing: 'async',
         isBlocking: 'async'
+      },
+      search: {
+        query: 'source'
       }
     }
   }, (err, api) => {

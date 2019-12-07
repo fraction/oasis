@@ -62,6 +62,11 @@ html {
   padding: 0;
 }
 
+main {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
 /* https://www.desmos.com/calculator/3elcf5cwhn */
 h1 { font-size: 133%; } /*     4 / 3 */
 h2 { font-size: 115%; } /*     8 / 7 */
@@ -389,4 +394,9 @@ th {
 th {
   text-align: left;
   background-color: var(--bg-status);
+}
+
+input[type="search"] {
+  width: 100%;
+  margin-bottom: 1rem;
 }

@@ -45,6 +45,7 @@ module.exports = (...elements) => {
             li(a({ href: '/inbox' }, 'inbox')),
             li(a({ href: '/mentions' }, 'mentions')),
             li(a({ href: '/profile' }, 'profile')),
+            li(a({ href: '/search' }, 'search')),
             li(a({ href: '/meta' }, 'meta'))
           )
         ),

@@ -31,6 +31,7 @@ const blob = require('./pages/blob')
 const publish = require('./pages/publish')
 const markdown = require('./pages/markdown')
 const inboxPage = require('./pages/inbox')
+const searchPage = require('./pages/search')
 
 const defaultTheme = 'unikitty-light'
 
@@ -120,6 +121,10 @@ module.exports = (config) => {
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
       ctx.body = await author(feed)
+    })
+    .get('/search/', async (ctx) => {
+      const { query } = ctx.query
+      ctx.body = await searchPage({ query })
     })
     .get('/inbox', async (ctx) => {
       ctx.body = await inboxPage()

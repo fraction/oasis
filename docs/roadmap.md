@@ -18,7 +18,7 @@
     - [x] Posts that are thread comments
     - [x] Nested comments in threads
     - [ ] Pagination to view older posts
-    - [ ] Search to filter posts by content
+    - [x] Search to filter posts by content
     - [x] Notifications (by author mention)
     - [x] Content warning
 - [ ] Set
