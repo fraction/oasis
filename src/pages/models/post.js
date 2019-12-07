@@ -344,13 +344,20 @@ const post = {
         pull.filter((msg) => {
           return typeof msg.value.content === 'object' &&
           typeof msg.value.content.vote === 'object' &&
-          typeof msg.value.content.vote.link === 'string'
+          typeof msg.value.content.vote.link === 'string' &&
+          typeof msg.value.content.vote.value === 'number'
         }),
         pull.reduce((acc, cur) => {
+          const author = cur.value.author
           const target = cur.value.content.vote.link
+          const value = cur.value.content.vote.value
 
-          const old = acc[target] || 0
-          acc[target] = old + 1
+          if (acc[author] == null) {
+            acc[author] = {}
+          }
+
+          // Only accept values between -1 and 1
+          acc[author][target] = Math.max(-1, Math.min(1, value))
 
           return acc
         }, {}, (err, obj) => {
@@ -362,7 +369,24 @@ const post = {
           // stream much slower than it needs to be. Also, we should probably
           // be indexing these rather than building the stream on refresh.
 
-          const arr = Object.entries(obj)
+          const adjustedObj = Object.entries(obj)
+            .reduce(
+              (acc, [author, values]) => {
+                if (author === myFeedId) {
+                  return acc
+                }
+
+                const entries = Object.entries(values)
+                const total = 1 + Math.log(entries.length)
+
+                entries.forEach(([link, value]) => {
+                  acc[link] += value / total
+                })
+                return acc
+              }
+            )
+
+          const arr = Object.entries(adjustedObj)
           const length = arr.length
 
           pull(
