@@ -13,7 +13,8 @@ const requireStyle = require('require-style')
 
 const author = require('./pages/author')
 const hashtag = require('./pages/hashtag')
-const publicPage = require('./pages/public')
+const publicPopularPage = require('./pages/public-popular')
+const publicLatestPage = require('./pages/public-latest')
 const profile = require('./pages/profile')
 const json = require('./pages/json')
 const thread = require('./pages/thread')
@@ -107,16 +108,14 @@ module.exports = (config) => {
       return next()
     })
     .get('/', async (ctx) => {
-      ctx.redirect('/public/popular')
+      ctx.redirect('/public/popular/day')
     })
-    .get('/public/comments', async (ctx) => {
-      ctx.body = await publicPage()
-    })
-    .get('/public/popular', async (ctx) => {
-      ctx.body = await publicPage({ sort: 'popular' })
+    .get('/public/popular/:period', async (ctx) => {
+      const { period } = ctx.params
+      ctx.body = await publicPopularPage({ period })
     })
     .get('/public/latest', async (ctx) => {
-      ctx.body = await publicPage({ sort: 'latest' })
+      ctx.body = await publicLatestPage()
     })
     .get('/author/:feed', async (ctx) => {
       const { feed } = ctx.params
@@ -204,7 +203,7 @@ module.exports = (config) => {
     .post('/publish/', koaBody(), async (ctx) => {
       const text = String(ctx.request.body.text)
       ctx.body = await publish({ text })
-      ctx.redirect('/public/popular')
+      ctx.redirect('/')
     })
     .post('/like/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params

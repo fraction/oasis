@@ -192,6 +192,10 @@ nav > ul > li > a {
   font-weight: bold;
 }
 
+nav > ul > li > a.current {
+  text-decoration: underline;
+}
+
 .message {
   padding: 1.5rem;
   margin: 1rem 0;

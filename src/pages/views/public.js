@@ -8,10 +8,11 @@ const {
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = ({ messages }) => {
+module.exports = ({ messages, prefix = null }) => {
   const publishForm = '/publish/'
 
   return template(
+    prefix,
     form({ action: publishForm, method: 'post' },
       textarea({ required: true, name: 'text' }),
       button({

@@ -285,15 +285,16 @@ const post = {
 
     return messages
   },
-  latest: async (customOptions = {}) => {
+  latest: async () => {
     const ssb = await cooler.connect()
 
     const whoami = await cooler.get(ssb.whoami)
     const myFeedId = whoami.id
 
     const options = configure({
-      type: 'post'
-    }, customOptions)
+      type: 'post',
+      private: false
+    })
 
     const source = await cooler.read(
       ssb.messagesByType,
@@ -319,19 +320,31 @@ const post = {
 
     return messages
   },
-  popular: async (customOptions = {}) => {
+  popular: async ({ period }) => {
     const ssb = await cooler.connect()
+
+    const periodDict = {
+      day: 1,
+      week: 7,
+      month: 30.42,
+      year: 365
+    }
+
+    if (period in periodDict === false) {
+      throw new Error('invalid period')
+    }
 
     const whoami = await cooler.get(ssb.whoami)
     const myFeedId = whoami.id
 
     const now = new Date()
-    const yesterday = Number(now) - 1000 * 60 * 60 * 24 * 1
+    const earliest = Number(now) - (1000 * 60 * 60 * 24 * periodDict[period])
 
     const options = configure({
       type: 'vote',
-      gt: yesterday
-    }, customOptions)
+      gt: earliest,
+      private: false
+    })
 
     const source = await cooler.read(
       ssb.messagesByType,
@@ -380,6 +393,9 @@ const post = {
                 const total = 1 + Math.log(entries.length)
 
                 entries.forEach(([link, value]) => {
+                  if (acc[link] == null) {
+                    acc[link] = 0
+                  }
                   acc[link] += value / total
                 })
                 return acc
