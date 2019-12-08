@@ -5,7 +5,7 @@ const cooler = require('./lib/cooler')
 module.exports = {
   isFollowing: async (feedId) => {
     const ssb = await cooler.connect()
-    const { id } = await cooler.get(ssb.whoami)
+    const { id } = ssb
 
     const isFollowing = await cooler.get(
       ssb.friends.isFollowing,
@@ -18,7 +18,7 @@ module.exports = {
   },
   getRelationship: async (feedId) => {
     const ssb = await cooler.connect()
-    const { id } = await cooler.get(ssb.whoami)
+    const { id } = ssb
 
     if (feedId === id) {
       return 'this is you'

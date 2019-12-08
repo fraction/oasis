@@ -6,8 +6,8 @@ const pull = require('pull-stream')
 module.exports = {
   myFeedId: async () => {
     const ssb = await cooler.connect()
-    const whoami = await cooler.get(ssb.whoami)
-    return whoami.id
+    const { id } = ssb
+    return id
   },
   get: async (msgId) => {
     const ssb = await cooler.connect()
