@@ -33,7 +33,7 @@ const markdown = require('./pages/markdown')
 const inboxPage = require('./pages/inbox')
 const searchPage = require('./pages/search')
 
-const defaultTheme = 'unikitty-light'
+const defaultTheme = 'google-light'
 
 module.exports = (config) => {
   const assets = new Koa()

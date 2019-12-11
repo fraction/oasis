@@ -31,7 +31,7 @@
 
   /* size */
   --thin-stroke: 1px;
-  --medium-stroke: 3px;
+  --medium-stroke: 2px;
   --fg-light-stroke: 6px;
   --common-radius: var(--thin-stroke);
 }
@@ -124,17 +124,10 @@ pre {
   border-color: var(--bg);
 }
 
-.message.reply {
-  margin-top: 0;
-  margin-bottom: -1px;
-}
-
-/*
- * TODO: Re-add after nailing down the message HTML.
 .message.thread-target {
-  box-shadow: 0 0 1px var(--blue);
+  border-color: var(--blue);
+  margin-bottom: var(--thin-stroke);
 }
-*/
 
 .message img,
 .message video {
@@ -204,7 +197,8 @@ nav > ul > li > a.current {
 .message {
   padding: 1.5rem 1rem;
   border-radius: var(--common-radius);
-  border-top: var(--medium-stroke) solid var(--bg-status);
+  margin-top: calc(0px - var(--thin-stroke));
+  border: var(--thin-stroke) solid var(--bg-status);
   word-wrap: break-word;
 }
 

@@ -91,7 +91,7 @@ module.exports = ({ status, peers, theme, themeNames }) => {
         ', configure your theme, or view debugging information below.'
       ),
       h2('Theme'),
-      p('Choose from any theme you\'d like. The default theme is Unikitty Light. Other favorites are Ashes, Chalk, Default, Eighties, Google, Harmonic16, IR Black, Monokai, Rebecca, Solarized, Summerfruit, and Tomorrow.'),
+      p('Choose from any theme you\'d like. The default theme is Google-Light.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
