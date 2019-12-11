@@ -1,0 +1,13 @@
+[Unit]
+Description=Oasis - Friendly Scuttlebutt Web Interface
+Documentation=https://github.com/fraction/oasis
+After=network.target
+
+[Service]
+Type=simple
+User=unicorn
+ExecStart=/usr/bin/node /home/unicorn/.yarn/bin/oasis --host localhost --port 4515
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
