@@ -127,6 +127,7 @@ pre {
 .message.thread-target {
   border-color: var(--blue);
   margin-bottom: var(--thin-stroke);
+  box-shadow: 0 0 var(--medium-stroke) var(--blue);
 }
 
 .message img,
