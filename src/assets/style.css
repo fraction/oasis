@@ -275,7 +275,7 @@ nav > ul > li > a.current {
 }
 
 form {
-  padding: 1rem 0;
+  padding: 1.5rem 0;
 }
 
 .message > footer > form {
@@ -346,7 +346,7 @@ textarea {
   padding: 1rem;
   resize: vertical;
   width: 100%;
-  margin: 1rem 0;
+  margin-bottom: 1.5rem;
   height: 6rem;
   transition: 0.0625s all ease;
   border: var(--thin-stroke) solid var(--bg-status);
