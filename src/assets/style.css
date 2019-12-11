@@ -64,7 +64,6 @@ html {
 
 main {
   margin-top: 1rem;
-  margin-bottom: 2rem;
 }
 
 /* https://www.desmos.com/calculator/3elcf5cwhn */
@@ -130,12 +129,12 @@ pre {
   margin-bottom: -1px;
 }
 
+/*
+ * TODO: Re-add after nailing down the message HTML.
 .message.thread-target {
-  border-color: var(--blue);
-
-  /* prevents other messages from overlapping */
-  margin-bottom: 0;
+  box-shadow: 0 0 1px var(--blue);
 }
+*/
 
 .message img,
 .message video {

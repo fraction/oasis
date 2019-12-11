@@ -103,7 +103,7 @@ module.exports = ({ msg }) => {
     section({
       id: msg.key,
       class: messageClasses.join(' '),
-      style: `margin-left: ${depth * 1.5}rem`
+      style: `border-left: ${depth}rem solid var(--bg-status);`
     },
     header({ class: 'metadata' },
       a({ href: url.author },
