@@ -33,7 +33,7 @@
   --thin-stroke: 1px;
   --medium-stroke: 2px;
   --fg-light-stroke: 6px;
-  --common-radius: var(--thin-stroke);
+  --common-radius: var(--medium-stroke);
 }
 
 * {
@@ -134,7 +134,8 @@ pre {
 .message video {
   max-width: 100%;
   max-height: 66vh;
-  border: var(--thin-stroke) dotted var(--bg-status);
+  border: var(--thin-stroke) solid var(--bg-status);
+  border-radius: var(--common-radius);
 }
 
 .message audio {
@@ -198,9 +199,13 @@ nav > ul > li > a.current {
 .message {
   padding: 1.5rem 1rem;
   border-radius: var(--common-radius);
-  margin-top: calc(0px - var(--thin-stroke));
+  margin-top: var(--medium-stroke);
   border: var(--thin-stroke) solid var(--bg-status);
   word-wrap: break-word;
+}
+
+.message.reply {
+  margin-top: calc(1px - var(--medium-stroke));
 }
 
 .message > header.metadata {
