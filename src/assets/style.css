@@ -206,6 +206,7 @@ nav > ul > li > a.current {
 .message > header.metadata {
   height: 1.5rem;
   display: flex;
+  margin-bottom: 1rem;
 }
 
 .message > header > a > .avatar {
@@ -365,7 +366,7 @@ form:focus-within > textarea {
 summary {
   padding: 1rem 0.5rem;
   background-color: hsl(45, 100%, 83%);
-  margin: 1rem 0;
+  margin: 0;
   cursor: pointer;
   color: hsl(45, 100%, 20%);
   border: var(--thin-stroke) solid hsl(45, 100%, 66%);
