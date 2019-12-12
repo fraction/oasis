@@ -405,3 +405,7 @@ input[type="search"] {
   width: 100%;
   margin-bottom: 1rem;
 }
+
+::selection {
+  background-color: var(--bg-selection);
+}
