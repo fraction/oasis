@@ -475,9 +475,6 @@ const post = {
 
     const options = configure({ id: msgId }, customOptions)
     const rawMsg = await cooler.get(ssb.get, options)
-    if (rawMsg.key == null) {
-      throw new Error('https://github.com/ssbc/ssb-server/issues/684')
-    }
 
     debug('got raw message')
 
@@ -510,11 +507,7 @@ const post = {
               meta: true,
               private: true
             }).then((fork) => {
-              if (rawMsg.key == null) {
-                reject(new Error('https://github.com/ssbc/ssb-server/issues/684'))
-              } else {
-                resolve(getRootAncestor(fork))
-              }
+              resolve(getRootAncestor(fork))
             }).catch(reject)
           } catch (e) {
             debug(e)
@@ -650,9 +643,6 @@ const post = {
 
     const options = configure({ id: msgId }, customOptions)
     const rawMsg = await cooler.get(ssb.get, options)
-    if (rawMsg.key == null) {
-      throw new Error('https://github.com/ssbc/ssb-server/issues/684')
-    }
     debug('got raw message')
 
     const transformed = await transform(ssb, [rawMsg], myFeedId)
