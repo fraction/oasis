@@ -427,7 +427,8 @@ const post = {
                   acc[link] += value / total
                 })
                 return acc
-              }
+              },
+              []
             )
 
           const arr = Object.entries(adjustedObj)
