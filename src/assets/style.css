@@ -100,7 +100,8 @@ button {
   padding: 0.5rem 1rem;
 }
 
-select {
+select,
+input {
   background: var(--bg);
   color: var(--fg);
   border: var(--thin-stroke) solid var(--bg-status);
