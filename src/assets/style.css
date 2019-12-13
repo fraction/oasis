@@ -29,11 +29,17 @@
   --fg-light: var(--base06);
   --bg-light: var(--base07);
 
+  /* rhythm */
+  --rhythm: 1.5rem;
+  --small: 1rem;
+  --smaller: 0.5rem;
+  --measure: 36rem;
+
   /* size */
-  --thin-stroke: 1px;
-  --medium-stroke: 2px;
-  --fg-light-stroke: 6px;
-  --common-radius: var(--medium-stroke);
+  --thin: 0.0625rem;
+  --medium: 0.25rem;
+  --thick: var(--smaller);
+  --common-radius: var(--medium);
 }
 
 * {
@@ -63,7 +69,7 @@ html {
 }
 
 main {
-  margin-top: 1rem;
+  margin-top: var(--small);
 }
 
 /* https://www.desmos.com/calculator/3elcf5cwhn */
@@ -80,12 +86,12 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 1rem 0;
+  margin: var(--small) 0;
 }
 
 ul,
 ol {
-  padding-left: 1.5rem;
+  padding-left: var(--rhythm);
 }
 
 a {
@@ -97,16 +103,16 @@ button {
   background: var(--bg-status);
   color: var(--fg);
   border: 0;
-  padding: 0.5rem 1rem;
+  padding: var(--smaller) var(--small);
 }
 
 select,
 input {
   background: var(--bg);
   color: var(--fg);
-  border: var(--thin-stroke) solid var(--bg-status);
-  padding: 0.5rem;
-  margin-right: 1rem;
+  border: var(--thin) solid var(--bg-status);
+  padding: var(--smaller);
+  margin-right: var(--small);
   -moz-appearance: none;
   appearance: none;
 }
@@ -114,28 +120,31 @@ input {
 pre {
   overflow-x: auto;
   background-color: var(--bg);
-  padding: 1rem;
+  padding: var(--small);
   font-size: 92%;
   border-radius: var(--common-radius);
-  border: var(--thin-stroke) solid var(--bg-status);
+  border: var(--thin) solid var(--bg-status);
 }
 
 .message.private {
   background-color: var(--bg-status);
-  border-color: var(--bg);
+  border-color: var(--bg-selection);
 }
 
 .message.thread-target {
   border-color: var(--blue);
-  margin-bottom: var(--thin-stroke);
-  box-shadow: 0 0 var(--medium-stroke) var(--blue);
+  margin-bottom: var(--thin);
+  box-shadow: 0 0 var(--medium) var(--blue);
+
+  /* relative position to avoid having box-shadow overlapped */
+  position: relative;
 }
 
 .message img,
 .message video {
   max-width: 100%;
-  max-height: 66vh;
-  border: var(--thin-stroke) solid var(--bg-status);
+  max-height: 100vh;
+  border: var(--thin) solid var(--bg-status);
   border-radius: var(--common-radius);
 }
 
@@ -160,7 +169,7 @@ pre {
   font-size: 85%;
   background-color: var(--bg);
   border-radius: var(--common-radius);
-  border: var(--thin-stroke) solid var(--bg-status);
+  border: var(--thin) solid var(--bg-status);
 }
 
 .message pre code {
@@ -182,8 +191,8 @@ pre {
 
   body {
     width: 100%;
-    max-width: 40rem;
-    margin: 1rem;
+    max-width: var(--measure);
+    margin: var(--small);
   }
 }
 
@@ -198,28 +207,29 @@ nav > ul > li > a.current {
 }
 
 .message {
-  padding: 1.5rem 1rem;
+  padding: var(--rhythm);
   border-radius: var(--common-radius);
-  margin-top: var(--medium-stroke);
-  border: var(--thin-stroke) solid var(--bg-status);
+  margin-top: var(--medium);
+  border: var(--thin) solid var(--bg-status);
   word-wrap: break-word;
+  background: var(--bg);
 }
 
 .message.reply {
-  margin-top: calc(1px - var(--medium-stroke));
+  margin-top: calc(0px - var(--thin));
 }
 
 .message > header.metadata {
-  height: 1.5rem;
+  height: var(--rhythm);
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: var(--small);
 }
 
 .message > header > a > .avatar {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--rhythm);
+  height: var(--rhythm);
   border-radius: var(--common-radius);
-  margin-right: 0.5rem;
+  margin-right: var(--smaller);
 }
 
 .message > footer > a,
@@ -265,7 +275,7 @@ nav > ul > li > a.current {
 .message > footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 1rem;
+  margin-top: var(--small);
 }
 
 .message > footer > * {
@@ -277,7 +287,7 @@ nav > ul > li > a.current {
 }
 
 form {
-  margin: 1.5rem 0;
+  margin: var(--rhythm) 0;
 }
 
 .message > footer > form {
@@ -295,8 +305,8 @@ form {
 
 .message blockquote {
   margin-left: 0;
-  border-left: var(--fg-light-stroke) solid var(--bg-status);
-  padding-left: 1rem;
+  border-left: var(--thick) solid var(--bg-status);
+  padding-left: var(--small);
 }
 
 nav > ul {
@@ -311,9 +321,9 @@ nav > ul > li {
 }
 
 .profile {
-  margin-top: 1.5rem;
+  margin-top: var(--rhythm);
   display: flex;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--rhythm);
 }
 
 .profile > img,
@@ -324,7 +334,7 @@ nav > ul > li {
 .profile > img {
   width: 4rem;
   height: 4rem;
-  margin-right: 1rem;
+  margin-right: var(--small);
   border-radius: var(--common-radius);
 }
 
@@ -344,14 +354,14 @@ textarea {
   background-color: var(--bg);
   box-sizing: border-box;
   display: block;
-  font-size: 1rem;
-  padding: 1rem;
+  font-size: var(--small);
+  padding: var(--small);
   resize: vertical;
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--rhythm);
   height: 6rem;
   transition: 0.0625s all ease;
-  border: var(--thin-stroke) solid var(--bg-status);
+  border: var(--thin) solid var(--bg-status);
   border-radius: var(--common-radius);
   color: var(--fg);
 }
@@ -370,12 +380,12 @@ form:focus-within > textarea {
 
 /* content warning! */
 summary {
-  padding: 1rem 0.5rem;
-  background-color: hsl(45, 100%, 83%);
+  padding: var(--small) var(--smaller);
+  background-color: var(--bg-status);
   margin: 0;
   cursor: pointer;
-  color: hsl(45, 100%, 20%);
-  border: var(--thin-stroke) solid hsl(45, 100%, 66%);
+  color: var(--fg-status);
+  border: var(--thin) solid var(--bg-selection);
 }
 
 .md-mention {
@@ -393,8 +403,8 @@ table {
 
 td,
 th {
-  padding: 0.5rem;
-  outline: var(--thin-stroke) solid var(--bg-status);
+  padding: var(--smaller);
+  outline: var(--thin) solid var(--bg-status);
 }
 
 th {
@@ -404,7 +414,7 @@ th {
 
 input[type="search"] {
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: var(--small);
 }
 
 ::selection {
