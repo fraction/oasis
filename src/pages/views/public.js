@@ -3,6 +3,8 @@
 const {
   button,
   form,
+  label,
+  section,
   textarea
 } = require('hyperaxe')
 const template = require('./components/template')
@@ -13,11 +15,13 @@ module.exports = ({ messages, prefix = null }) => {
 
   return template(
     prefix,
-    form({ action: publishForm, method: 'post' },
-      textarea({ required: true, name: 'text' }),
-      button({
-        type: 'submit'
-      }, 'submit')),
+    section(
+      form({ action: publishForm, method: 'post' },
+        label({ for: 'text' }, 'Publish a public message (cannot be edited or deleted)'),
+        textarea({ required: true, name: 'text' }),
+        button({ type: 'submit' }, 'submit')
+      )
+    ),
     messages.map((msg) => post({ msg }))
   )
 }

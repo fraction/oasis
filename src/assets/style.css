@@ -43,7 +43,11 @@
 }
 
 * {
-  scrollbar-color: var(--fg-status)  var(--bg-status);
+  scrollbar-color: var(--fg-status) var(--bg);
+}
+
+::selection {
+  background-color: var(--bg-selection);
 }
 
 html {
@@ -69,7 +73,7 @@ html {
 }
 
 main {
-  margin-top: var(--small);
+  margin: 0;
 }
 
 /* https://www.desmos.com/calculator/3elcf5cwhn */
@@ -100,10 +104,11 @@ a {
 
 button {
   cursor: pointer;
-  background: var(--bg-status);
-  color: var(--fg);
+  background: var(--blue);
+  color: var(--bg);
   border: 0;
   padding: var(--smaller) var(--small);
+  border-radius: var(--common-radius);
 }
 
 select,
@@ -120,45 +125,10 @@ input {
 pre {
   overflow-x: auto;
   background-color: var(--bg);
-  padding: var(--small);
+  padding: var(--smaller);
   font-size: 92%;
   border-radius: var(--common-radius);
   border: var(--thin) solid var(--bg-status);
-}
-
-.message.private {
-  background-color: var(--bg-status);
-  border-color: var(--bg-selection);
-}
-
-.message.thread-target {
-  border-color: var(--blue);
-  margin-bottom: var(--thin);
-  box-shadow: 0 0 var(--medium) var(--blue);
-
-  /* relative position to avoid having box-shadow overlapped */
-  position: relative;
-}
-
-.message img,
-.message video {
-  max-width: 100%;
-  max-height: 100vh;
-  border: var(--thin) solid var(--bg-status);
-  border-radius: var(--common-radius);
-}
-
-.message audio {
-  width: 100%;
-}
-
-.message > :first-child {
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.content > :last-child {
-  margin-bottom: 0;
 }
 
 .message code {
@@ -182,18 +152,88 @@ pre {
   border-radius: initial;
 }
 
+.message blockquote {
+  margin-left: 0;
+  border-left: var(--thick) solid var(--bg-status);
+  padding-left: var(--small);
+}
+
+.profile > img,
+.profile > h1 {
+  display: inline-block;
+}
+
+.profile > img {
+  width: 4rem;
+  height: 4rem;
+  margin-right: var(--small);
+  border-radius: var(--common-radius);
+}
+
+.message.private {
+  background-color: var(--bg-selection);
+}
+
+.message.private ::selection {
+  background-color: var(--bg-status);
+}
+
+.message.private blockquote {
+  border-color: var(--fg-alt);
+}
+
+.message img,
+.message video {
+  max-width: 100%;
+  max-height: 100vh;
+  border: var(--thin) solid var(--bg-status);
+  border-radius: var(--common-radius);
+}
+
+.message.private img,
+.message.private video {
+  border-color: var(--bg-selection);
+}
+
+.message.private code {
+  background-color: var(--bg-selection);
+  border-color: var(--fg-alt);
+}
+
+.message.thread-target {
+  border: var(--thin) solid var(--blue);
+  box-shadow: 0 0 var(--medium) var(--blue);
+}
+
+.message audio {
+  width: 100%;
+}
+
+.message > :first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.content > :last-child {
+  margin-bottom: 0;
+}
+
 @media screen {
   html {
     min-height: 100%;
     color: var(--fg);
-    background-color: var(--bg);
+    background-color: var(--bg-status);
   }
 
   body {
     width: 100%;
     max-width: var(--measure);
-    margin: var(--small);
+    margin: 0;
   }
+}
+
+nav {
+  margin: var(--small) 0;
 }
 
 nav > ul > li > a {
@@ -206,17 +246,13 @@ nav > ul > li > a.current {
   text-decoration: underline;
 }
 
-.message {
-  padding: var(--rhythm);
+section {
+  padding: var(--small);
   border-radius: var(--common-radius);
-  margin-top: var(--medium);
-  border: var(--thin) solid var(--bg-status);
+  margin: var(--thick) 0;
+  box-shadow: 0 var(--thin) var(--thin) rgba(0, 0, 0, 0.33);
   word-wrap: break-word;
   background: var(--bg);
-}
-
-.message.reply {
-  margin-top: calc(0px - var(--thin));
 }
 
 .message > header.metadata {
@@ -286,8 +322,9 @@ nav > ul > li > a.current {
   color: var(--red);
 }
 
-form {
-  margin: var(--rhythm) 0;
+label {
+  display: block;
+  margin-bottom: var(--smaller);
 }
 
 .message > footer > form {
@@ -301,12 +338,6 @@ form {
   background: transparent;
   cursor: pointer;
   padding: 0;
-}
-
-.message blockquote {
-  margin-left: 0;
-  border-left: var(--thick) solid var(--bg-status);
-  padding-left: var(--small);
 }
 
 nav > ul {
@@ -324,18 +355,6 @@ nav > ul > li {
   margin-top: var(--rhythm);
   display: flex;
   margin-bottom: var(--rhythm);
-}
-
-.profile > img,
-.profile > h1 {
-  display: inline-block;
-}
-
-.profile > img {
-  width: 4rem;
-  height: 4rem;
-  margin-right: var(--small);
-  border-radius: var(--common-radius);
 }
 
 progress {
@@ -358,7 +377,7 @@ textarea {
   padding: var(--small);
   resize: vertical;
   width: 100%;
-  margin-bottom: var(--rhythm);
+  margin-bottom: var(--small);
   height: 6rem;
   transition: 0.0625s all ease;
   border: var(--thin) solid var(--bg-status);
@@ -399,6 +418,8 @@ summary {
 
 table {
   width: 100%;
+  display: block;
+  overflow-x: auto;
 }
 
 td,
@@ -415,8 +436,4 @@ th {
 input[type="search"] {
   width: 100%;
   margin-bottom: var(--small);
-}
-
-::selection {
-  background-color: var(--bg-selection);
 }
