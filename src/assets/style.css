@@ -104,7 +104,7 @@ a {
 
 button {
   cursor: pointer;
-  background: var(--blue);
+  background: var(--fg);
   color: var(--bg);
   border: 0;
   padding: var(--smaller) var(--small);
@@ -115,11 +115,12 @@ select,
 input {
   background: var(--bg);
   color: var(--fg);
-  border: var(--thin) solid var(--bg-status);
+  border: var(--thin) solid var(--fg-alt);
   padding: var(--smaller);
   margin-right: var(--small);
   -moz-appearance: none;
   appearance: none;
+  border-radius: var(--common-radius);
 }
 
 pre {
@@ -172,6 +173,7 @@ pre {
 
 .message.private {
   background-color: var(--bg-selection);
+  color: var(--fg-light);
 }
 
 .message.private ::selection {
@@ -378,22 +380,15 @@ textarea {
   resize: vertical;
   width: 100%;
   margin-bottom: var(--small);
-  height: 6rem;
-  transition: 0.0625s all ease;
-  border: var(--thin) solid var(--bg-status);
+  height: 12rem;
+  border: var(--thin) solid var(--fg-alt);
   border-radius: var(--common-radius);
   color: var(--fg);
 }
 
-/*
- * Make textaarea big when textarea siblings are active.
- * Make textarea big when focus is in form.
- *
- * This ensures that trying to click the submit button doesn't change the form.
- */
-*:active ~ textarea,
-form:focus-within > textarea {
-  height: 12rem;
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--blue);
 }
 
