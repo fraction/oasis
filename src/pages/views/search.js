@@ -7,13 +7,16 @@ const {
   input,
   button,
   label,
-  section
+  section,
+  strong,
+  header
 } = require('hyperaxe')
 
 module.exports = ({ messages, query }) => template(
   section(
     form({ action: '/search', method: 'get' },
-      label({ for: 'query' }, 'Search for messages that contain some word(s)'),
+      header(strong('Search')),
+      label({ for: 'query' }, 'Add word(s) to look for in downloaded messages.'),
       input({ required: true, type: 'search', name: 'query', value: query }),
       button({
         type: 'submit'

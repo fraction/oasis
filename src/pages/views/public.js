@@ -1,10 +1,13 @@
 'use strict'
 
 const {
+  a,
   button,
   form,
   label,
   section,
+  header,
+  strong,
   textarea
 } = require('hyperaxe')
 const template = require('./components/template')
@@ -17,7 +20,16 @@ module.exports = ({ messages, prefix = null }) => {
     prefix,
     section(
       form({ action: publishForm, method: 'post' },
-        label({ for: 'text' }, 'Publish a public message (cannot be edited or deleted)'),
+        header(strong('Publish')),
+        label(
+          { for: 'text' },
+          'Write a new message in ',
+          a({
+            href: 'https://commonmark.org/help/',
+            target: '_blank'
+          }, 'Markdown'),
+          '. Messages cannot be edited or deleted.'
+        ),
         textarea({ required: true, name: 'text' }),
         button({ type: 'submit' }, 'submit')
       )
