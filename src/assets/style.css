@@ -97,6 +97,7 @@ h3,
 h4,
 h5,
 h6 {
+  color: var(--bg-light);
   margin: var(--whole) 0;
 }
 
@@ -116,6 +117,25 @@ button {
   border: var(--pico) solid var(--fg);
   padding: var(--milli) var(--whole);
   border-radius: var(--common-radius);
+}
+
+section > footer > a,
+section > footer > form > button {
+  color: var(--fg);
+  font-weight: bold;
+}
+
+section > footer > form > button {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+button:focus,
+button:hover {
+  background-color: var(--fg-light);
 }
 
 select,
@@ -170,7 +190,7 @@ section img,
 section video {
   max-width: 100%;
   max-height: 100vh;
-  border: var(--pico) solid var(--bg-status);
+  border: var(--pico) solid var(--bg-selection);
   border-radius: var(--common-radius);
 }
 
@@ -192,6 +212,7 @@ section > header.profile {
 
 .private {
   border-left: var(--milli) solid var(--violet);
+  border-color: var(--violet);
 }
 
 section.thread-target {
@@ -202,7 +223,7 @@ section.thread-target {
 section.thread-target.private {
   border: var(--pico) solid var(--violet);
   border-left: var(--micro) solid var(--violet);
-  box-shadow: 0 0 var(--micro) var(--violet);
+  border-color: var(--violet);
 }
 
 section audio {
@@ -232,12 +253,6 @@ section > :first-child {
   }
 }
 
-section > footer > a,
-section > footer > form > button {
-  color: var(--fg);
-  font-weight: bold;
-}
-
 nav {
   margin: var(--whole) 0;
 }
@@ -256,9 +271,9 @@ section {
   padding: var(--whole);
   border-radius: var(--common-radius);
   margin: var(--milli) 0;
-  box-shadow: 0 var(--pico) var(--pico) rgba(0, 0, 0, 0.33);
   word-wrap: break-word;
   background: var(--bg);
+  border: var(--pico) solid var(--bg-selection);
 }
 
 section > header {
@@ -287,14 +302,6 @@ textarea {
   border: var(--pico) solid var(--bg-selection);
   border-radius: var(--common-radius);
   color: var(--fg);
-}
-
-section > footer > form > button {
-  display: inline-block;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
 }
 
 button:focus,
