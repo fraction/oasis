@@ -68,7 +68,7 @@ module.exports = ({ msg }) => {
     ? a({ href: url.parent }, 'parent')
     : null
 
-  const messageClasses = ['message']
+  const messageClasses = []
 
   if (isPrivate) {
     messageClasses.push('private')

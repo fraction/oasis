@@ -91,7 +91,7 @@ module.exports = ({ status, peers, theme, themeNames }) => {
         ', configure your theme, or view debugging information below.'
       ),
       h2('Theme'),
-      p('Choose from any theme you\'d like. The default theme is Tomorrow.'),
+      p('Choose from any theme you\'d like. The default theme is Atelier-SulphurPool-Light.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),

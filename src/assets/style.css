@@ -29,17 +29,23 @@
   --fg-light: var(--base06);
   --bg-light: var(--base07);
 
-  /* rhythm */
-  --rhythm: 1.5rem;
-  --small: 1rem;
-  --smaller: 0.5rem;
-  --measure: 36rem;
+  /* line */
+
+  --peta: 32rem;
+  --tera: 16rem;
+  --giga: 8rem;
+  --mega: 4rem;
+  --kilo: 2rem;
+  --whole: 1rem;
+  --milli: 0.5rem;
+  --micro: 0.25rem;
+  --nano: 0.125rem;
+  --pico: 0.0625rem;
 
   /* size */
-  --thin: 0.0625rem;
-  --medium: 0.25rem;
-  --thick: var(--smaller);
-  --common-radius: var(--medium);
+  --common-radius: var(--nano);
+  --measure: calc(var(--peta) + var(--mega));
+  --line: 1.5rem;
 }
 
 * {
@@ -91,12 +97,13 @@ h3,
 h4,
 h5,
 h6 {
-  margin: var(--small) 0;
+  color: var(--bg-light);
+  margin: var(--whole) 0;
 }
 
 ul,
 ol {
-  padding-left: var(--rhythm);
+  padding-left: var(--whole);
 }
 
 a {
@@ -107,18 +114,37 @@ button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
-  border: var(--thin) solid var(--fg);
-  padding: var(--smaller) var(--small);
+  border: var(--pico) solid var(--fg);
+  padding: var(--milli) var(--whole);
   border-radius: var(--common-radius);
+}
+
+section > footer > a,
+section > footer > form > button {
+  color: var(--fg);
+  font-weight: bold;
+}
+
+section > footer > form > button {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+button:focus,
+button:hover {
+  background-color: var(--fg-light);
 }
 
 select,
 input {
   background: var(--bg);
   color: var(--fg);
-  border: var(--thin) solid var(--bg-selection);
-  padding: var(--smaller);
-  margin-right: var(--small);
+  border: var(--pico) solid var(--bg-selection);
+  padding: var(--milli);
+  margin-right: var(--whole);
   -moz-appearance: none;
   appearance: none;
   border-radius: var(--common-radius);
@@ -127,13 +153,13 @@ input {
 pre {
   overflow-x: auto;
   background-color: var(--bg);
-  padding: var(--smaller);
+  padding: var(--milli);
   font-size: 92%;
   border-radius: var(--common-radius);
-  border: var(--thin) solid var(--bg-status);
+  border: var(--pico) solid var(--bg-status);
 }
 
-.message code {
+section code {
   max-width: 100%;
   overflow-wrap: break-word;
   padding: 0.125em 0.25em;
@@ -141,10 +167,10 @@ pre {
   font-size: 85%;
   background-color: var(--bg);
   border-radius: var(--common-radius);
-  border: var(--thin) solid var(--bg-status);
+  border: var(--pico) solid var(--bg-status);
 }
 
-.message pre code {
+section pre code {
   color: inherit;
   padding: 0;
   margin: 0;
@@ -154,10 +180,18 @@ pre {
   border-radius: initial;
 }
 
-.message blockquote {
+section blockquote {
   margin-left: 0;
-  border-left: var(--thick) solid var(--bg-status);
-  padding-left: var(--small);
+  border-left: var(--milli) solid var(--bg-status);
+  padding-left: var(--whole);
+}
+
+section img,
+section video {
+  max-width: 100%;
+  max-height: 100vh;
+  border: var(--pico) solid var(--bg-selection);
+  border-radius: var(--common-radius);
 }
 
 .profile > img,
@@ -165,35 +199,38 @@ pre {
   display: inline-block;
 }
 
+section > header.profile {
+  height: auto;
+}
+
 .profile > img {
   width: 4rem;
   height: 4rem;
-  margin-right: var(--small);
+  margin-right: var(--whole);
   border-radius: var(--common-radius);
 }
 
 .private {
-  border-left: var(--medium) solid var(--violet);
+  border-left: var(--milli) solid var(--violet);
+  border-color: var(--violet);
 }
 
-.message img,
-.message video {
-  max-width: 100%;
-  max-height: 100vh;
-  border: var(--thin) solid var(--bg-status);
-  border-radius: var(--common-radius);
+section.thread-target {
+  border: var(--pico) solid var(--blue);
+  box-shadow: 0 0 var(--micro) var(--blue);
 }
 
-.message.thread-target {
-  border: var(--thin) solid var(--blue);
-  box-shadow: 0 0 var(--medium) var(--blue);
+section.thread-target.private {
+  border: var(--pico) solid var(--violet);
+  border-left: var(--micro) solid var(--violet);
+  border-color: var(--violet);
 }
 
-.message audio {
+section audio {
   width: 100%;
 }
 
-.message > :first-child {
+section > :first-child {
   margin-top: 0;
   padding-top: 0;
 }
@@ -217,7 +254,7 @@ pre {
 }
 
 nav {
-  margin: var(--small) 0;
+  margin: var(--whole) 0;
 }
 
 nav > ul > li > a {
@@ -231,38 +268,38 @@ nav > ul > li > a.current {
 }
 
 section {
-  padding: var(--small);
+  padding: var(--whole);
   border-radius: var(--common-radius);
-  margin: var(--thick) 0;
-  box-shadow: 0 var(--thin) var(--thin) rgba(0, 0, 0, 0.33);
+  margin: var(--milli) 0;
   word-wrap: break-word;
   background: var(--bg);
+  border: var(--pico) solid var(--bg-selection);
 }
 
-.message > header.metadata {
-  height: var(--rhythm);
+section > header {
+  height: var(--line);
   display: flex;
-  margin-bottom: var(--small);
+  margin-bottom: var(--whole);
 }
 
-.message > header > a > .avatar {
-  width: var(--rhythm);
-  height: var(--rhythm);
+section > header > a > .avatar {
+  width: var(--line);
+  height: var(--line);
   border-radius: var(--common-radius);
-  margin-right: var(--smaller);
+  margin-right: var(--milli);
 }
 
 textarea {
   background-color: var(--bg);
   box-sizing: border-box;
   display: block;
-  font-size: var(--small);
-  padding: var(--small);
+  font-size: var(--whole);
+  padding: var(--whole);
   resize: vertical;
   width: 100%;
-  margin: var(--small) 0;
+  margin: var(--whole) 0;
   height: 12rem;
-  border: var(--thin) solid var(--bg-selection);
+  border: var(--pico) solid var(--bg-selection);
   border-radius: var(--common-radius);
   color: var(--fg);
 }
@@ -274,17 +311,11 @@ textarea:focus {
   border-color: var(--blue);
 }
 
-.message > footer > a,
-.message > footer > form > button {
-  color: var(--fg);
+section > header > .text > .author {
   font-weight: bold;
 }
 
-.message > header > .text > .author {
-  font-weight: bold;
-}
-
-.message > header > .text > .author > a {
+section > header > .text > .author > a {
   color: var(--fg-light);
   text-decoration: none;
 }
@@ -306,39 +337,31 @@ textarea:focus {
  * We also use `pointer-events: none` to ensure that this invisible div doesn't
  * capture cursor events (clicks, drags, etc) on surrounding elements, because
  * otherwise we could have a problem where someone clicks above the invisible
- * div but the browser things they're clicking the gigantic amount of padding.
+ * div but the browser picogs they're clicking the gigantic amount of padding.
  */
-.message > .centered-footer {
+section > .centered-footer {
   padding-top: 50vh;
   margin-top: -50vh;
   pointer-events: none;
 }
 
-.message > footer {
+section > footer {
   display: flex;
   justify-content: space-between;
-  margin-top: var(--small);
+  margin-top: var(--whole);
 }
 
-.message > footer > * {
+section > footer > * {
   text-decoration: none;
 }
 
-.message > footer > form > button.liked {
+section > footer > form > button.liked {
   color: var(--red);
 }
 
 label {
   display: block;
   margin: 0;
-}
-
-.message > footer > form > button {
-  display: inline-block;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
 }
 
 nav > ul {
@@ -353,9 +376,9 @@ nav > ul > li {
 }
 
 .profile {
-  margin-top: var(--rhythm);
+  margin-top: var(--whole);
   display: flex;
-  margin-bottom: var(--rhythm);
+  margin-bottom: var(--whole);
 }
 
 progress {
@@ -372,12 +395,10 @@ progress {
 
 /* content warning! */
 summary {
-  padding: var(--small) var(--smaller);
-  background-color: var(--bg-status);
+  padding: var(--milli);
   margin: 0;
   cursor: pointer;
-  color: var(--fg-status);
-  border: var(--thin) solid var(--bg-selection);
+  border: var(--pico) solid var(--bg-selection);
 }
 
 .md-mention {
@@ -396,8 +417,8 @@ table {
 
 td,
 th {
-  padding: var(--smaller);
-  outline: var(--thin) solid var(--bg-status);
+  padding: var(--milli);
+  outline: var(--pico) solid var(--bg-status);
 }
 
 th {
@@ -407,9 +428,9 @@ th {
 
 input[type="search"] {
   width: 100%;
-  margin: var(--small) 0;
+  margin: var(--whole) 0;
 }
 
 hr {
-  border: var(--thin) solid var(--fg-alt);
+  border: var(--pico) solid var(--fg-alt);
 }
