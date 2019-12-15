@@ -48,6 +48,7 @@
 
 ::selection {
   background-color: var(--bg-selection);
+  color: var(--fg-light);
 }
 
 html {
@@ -106,7 +107,7 @@ button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
-  border: 0;
+  border: var(--thin) solid var(--fg);
   padding: var(--smaller) var(--small);
   border-radius: var(--common-radius);
 }
@@ -115,7 +116,7 @@ select,
 input {
   background: var(--bg);
   color: var(--fg);
-  border: var(--thin) solid var(--fg-alt);
+  border: var(--thin) solid var(--bg-selection);
   padding: var(--smaller);
   margin-right: var(--small);
   -moz-appearance: none;
@@ -171,17 +172,8 @@ pre {
   border-radius: var(--common-radius);
 }
 
-.message.private {
-  background-color: var(--bg-selection);
-  color: var(--fg-light);
-}
-
-.message.private ::selection {
-  background-color: var(--bg-status);
-}
-
-.message.private blockquote {
-  border-color: var(--fg-alt);
+.private {
+  border-left: var(--medium) solid var(--violet);
 }
 
 .message img,
@@ -190,16 +182,6 @@ pre {
   max-height: 100vh;
   border: var(--thin) solid var(--bg-status);
   border-radius: var(--common-radius);
-}
-
-.message.private img,
-.message.private video {
-  border-color: var(--bg-selection);
-}
-
-.message.private code {
-  background-color: var(--bg-selection);
-  border-color: var(--fg-alt);
 }
 
 .message.thread-target {
@@ -270,6 +252,28 @@ section {
   margin-right: var(--smaller);
 }
 
+textarea {
+  background-color: var(--bg);
+  box-sizing: border-box;
+  display: block;
+  font-size: var(--small);
+  padding: var(--small);
+  resize: vertical;
+  width: 100%;
+  margin: var(--small) 0;
+  height: 12rem;
+  border: var(--thin) solid var(--bg-selection);
+  border-radius: var(--common-radius);
+  color: var(--fg);
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--blue);
+}
+
 .message > footer > a,
 .message > footer > form > button {
   color: var(--fg);
@@ -326,11 +330,6 @@ section {
 
 label {
   display: block;
-  margin-bottom: var(--smaller);
-}
-
-.message > footer > form {
-  display: inline-block;
   margin: 0;
 }
 
@@ -371,27 +370,6 @@ progress {
   border-color: var(--blue);
 }
 
-textarea {
-  background-color: var(--bg);
-  box-sizing: border-box;
-  display: block;
-  font-size: var(--small);
-  padding: var(--small);
-  resize: vertical;
-  width: 100%;
-  margin-bottom: var(--small);
-  height: 12rem;
-  border: var(--thin) solid var(--fg-alt);
-  border-radius: var(--common-radius);
-  color: var(--fg);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--blue);
-}
-
 /* content warning! */
 summary {
   padding: var(--small) var(--smaller);
@@ -413,8 +391,7 @@ summary {
 
 table {
   width: 100%;
-  display: block;
-  overflow-x: auto;
+  table-layout: fixed;
 }
 
 td,
@@ -430,5 +407,9 @@ th {
 
 input[type="search"] {
   width: 100%;
-  margin-bottom: var(--small);
+  margin: var(--small) 0;
+}
+
+hr {
+  border: var(--thin) solid var(--fg-alt);
 }

@@ -91,7 +91,7 @@ module.exports = ({ status, peers, theme, themeNames }) => {
         ', configure your theme, or view debugging information below.'
       ),
       h2('Theme'),
-      p('Choose from any theme you\'d like. The default theme is Google-Light.'),
+      p('Choose from any theme you\'d like. The default theme is Tomorrow.'),
       form({ action: '/theme.css', method: 'post' },
         select({ name: 'theme' }, ...themeElements),
         button({ type: 'submit' }, 'set theme')),
