@@ -133,11 +133,6 @@ section > footer > form > button {
   padding: 0;
 }
 
-button:focus,
-button:hover {
-  background-color: var(--fg-light);
-}
-
 select,
 input {
   background: var(--bg);
@@ -148,6 +143,37 @@ input {
   -moz-appearance: none;
   appearance: none;
   border-radius: var(--common-radius);
+}
+
+textarea {
+  background-color: var(--bg);
+  box-sizing: border-box;
+  display: block;
+  font-size: var(--whole);
+  padding: var(--whole);
+  resize: vertical;
+  width: 100%;
+  margin: var(--whole) 0;
+  height: 12rem;
+  border: var(--pico) solid var(--bg-selection);
+  border-radius: var(--common-radius);
+  color: var(--fg);
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--blue);
+}
+
+button:focus,
+button:hover {
+  background-color: var(--fg-light);
+}
+
+section > footer > form > button:hover {
+  background-color: transparent;
 }
 
 pre {
@@ -287,28 +313,6 @@ section > header > a > .avatar {
   height: var(--line);
   border-radius: var(--common-radius);
   margin-right: var(--milli);
-}
-
-textarea {
-  background-color: var(--bg);
-  box-sizing: border-box;
-  display: block;
-  font-size: var(--whole);
-  padding: var(--whole);
-  resize: vertical;
-  width: 100%;
-  margin: var(--whole) 0;
-  height: 12rem;
-  border: var(--pico) solid var(--bg-selection);
-  border-radius: var(--common-radius);
-  color: var(--fg);
-}
-
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--blue);
 }
 
 section > header > .text > .author {
