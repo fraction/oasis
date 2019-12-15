@@ -20,7 +20,7 @@ module.exports = ({ messages, prefix = null }) => {
     prefix,
     section(
       form({ action: publishForm, method: 'post' },
-        header(strong('Publish')),
+        header(strong('🌐 Publish')),
         label(
           { for: 'text' },
           'Write a new message in ',
