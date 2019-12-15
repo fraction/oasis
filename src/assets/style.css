@@ -139,7 +139,7 @@ pre {
   border: var(--pico) solid var(--bg-status);
 }
 
-.message code {
+section code {
   max-width: 100%;
   overflow-wrap: break-word;
   padding: 0.125em 0.25em;
@@ -150,7 +150,7 @@ pre {
   border: var(--pico) solid var(--bg-status);
 }
 
-.message pre code {
+section pre code {
   color: inherit;
   padding: 0;
   margin: 0;
@@ -160,15 +160,27 @@ pre {
   border-radius: initial;
 }
 
-.message blockquote {
+section blockquote {
   margin-left: 0;
   border-left: var(--milli) solid var(--bg-status);
   padding-left: var(--whole);
 }
 
+section img,
+section video {
+  max-width: 100%;
+  max-height: 100vh;
+  border: var(--pico) solid var(--bg-status);
+  border-radius: var(--common-radius);
+}
+
 .profile > img,
 .profile > h1 {
   display: inline-block;
+}
+
+section > header.profile {
+  height: auto;
 }
 
 .profile > img {
@@ -182,30 +194,22 @@ pre {
   border-left: var(--milli) solid var(--violet);
 }
 
-.message img,
-.message video {
-  max-width: 100%;
-  max-height: 100vh;
-  border: var(--pico) solid var(--bg-status);
-  border-radius: var(--common-radius);
-}
-
-.message.thread-target {
+section.thread-target {
   border: var(--pico) solid var(--blue);
   box-shadow: 0 0 var(--micro) var(--blue);
 }
 
-.message.thread-target.private {
+section.thread-target.private {
   border: var(--pico) solid var(--violet);
   border-left: var(--micro) solid var(--violet);
   box-shadow: 0 0 var(--micro) var(--violet);
 }
 
-.message audio {
+section audio {
   width: 100%;
 }
 
-.message > :first-child {
+section > :first-child {
   margin-top: 0;
   padding-top: 0;
 }
@@ -226,6 +230,12 @@ pre {
     max-width: var(--measure);
     margin: 0;
   }
+}
+
+section > footer > a,
+section > footer > form > button {
+  color: var(--fg);
+  font-weight: bold;
 }
 
 nav {
@@ -251,13 +261,13 @@ section {
   background: var(--bg);
 }
 
-.message > header.metadata {
+section > header {
   height: var(--line);
   display: flex;
   margin-bottom: var(--whole);
 }
 
-.message > header > a > .avatar {
+section > header > a > .avatar {
   width: var(--line);
   height: var(--line);
   border-radius: var(--common-radius);
@@ -279,6 +289,14 @@ textarea {
   color: var(--fg);
 }
 
+section > footer > form > button {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
 button:focus,
 input:focus,
 select:focus,
@@ -286,17 +304,11 @@ textarea:focus {
   border-color: var(--blue);
 }
 
-.message > footer > a,
-.message > footer > form > button {
-  color: var(--fg);
+section > header > .text > .author {
   font-weight: bold;
 }
 
-.message > header > .text > .author {
-  font-weight: bold;
-}
-
-.message > header > .text > .author > a {
+section > header > .text > .author > a {
   color: var(--fg-light);
   text-decoration: none;
 }
@@ -320,37 +332,29 @@ textarea:focus {
  * otherwise we could have a problem where someone clicks above the invisible
  * div but the browser picogs they're clicking the gigantic amount of padding.
  */
-.message > .centered-footer {
+section > .centered-footer {
   padding-top: 50vh;
   margin-top: -50vh;
   pointer-events: none;
 }
 
-.message > footer {
+section > footer {
   display: flex;
   justify-content: space-between;
   margin-top: var(--whole);
 }
 
-.message > footer > * {
+section > footer > * {
   text-decoration: none;
 }
 
-.message > footer > form > button.liked {
+section > footer > form > button.liked {
   color: var(--red);
 }
 
 label {
   display: block;
   margin: 0;
-}
-
-.message > footer > form > button {
-  display: inline-block;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
 }
 
 nav > ul {

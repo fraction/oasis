@@ -19,8 +19,8 @@ module.exports = ({ messages, prefix = null }) => {
   return template(
     prefix,
     section(
+      header(strong('🌐 Publish')),
       form({ action: publishForm, method: 'post' },
-        header(strong('🌐 Publish')),
         label(
           { for: 'text' },
           'Write a new message in ',
