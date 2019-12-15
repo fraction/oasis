@@ -189,6 +189,12 @@ pre {
   box-shadow: 0 0 var(--medium) var(--blue);
 }
 
+.message.thread-target.private {
+  border: var(--thin) solid var(--violet);
+  border-left: var(--medium) solid var(--violet);
+  box-shadow: 0 0 var(--medium) var(--violet);
+}
+
 .message audio {
   width: 100%;
 }
