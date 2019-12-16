@@ -43,7 +43,7 @@
   --pico: 0.0625rem;
 
   /* size */
-  --common-radius: var(--nano);
+  --common-radius: var(--micro);
   --measure: calc(var(--peta) + var(--mega));
   --line: 1.5rem;
 }
@@ -107,7 +107,7 @@ ol {
 }
 
 a {
-  color: var(--blue);
+  color: var(--fg-light);
 }
 
 button {
@@ -121,7 +121,7 @@ button {
 
 section > footer > a,
 section > footer > form > button {
-  color: var(--fg);
+  color: var(--fg-status);
   font-weight: bold;
 }
 
@@ -216,8 +216,9 @@ section img,
 section video {
   max-width: 100%;
   max-height: 100vh;
-  border: var(--pico) solid var(--bg-selection);
+  border: var(--pico) solid var(--bg-status);
   border-radius: var(--common-radius);
+  box-sizing: border-box;
 }
 
 .profile > img,
@@ -250,6 +251,7 @@ section.thread-target.private {
   border: var(--pico) solid var(--violet);
   border-left: var(--micro) solid var(--violet);
   border-color: var(--violet);
+  box-shadow: 0 0 var(--micro) var(--violet);
 }
 
 section audio {
@@ -296,10 +298,9 @@ nav > ul > li > a.current {
 section {
   padding: var(--whole);
   border-radius: var(--common-radius);
-  margin: var(--milli) 0;
+  margin: var(--whole) 0;
   word-wrap: break-word;
   background: var(--bg);
-  border: var(--pico) solid var(--bg-selection);
 }
 
 section > header {
