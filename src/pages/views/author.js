@@ -10,13 +10,7 @@ const {
   img,
   pre,
   section,
-  span,
-  table,
-  tbody,
-  td,
-  th,
-  thead,
-  tr
+  span
 } = require('hyperaxe')
 const post = require('./components/post')
 
@@ -34,24 +28,6 @@ module.exports = ({
   const mention = `[@${name}](${feedId})`
   const markdownMention = highlightJs.highlight('markdown', mention).value
 
-  const alreadyHandled = [
-    'description',
-    'image',
-    'name'
-  ]
-  const metaRows = Object.entries(aboutPairs)
-    .filter(([key]) => alreadyHandled.includes(key) === false)
-    .map(([key, value]) => tr(td(key), td(value)))
-
-  const metaTable = metaRows.length > 0
-    ? table(
-      thead(
-        tr(th('key'), th('value'))
-      ),
-      tbody(metaRows)
-    )
-    : null
-
   const prefix = section({ class: 'message' },
     header({ class: 'profile' },
       img({ class: 'avatar', src: avatarUrl }),
@@ -63,7 +39,6 @@ module.exports = ({
     description !== '<p>null</p>\n'
       ? article({ innerHTML: description })
       : null,
-    metaTable,
     footer(
       a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes'),
       span(relationship)
