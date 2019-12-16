@@ -229,6 +229,7 @@ section video {
 
 section > header.profile {
   height: auto;
+  justify-content: left;
 }
 
 .profile > img {
