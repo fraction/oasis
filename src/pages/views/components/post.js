@@ -38,6 +38,7 @@ module.exports = ({ msg }) => {
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
+  const isRoot = msg.value.content.root == null
   const isThreadTarget = Boolean(lodash.get(
     msg,
     'value.meta.thread.target',
@@ -149,7 +150,7 @@ module.exports = ({ msg }) => {
           class: likeButton.class
         },
         `❤ ${likeCount}`)),
-      isPrivate ? null : a({ href: url.reply }, 'reply'),
+      (isPrivate || isRoot) ? null : a({ href: url.reply }, 'reply'),
       isPrivate ? null : a({ href: url.replyAll }, 'reply all'),
       a({ href: url.json }, 'json')
     ))

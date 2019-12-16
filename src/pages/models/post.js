@@ -232,6 +232,29 @@ const post = {
 
     return messages
   },
+  fromRoot: async (rootId, customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const myFeedId = ssb.id
+
+    const query = [{
+      $filter: {
+        dest: rootId
+      }
+    }]
+
+    const messages = await getMessages({
+      myFeedId,
+      customOptions,
+      ssb,
+      query,
+      filter: (msg) => msg.value.content.root === rootId
+    })
+
+    console.log(messages)
+
+    return messages
+  },
   likes: async ({ feed }, customOptions = {}) => {
     const ssb = await cooler.connect()
 
