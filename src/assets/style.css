@@ -172,7 +172,8 @@ button:hover {
   background-color: var(--fg-light);
 }
 
-section > footer > form > button:hover {
+section > footer > form > button:hover,
+section > footer > form > button:focus {
   background-color: transparent;
 }
 
@@ -295,7 +296,7 @@ section header a {
 }
 
 nav > ul > li > a {
-  color: var(--fg);
+  color: var(--fg-status);
   text-decoration: none;
   font-weight: bold;
 }
