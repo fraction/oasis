@@ -151,13 +151,13 @@ const transform = (ssb, messages, myFeedId) =>
     })
 
     if (isRoot(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'posted')
+      lodash.set(msg, 'value.meta.postType', 'post')
     } else if (isReply(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'replied to thread')
+      lodash.set(msg, 'value.meta.postType', 'replyAll')
     } else if (isNestedReply(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'replied to message')
+      lodash.set(msg, 'value.meta.postType', 'reply')
     } else {
-      lodash.set(msg, 'value.meta.postType', 'published a mysterious message')
+      lodash.set(msg, 'value.meta.postType', 'mystery')
     }
 
     lodash.set(msg, 'value.meta.votes', voters)

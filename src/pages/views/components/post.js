@@ -50,7 +50,7 @@ module.exports = ({ msg }) => {
   ))
 
   const { name } = msg.value.meta.author
-  const timeAgo = msg.value.meta.timestamp.received.since
+  const timeAgo = msg.value.meta.timestamp.received.since.replace('~', '')
 
   const depth = lodash.get(msg, 'value.meta.thread.depth', 0)
 
@@ -64,10 +64,6 @@ module.exports = ({ msg }) => {
 
   const likeCount = msg.value.meta.votes.length
 
-  const parentLink = msg.value.content.root != null
-    ? a({ href: url.parent }, 'parent')
-    : null
-
   const messageClasses = []
 
   if (isPrivate) {
@@ -80,6 +76,19 @@ module.exports = ({ msg }) => {
 
   if (isReply) {
     messageClasses.push('reply')
+  }
+
+  const postOptions = {
+    post: null,
+    replyAll: [
+      'replied to ',
+      a({ href: url.parent }, ' thread')
+    ],
+    reply: [
+      'replied to ',
+      a({ href: url.parent }, ' message')
+    ],
+    mystery: 'posted a mysterious message'
   }
 
   const emptyContent = '<p>undefined</p>\n'
@@ -105,17 +114,19 @@ module.exports = ({ msg }) => {
       class: messageClasses.join(' '),
       style: `margin-left: ${depth}rem;`
     },
-    header({ class: 'metadata' },
-      a({ href: url.author },
-        img({ class: 'avatar', src: url.avatar, alt: '' })),
-      span({ class: 'text' },
-        span({ class: 'author' },
-          a({ href: url.author }, name)),
-        isPrivate ? ' privately 🔒' : null,
-        span(` ${msg.value.meta.postType}`),
-        span(` ${timeAgo} ago`),
-        ':'
-      )),
+    header(
+      span({ class: 'author' },
+        a({ href: url.author },
+          img({ class: 'avatar', src: url.avatar, alt: '' }),
+          name
+        ),
+        postOptions[msg.value.meta.postType]
+      ),
+      span({ class: 'time' },
+        isPrivate ? '🔒' : null,
+        a({ href: url.link }, timeAgo)
+      )
+    ),
     articleContent,
 
     // HACK: centered-footer
@@ -140,8 +151,6 @@ module.exports = ({ msg }) => {
         `❤ ${likeCount}`)),
       isPrivate ? null : a({ href: url.reply }, 'reply'),
       isPrivate ? null : a({ href: url.replyAll }, 'reply all'),
-      a({ href: url.link }, 'link'),
-      parentLink,
       a({ href: url.json }, 'json')
     ))
 

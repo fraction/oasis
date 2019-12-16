@@ -285,6 +285,15 @@ nav {
   margin: var(--whole) 0;
 }
 
+section header a {
+  display: flex;
+  color: var(--fg-status);
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: var(--micro);
+  margin-left: var(--micro);
+}
+
 nav > ul > li > a {
   color: var(--fg);
   text-decoration: none;
@@ -307,22 +316,24 @@ section > header {
   height: var(--line);
   display: flex;
   margin-bottom: var(--whole);
+  justify-content: space-between;
+  color: var(--fg-status);
 }
 
-section > header > a > .avatar {
+section header a > .avatar {
   width: var(--line);
   height: var(--line);
   border-radius: var(--common-radius);
-  margin-right: var(--milli);
+  margin-right: var(--micro);
 }
 
-section > header > .text > .author {
-  font-weight: bold;
+section header span {
+  display: flex;
 }
 
-section > header > .text > .author > a {
+section header .author > a:first-child {
+  margin-left: 0;
   color: var(--fg-light);
-  text-decoration: none;
 }
 
 /*
