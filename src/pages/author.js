@@ -13,7 +13,7 @@ module.exports = async function authorPage (feedId) {
   const messages = await post.fromFeed(feedId)
   const relationship = await friend.getRelationship(feedId)
 
-  const avatarUrl = `/image/128/${encodeURIComponent(image)}`
+  const avatarUrl = `/image/256/${encodeURIComponent(image)}`
 
   return authorView({
     feedId,

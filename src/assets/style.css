@@ -297,7 +297,7 @@ section header a {
 }
 
 nav > ul > li > a {
-  color: var(--fg-status);
+  color: var(--fg);
   text-decoration: none;
   font-weight: bold;
 }

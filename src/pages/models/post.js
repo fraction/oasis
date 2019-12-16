@@ -125,7 +125,7 @@ const transform = (ssb, messages, myFeedId) =>
       ? avatarMsg.link || nullImage
       : avatarMsg || nullImage
 
-    const avatarUrl = `/image/32/${encodeURIComponent(avatarId)}`
+    const avatarUrl = `/image/64/${encodeURIComponent(avatarId)}`
 
     const ts = new Date(msg.value.timestamp)
     let isoTs

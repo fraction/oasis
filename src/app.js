@@ -92,7 +92,7 @@ module.exports = (config) => {
       const size = Number(imageSize)
       const isInteger = size % 1 === 0
       const overMinSize = size > 2
-      const underMaxSize = size < 256
+      const underMaxSize = size <= 256
       ctx.assert(isInteger && overMinSize && underMaxSize, 'Invalid image size')
       return next()
     })
