@@ -9,12 +9,17 @@ module.exports = async function replyPage (parentId) {
   const parentMessage = await post.get(parentId)
   const myFeedId = await meta.myFeedId()
 
-  const messages = [parentMessage]
-
   const hasRoot = typeof parentMessage.value.content.root === 'string' && ssbRef.isMsg(parentMessage.value.content.root)
-  if (hasRoot) {
-    messages.push(await post.get(parentMessage.value.content.root))
-  }
 
-  return replyAllView({ messages, myFeedId })
+  const rootMessage = hasRoot
+    ? await post.get(parentMessage.value.content.root)
+    : parentMessage
+
+  const messages = hasRoot
+    ? await post.fromRoot(parentMessage.value.content.root)
+    : await post.fromRoot(parentId)
+
+  messages.push(rootMessage)
+
+  return replyAllView({ messages, myFeedId, parentMessage })
 }

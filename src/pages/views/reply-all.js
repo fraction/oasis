@@ -1,7 +1,6 @@
 'use strict'
 
 const {
-  p,
   button,
   form,
   textarea
@@ -11,27 +10,29 @@ const debug = require('debug')('oasis:views:reply-all')
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = async ({ messages, myFeedId }) => {
+module.exports = async ({ messages, myFeedId, parentMessage }) => {
   let markdownMention
 
-  const messageElements = await Promise.all(messages.reverse().map((message) => {
-    debug('%O', message)
-    const authorName = message.value.meta.author.name
-    const authorFeedId = message.value.author
-    if (authorFeedId !== myFeedId) {
-      markdownMention = `[@${authorName}](${authorFeedId})\n\n`
-    }
-    return post({ msg: message })
-  }))
+  const messageElements = await Promise.all(
+    messages.reverse().map((message) => {
+      debug('%O', message)
+      const authorName = message.value.meta.author.name
+      const authorFeedId = message.value.author
+      if (authorFeedId !== myFeedId) {
+        if (message.key === parentMessage.key) {
+          const x = `[@${authorName}](${authorFeedId})\n\n`
+          markdownMention = x
+        }
+      }
+      return post({ msg: message })
+    })
+  )
 
   const action = `/reply-all/${encodeURIComponent(messages[0].key)}`
   const method = 'post'
 
-  const warning = p({ style: 'text-align: center;' }, '[showing maximum of two posts from thread, others may exist]')
-
   return template(
     messageElements,
-    warning,
     form({ action, method },
       textarea({
         autofocus: true,

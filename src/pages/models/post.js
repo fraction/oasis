@@ -151,13 +151,13 @@ const transform = (ssb, messages, myFeedId) =>
     })
 
     if (isRoot(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'posted')
+      lodash.set(msg, 'value.meta.postType', 'post')
     } else if (isReply(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'replied to thread')
+      lodash.set(msg, 'value.meta.postType', 'replyAll')
     } else if (isNestedReply(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'replied to message')
+      lodash.set(msg, 'value.meta.postType', 'reply')
     } else {
-      lodash.set(msg, 'value.meta.postType', 'published a mysterious message')
+      lodash.set(msg, 'value.meta.postType', 'mystery')
     }
 
     lodash.set(msg, 'value.meta.votes', voters)
@@ -229,6 +229,29 @@ const post = {
     }]
 
     const messages = await getMessages({ myFeedId, customOptions, ssb, query })
+
+    return messages
+  },
+  fromRoot: async (rootId, customOptions = {}) => {
+    const ssb = await cooler.connect()
+
+    const myFeedId = ssb.id
+
+    const query = [{
+      $filter: {
+        dest: rootId
+      }
+    }]
+
+    const messages = await getMessages({
+      myFeedId,
+      customOptions,
+      ssb,
+      query,
+      filter: (msg) => msg.value.content.root === rootId
+    })
+
+    console.log(messages)
 
     return messages
   },

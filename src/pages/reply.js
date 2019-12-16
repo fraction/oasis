@@ -6,10 +6,13 @@ const meta = require('./models/meta')
 const replyView = require('./views/reply')
 
 module.exports = async function replyPage (parentId) {
-  const message = await post.get(parentId)
+  const rootMessage = await post.get(parentId)
   const myFeedId = await meta.myFeedId()
 
-  debug('%O', message)
+  debug('%O', rootMessage)
+  const messages = await post.fromRoot(rootMessage.key)
 
-  return replyView({ message, myFeedId })
+  messages.push(rootMessage)
+
+  return replyView({ messages, myFeedId })
 }

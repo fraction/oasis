@@ -43,7 +43,7 @@
   --pico: 0.0625rem;
 
   /* size */
-  --common-radius: var(--nano);
+  --common-radius: var(--micro);
   --measure: calc(var(--peta) + var(--mega));
   --line: 1.5rem;
 }
@@ -107,7 +107,7 @@ ol {
 }
 
 a {
-  color: var(--blue);
+  color: var(--fg-light);
 }
 
 button {
@@ -121,7 +121,7 @@ button {
 
 section > footer > a,
 section > footer > form > button {
-  color: var(--fg);
+  color: var(--fg-status);
   font-weight: bold;
 }
 
@@ -172,7 +172,8 @@ button:hover {
   background-color: var(--fg-light);
 }
 
-section > footer > form > button:hover {
+section > footer > form > button:hover,
+section > footer > form > button:focus {
   background-color: transparent;
 }
 
@@ -216,8 +217,9 @@ section img,
 section video {
   max-width: 100%;
   max-height: 100vh;
-  border: var(--pico) solid var(--bg-selection);
+  border: var(--pico) solid var(--bg-status);
   border-radius: var(--common-radius);
+  box-sizing: border-box;
 }
 
 .profile > img,
@@ -250,6 +252,7 @@ section.thread-target.private {
   border: var(--pico) solid var(--violet);
   border-left: var(--micro) solid var(--violet);
   border-color: var(--violet);
+  box-shadow: 0 0 var(--micro) var(--violet);
 }
 
 section audio {
@@ -283,8 +286,17 @@ nav {
   margin: var(--whole) 0;
 }
 
+section header a {
+  display: flex;
+  color: var(--fg-status);
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: var(--micro);
+  margin-left: var(--micro);
+}
+
 nav > ul > li > a {
-  color: var(--fg);
+  color: var(--fg-status);
   text-decoration: none;
   font-weight: bold;
 }
@@ -296,32 +308,33 @@ nav > ul > li > a.current {
 section {
   padding: var(--whole);
   border-radius: var(--common-radius);
-  margin: var(--milli) 0;
+  margin: var(--whole) 0;
   word-wrap: break-word;
   background: var(--bg);
-  border: var(--pico) solid var(--bg-selection);
 }
 
 section > header {
   height: var(--line);
   display: flex;
   margin-bottom: var(--whole);
+  justify-content: space-between;
+  color: var(--fg-status);
 }
 
-section > header > a > .avatar {
+section header a > .avatar {
   width: var(--line);
   height: var(--line);
   border-radius: var(--common-radius);
-  margin-right: var(--milli);
+  margin-right: var(--micro);
 }
 
-section > header > .text > .author {
-  font-weight: bold;
+section header span {
+  display: flex;
 }
 
-section > header > .text > .author > a {
+section header .author > a:first-child {
+  margin-left: 0;
   color: var(--fg-light);
-  text-decoration: none;
 }
 
 /*

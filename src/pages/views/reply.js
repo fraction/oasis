@@ -5,22 +5,33 @@ const {
   form,
   textarea
 } = require('hyperaxe')
+const debug = require('debug')('oasis')
 
 const template = require('./components/template')
 const post = require('./components/post')
 
-module.exports = ({ message, myFeedId }) => {
-  const likeForm = `/reply/${encodeURIComponent(message.key)}`
+module.exports = async ({ messages, myFeedId }) => {
+  const likeForm = `/reply/${encodeURIComponent(messages[0].key)}`
 
-  const authorName = message.value.meta.author.name
-  const authorFeedId = message.value.author
+  let markdownMention
 
-  const markdownMention = authorFeedId !== myFeedId
-    ? `[@${authorName}](${authorFeedId})\n\n`
-    : null
+  const messageElements = await Promise.all(
+    messages.reverse().map((message) => {
+      debug('%O', message)
+      const authorName = message.value.meta.author.name
+      const authorFeedId = message.value.author
+      if (authorFeedId !== myFeedId) {
+        if (message.key === messages[0].key) {
+          const x = `[@${authorName}](${authorFeedId})\n\n`
+          markdownMention = x
+        }
+      }
+      return post({ msg: message })
+    })
+  )
 
   return template(
-    post({ msg: message }),
+    messageElements,
     form({ action: likeForm, method: 'post' },
       textarea({
         autofocus: true,
