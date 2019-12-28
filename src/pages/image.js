@@ -1,21 +1,36 @@
 'use strict'
 
+let sharp
+
 const pull = require('pull-stream')
-const sharp = require('sharp')
 const debug = require('debug')('oasis')
 const blob = require('./models/blob')
 
+try {
+  sharp = require('sharp')
+} catch (e) {
+  // Optional dependency
+}
+
+const fakePixel =
+  Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    'base64'
+  )
+
 const fakeImage = (imageSize) =>
-  sharp({
-    create: {
-      width: imageSize,
-      height: imageSize,
-      channels: 4,
-      background: {
-        r: 0, g: 0, b: 0, alpha: 0.5
+  sharp
+    ? sharp({
+      create: {
+        width: imageSize,
+        height: imageSize,
+        channels: 4,
+        background: {
+          r: 0, g: 0, b: 0, alpha: 0.5
+        }
       }
-    }
-  }).png().toBuffer()
+    })
+    : new Promise((resolve) => resolve(fakePixel))
 
 const fakeId = '&0000000000000000000000000000000000000000000=.sha256'
 
@@ -39,13 +54,18 @@ module.exports = async function imagePage ({ blobId, imageSize }) {
             resolve(result)
           } else {
             const buffer = Buffer.concat(bufferArray)
-            sharp(buffer)
-              .resize(imageSize, imageSize)
-              .png()
-              .toBuffer()
-              .then((data) => {
-                resolve(data)
-              })
+
+            if (sharp) {
+              sharp(buffer)
+                .resize(imageSize, imageSize)
+                .png()
+                .toBuffer()
+                .then((data) => {
+                  resolve(data)
+                })
+            } else {
+              resolve(buffer)
+            }
           }
         })
       )
