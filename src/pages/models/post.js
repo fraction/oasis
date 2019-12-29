@@ -11,6 +11,40 @@ const { isRoot, isReply } = require('ssb-thread-schema')
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require('ssb-thread-schema/post/nested-reply/validator')
 
+const isPost = (message) =>
+  lodash.get(message, 'value.content.type') === 'post' &&
+  lodash.get(message, 'value.content.text') != null
+
+const isLooseRoot = (message) => {
+  const conditions = [
+    isPost(message),
+    lodash.get(message, 'value.content.root') == null,
+    lodash.get(message, 'value.content.fork') == null
+  ]
+
+  return conditions.every(x => x)
+}
+
+const isLooseReply = (message) => {
+  const conditions = [
+    isPost(message),
+    lodash.get(message, 'value.content.root') != null,
+    lodash.get(message, 'value.content.fork') != null
+  ]
+
+  return conditions.every(x => x)
+}
+
+const isLooseComment = (message) => {
+  const conditions = [
+    isPost(message),
+    lodash.get(message, 'value.content.root') != null,
+    lodash.get(message, 'value.content.fork') == null
+  ]
+
+  return conditions.every(x => x === true)
+}
+
 const configure = require('./lib/configure')
 const cooler = require('./lib/cooler')
 const markdown = require('./lib/markdown')
@@ -525,8 +559,8 @@ const post = {
           resolve(msg)
         }
 
-        if (isNestedReply(msg)) {
-          debug('fork, get the parent')
+        if (isLooseReply(msg)) {
+          debug('reply, get the parent')
           try {
             // It's a message reply, get the parent!
             cooler.get(ssb.get, {
@@ -540,8 +574,8 @@ const post = {
             debug(e)
             resolve(msg)
           }
-        } else if (isReply(msg)) {
-          debug('thread reply: %s', msg.value.content.root)
+        } else if (isLooseComment(msg)) {
+          debug('comment: %s', msg.value.content.root)
           try {
             // It's a thread reply, get the parent!
             cooler.get(ssb.get, {
@@ -555,7 +589,7 @@ const post = {
             debug(e)
             resolve(msg)
           }
-        } else if (isRoot(msg)) {
+        } else if (isLooseRoot(msg)) {
           debug('got root ancestor')
           resolve(msg)
         } else {
@@ -692,6 +726,16 @@ const post = {
     if (isNestedReply(message) !== true) {
       const messageString = JSON.stringify(message, null, 2)
       throw new Error(`message should be valid reply: ${messageString}`)
+    }
+
+    return post.publish(message)
+  },
+  root: async (options) => {
+    const message = { type: 'post', ...options }
+
+    if (isRoot(message) !== true) {
+      const messageString = JSON.stringify(message, null, 2)
+      throw new Error(`message should be valid root post: ${messageString}`)
     }
 
     return post.publish(message)

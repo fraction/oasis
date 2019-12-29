@@ -7,7 +7,8 @@ module.exports = async function publishPage ({ text }) {
   const mentions = ssbMentions(text).filter((mention) =>
     mention != null
   ) || undefined
-  return post.publish({
+
+  return post.root({
     text,
     mentions
   })
