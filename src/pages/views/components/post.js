@@ -44,6 +44,8 @@ module.exports = ({ msg }) => {
     'value.meta.thread.target',
     false
   ))
+
+  // TODO: I think this is actually true for both replies and comments.
   const isReply = Boolean(lodash.get(
     msg,
     'value.meta.thread.reply',
@@ -76,8 +78,11 @@ module.exports = ({ msg }) => {
   }
 
   if (isReply) {
+    // True for comments too, I think
     messageClasses.push('reply')
   }
+
+  const isFork = msg.value.meta.postType === 'reply'
 
   const postOptions = {
     post: null,
@@ -150,7 +155,7 @@ module.exports = ({ msg }) => {
           class: likeButton.class
         },
         `❤ ${likeCount}`)),
-      (isPrivate || isRoot) ? null : a({ href: url.reply }, 'reply'),
+      (isPrivate || isRoot || isFork) ? null : a({ href: url.reply }, 'reply'),
       isPrivate ? null : a({ href: url.comment }, 'comment'),
       a({ href: url.json }, 'json')
     ))
