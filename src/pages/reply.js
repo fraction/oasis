@@ -10,9 +10,7 @@ module.exports = async function replyPage (parentId) {
   const myFeedId = await meta.myFeedId()
 
   debug('%O', rootMessage)
-  const messages = await post.fromRoot(rootMessage.key)
-
-  messages.push(rootMessage)
+  const messages = [rootMessage]
 
   return replyView({ messages, myFeedId })
 }

@@ -150,11 +150,15 @@ const transform = (ssb, messages, myFeedId) =>
       url: avatarUrl
     })
 
-    if (isRoot(msg)) {
+    const isPost = lodash.get(msg, 'value.content.type') === 'post' && lodash.get(msg, 'value.content.text') != null
+    const hasRoot = lodash.get(msg, 'value.content.root') != null
+    const hasFork = lodash.get(msg, 'value.content.fork') != null
+
+    if (isPost && hasRoot === false && hasFork === false) {
       lodash.set(msg, 'value.meta.postType', 'post')
-    } else if (isReply(msg)) {
-      lodash.set(msg, 'value.meta.postType', 'replyAll')
-    } else if (isNestedReply(msg)) {
+    } else if (isPost && hasRoot && hasFork === false) {
+      lodash.set(msg, 'value.meta.postType', 'comment')
+    } else if (isPost && hasRoot && hasFork) {
       lodash.set(msg, 'value.meta.postType', 'reply')
     } else {
       lodash.set(msg, 'value.meta.postType', 'mystery')
@@ -232,7 +236,7 @@ const post = {
 
     return messages
   },
-  fromRoot: async (rootId, customOptions = {}) => {
+  threadReplies: async (rootId, customOptions = {}) => {
     const ssb = await cooler.connect()
 
     const myFeedId = ssb.id
@@ -248,10 +252,10 @@ const post = {
       customOptions,
       ssb,
       query,
-      filter: (msg) => msg.value.content.root === rootId
+      filter: (msg) =>
+        msg.value.content.root === rootId &&
+        msg.value.content.fork == null
     })
-
-    console.log(messages)
 
     return messages
   },
@@ -692,16 +696,23 @@ const post = {
 
     return post.publish(message)
   },
-  replyAll: async ({ parent, message }) => {
-    const fork = parent.key
-    const root = lodash.get(parent, 'value.content.root', parent.key)
-    message.root = fork || root
+  comment: async ({ parent, message }) => {
+    // Set `root` to `parent`'s root.
+    // If `parent` doesn't have a root, use the parent's key.
+    // If `parent` has a fork, you must use the parent's key.
+    const parentKey = parent.key
+    const parentFork = lodash.get(parent, 'value.content.fork')
+    const parentRoot = lodash.get(parent, 'value.content.root', parentKey)
+
+    const parentHasFork = parentFork != null
+
+    message.root = parentHasFork ? parentKey : parentRoot
     message.branch = await post.branch({ root: parent.key })
     message.type = 'post' // redundant but used for validation
 
     if (isReply(message) !== true) {
       const messageString = JSON.stringify(message, null, 2)
-      throw new Error(`message should be valid replyAll: ${messageString}`)
+      throw new Error(`message should be valid comment: ${messageString}`)
     }
 
     return post.publish(message)

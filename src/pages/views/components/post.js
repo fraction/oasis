@@ -34,7 +34,7 @@ module.exports = ({ msg }) => {
     avatar: msg.value.meta.author.avatar.url,
     json: `/json/${encoded.key}`,
     reply: `/reply/${encoded.key}`,
-    replyAll: `/reply-all/${encoded.key}`
+    comment: `/comment/${encoded.key}`
   }
 
   const isPrivate = Boolean(msg.value.meta.private)
@@ -81,8 +81,8 @@ module.exports = ({ msg }) => {
 
   const postOptions = {
     post: null,
-    replyAll: [
-      'replied to ',
+    comment: [
+      'commented on ',
       a({ href: url.parent }, ' thread')
     ],
     reply: [
@@ -151,7 +151,7 @@ module.exports = ({ msg }) => {
         },
         `❤ ${likeCount}`)),
       (isPrivate || isRoot) ? null : a({ href: url.reply }, 'reply'),
-      isPrivate ? null : a({ href: url.replyAll }, 'reply all'),
+      isPrivate ? null : a({ href: url.comment }, 'comment'),
       a({ href: url.json }, 'json')
     ))
 

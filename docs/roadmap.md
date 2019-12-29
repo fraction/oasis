@@ -33,7 +33,7 @@
   - [ ] Posts
     - [x] New
     - [x] Reply
-    - [x] Reply all
+    - [x] Comment
     - [ ] Pre-publish preview
     - [ ] Add blob attachment(s)
     - [x] Correctly set `branch`

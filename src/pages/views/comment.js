@@ -1,12 +1,15 @@
 'use strict'
 
 const {
+  a,
   button,
   form,
-  textarea
+  textarea,
+  p,
+  strong
 } = require('hyperaxe')
 
-const debug = require('debug')('oasis:views:reply-all')
+const debug = require('debug')('oasis:views:comment')
 const template = require('./components/template')
 const post = require('./components/post')
 
@@ -28,11 +31,19 @@ module.exports = async ({ messages, myFeedId, parentMessage }) => {
     })
   )
 
-  const action = `/reply-all/${encodeURIComponent(messages[0].key)}`
+  const action = `/comment/${encodeURIComponent(messages[0].key)}`
   const method = 'post'
 
   return template(
     messageElements,
+    p('Write a ',
+      strong('public comment'),
+      ' on this thread with ',
+      a({ href: 'https://commonmark.org/help/' }, 'Markdown'),
+      '. Messages cannot be edited or deleted. To respond to an individual message, select ',
+      strong('reply'),
+      ' instead.'
+    ),
     form({ action, method },
       textarea({
         autofocus: true,
@@ -41,6 +52,6 @@ module.exports = async ({ messages, myFeedId, parentMessage }) => {
       }, markdownMention),
       button({
         type: 'submit'
-      }, 'reply all'))
+      }, 'comment'))
   )
 }

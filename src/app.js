@@ -23,9 +23,9 @@ const likesPage = require('./pages/likes')
 const meta = require('./pages/meta')
 const mentions = require('./pages/mentions')
 const reply = require('./pages/reply')
-const replyAll = require('./pages/reply-all')
+const comment = require('./pages/comment')
 const publishReply = require('./pages/publish-reply')
-const publishReplyAll = require('./pages/publish-reply-all')
+const publishComment = require('./pages/publish-comment')
 const image = require('./pages/image')
 const blob = require('./pages/blob')
 const publish = require('./pages/publish')
@@ -189,9 +189,9 @@ module.exports = (config) => {
       const { message } = ctx.params
       ctx.body = await reply(message)
     })
-    .get('/reply-all/:message', async (ctx) => {
+    .get('/comment/:message', async (ctx) => {
       const { message } = ctx.params
-      ctx.body = await replyAll(message)
+      ctx.body = await comment(message)
     })
     .post('/reply/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
@@ -199,10 +199,10 @@ module.exports = (config) => {
       ctx.body = await publishReply({ message, text })
       ctx.redirect(`/thread/${encodeURIComponent(message)}`)
     })
-    .post('/reply-all/:message', koaBody(), async (ctx) => {
+    .post('/comment/:message', koaBody(), async (ctx) => {
       const { message } = ctx.params
       const text = String(ctx.request.body.text)
-      ctx.body = await publishReplyAll({ message, text })
+      ctx.body = await publishComment({ message, text })
       ctx.redirect(`/thread/${encodeURIComponent(message)}`)
     })
     .post('/publish/', koaBody(), async (ctx) => {

@@ -1,6 +1,9 @@
 'use strict'
 
 const {
+  p,
+  a,
+  strong,
   button,
   form,
   textarea
@@ -11,7 +14,7 @@ const template = require('./components/template')
 const post = require('./components/post')
 
 module.exports = async ({ messages, myFeedId }) => {
-  const likeForm = `/reply/${encodeURIComponent(messages[0].key)}`
+  const replyForm = `/reply/${encodeURIComponent(messages[messages.length - 1].key)}`
 
   let markdownMention
 
@@ -32,7 +35,15 @@ module.exports = async ({ messages, myFeedId }) => {
 
   return template(
     messageElements,
-    form({ action: likeForm, method: 'post' },
+    p('Write a ',
+      strong('public reply'),
+      ' to this message with ',
+      a({ href: 'https://commonmark.org/help/' }, 'Markdown'),
+      '. Messages cannot be edited or deleted. To respond to an entire thread, select ',
+      strong('comment'),
+      ' instead.'
+    ),
+    form({ action: replyForm, method: 'post' },
       textarea({
         autofocus: true,
         required: true,
