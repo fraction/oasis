@@ -78,7 +78,7 @@ const handle = new Promise((resolve) => {
   }).catch(() => {
     debug('Initial connection attempt failed')
     debug('Starting Scuttlebutt server')
-    require('../../../../server')
+    require('./server')
     const connectOrRetry = () => {
       rawConnect().then((ssb) => {
         debug('Retrying connection to own server')
