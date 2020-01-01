@@ -34,6 +34,14 @@ With [yarn](https://yarnpkg.com/en/):
 yarn global add @fraction/oasis@latest
 ```
 
+With [docker](https://www.docker.com/)
+
+```shell
+docker build . -t oasis
+docker volume create ssb
+docker run --mount source=ssb,target=/root/.ssb -p 3000:3000 --rm oasis
+```
+
 ## Resources
 
 - [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
