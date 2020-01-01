@@ -81,6 +81,7 @@ html {
 
 main {
   margin: 0;
+  margin-bottom: var(--whole);
 }
 
 /* https://www.desmos.com/calculator/3elcf5cwhn */
