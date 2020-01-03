@@ -42,6 +42,14 @@ docker volume create ssb
 docker run --mount source=ssb,target=/root/.ssb -p 3000:3000 --rm oasis
 ```
 
+### Starting on login
+
+This will install an oasis service for the current user.
+
+```shell
+bash contrib/install-systemd-service.bash
+```
+
 ## Resources
 
 - [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)

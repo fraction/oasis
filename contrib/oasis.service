@@ -1,8 +1,3 @@
-# cp oasis.service ~/.config/systemd/user
-# systemctl --user daemon-reload
-# systemctl --user enable oasis
-# systemctl --user start oasis
-
 [Unit]
 Description=Oasis - Friendly Scuttlebutt Web Interface
 Documentation=https://github.com/fraction/oasis
@@ -10,7 +5,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=%s -l -c 'oasis --host localhost --port 4515'
+ExecStart=%s -l -c 'oasis --host localhost --port 4515 --no-open'
 Restart=on-failure
 
 [Install]
