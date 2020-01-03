@@ -3,8 +3,8 @@ RUN apk add --update --no-cache libtool autoconf automake alpine-sdk python3
 RUN mkdir /app
 WORKDIR /app
 ADD package.json .
-ADD yarn.lock .
-RUN yarn
+ADD package-lock.json .
+RUN npm ci
 ADD . ./
 EXPOSE 3000
 EXPOSE 8008
