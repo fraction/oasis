@@ -29,3 +29,12 @@ yarn
 ```shell
 npm install
 ```
+
+## System service
+
+```shell
+cp contrib/oasis.service ~/.config/systemd/user
+systemctl --user daemon-reload
+systemctl --user enable oasis
+systemctl --user start oasis
+```
