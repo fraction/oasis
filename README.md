@@ -3,7 +3,7 @@
 **Friendly Scuttlebutt interface designed for simplicity and accessibility.**
 This is an experimental client built with HTML, CSS, and Node.js without any
 front-end JavaScript. The goal is to support basic social messaging schemas with
-some extra tools for debugging, *not* to support all known message types.
+some extra tools for debugging, _not_ to support all known message types.
 
 ## Usage
 
@@ -22,33 +22,13 @@ Options:
 
 ## Installation
 
-With [npm](https://npmjs.org/):
+Most people should install Oasis with [npm](https://npmjs.org/).
 
 ```shell
-npm -g install @fraction/oasis@latest
+npm --global install @fraction/oasis@latest
 ```
 
-With [yarn](https://yarnpkg.com/en/):
-
-```shell
-yarn global add @fraction/oasis@latest
-```
-
-With [docker](https://www.docker.com/)
-
-```shell
-docker build . -t oasis
-docker volume create ssb
-docker run --mount source=ssb,target=/root/.ssb -p 3000:3000 --rm oasis
-```
-
-### Starting on login
-
-This will install an oasis service for the current user.
-
-```shell
-bash contrib/install-systemd-service.bash
-```
+Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/master/docs/install.md).
 
 ## Resources
 
