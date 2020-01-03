@@ -6,11 +6,12 @@ mkdir -p "$SYSTEMD_USER_HOME"
 test -f "$SYSTEMD_USER_HOME"/oasis.service || cp oasis.service "$SYSTEMD_USER_HOME"/
 systemctl --user daemon-reload
 
-printf "oasis service has been installed to %s" "$SYSTEMD_USER_HOME"
-printf "to enable for the current user, run"
-printf "\n\tsystemctl --user enable oasis"
+printf "oasis service has been installed to %s\n\n" "$SYSTEMD_USER_HOME"
 
-printf "to start right now, run"
-printf "\n\tsystemctl --user start oasis"
-printf "\txdg-open http://localhost:4515"
+printf "to enable for the current user, run\n\n"
+printf "    systemctl --user enable oasis\n\n"
+
+printf "to start right now, run\n\n"
+printf "    systemctl --user start oasis\n"
+printf "    xdg-open http://localhost:4515\n"
 
