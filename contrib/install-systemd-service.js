@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
 const { execSync } = require('child_process')
+const open = require('open')
 
 let xdgConfigHome = process.env.XDG_CONFIG_HOME
 let systemdUserHome = process.env.SYSTEMD_USER_HOME
@@ -27,12 +28,9 @@ if (fs.existsSync(targetPath)) {
 
   execSync('systemctl', '--user', 'daemon-reload')
   console.log('Service configuration has been installed to:', targetPath)
-
-  // Since this isn't in a post-install script we can just enable it.
-  execSync('systemctl', '--user', 'enable', 'oasis')
 }
 
-console.log(`
-To start and open Oasis right now, run:
-    systemctl --user start oasis
-    xdg-open http://localhost:4515`)
+// Since this isn't in a post-install script we can enable, start, and open it.
+execSync('systemctl', '--user', 'enable', 'oasis')
+execSync('systemctl', '--user', 'start', 'oasis')
+open('http://localhost:4515')
