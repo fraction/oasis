@@ -26,11 +26,11 @@ if (fs.existsSync(targetPath)) {
   const sourcePath = path.join(__dirname, 'oasis.service')
   fs.copyFileSync(sourcePath, targetPath)
 
-  execSync('systemctl', '--user', 'daemon-reload')
+  execSync('systemctl --user daemon-reload')
   console.log('Service configuration has been installed to:', targetPath)
 }
 
 // Since this isn't in a post-install script we can enable, start, and open it.
-execSync('systemctl', '--user', 'enable', 'oasis')
-execSync('systemctl', '--user', 'start', 'oasis')
+execSync('systemctl --user enable oasis')
+execSync('systemctl --user start oasis')
 open('http://localhost:4515')
