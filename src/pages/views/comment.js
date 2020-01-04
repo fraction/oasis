@@ -34,7 +34,6 @@ module.exports = async ({ messages, myFeedId, parentMessage }) => {
   const action = `/comment/${encodeURIComponent(messages[0].key)}`
   const method = 'post'
 
-  console.log(parentMessage.value)
   const isPrivate = parentMessage.value.meta.private
 
   const publicOrPrivate = isPrivate ? 'private' : 'public'
