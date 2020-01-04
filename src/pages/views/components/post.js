@@ -155,7 +155,7 @@ module.exports = ({ msg }) => {
           class: likeButton.class
         },
         `❤ ${likeCount}`)),
-      isPrivate ? null : a({ href: url.comment }, 'comment'),
+      a({ href: url.comment }, 'comment'),
       (isPrivate || isRoot || isFork) ? null : a({ href: url.reply }, 'reply'),
       a({ href: url.json }, 'json')
     ))

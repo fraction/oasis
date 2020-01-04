@@ -748,6 +748,12 @@ const post = {
     const parentFork = lodash.get(parent, 'value.content.fork')
     const parentRoot = lodash.get(parent, 'value.content.root', parentKey)
 
+    const isPrivate = lodash.get(parent, 'value.meta.private', false)
+
+    if (isPrivate) {
+      message.recps = lodash.get(parent, 'value.content.recps')
+    }
+
     const parentHasFork = parentFork != null
 
     message.root = parentHasFork ? parentKey : parentRoot
