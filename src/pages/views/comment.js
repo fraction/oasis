@@ -38,7 +38,7 @@ module.exports = async ({ messages, myFeedId, parentMessage }) => {
 
   const publicOrPrivate = isPrivate ? 'private' : 'public'
   const maybeReplyText = isPrivate ? null : [
-    'Messages cannot be edited or deleted. To respond to an individual message, select ',
+    ' Messages cannot be edited or deleted. To respond to an individual message, select ',
     strong('reply'),
     ' instead.'
   ]
