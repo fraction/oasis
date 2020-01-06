@@ -46,7 +46,21 @@ const rawConnect = () => new Promise((resolve, reject) => {
 
 const db = {
   connect () {
-    return handle
+    // This has interesting behavior that may be unexpected.
+    //
+    // If `handle` is already an active [non-closed] connection, return that.
+    //
+    // If the connection is closed, we need to restart it. It's important to
+    // note that if we're depending on an external service (like Patchwork) and
+    // that app is closed, then Oasis will seamlessly start its own SSB service.
+    return new Promise((resolve, reject) => {
+      handle.then((ssb) => {
+        if (ssb.closed) {
+          createConnection()
+        }
+        resolve(handle)
+      })
+    })
   },
   /**
    * @param {function} method
@@ -71,26 +85,34 @@ const db = {
 
 debug.enabled = true
 
-const handle = new Promise((resolve) => {
-  rawConnect().then((ssb) => {
-    debug('Using pre-existing Scuttlebutt server instead of starting one')
-    resolve(ssb)
-  }).catch(() => {
-    debug('Initial connection attempt failed')
-    debug('Starting Scuttlebutt server')
-    require('./server')
-    const connectOrRetry = () => {
-      rawConnect().then((ssb) => {
-        debug('Retrying connection to own server')
-        resolve(ssb)
-      }).catch((e) => {
-        debug(e)
-        connectOrRetry()
-      })
-    }
+let handle
 
-    connectOrRetry()
+const createConnection = () => {
+  handle = new Promise((resolve) => {
+    rawConnect().then((ssb) => {
+      debug('Using pre-existing Scuttlebutt server instead of starting one')
+      resolve(ssb)
+    }).catch(() => {
+      debug('Initial connection attempt failed')
+      debug('Starting Scuttlebutt server')
+      require('./server')
+      const connectOrRetry = () => {
+        rawConnect().then((ssb) => {
+          debug('Retrying connection to own server')
+          resolve(ssb)
+        }).catch((e) => {
+          debug(e)
+          connectOrRetry()
+        })
+      }
+
+      connectOrRetry()
+    })
   })
-})
+
+  return handle
+}
+
+createConnection()
 
 module.exports = db
