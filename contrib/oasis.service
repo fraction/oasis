@@ -12,4 +12,4 @@ ExecStart=%s -l -c 'oasis --host localhost --port 4515 --no-open'
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
