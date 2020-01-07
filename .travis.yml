@@ -12,3 +12,6 @@ os:
   - linux
   - osx
   - windows
+
+# Also ensure that we can build installers.
+script: npm test && npm run dist

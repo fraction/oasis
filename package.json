@@ -14,7 +14,8 @@
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
     "start": "node index.js",
     "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck index.js",
-    "preversion": "npm test"
+    "preversion": "npm test",
+    "dist": "electron-builder -c.snap.publish=github"
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
@@ -46,6 +47,8 @@
   "devDependencies": {
     "cspell": "^4.0.43",
     "dependency-check": "^4.1.0",
+    "electron": "^7.1.7",
+    "electron-builder": "^21.2.0",
     "husky": "^3.0.5",
     "mkdirp": "^0.5.1",
     "nodemon": "^2.0.2",
@@ -56,5 +59,33 @@
   },
   "optionalDependencies": {
     "sharp": "^0.23.0"
+  },
+  "build": {
+    "appId": "io.fraction.oasis",
+    "productName": "Oasis",
+    "linux": {
+      "executableName": "oasis",
+      "artifactName": "${productName}-${version}.${ext}",
+      "category": "Network",
+      "target": [
+	"AppImage",
+        "snap"
+      ]
+    },
+    "dmg": {
+      "icon": "build/dmg/icon.icns"
+    },
+    "win": {
+      "publisherName": "Secure Scuttlebutt Consortium",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    }
   }
 }

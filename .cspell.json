@@ -1,6 +1,7 @@
 {
   "version": "0.1",
   "language": "en",
+  "ignorePaths": ["node_modules/**", "dist/**"],
   "words": [
     "AGPL",
     "backlinks",
