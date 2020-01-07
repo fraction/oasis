@@ -9,15 +9,19 @@ some extra tools for debugging, _not_ to support all known message types.
 
 ```console
 $ oasis --help
+
 Usage: oasis [options]
 
 Options:
-  --help        Show help                                              [boolean]
-  --version     Show version number                                    [boolean]
-  --open        Automatically open app in web browser  [boolean] [default: true]
-  --host        Hostname for web app to listen on[string] [default: "localhost"]
-  --port        Port for web app to listen on           [number] [default: 3000]
-  --debug       Use verbose output for debugging      [boolean] [default: false]
+  --version   Show version number                                      [boolean]
+  -h, --help  Show help                                                [boolean]
+  --open      Automatically open app in web browser.  Use --no-open to disable.
+                                                       [boolean] [default: true]
+  --offline   Don't try to connect to scuttlebutt peers or pubs
+                                                      [boolean] [default: false]
+  --host      Hostname for web app to listen on  [string] [default: "localhost"]
+  --port      Port for web app to listen on             [number] [default: 3000]
+  --debug     Use verbose output for debugging        [boolean] [default: false]    
 ```
 
 ## Installation
