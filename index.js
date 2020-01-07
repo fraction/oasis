@@ -8,10 +8,17 @@ const path = require('path')
 
 const config = yargs
   .env('OASIS')
+  .help('h')
+  .alias('h', 'help')
   .usage('Usage: $0 [options]')
   .options('open', {
-    describe: 'Automatically open app in web browser',
+    describe: 'Automatically open app in web browser.  Use --no-open to disable.',
     default: true,
+    type: 'boolean'
+  })
+  .options('offline', {
+    describe: "Don't try to connect to scuttlebutt peers or pubs",
+    default: false,
     type: 'boolean'
   })
   .options('host', {
@@ -41,6 +48,9 @@ process.argv = []
 if (config.debug) {
   process.env.DEBUG = 'oasis,oasis:*'
 }
+
+// Awful hack to get the offline config setting deep into src/pages/models/lib/server.js
+process.env.OASIS_OFFLINE = '' + config.offline
 
 const app = require('./src/app')
 
