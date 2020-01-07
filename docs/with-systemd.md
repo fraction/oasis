@@ -8,7 +8,7 @@ start in the background when you start your computer. This is good for SSB and
 makes it more likely that you'll download messages that you want.
 
 ```shell
-bash contrib/install-systemd-service.bash
+node contrib/install-systemd-service.js
 ```
 
 Follow the instructions to finish configuring the background service.
