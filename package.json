@@ -15,7 +15,7 @@
     "start": "node index.js",
     "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck index.js",
     "preversion": "npm test",
-    "dist": "electron-builder -c.snap.publish=github"
+    "dist": "electron-builder install-app-deps && electron-builder -c.snap.publish=github"
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
@@ -81,8 +81,7 @@
         {
           "target": "nsis",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         }
       ]
