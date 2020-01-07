@@ -34,15 +34,23 @@ module.exports = async ({ messages, myFeedId, parentMessage }) => {
   const action = `/comment/${encodeURIComponent(messages[0].key)}`
   const method = 'post'
 
+  const isPrivate = parentMessage.value.meta.private
+
+  const publicOrPrivate = isPrivate ? 'private' : 'public'
+  const maybeReplyText = isPrivate ? null : [
+    ' Messages cannot be edited or deleted. To respond to an individual message, select ',
+    strong('reply'),
+    ' instead.'
+  ]
+
   return template(
     messageElements,
     p('Write a ',
-      strong('public comment'),
+      strong(`${publicOrPrivate} comment`),
       ' on this thread with ',
       a({ href: 'https://commonmark.org/help/' }, 'Markdown'),
-      '. Messages cannot be edited or deleted. To respond to an individual message, select ',
-      strong('reply'),
-      ' instead.'
+      '.',
+      maybeReplyText
     ),
     form({ action, method },
       textarea({

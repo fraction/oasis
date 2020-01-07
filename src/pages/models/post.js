@@ -748,6 +748,15 @@ const post = {
     const parentFork = lodash.get(parent, 'value.content.fork')
     const parentRoot = lodash.get(parent, 'value.content.root', parentKey)
 
+    const isPrivate = lodash.get(parent, 'value.meta.private', false)
+
+    if (isPrivate) {
+      // We default to `null` in case something goes wrong and we receive a
+      // private message with no `recps` somehow. This adds a layer of security
+      // because SSB-DB won't let us publish a message with `{ recps: null }`.
+      message.recps = lodash.get(parent, 'value.content.recps', null)
+    }
+
     const parentHasFork = parentFork != null
 
     message.root = parentHasFork ? parentKey : parentRoot

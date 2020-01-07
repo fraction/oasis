@@ -252,7 +252,7 @@ section.thread-target {
 
 section.thread-target.private {
   border: var(--pico) solid var(--violet);
-  border-left: var(--micro) solid var(--violet);
+  border-left: var(--milli) solid var(--violet);
   border-color: var(--violet);
   box-shadow: 0 0 var(--micro) var(--violet);
 }
