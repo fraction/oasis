@@ -12,7 +12,3 @@ os:
   - linux
   - osx
   - windows
-
-# This keeps Yarn from hanging the build.
-env:
-  - YARN_GPG=no
