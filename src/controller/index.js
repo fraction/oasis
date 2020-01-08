@@ -7,12 +7,14 @@ const debug = require('debug')('oasis')
 const ssbMentions = require('ssb-mentions')
 const ssbRef = require('ssb-ref')
 
-const about = require('./models/about')
-const blob = require('./models/blob')
-const friend = require('./models/friend')
-const meta = require('./models/meta')
-const post = require('./models/post')
-const vote = require('./models/vote')
+const {
+  about,
+  blob,
+  friend,
+  meta,
+  post,
+  vote
+} = require('./models')
 
 const {
   authorView,

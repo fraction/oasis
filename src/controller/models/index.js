@@ -1,15 +1,193 @@
 'use strict'
 
-const debug = require('debug')('oasis:model-post')
+const debug = require('debug')('oasis')
+const { isRoot, isReply } = require('ssb-thread-schema')
 const lodash = require('lodash')
 const prettyMs = require('pretty-ms')
-const pull = require('pull-stream')
 const pullParallelMap = require('pull-paramap')
+const pull = require('pull-stream')
 const pullSort = require('pull-sort')
-const { isRoot, isReply } = require('ssb-thread-schema')
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require('ssb-thread-schema/post/nested-reply/validator')
+
+const configure = require('./configure')
+const cooler = require('./cooler')
+const markdown = require('./markdown')
+
+const nullImage = `&${'0'.repeat(43)}=.sha256`
+
+exports.about = {
+
+  name: async (feedId) => {
+    const ssb = await cooler.connect()
+    return cooler.get(
+      ssb.about.socialValue, {
+        key: 'name',
+        dest: feedId
+      }
+    )
+  },
+  image: async (feedId) => {
+    const ssb = await cooler.connect()
+    const raw = await cooler.get(
+      ssb.about.socialValue, {
+        key: 'image',
+        dest: feedId
+      }
+    )
+
+    if (raw == null || raw.link == null) {
+      return nullImage
+    } if (typeof raw.link === 'string') {
+      return raw.link
+    }
+    return raw
+  },
+  description: async (feedId) => {
+    const ssb = await cooler.connect()
+    const raw = await cooler.get(
+      ssb.about.socialValue, {
+        key: 'description',
+        dest: feedId
+      }
+    )
+    return markdown(raw)
+  },
+  all: async (feedId) => {
+    const ssb = await cooler.connect()
+    const raw = await cooler.read(
+      ssb.about.read, {
+        dest: feedId
+      }
+    )
+
+    return new Promise((resolve, reject) =>
+      pull(
+        raw,
+        pull.filter((message) => message.value.author === feedId),
+        pull.reduce((acc, cur) => {
+          const metaKeys = ['type', 'about']
+
+          Object.entries(cur.value.content).filter(([key]) =>
+            metaKeys.includes(key) === false
+          ).forEach(([key, value]) => {
+            acc[key] = value
+          })
+
+          return acc
+        }, {}, (err, val) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(val)
+          }
+        })
+      )
+    )
+  }
+}
+
+exports.blob = {
+  get: async ({ blobId }) => {
+    debug('get blob: %s', blobId)
+    const ssb = await cooler.connect()
+    return cooler.read(ssb.blobs.get, blobId)
+  },
+  want: async ({ blobId }) => {
+    debug('want blob: %s', blobId)
+    const ssb = await cooler.connect()
+
+    // This does not wait for the blob.
+    cooler.get(ssb.blobs.want, blobId)
+  }
+}
+
+exports.friend = {
+  isFollowing: async (feedId) => {
+    const ssb = await cooler.connect()
+    const { id } = ssb
+
+    const isFollowing = await cooler.get(
+      ssb.friends.isFollowing,
+      {
+        source: id,
+        dest: feedId
+      }
+    )
+    return isFollowing
+  },
+  getRelationship: async (feedId) => {
+    const ssb = await cooler.connect()
+    const { id } = ssb
+
+    if (feedId === id) {
+      return 'this is you'
+    }
+
+    const isFollowing = await cooler.get(
+      ssb.friends.isFollowing,
+      {
+        source: id,
+        dest: feedId
+      }
+    )
+
+    const isBlocking = await cooler.get(
+      ssb.friends.isBlocking,
+      {
+        source: id,
+        dest: feedId
+      }
+    )
+
+    if (isFollowing === true && isBlocking === false) {
+      return 'you are following'
+    } else if (isFollowing === false && isBlocking === true) {
+      return 'you are blocking'
+    } else if (isFollowing === false && isBlocking === false) {
+      return 'you are not following or blocking'
+    } else {
+      return 'you are following and blocking (!)'
+    }
+  }
+}
+
+exports.meta = {
+  myFeedId: async () => {
+    const ssb = await cooler.connect()
+    const { id } = ssb
+    return id
+  },
+  get: async (msgId) => {
+    const ssb = await cooler.connect()
+    return cooler.get(ssb.get, {
+      id: msgId,
+      meta: true,
+      private: true
+    })
+  },
+  status: async () => {
+    const ssb = await cooler.connect()
+    return cooler.get(ssb.status)
+  },
+  peers: async () => {
+    const ssb = await cooler.connect()
+    const peersSource = await cooler.read(ssb.conn.peers)
+
+    return new Promise((resolve, reject) => {
+      pull(
+        peersSource,
+        // https://github.com/staltz/ssb-conn/issues/9
+        pull.take(1),
+        pull.collect((err, val) => {
+          if (err) return reject(err)
+          resolve(val[0])
+        })
+      )
+    })
+  }
+}
 
 const isPost = (message) =>
   lodash.get(message, 'value.content.type') === 'post' &&
@@ -44,10 +222,6 @@ const isLooseComment = (message) => {
 
   return conditions.every(x => x === true)
 }
-
-const configure = require('./lib/configure')
-const cooler = require('./lib/cooler')
-const markdown = require('./lib/markdown')
 
 const maxMessages = 64
 
@@ -497,11 +671,11 @@ const post = {
 
           pull(
             pull.values(arr),
-            pullSort(([aKey, aVal], [bKey, bVal]) =>
+            pullSort(([, aVal], [, bVal]) =>
               bVal - aVal
             ),
             pull.take(Math.min(length, maxMessages)),
-            pull.map(([key, value]) => key),
+            pull.map(([key]) => key),
             pullParallelMap(async (key, cb) => {
               try {
                 const msg = await post.get(key)
@@ -819,5 +993,21 @@ const post = {
     return messages
   }
 }
+exports.post = post
 
-module.exports = post
+exports.vote = {
+  publish: async ({ messageKey, value, recps }) => {
+    const ssb = await cooler.connect()
+    const branch = await cooler.get(ssb.tangle.branch, messageKey)
+
+    await cooler.get(ssb.publish, {
+      type: 'vote',
+      vote: {
+        link: messageKey,
+        value: Number(value)
+      },
+      branch,
+      recps
+    })
+  }
+}
