@@ -1,5 +1,4 @@
-**What is the purpose of this pull request?**
+**What's the problem you solved?**
 
-**What changes did you make? (brief overview)**
+**What solution are you recommending?**
 
-**Is there anything you'd like reviewers to focus on?**
