@@ -5,15 +5,15 @@
   "repository": "git@github.com:fraction/oasis.git",
   "license": "AGPL-3.0",
   "author": "Christian Bundy <christianbundy@fraction.io>",
-  "main": "index.js",
+  "main": "src/index.js",
   "bin": {
-    "oasis": "./index.js"
+    "oasis": "./src/index.js"
   },
   "scripts": {
-    "dev": "nodemon --inspect index.js --debug --no-open",
+    "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
-    "start": "node index.js",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck index.js",
+    "start": "node src/index.js",
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck src/index.js",
     "preversion": "npm test"
   },
   "dependencies": {
