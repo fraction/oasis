@@ -11,11 +11,19 @@ const pullSort = require('pull-sort')
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require('ssb-thread-schema/post/nested-reply/validator')
 
-const configure = require('./configure')
 const cooler = require('./cooler')
 const markdown = require('./markdown')
 
 const nullImage = `&${'0'.repeat(43)}=.sha256`
+
+const defaultOptions = {
+  private: true,
+  reverse: true,
+  meta: true
+}
+
+const configure = (...customOptions) =>
+  Object.assign({}, defaultOptions, ...customOptions)
 
 exports.about = {
 
