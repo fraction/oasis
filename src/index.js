@@ -30,27 +30,29 @@ const requireStyle = require('require-style')
 const router = require('koa-router')()
 const ssbRef = require('ssb-ref')
 
-const author = require('./pages/author')
-const hashtag = require('./pages/hashtag')
-const publicPopularPage = require('./pages/public-popular')
-const publicLatestPage = require('./pages/public-latest')
-const profile = require('./pages/profile')
-const json = require('./pages/json')
-const thread = require('./pages/thread')
-const like = require('./pages/like')
-const likesPage = require('./pages/likes')
-const meta = require('./pages/meta')
-const mentions = require('./pages/mentions')
-const reply = require('./pages/reply')
-const comment = require('./pages/comment')
-const publishReply = require('./pages/publish-reply')
-const publishComment = require('./pages/publish-comment')
-const image = require('./pages/image')
-const blob = require('./pages/blob')
-const publish = require('./pages/publish')
-const markdown = require('./pages/markdown')
-const inboxPage = require('./pages/inbox')
-const searchPage = require('./pages/search')
+const {
+  author,
+  blob,
+  comment,
+  hashtag,
+  image,
+  inbox,
+  json,
+  like,
+  likes,
+  status,
+  mentions,
+  meta,
+  profile,
+  publicLatest,
+  publicPopular,
+  publish,
+  publishComment,
+  publishReply,
+  reply,
+  search,
+  thread
+} = require('./controller')
 
 const defaultTheme = 'atelier-sulphurPool-light'.toLowerCase()
 
@@ -87,10 +89,10 @@ router
   })
   .get('/public/popular/:period', async (ctx) => {
     const { period } = ctx.params
-    ctx.body = await publicPopularPage({ period })
+    ctx.body = await publicPopular({ period })
   })
   .get('/public/latest', async (ctx) => {
-    ctx.body = await publicLatestPage()
+    ctx.body = await publicLatest()
   })
   .get('/author/:feed', async (ctx) => {
     const { feed } = ctx.params
@@ -98,10 +100,10 @@ router
   })
   .get('/search/', async (ctx) => {
     const { query } = ctx.query
-    ctx.body = await searchPage({ query })
+    ctx.body = await search({ query })
   })
   .get('/inbox', async (ctx) => {
-    ctx.body = await inboxPage()
+    ctx.body = await inbox()
   })
   .get('/hashtag/:channel', async (ctx) => {
     const { channel } = ctx.params
@@ -147,10 +149,10 @@ router
   })
   .get('/likes/:feed', async (ctx) => {
     const { feed } = ctx.params
-    ctx.body = await likesPage({ feed })
+    ctx.body = await likes({ feed })
   })
   .get('/meta/readme/', async (ctx) => {
-    ctx.body = await markdown(config.readme)
+    ctx.body = await status(config.readme)
   })
   .get('/mentions/', async (ctx) => {
     ctx.body = await mentions()
