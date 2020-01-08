@@ -62,7 +62,7 @@
   "build": {
     "appId": "io.fraction.oasis",
     "productName": "Oasis",
-    "electronVersion": "7",
+    "electronVersion": "7.0.0",
     "linux": {
       "executableName": "oasis",
       "artifactName": "${productName}-${version}.${ext}",
