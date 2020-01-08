@@ -11,17 +11,19 @@ const about = require('./models/about')
 const blob = require('./models/blob')
 const friend = require('./models/friend')
 const meta = require('./models/meta')
-const metaView = require('./views/meta')
 const post = require('./models/post')
 const vote = require('./models/vote')
 
-const authorView = require('./views/author')
-const commentView = require('./views/comment')
-const publicView = require('./views/public')
-const searchView = require('./views/search')
-const replyView = require('./views/reply')
-const listView = require('./views/list')
-const markdownView = require('./views/markdown')
+const {
+  authorView,
+  commentView,
+  listView,
+  markdownView,
+  metaView,
+  publicView,
+  replyView,
+  searchView
+} = require('./views')
 
 let sharp
 
@@ -35,7 +37,6 @@ exports.author = async (feedId) => {
   const description = await about.description(feedId)
   const name = await about.name(feedId)
   const image = await about.image(feedId)
-  const aboutPairs = await about.all(feedId)
   const messages = await post.fromFeed(feedId)
   const relationship = await friend.getRelationship(feedId)
 
@@ -47,7 +48,6 @@ exports.author = async (feedId) => {
     name,
     description,
     avatarUrl,
-    aboutPairs,
     relationship
   })
 }
@@ -222,7 +222,6 @@ exports.profile = async () => {
   const description = await about.description(myFeedId)
   const name = await about.name(myFeedId)
   const image = await about.image(myFeedId)
-  const aboutPairs = await about.all(myFeedId)
 
   const messages = await post.fromFeed(myFeedId)
 
@@ -234,7 +233,6 @@ exports.profile = async () => {
     name,
     description,
     avatarUrl,
-    aboutPairs,
     relationship: null
   })
 }
