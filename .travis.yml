@@ -15,3 +15,9 @@ os:
 
 # Also ensure that we can build installers.
 script: npm test && npm run dist
+
+# Don't build arbitrary branches, just pull requests + master + semver tags.
+branches:
+  only:
+  - master
+  - "/^v\\d+\\.\\d+\\.\\d+$/"
