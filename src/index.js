@@ -24,35 +24,43 @@ const http = require('./http')
 const debug = require('debug')('oasis')
 const fs = require('fs').promises
 const koaBody = require('koa-body')
+const { nav, ul, li, a } = require('hyperaxe')
 const open = require('open')
 const path = require('path')
+const pull = require('pull-stream')
 const requireStyle = require('require-style')
 const router = require('koa-router')()
+const ssbMentions = require('ssb-mentions')
 const ssbRef = require('ssb-ref')
+const { themeNames } = require('@fraction/base16-css')
 
 const {
-  author,
+  about,
   blob,
-  comment,
-  hashtag,
-  image,
-  inbox,
-  json,
-  like,
-  likes,
-  status,
-  mentions,
+  friend,
   meta,
-  profile,
-  publicLatest,
-  publicPopular,
-  publish,
-  publishComment,
-  publishReply,
-  reply,
-  search,
-  thread
-} = require('./controller')
+  post,
+  vote
+} = require('./models')
+
+const {
+  authorView,
+  commentView,
+  listView,
+  markdownView,
+  metaView,
+  publicView,
+  replyView,
+  searchView
+} = require('./views')
+
+let sharp
+
+try {
+  sharp = require('sharp')
+} catch (e) {
+  // Optional dependency
+}
 
 const defaultTheme = 'atelier-sulphurPool-light'.toLowerCase()
 
@@ -89,24 +97,90 @@ router
   })
   .get('/public/popular/:period', async (ctx) => {
     const { period } = ctx.params
+    const publicPopular = async ({ period }) => {
+      const messages = await post.popular({ period })
+
+      const option = (somePeriod) =>
+        li(
+          period === somePeriod
+            ? a({ class: 'current', href: `./${somePeriod}` }, somePeriod)
+            : a({ href: `./${somePeriod}` }, somePeriod)
+        )
+
+      const prefix = nav(
+        ul(
+          option('day'),
+          option('week'),
+          option('month'),
+          option('year')
+        )
+      )
+
+      return publicView({
+        messages,
+        prefix
+      })
+    }
     ctx.body = await publicPopular({ period })
   })
   .get('/public/latest', async (ctx) => {
+    const publicLatest = async () => {
+      const messages = await post.latest()
+      return publicView({ messages })
+    }
     ctx.body = await publicLatest()
   })
   .get('/author/:feed', async (ctx) => {
     const { feed } = ctx.params
+    const author = async (feedId) => {
+      const description = await about.description(feedId)
+      const name = await about.name(feedId)
+      const image = await about.image(feedId)
+      const messages = await post.fromFeed(feedId)
+      const relationship = await friend.getRelationship(feedId)
+
+      const avatarUrl = `/image/256/${encodeURIComponent(image)}`
+
+      return authorView({
+        feedId,
+        messages,
+        name,
+        description,
+        avatarUrl,
+        relationship
+      })
+    }
     ctx.body = await author(feed)
   })
   .get('/search/', async (ctx) => {
     const { query } = ctx.query
+    const search = async ({ query }) => {
+      if (typeof query === 'string') {
+        // https://github.com/ssbc/ssb-search/issues/7
+        query = query.toLowerCase()
+      }
+
+      const messages = await post.search({ query })
+
+      return searchView({ messages, query })
+    }
     ctx.body = await search({ query })
   })
   .get('/inbox', async (ctx) => {
+    const inbox = async () => {
+      const messages = await post.inbox()
+
+      return listView({ messages })
+    }
     ctx.body = await inbox()
   })
   .get('/hashtag/:channel', async (ctx) => {
     const { channel } = ctx.params
+    const hashtag = async (channel) => {
+      const messages = await post.fromHashtag(channel)
+
+      return listView({ messages })
+    }
     ctx.body = await hashtag(channel)
   })
   .get('/theme.css', (ctx) => {
@@ -118,16 +192,59 @@ router
     ctx.body = requireStyle(filePath)
   })
   .get('/profile/', async (ctx) => {
+    const profile = async () => {
+      const myFeedId = await meta.myFeedId()
+
+      const description = await about.description(myFeedId)
+      const name = await about.name(myFeedId)
+      const image = await about.image(myFeedId)
+
+      const messages = await post.fromFeed(myFeedId)
+
+      const avatarUrl = `/image/256/${encodeURIComponent(image)}`
+
+      return authorView({
+        feedId: myFeedId,
+        messages,
+        name,
+        description,
+        avatarUrl,
+        relationship: null
+      })
+    }
     ctx.body = await profile()
   })
   .get('/json/:message', async (ctx) => {
     const { message } = ctx.params
     ctx.type = 'application/json'
+    const json = async (message) => {
+      const json = await meta.get(message)
+      return JSON.stringify(json, null, 2)
+    }
     ctx.body = await json(message)
   })
   .get('/blob/:blobId', async (ctx) => {
     const { blobId } = ctx.params
-    ctx.body = await blob({ blobId })
+    const getBlob = async ({ blobId }) => {
+      const bufferSource = await blob.get({ blobId })
+
+      debug('got buffer source')
+      return new Promise((resolve) => {
+        pull(
+          bufferSource,
+          pull.collect(async (err, bufferArray) => {
+            if (err) {
+              await blob.want({ blobId })
+              resolve(Buffer.alloc(0))
+            } else {
+              const buffer = Buffer.concat(bufferArray)
+              resolve(buffer)
+            }
+          })
+        )
+      })
+    }
+    ctx.body = await getBlob({ blobId })
 
     if (ctx.body.length === 0) {
       ctx.response.status = 404
@@ -141,48 +258,193 @@ router
   .get('/image/:imageSize/:blobId', async (ctx) => {
     const { blobId, imageSize } = ctx.params
     ctx.type = 'image/png'
+    const fakePixel =
+      Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+        'base64'
+      )
+    const fakeImage = (imageSize) =>
+      sharp
+        ? sharp({
+          create: {
+            width: imageSize,
+            height: imageSize,
+            channels: 4,
+            background: {
+              r: 0, g: 0, b: 0, alpha: 0.5
+            }
+          }
+        })
+        : new Promise((resolve) => resolve(fakePixel))
+    const image = async ({ blobId, imageSize }) => {
+      const bufferSource = await blob.get({ blobId })
+      const fakeId = '&0000000000000000000000000000000000000000000=.sha256'
+
+      debug('got buffer source')
+      return new Promise((resolve) => {
+        if (blobId === fakeId) {
+          debug('fake image')
+          fakeImage(imageSize).then(result => resolve(result))
+        } else {
+          debug('not fake image')
+          pull(
+            bufferSource,
+            pull.collect(async (err, bufferArray) => {
+              if (err) {
+                await blob.want({ blobId })
+                const result = fakeImage(imageSize)
+                debug({ result })
+                resolve(result)
+              } else {
+                const buffer = Buffer.concat(bufferArray)
+
+                if (sharp) {
+                  sharp(buffer)
+                    .resize(imageSize, imageSize)
+                    .png()
+                    .toBuffer()
+                    .then((data) => {
+                      resolve(data)
+                    })
+                } else {
+                  resolve(buffer)
+                }
+              }
+            })
+          )
+        }
+      })
+    }
     ctx.body = await image({ blobId, imageSize: Number(imageSize) })
   })
   .get('/meta/', async (ctx) => {
     const theme = ctx.cookies.get('theme') || defaultTheme
-    ctx.body = await meta({ theme })
+    const getMeta = async ({ theme }) => {
+      const status = await meta.status()
+      const peers = await meta.peers()
+
+      return metaView({ status, peers, theme, themeNames })
+    }
+    ctx.body = await getMeta({ theme })
   })
   .get('/likes/:feed', async (ctx) => {
     const { feed } = ctx.params
+
+    const likes = async ({ feed }) => {
+      const messages = await post.likes({ feed })
+      return listView({ messages })
+    }
     ctx.body = await likes({ feed })
   })
   .get('/meta/readme/', async (ctx) => {
+    const status = async (text) => {
+      return markdownView({ text })
+    }
     ctx.body = await status(config.readme)
   })
   .get('/mentions/', async (ctx) => {
+    const mentions = async () => {
+      const messages = await post.mentionsMe()
+
+      return listView({ messages })
+    }
     ctx.body = await mentions()
   })
   .get('/thread/:message', async (ctx) => {
     const { message } = ctx.params
+    const thread = async (message) => {
+      const messages = await post.fromThread(message)
+      debug('got %i messages', messages.length)
+
+      return listView({ messages })
+    }
+
     ctx.body = await thread(message)
   })
   .get('/reply/:message', async (ctx) => {
     const { message } = ctx.params
+    const reply = async (parentId) => {
+      const rootMessage = await post.get(parentId)
+      const myFeedId = await meta.myFeedId()
+
+      debug('%O', rootMessage)
+      const messages = [rootMessage]
+
+      return replyView({ messages, myFeedId })
+    }
     ctx.body = await reply(message)
   })
   .get('/comment/:message', async (ctx) => {
     const { message } = ctx.params
+    const comment = async (parentId) => {
+      const parentMessage = await post.get(parentId)
+      const myFeedId = await meta.myFeedId()
+
+      const hasRoot = typeof parentMessage.value.content.root === 'string' && ssbRef.isMsg(parentMessage.value.content.root)
+      const hasFork = typeof parentMessage.value.content.fork === 'string' && ssbRef.isMsg(parentMessage.value.content.fork)
+
+      const rootMessage = hasRoot
+        ? hasFork
+          ? parentMessage
+          : await post.get(parentMessage.value.content.root)
+        : parentMessage
+
+      const messages = await post.threadReplies(rootMessage.key)
+
+      messages.push(rootMessage)
+
+      return commentView({ messages, myFeedId, parentMessage })
+    }
     ctx.body = await comment(message)
   })
   .post('/reply/:message', koaBody(), async (ctx) => {
     const { message } = ctx.params
     const text = String(ctx.request.body.text)
+    const publishReply = async ({ message, text }) => {
+      // TODO: rename `message` to `parent` or `ancestor` or similar
+      const mentions = ssbMentions(text).filter((mention) =>
+        mention != null
+      ) || undefined
+
+      const parent = await post.get(message)
+      return post.reply({
+        parent,
+        message: { text, mentions }
+      })
+    }
     ctx.body = await publishReply({ message, text })
     ctx.redirect(`/thread/${encodeURIComponent(message)}`)
   })
   .post('/comment/:message', koaBody(), async (ctx) => {
     const { message } = ctx.params
     const text = String(ctx.request.body.text)
+    const publishComment = async ({ message, text }) => {
+      // TODO: rename `message` to `parent` or `ancestor` or similar
+      const mentions = ssbMentions(text).filter((mention) =>
+        mention != null
+      ) || undefined
+      const parent = await meta.get(message)
+
+      return post.comment({
+        parent,
+        message: { text, mentions }
+      })
+    }
     ctx.body = await publishComment({ message, text })
     ctx.redirect(`/thread/${encodeURIComponent(message)}`)
   })
   .post('/publish/', koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text)
+    const publish = async ({ text }) => {
+      const mentions = ssbMentions(text).filter((mention) =>
+        mention != null
+      ) || undefined
+
+      return post.root({
+        text,
+        mentions
+      })
+    }
     ctx.body = await publish({ text })
     ctx.redirect('/')
   })
@@ -200,6 +462,29 @@ router
     const referer = new URL(ctx.request.header.referer)
     referer.hash = `centered-footer-${encoded.message}`
 
+    const like = async ({ messageKey, voteValue }) => {
+      const value = Number(voteValue)
+      const message = await post.get(messageKey)
+
+      const isPrivate = message.value.meta.private === true
+      const messageRecipients = isPrivate ? message.value.content.recps : []
+
+      const normalized = messageRecipients.map((recipient) => {
+        if (typeof recipient === 'string') {
+          return recipient
+        }
+
+        if (typeof recipient.link === 'string') {
+          return recipient.link
+        }
+
+        return null
+      })
+
+      const recipients = normalized.length > 0 ? normalized : undefined
+
+      return vote.publish({ messageKey, value, recps: recipients })
+    }
     ctx.body = await like({ messageKey, voteValue })
     ctx.redirect(referer)
   })
@@ -212,12 +497,9 @@ router
 
 const { host } = config
 const { port } = config
+const routes = router.routes()
 
-http({
-  host,
-  port,
-  routes: router.routes()
-})
+http({ host, port, routes })
 
 const uri = `http://${host}:${port}/`
 
