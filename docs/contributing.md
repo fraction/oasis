@@ -4,14 +4,13 @@ Hey, welcome! This project is still very experimental so I won't make any
 promises about the future architecture, but today it's pretty simple:
 
 ```
-index.js: take command-line arguments and give an application over HTTP
- └── src: take HTTP requests and give an asset or a dynamic HTML page
-     ├── assets: give static assets like CSS and images
-     └── pages: take parameters and give an HTML page that with inline data
-         ├── models: give an abstract interface for interacting with data
-         │   └── lib: give database driver, Markdown renderer, etc.
-         └── views: take data and give an HTML page
-             └── components: take data and give HTML components (sub-views)
+├── assets: static assets like CSS 
+├── cli:    command-line interface (yargs)
+├── http:   HTTP interface (koa)
+├── index:  mediator that ties everything together
+├── models: data sources
+├── ssb:    SSB connection and interfaces
+└── views:  HTML presentation to be exposed over HTTP
 ```
 
 I'd really appreciate any issues or pull requests on GitHub. Please let me know
@@ -32,50 +31,28 @@ second I don't think they'll have a noticeable effect on performance.
 I have a hunch that importing modules from parent directories makes it really
 easy to create spaghetti code that's difficult to learn and maintain. I don't
 know whether that's true, but I'm experimenting with a layer-based approach
-where modules always `require('./some-layer/some-module')`. I don't know
-whether this *actually* has any interesting properties, but I'm trying it out
-to see whether it results in simpler software architectures.
+where the only file with relative imports is `index.js` and all imports are in
+the style `require('./foo')`. I don't know whether this *actually* has any
+interesting properties, but I'm trying it out to see whether it results in
+simpler software architectures.
 
 #### Pattern
 
 ```javascript
-require('./foo/bar')
-require('./lib/widget-factory')
-require('./tools/quark-smasher')
+require('./foo') // foo.js
+require('./bar') // bar/index.js
 ```
 
 #### Anti-pattern
 
 ```javascript
-require('../../../great-grandparent-frankie')
-require('./sibling-jamie')
-require('./wat') // same as `require('./wat/index')
+require('../ancestor')       // two-way import
+require('./some/descendant') // layer violation
+require('./foobar/index.js') // excessive specificity
 ```
 
 **Note:** I want to make *very* clear that this is an experiment, not a claim
-that this is Objectively Better. It's also important to note that the essential
-bit here is the [dependency graph][dep-graph], not the directory tree. I'm using
-the directory tree as a proxy for the dependency graph because it's simple, but
-the dependency graph of the following directory trees are identical:
-
-```
-├── a
-└── b => c() + e()
-    ├── c => d()
-    │   └── d
-    └── e => f()
-        └── f
-```
-
-```
-├── a
-├── b => c() + e()
-├── c => d()
-├── d
-├── e => f()
-└── f
-```
-
+that this is Objectively Better. 
 
 ### Any my [hyper]axe
 
