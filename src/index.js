@@ -34,6 +34,12 @@ const ssbMentions = require('ssb-mentions')
 const ssbRef = require('ssb-ref')
 const { themeNames } = require('@fraction/base16-css')
 
+const ssb = require('./ssb')
+
+// Create "cooler"-style interface from SSB connection.
+// This handle is passed to the models for their convenience.
+const cooler = ssb()
+
 const {
   about,
   blob,
@@ -41,7 +47,7 @@ const {
   meta,
   post,
   vote
-} = require('./models')
+} = require('./models')(cooler)
 
 const {
   authorView,

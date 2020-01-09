@@ -1,5 +1,10 @@
 'use strict'
 
+// This module exports a function that connects to SSB and returns a "cooler"
+// interface. This interface is poorly defined and should be replaced with
+// native support for Promises in the MuxRPC module and auto-generated manifest
+// files in the SSB-Client module.
+
 const debug = require('debug')('oasis')
 const ssbClient = require('ssb-client')
 const ssbConfig = require('ssb-config')
@@ -48,45 +53,6 @@ const rawConnect = () => new Promise((resolve, reject) => {
   })
 })
 
-const db = {
-  connect () {
-    // This has interesting behavior that may be unexpected.
-    //
-    // If `handle` is already an active [non-closed] connection, return that.
-    //
-    // If the connection is closed, we need to restart it. It's important to
-    // note that if we're depending on an external service (like Patchwork) and
-    // that app is closed, then Oasis will seamlessly start its own SSB service.
-    return new Promise((resolve, reject) => {
-      handle.then((ssb) => {
-        if (ssb.closed) {
-          createConnection()
-        }
-        resolve(handle)
-      })
-    })
-  },
-  /**
-   * @param {function} method
-   */
-  get (method, ...opts) {
-    return new Promise((resolve, reject) => {
-      method(...opts, (err, val) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(val)
-        }
-      })
-    })
-  },
-  read (method, ...args) {
-    return new Promise((resolve) => {
-      resolve(method(...args))
-    })
-  }
-}
-
 debug.enabled = true
 
 let handle
@@ -117,6 +83,44 @@ const createConnection = () => {
   return handle
 }
 
-createConnection()
-
-module.exports = db
+module.exports = () => {
+  createConnection()
+  return {
+    connect () {
+      // This has interesting behavior that may be unexpected.
+      //
+      // If `handle` is already an active [non-closed] connection, return that.
+      //
+      // If the connection is closed, we need to restart it. It's important to
+      // note that if we're depending on an external service (like Patchwork) and
+      // that app is closed, then Oasis will seamlessly start its own SSB service.
+      return new Promise((resolve, reject) => {
+        handle.then((ssb) => {
+          if (ssb.closed) {
+            createConnection()
+          }
+          resolve(handle)
+        })
+      })
+    },
+    /**
+     * @param {function} method
+     */
+    get (method, ...opts) {
+      return new Promise((resolve, reject) => {
+        method(...opts, (err, val) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(val)
+          }
+        })
+      })
+    },
+    read (method, ...args) {
+      return new Promise((resolve) => {
+        resolve(method(...args))
+      })
+    }
+  }
+}
