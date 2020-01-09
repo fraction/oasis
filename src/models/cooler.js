@@ -2,6 +2,10 @@
 
 const debug = require('debug')('oasis')
 const ssbClient = require('ssb-client')
+const ssbConfig = require('ssb-config')
+const flotilla = require('@fraction/flotilla')
+
+const server = flotilla(ssbConfig)
 
 const rawConnect = () => new Promise((resolve, reject) => {
   ssbClient({
@@ -95,7 +99,7 @@ const createConnection = () => {
     }).catch(() => {
       debug('Initial connection attempt failed')
       debug('Starting Scuttlebutt server')
-      require('./server')
+      server({ ws: { http: false } })
       const connectOrRetry = () => {
         rawConnect().then((ssb) => {
           debug('Retrying connection to own server')
