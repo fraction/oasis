@@ -26,7 +26,6 @@ const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions)
 
 exports.about = {
-
   name: async (feedId) => {
     const ssb = await cooler.connect()
     return cooler.get(
@@ -336,7 +335,6 @@ const transform = (ssb, messages, myFeedId) =>
     const pending = [pendingName, pendingAvatarMsg]
     const [name, avatarMsg] = await Promise.all(pending)
 
-    const nullImage = `&${'0'.repeat(43)}=.sha256`
     const avatarId = avatarMsg != null && typeof avatarMsg.link === 'string'
       ? avatarMsg.link || nullImage
       : avatarMsg || nullImage
