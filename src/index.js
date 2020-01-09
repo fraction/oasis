@@ -38,7 +38,7 @@ const ssb = require('./ssb')
 
 // Create "cooler"-style interface from SSB connection.
 // This handle is passed to the models for their convenience.
-const cooler = ssb()
+const cooler = ssb({ offline: config.offline })
 
 const {
   about,
@@ -509,8 +509,10 @@ http({ host, port, routes })
 
 const uri = `http://${host}:${port}/`
 
+const isDebugEnabled = debug.enabled
 debug.enabled = true
 debug(`Listening on ${uri}`)
+debug.enabled = isDebugEnabled
 
 if (config.open === true) {
   open(uri)

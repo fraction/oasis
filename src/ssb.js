@@ -5,12 +5,19 @@
 // native support for Promises in the MuxRPC module and auto-generated manifest
 // files in the SSB-Client module.
 
-const debug = require('debug')('oasis')
 const ssbClient = require('ssb-client')
 const ssbConfig = require('ssb-config')
 const flotilla = require('@fraction/flotilla')
+const debug = require('debug')('oasis')
 
 const server = flotilla(ssbConfig)
+
+const log = (...args) => {
+  const isDebugEnabled = debug.enabled
+  debug.enabled = true
+  debug(...args)
+  debug.enabled = isDebugEnabled
+}
 
 const rawConnect = () => new Promise((resolve, reject) => {
   ssbClient({
@@ -53,25 +60,23 @@ const rawConnect = () => new Promise((resolve, reject) => {
   })
 })
 
-debug.enabled = true
-
 let handle
 
-const createConnection = () => {
+const createConnection = (config) => {
   handle = new Promise((resolve) => {
     rawConnect().then((ssb) => {
-      debug('Using pre-existing Scuttlebutt server instead of starting one')
+      log('Using pre-existing Scuttlebutt server instead of starting one')
       resolve(ssb)
     }).catch(() => {
-      debug('Initial connection attempt failed')
-      debug('Starting Scuttlebutt server')
-      server({ ws: { http: false } })
+      log('Initial connection attempt failed')
+      log('Starting Scuttlebutt server')
+      server(config)
       const connectOrRetry = () => {
         rawConnect().then((ssb) => {
-          debug('Retrying connection to own server')
+          log('Retrying connection to own server')
           resolve(ssb)
         }).catch((e) => {
-          debug(e)
+          log(e)
           connectOrRetry()
         })
       }
@@ -83,8 +88,22 @@ const createConnection = () => {
   return handle
 }
 
-module.exports = () => {
-  createConnection()
+module.exports = ({ offline }) => {
+  if (offline) {
+    log('Offline mode activated - not connecting to scuttlebutt peers or pubs')
+    log('WARNING: offline mode cannot control the behavior of pre-existing servers')
+  }
+
+  const config = {
+    conn: {
+      autostart: !offline
+    },
+    ws: {
+      http: false
+    }
+  }
+
+  createConnection(config)
   return {
     connect () {
       // This has interesting behavior that may be unexpected.
