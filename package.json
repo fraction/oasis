@@ -13,8 +13,9 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
     "start": "node src/index.js",
-    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck src/index.js",
-    "preversion": "npm test"
+    "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module patch-package --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck src/index.js",
+    "preversion": "npm test",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
@@ -29,6 +30,7 @@
     "koa-static": "^5.0.0",
     "lodash": "^4.17.11",
     "open": "7.0.0",
+    "patch-package": "^6.2.0",
     "pretty-ms": "^5.0.0",
     "pull-paramap": "^1.2.2",
     "pull-sort": "^1.0.2",
