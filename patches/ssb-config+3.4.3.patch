@@ -1,1718 +1,266 @@
-diff --git a/node_modules/ssb-config/patch b/node_modules/ssb-config/patch
+diff --git a/node_modules/ssb-config/.travis.yml b/node_modules/ssb-config/.travis.yml
+index 7b0a3a5..2d3ec39 100644
+--- a/node_modules/ssb-config/.travis.yml
++++ b/node_modules/ssb-config/.travis.yml
+@@ -1,2 +1,9 @@
+ language: node_js
+ node_js: lts/*
++sudo: required
++before_script:
++  # Add an IPv6 config - see the corresponding Travis issue
++  # https://github.com/travis-ci/travis-ci/issues/8361
++  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
++      sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
++    fi
+diff --git a/node_modules/ssb-config/README.md b/node_modules/ssb-config/README.md
+index 97ad7f2..e023f00 100644
+--- a/node_modules/ssb-config/README.md
++++ b/node_modules/ssb-config/README.md
+@@ -43,7 +43,7 @@ returns you the stock standard config for starting an `ssb-server`
+ 
+ A function which takes:
+ - `appName` *(string)* which declares where to look for further config, where to read and write databases. Stores data in `~/.${appName}`, defaults to `ssb` (so data in `~/.ssb`).
+-- `opts` *(object)* an object which is fed into the config generation as a bunch of defaults (see 'Configuration' below)
++- `opts` *(object)* an object which can override config defaults (see 'Configuration' below)
+ 
+ ## Configuration
+ 
+@@ -59,7 +59,7 @@ Options:
+ * `friends.hops` *(number)* How many friend of friend hops to replicate. Defaults to `3`.
+ * `gossip` *(object)* controls what sort of connections are made (see below)
+ * `path` *(string)* Path to the application data folder, which contains the private key, message attachment data (blobs) and the leveldb backend. Defaults to `$HOME/.ssb`.
+-* `master` *(array)* Pubkeys of users who, if they connect to the Scuttlebot instance, are allowed to command the primary user with full rights. Useful for remotely operating a pub. Defaults to `[]`.
++* `master` *(array)* Pubkeys of users who, if they connect to the [ssb-server](https://github.com/ssbc/ssb-server) instance, are allowed to command the primary user with full rights. Useful for remotely operating a pub. Defaults to `[]`.
+ * `logging.level` *(string)* How verbose should the logging be. Possible values are error, warning, notice, and info. Defaults to `notice`.
+ * `party` _(boolean)_ TODO
+ * `timers.connection` _(number)_ TODO
+@@ -70,8 +70,8 @@ Options:
+ * `caps.sign` _(string)_ Used to sign messages
+ 
+ Deprecated Options:
+-* `host` *(string)* The domain or ip address for `sbot`. Defaults to your public ip address.
+-* `port` *(string|number)* The port for `sbot`. Defaults to `8008`.
++* `host` *(string)* The domain or ip address for [ssb-server](https://github.com/ssbc/ssb-server). Defaults to your public ip address.
++* `port` *(string|number)* The port for [ssb-server](https://github.com/ssbc/ssb-server). Defaults to `8008`.
+ * `ws` TODO
+ 
+ You should use `connections` to more explicitly configure connections.
+@@ -122,11 +122,11 @@ An address scope is the area from which it's possible to connect to an address.
+ * `local` means connections can only come from the same network, i.e. same wifi.
+ * `public` means connections can come from anywhere on the internet.
+ 
+-Some protocols only work in particular scopes. `unix` socket requires fs access,
++Some protocols only work in particular scopes. `unix` socket requires file system access,
+ so it only works for the device scope. `onion` (tor) routes connections through a distributed network,
+ so it only works if you are fully connected to the `public` internet. Some mesh networks
+-are really large, so they might seem public. Some overlay networks, such as cjdns and
+-ZeroTeirOne create a fake local network that is publically accessable (these should
++are really large, so they might seem public. Some overlay networks, such as [cjdns](https://github.com/cjdelisle/cjdns/) and
++[ZeroTier](https://www.zerotier.com/) create a fake local network that is publically accessible (these should
+ be manually configured as public addresses!)
+ 
+ most ssb peers just have a local and device scopes. pubs require a public scope.
+@@ -149,7 +149,7 @@ If you only want to use [Tor](https://torproject.org) to create outgoing connect
+ }
+ ```
+ 
+-If you want to run a peer behind NAT or other kind of proxy but still want sbot to be able to create invites for the outside addres, you can specify a `public` scope as your `incoming.net` by defining the `external` parameter like this:
++If you want to run a peer behind NAT or other kind of proxy but still want [ssb-server](https://github.com/ssbc/ssb-server) to be able to create invites for the outside address, you can specify a `public` scope as your `incoming.net` by defining the `external` parameter like this:
+ 
+ ```json
+ { 
+@@ -167,7 +167,7 @@ If you want to run a peer behind NAT or other kind of proxy but still want sbot
+ 
+ One thing to notice is that you _need_ `incoming` connections for Apps (like patchwork or git-ssb) to function. By default they use the same authentication mechanism (shs) to grant access to the database, choosing access levels depending on the keypair that opens the connection. If you connect to yourself, you get full access (query and publish). If a remote peer connects, it can only replicate. So be sure to have **at least one** `incoming` connection.
+ 
+-That being said, the overhead of encryption for local applications can be very high, especially on low-powered devices. For this use-case there is a `noauth` transform which by-passes the authentication and grants full access to anybody that can connect to it. **hint:** *This is risky! it might expose private messages or enables people to publish as you!* Therefore be sure to bind the listener to `localhost` or use the `unix` socket. The `unix` file socket is creted as `$HOME/.ssb/socket` by default and has permissions such that only the user running `sbot server` can open it, just like the `.ssb/secret` file.
++That being said, the overhead of encryption for local applications can be very high, especially on low-powered devices. For this use-case there is a `noauth` transform which by-passes the authentication and grants full access to anybody that can connect to it. **hint:** *This is risky! it might expose private messages or enables people to publish as you!* Therefore be sure to bind the listener to `localhost` or use the `unix` socket. The `unix` file socket is created as `$HOME/.ssb/socket` by default and has permissions such that only the user running `ssb-server start` can open it, just like the `$HOME/.ssb/secret` file.
+ 
+ ```json
+ { 
+@@ -181,7 +181,7 @@ That being said, the overhead of encryption for local applications can be very h
+ }
+ ```
+ 
+-The local plugin inside scuttlebot will use the first incoming connection of either public or private scope. 
++The local plugin inside [ssb-server](https://github.com/ssbc/ssb-server) will use the first incoming connection of either public or private scope. 
+ 
+ ## `gossip`
+ 
+diff --git a/node_modules/ssb-config/defaults.js b/node_modules/ssb-config/defaults.js
+index ae48077..b9ac854 100644
+--- a/node_modules/ssb-config/defaults.js
++++ b/node_modules/ssb-config/defaults.js
+@@ -3,9 +3,10 @@ var home = require('os-homedir')
+ var merge = require('deep-extend')
+ var ssbCaps = require('ssb-caps')
+ var ssbKeys = require('ssb-keys')
++const get = require('lodash.get')
+ 
+-var incomingConnections = require('./util/incoming-connections')
+ var fixConnections = require('./util/fix-connections')
++const defaultPorts = require('./default-ports')
+ 
+ var SEC = 1e3
+ var MIN = 60 * SEC
+@@ -19,15 +20,15 @@ module.exports = function setDefaults (name, config) {
+     local: true,
+     friends: {
+       dunbar: 150,
+-      hops: 3
++      hops: 2
+     },
+     gossip: {
+       connections: 3
+     },
+     connections: {
+       outgoing: {
+-        net: [{ transform: 'shs' }],
+-        onion: [{ transform: 'shs' }]
++	net: [{ transform: 'shs' }],
++	onion: [{ transform: 'shs' }]
+       }
+     },
+     timers: {
+@@ -46,7 +47,20 @@ module.exports = function setDefaults (name, config) {
+   if (!config.connections.incoming) {
+     // if no incoming connections have been set,
+     // populate this with some rad-comprehensive defaults!
+-    config.connections.incoming = incomingConnections(config)
++    config.connections.incoming = {
++      net: [{
++	host: config.host || '::',
++	port: config.port || defaultPorts.net,
++	scope: ['device', 'local', 'public'],
++	transform: 'shs'
++      }],
++      ws: [{
++	host: config.host || '::',
++	port: get(config, 'ws.port', defaultPorts.ws),
++	scope: ['device', 'local', 'public'],
++	transform: 'shs'
++      }]
++    }
+   }
+ 
+   config = fixConnections(config)
+diff --git a/node_modules/ssb-config/ssb-config-3.4.3.tgz b/node_modules/ssb-config/ssb-config-3.4.3.tgz
 new file mode 100644
-index 0000000..2b0d784
---- /dev/null
-+++ b/node_modules/ssb-config/patch
-@@ -0,0 +1,1712 @@
-+From 5cdb407820faab10b00cae3606c1d7531c34901a Mon Sep 17 00:00:00 2001
-+From: Christian Bundy <christianbundy@fraction.io>
-+Date: Fri, 10 Jan 2020 13:44:30 -0800
-+Subject: [PATCH 1/2] Replace incoming-connections with multiserver fix
-+
-+This removes the incoming-connections workaround in favor of the correct
-+fix from the Multiserver module. Since that module's fix hasn't been
-+merged yet, this PR uses patch-package to manage the patch and ensure
-+that we're using the correct configuration.
-+---
-+ defaults.js                     |   18 +-
-+ package.json                    |    4 +-
-+ patches/multiserver+3.6.0.patch | 1488 +++++++++++++++++++++++++++++++
-+ util/incoming-connections.js    |  110 ---
-+ 4 files changed, 1507 insertions(+), 113 deletions(-)
-+ create mode 100644 patches/multiserver+3.6.0.patch
-+ delete mode 100644 util/incoming-connections.js
-+
-+diff --git a/defaults.js b/defaults.js
-+index f8997f6..dcf8a29 100644
-+--- a/defaults.js
-++++ b/defaults.js
-+@@ -3,9 +3,10 @@ var home = require('os-homedir')
-+ var merge = require('deep-extend')
-+ var ssbCaps = require('ssb-caps')
-+ var ssbKeys = require('ssb-keys')
-++const get = require('lodash.get')
-+ 
-+-var incomingConnections = require('./util/incoming-connections')
-+ var fixConnections = require('./util/fix-connections')
-++const defaultPorts = require('./default-ports')
-+ 
-+ var SEC = 1e3
-+ var MIN = 60 * SEC
-+@@ -46,7 +47,20 @@ module.exports = function setDefaults (name, config) {
-+   if (!config.connections.incoming) {
-+     // if no incoming connections have been set,
-+     // populate this with some rad-comprehensive defaults!
-+-    config.connections.incoming = incomingConnections(config)
-++    config.connections.incoming = {
-++      net: [{
-++	host: config.host || '::',
-++	port: config.port || defaultPorts.net,
-++	scope: ['device', 'local', 'public'],
-++	transform: 'shs'
-++      }],
-++      ws: [{
-++	host: config.host || '::',
-++	port: get(config, 'ws.port', defaultPorts.ws),
-++	scope: ['device', 'local', 'public'],
-++	transform: 'shs'
-++      }]
-++    }
-+   }
-+ 
-+   config = fixConnections(config)
-+diff --git a/package.json b/package.json
-+index c533487..0f8388a 100644
-+--- a/package.json
-++++ b/package.json
-+@@ -9,13 +9,15 @@
-+   },
-+   "scripts": {
-+     "test": "tape tests/*.test.js | tap-spec",
-+-    "test:lite": "SKIP_SERVER=true npm test"
-++    "test:lite": "SKIP_SERVER=true npm test",
-++    "postinstall": "patch-package"
-+   },
-+   "dependencies": {
-+     "deep-extend": "^0.6.0",
-+     "ip": "^1.1.5",
-+     "lodash.get": "^4.4.2",
-+     "os-homedir": "^1.0.1",
-++    "patch-package": "^6.2.0",
-+     "rc": "^1.1.6",
-+     "ssb-caps": "^1.0.1",
-+     "ssb-keys": "^7.1.4"
-+diff --git a/patches/multiserver+3.6.0.patch b/patches/multiserver+3.6.0.patch
-+new file mode 100644
-+index 0000000..74ea0bc
-+--- /dev/null
-++++ b/patches/multiserver+3.6.0.patch
-+@@ -0,0 +1,1488 @@
-++diff --git a/node_modules/multiserver/wat.patch b/node_modules/multiserver/wat.patch
-++new file mode 100644
-++index 0000000..eee696b
-++--- /dev/null
-+++++ b/node_modules/multiserver/wat.patch
-++@@ -0,0 +1,1482 @@
-+++From c0fcccaa4b5dc621b32b5d8ac3ad441292d50dfd Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Fri, 17 May 2019 15:59:08 -0700
-+++Subject: [PATCH 01/14] Correctly stringify meta-addresses (e.g. `::`)
-+++
-+++Previously each multiserver interface was only allowed to output one
-+++address, which led to unexpected behavior when `{ host: '::' }` was
-+++configured.
-+++
-+++This commit changes the `stringify()` method when meta-addresses are
-+++passed, which now outputs a semicolon-delimited string with all of the
-+++addresses that Node.js is listening on. This should make meta-addresses
-+++usable and makes it unnecessary to enumerate all possible addresses when
-+++configuring multiserver.
-+++---
-+++ compose.js     | 55 +++++++++++++++++++++++++++++++++++++++-----------
-+++ index.js       |  5 +++--
-+++ plugins/net.js | 50 ++++++++++++++++++++++++++++++++++++++++++---
-+++ test/plugs.js  | 31 ++++++++++++++++++++++++++++
-+++ 4 files changed, 124 insertions(+), 17 deletions(-)
-+++
-+++diff --git a/compose.js b/compose.js
-+++index abbee6d..68c73d0 100644
-+++--- a/compose.js
-++++++ b/compose.js
-+++@@ -50,10 +50,35 @@ function asyncify(f) {
-+++   }
-+++ }
-+++ 
-++++
-++++// This accepts an array of arrays and outputs a combination of their layers.
-++++//
-++++// combineLayers([ [ 1, 2 ], [ 3, 4] ]) // => [
-++++//   [ 1, 3 ],
-++++//   [ 1, 4 ],
-++++//   [ 2, 3 ],
-++++//   [ 2, 4 ]
-++++// ]
-++++//
-++++// This is used for combining plugin layers, like when the net plugin is
-++++// listening on multiple addresses and we want to make sure that we combine
-++++// all of the addresses with all of the transforms when we stringify.
-++++//
-++++// combineLayers([ [ 'net:a', 'net:b' ], [ 'shs:c' ] ]) // => [
-++++//   [ 'net:a', 'shs:c' ],
-++++//   [ 'net:b', 'shs:c' ]
-++++// ]
-++++const combineLayers = x =>
-++++  x.reduce((acc, group = []) =>
-++++    acc.map(chain =>
-++++      group.map((item) =>
-++++        chain.concat(item))
-++++    ).flat(), [[]])
-++++
-+++ module.exports = function (ary, wrap) {
-+++   if(!wrap) wrap = function (e) { return e }
-+++-  var proto = head(ary)
-+++-  var trans = tail(ary)
-++++  var protocol = head(ary)
-++++  var transform = tail(ary)
-+++ 
-+++   function parse (str) {
-+++     var parts = SE.parse(str)
-+++@@ -67,20 +92,20 @@ module.exports = function (ary, wrap) {
-+++   }
-+++ 
-+++   function parseMaybe (str) {
-+++-    return  isString(str) ? parse(str) : str
-++++    return  isString(str) ? parse(str.split(';')[0]) : str
-+++   }
-+++ 
-+++   return {
-+++     name: ary.map(function (e) { return e.name }).join(separator),
-+++-    scope: proto.scope,
-++++    scope: protocol.scope,
-+++     client: function (_opts, cb) {
-+++       var opts = parseMaybe(_opts)
-+++       if(!opts) return cb(new Error('could not parse address:'+_opts))
-+++-      return proto.client(head(opts), function (err, stream) {
-++++      return protocol.client(head(opts), function (err, stream) {
-+++         if(err) return cb(err)
-+++         compose(
-+++           wrap(stream),
-+++-          trans.map(function (tr, i) { return tr.create(opts[i+1]) }),
-++++          transform.map(function (tr, i) { return tr.create(opts[i+1]) }),
-+++           cb
-+++         )
-+++       })
-+++@@ -93,10 +118,10 @@ module.exports = function (ary, wrap) {
-+++         console.error('server error, from', err.address)
-+++         console.error(err.stack)
-+++       }
-+++-      return asyncify(proto.server(function (stream) {
-++++      return asyncify(protocol.server(function (stream) {
-+++         compose(
-+++           wrap(stream),
-+++-          trans.map(function (tr) { return tr.create() }),
-++++          transform.map(function (tr) { return tr.create() }),
-+++           function (err, stream) {
-+++             if(err) onError(err)
-+++             else onConnection(stream)
-+++@@ -107,13 +132,19 @@ module.exports = function (ary, wrap) {
-+++     parse: parse,
-+++     stringify: function (scope) {
-+++       var none
-+++-      var _ary = ary.map(function (e) {
-+++-        var v = e.stringify(scope)
-++++
-++++      var identifierAry = combineLayers(ary.map(function (item) {
-++++        var v = item.stringify(scope)
-++++        if (typeof v === 'string') {
-++++          v = v.split(';')
-++++        }
-++++
-+++         if(!v) none = true
-+++         else return v
-+++-      })
-++++      }))
-++++
-+++       if(none) return
-+++-      return SE.stringify(_ary)
-++++      return identifierAry.map(id => SE.stringify(id)).join(';')
-+++     }
-+++   }
-+++ }
-+++diff --git a/index.js b/index.js
-+++index d49f338..31c18d7 100644
-+++--- a/index.js
-++++++ b/index.js
-+++@@ -61,8 +61,9 @@ module.exports = function (plugs, wrap) {
-+++       if (!scope) scope = 'device'
-+++       return plugs
-+++         .filter(function (plug) {
-+++-          var _scope = plug.scope()
-+++-          return Array.isArray(_scope) ? ~_scope.indexOf(scope) : _scope === scope
-++++          var plugScope = plug.scope()
-++++          const isArray = Array.isArray(plugScope)
-++++          return  isArray ? plugScope.includes(scope) : plugScope === scope
-+++         })
-+++         .map(function (plug) { return plug.stringify(scope) })
-+++         .filter(Boolean)
-+++diff --git a/plugins/net.js b/plugins/net.js
-+++index 27f70e9..7eabb87 100644
-+++--- a/plugins/net.js
-++++++ b/plugins/net.js
-+++@@ -1,6 +1,8 @@
-+++ var net
-++++var os
-+++ try {
-+++   net = require('net')
-++++  os = require('os')
-+++ } catch (_) {
-+++   // This only throws in browsers because they don't have access to the Node
-+++   // net library, which is safe to ignore because they shouldn't be running
-+++@@ -21,6 +23,42 @@ function toDuplex (str) {
-+++   return stream
-+++ }
-+++ 
-++++const metaAddresses = [
-++++  '0.0.0.0',
-++++  '::'
-++++]
-++++
-++++const getAddress = (host, scope) => {
-++++  if (scope === 'device') {
-++++    return 'localhost' // legacy
-++++  }
-++++
-++++  if (typeof host === 'string' && metaAddresses.includes(host) === false) {
-++++    return host
-++++  }
-++++
-++++  return getNetworkAddresses({
-++++    internal: (scope === 'device'),
-++++    family: (host === '0.0.0.0' ? 'IPv4' : null)
-++++  })
-++++}
-++++
-++++const getNetworkAddresses = ({ internal, family } = {}) =>
-++++  Object.values(os.networkInterfaces())
-++++    // Flatten
-++++    .reduce((acc, val) => acc.concat(val), [])
-++++    // Filter `internal`
-++++    .filter(item => internal == null || item.internal === internal)
-++++    // Filter `family`
-++++    .filter(item => family == null || item.family === family)
-++++    // Filter scoped IPv6 addresses, which don't play nicely with Node.js
-++++    .filter(item => item.scopeid == null || item.scopeid === 0)
-++++    // Only return the address.
-++++    .map(item => item.address)
-++++
-++++// console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-++++// console.dir(getNetworkAddresses({ family: 'IPv4' }), { depth: null })
-++++
-+++ // Choose a dynamic port between 49152 and 65535
-+++ // https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic,_private_or_ephemeral_ports
-+++ const getRandomPort = () =>
-+++@@ -29,7 +67,7 @@ const getRandomPort = () =>
-+++ module.exports = ({ scope = 'device', host, port, external, allowHalfOpen, pauseOnConnect }) => {
-+++   // Arguments are `scope` and `external` plus selected options for
-+++   // `net.createServer()` and `server.listen()`.
-+++-  host = host || (isString(scope) && scopes.host(scope))
-++++  host = getAddress(host, scope)
-+++   port = port || getRandomPort()
-+++ 
-+++   function isAllowedScope (s) {
-+++@@ -105,14 +143,20 @@ module.exports = ({ scope = 'device', host, port, external, allowHalfOpen, pause
-+++       // We want to avoid using `host` if the target scope is public and some
-+++       // external host (like example.com) is defined.
-+++       const externalHost = targetScope === 'public' && external
-+++-      const resultHost = externalHost || host || scopes.host(targetScope)
-++++      const resultHost = externalHost || getAddress(host, targetScope)
-++++
-++++      // console.log({ resultHost })
-+++ 
-+++       if (resultHost == null) {
-+++         // The device has no network interface for a given `targetScope`.
-+++         return null
-+++       }
-+++ 
-+++-      return toAddress(resultHost, port)
-++++      if (Array.isArray(resultHost)) {
-++++        return resultHost.map(addr => toAddress(addr, port)).join(';')
-++++      } else {
-++++        return toAddress(resultHost, port)
-++++      }
-+++     }
-+++   }
-+++ }
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index 5bed2a3..fb24675 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -42,6 +42,10 @@ var has_ipv6 = process.env.TRAVIS === undefined
-+++ 
-+++ tape('parse, stringify', function (t) {
-+++ 
-++++  t.equal(
-++++    net.stringify('device'),
-++++    'net:localhost:4848'
-++++  )
-+++   t.equal(
-+++     net.stringify('device'),
-+++     'net:localhost:4848'
-+++@@ -426,3 +430,30 @@ tape('multiple scopes different hosts', function(t) {
-+++ 
-+++   t.end()
-+++ })
-++++
-++++tape('meta-address returns multiple', function(t) {
-++++  var net = Net({ host: '::', port: 4848, scope: ['local', 'device', 'public']})
-++++
-++++  var combined = Compose([net, shs])
-++++ 
-++++  t.equal(
-++++    combined.stringify('local').split(';').length > 1,
-++++    true
-++++  )
-++++
-++++  // TODO: add more tests here
-++++  //
-++++  // This is currently doing all the right things but I'm unclear on how we
-++++  // should test for this behavior:
-++++  //
-++++  // ```javascript
-++++  // console.log(combined.stringify('local')).split(';').join('\n') // =>
-++++  //   net:192.168.3.55:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-++++  //   net:172.18.0.1:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-++++  //   net:fce2:9811:4862:81a7:bb08:91d6:2e41:d220:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-++++  // ```
-++++  // 
-++++  // Now the net plugin can output multiple interfaces via `stringify()`!
-++++
-++++  t.end()
-++++})
-+++
-+++From 1c0b4107c14d7465bf70c00a6939688e8644efde Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sat, 18 May 2019 17:20:39 -0700
-+++Subject: [PATCH 02/14] Move shared code to util file
-+++
-+++---
-+++ index.js                     |  2 +-
-+++ compose.js => lib/compose.js |  8 +++--
-+++ lib/util.js                  | 48 +++++++++++++++++++++++++++++
-+++ plugins/net.js               | 60 ++++++------------------------------
-+++ test/multi.js                |  2 +-
-+++ test/plugs.js                |  2 +-
-+++ 6 files changed, 67 insertions(+), 55 deletions(-)
-+++ rename compose.js => lib/compose.js (97%)
-+++ create mode 100644 lib/util.js
-+++
-+++diff --git a/index.js b/index.js
-+++index 31c18d7..8698dbc 100644
-+++--- a/index.js
-++++++ b/index.js
-+++@@ -1,4 +1,4 @@
-+++-var compose = require('./compose')
-++++var compose = require('./lib/compose')
-+++ var isArray = Array.isArray
-+++ var multicb = require('multicb')
-+++ 
-+++diff --git a/compose.js b/lib/compose.js
-+++similarity index 97%
-+++rename from compose.js
-+++rename to lib/compose.js
-+++index 68c73d0..bfa7c41 100644
-+++--- a/compose.js
-++++++ b/lib/compose.js
-+++@@ -50,7 +50,6 @@ function asyncify(f) {
-+++   }
-+++ }
-+++ 
-+++-
-+++ // This accepts an array of arrays and outputs a combination of their layers.
-+++ //
-+++ // combineLayers([ [ 1, 2 ], [ 3, 4] ]) // => [
-+++@@ -73,7 +72,12 @@ const combineLayers = x =>
-+++     acc.map(chain =>
-+++       group.map((item) =>
-+++         chain.concat(item))
-+++-    ).flat(), [[]])
-++++    ).reduce((acc, val) =>
-++++      // alternative to `Array.prototype.flat()`
-++++      acc.concat(val), []
-++++    ),
-++++    [[]]
-++++  )
-+++ 
-+++ module.exports = function (ary, wrap) {
-+++   if(!wrap) wrap = function (e) { return e }
-+++diff --git a/lib/util.js b/lib/util.js
-+++new file mode 100644
-+++index 0000000..9449657
-+++--- /dev/null
-++++++ b/lib/util.js
-+++@@ -0,0 +1,48 @@
-++++var os
-++++try {
-++++  os = require('os')
-++++} catch (_) {
-++++  // Uncaught because this should work in a browser.
-++++}
-++++
-++++const metaAddresses = [
-++++  '0.0.0.0',
-++++  '::'
-++++]
-++++
-++++const getNetworkAddresses = ({ internal, family } = {}) =>
-++++  Object.values(os.networkInterfaces())
-++++    // Flatten
-++++    .reduce((acc, val) => acc.concat(val), [])
-++++    // Filter `internal`
-++++    .filter(item => internal == null || item.internal === internal)
-++++    // Filter `family`
-++++    .filter(item => family == null || item.family === family)
-++++    // Filter scoped IPv6 addresses, which don't play nicely with Node.js
-++++    .filter(item => item.scopeid == null || item.scopeid === 0)
-++++    // Only return the address.
-++++    .map(item => item.address)
-++++
-++++// Choose a dynamic port between 49152 and 65535
-++++// https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic,_private_or_ephemeral_ports
-++++module.exports.getRandomPort = () =>
-++++  Math.floor(49152 + (65535 - 49152 + 1) * Math.random())
-++++
-++++module.exports.protocolToAddress = (protocol) =>
-++++  (host, port) => [protocol, host, port ].join(':')
-++++
-++++module.exports.getAddress = (host, scope) => {
-++++  if (scope === 'device') {
-++++    return 'localhost' // legacy
-++++  }
-++++
-++++  if (typeof host === 'string' && metaAddresses.includes(host) === false) {
-++++    return host
-++++  }
-++++
-++++  return getNetworkAddresses({
-++++    internal: (scope === 'device'),
-++++    family: (host === '0.0.0.0' ? 'IPv4' : null)
-++++  })
-++++}
-++++
-+++diff --git a/plugins/net.js b/plugins/net.js
-+++index 3bcb0a5..52a6927 100644
-+++--- a/plugins/net.js
-++++++ b/plugins/net.js
-+++@@ -1,21 +1,19 @@
-++++const toPull = require('stream-to-pull-stream')
-++++const debug = require('debug')('multiserver:net')
-++++const {
-++++  getAddress,
-++++  getRandomPort,
-++++  protocolToAddress
-++++} = require('../lib/util.js')
-++++
-+++ var net
-+++-var os
-+++ try {
-+++   net = require('net')
-+++-  os = require('os')
-+++ } catch (_) {
-+++-  // This only throws in browsers because they don't have access to the Node
-+++-  // net library, which is safe to ignore because they shouldn't be running
-+++-  // any methods that require the net library. Maybe we should be setting a
-+++-  // flag somewhere rather than checking whether `net == null`?
-++++  // Uncaught because this should work in a browser.
-+++ }
-+++ 
-+++-var toPull = require('stream-to-pull-stream')
-+++-var scopes = require('multiserver-scopes')
-+++-var debug = require('debug')('multiserver:net')
-+++-
-+++-const isString = (s) => 'string' == typeof s
-+++-const toAddress = (host, port) => ['net', host, port ].join(':')
-++++const toAddress = protocolToAddress('net')
-+++ 
-+++ function toDuplex (str) {
-+++   var stream = toPull.duplex(str)
-+++@@ -23,44 +21,6 @@ function toDuplex (str) {
-+++   return stream
-+++ }
-+++ 
-+++-const metaAddresses = [
-+++-  '0.0.0.0',
-+++-  '::'
-+++-]
-+++-
-+++-const getAddress = (host, scope) => {
-+++-  if (scope === 'device') {
-+++-    return 'localhost' // legacy
-+++-  }
-+++-
-+++-  if (typeof host === 'string' && metaAddresses.includes(host) === false) {
-+++-    return host
-+++-  }
-+++-
-+++-  return getNetworkAddresses({
-+++-    internal: (scope === 'device'),
-+++-    family: (host === '0.0.0.0' ? 'IPv4' : null)
-+++-  })
-+++-}
-+++-
-+++-const getNetworkAddresses = ({ internal, family } = {}) =>
-+++-  Object.values(os.networkInterfaces())
-+++-    // Flatten
-+++-    .reduce((acc, val) => acc.concat(val), [])
-+++-    // Filter `internal`
-+++-    .filter(item => internal == null || item.internal === internal)
-+++-    // Filter `family`
-+++-    .filter(item => family == null || item.family === family)
-+++-    // Filter scoped IPv6 addresses, which don't play nicely with Node.js
-+++-    .filter(item => item.scopeid == null || item.scopeid === 0)
-+++-    // Only return the address.
-+++-    .map(item => item.address)
-+++-
-+++-// Choose a dynamic port between 49152 and 65535
-+++-// https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic,_private_or_ephemeral_ports
-+++-const getRandomPort = () =>
-+++-  Math.floor(49152 + (65535 - 49152 + 1) * Math.random())
-+++-
-+++ module.exports = ({ scope = 'device', host, port, external, allowHalfOpen, pauseOnConnect }) => {
-+++   // Arguments are `scope` and `external` plus selected options for
-+++   // `net.createServer()` and `server.listen()`.
-+++diff --git a/test/multi.js b/test/multi.js
-+++index 5b3033c..a235939 100644
-+++--- a/test/multi.js
-++++++ b/test/multi.js
-+++@@ -2,7 +2,7 @@ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++ 
-+++-var Compose = require('../compose')
-++++var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++ var Ws = require('../plugins/ws')
-+++ var Shs = require('../plugins/shs')
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index fb24675..5ee9902 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -4,7 +4,7 @@ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++ var scopes = require('multiserver-scopes')
-+++ 
-+++-var Compose = require('../compose')
-++++var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++ var Unix = require('../plugins/unix-socket')
-+++ var Ws = require('../plugins/ws')
-+++
-+++From f1c3e6321dd219f62bc3cb3f7edeb85eb8493cf1 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 10:34:39 -0700
-+++Subject: [PATCH 03/14] Modify both net and ws to use the same abstractions
-+++
-+++---
-+++ lib/util.js    |  8 ++++----
-+++ plugins/net.js | 24 ++++++++++-------------
-+++ plugins/ws.js  | 53 ++++++++++++++++++++++++++------------------------
-+++ test/plugs.js  | 33 +++++++++++++++++++++++--------
-+++ 4 files changed, 67 insertions(+), 51 deletions(-)
-+++
-+++diff --git a/lib/util.js b/lib/util.js
-+++index 9449657..d01f57e 100644
-+++--- a/lib/util.js
-++++++ b/lib/util.js
-+++@@ -31,13 +31,14 @@ module.exports.getRandomPort = () =>
-+++ module.exports.protocolToAddress = (protocol) =>
-+++   (host, port) => [protocol, host, port ].join(':')
-+++ 
-+++-module.exports.getAddress = (host, scope) => {
-++++// returns array of hosts
-++++module.exports.getAddresses = (host, scope) => {
-+++   if (scope === 'device') {
-+++-    return 'localhost' // legacy
-++++    return [ 'localhost' ] // legacy
-+++   }
-+++ 
-+++   if (typeof host === 'string' && metaAddresses.includes(host) === false) {
-+++-    return host
-++++    return [ host ]
-+++   }
-+++ 
-+++   return getNetworkAddresses({
-+++@@ -45,4 +46,3 @@ module.exports.getAddress = (host, scope) => {
-+++     family: (host === '0.0.0.0' ? 'IPv4' : null)
-+++   })
-+++ }
-+++-
-+++diff --git a/plugins/net.js b/plugins/net.js
-+++index 52a6927..0e24574 100644
-+++--- a/plugins/net.js
-++++++ b/plugins/net.js
-+++@@ -1,10 +1,10 @@
-+++ const toPull = require('stream-to-pull-stream')
-+++ const debug = require('debug')('multiserver:net')
-+++ const {
-+++-  getAddress,
-++++  getAddresses,
-+++   getRandomPort,
-+++   protocolToAddress
-+++-} = require('../lib/util.js')
-++++} = require('../lib/util')
-+++ 
-+++ var net
-+++ try {
-+++@@ -24,7 +24,7 @@ function toDuplex (str) {
-+++ module.exports = ({ scope = 'device', host, port, external, allowHalfOpen, pauseOnConnect }) => {
-+++   // Arguments are `scope` and `external` plus selected options for
-+++   // `net.createServer()` and `server.listen()`.
-+++-  host = getAddress(host, scope)
-++++  host = host || getAddresses(host, scope)
-+++   port = port || getRandomPort()
-+++ 
-+++   function isAllowedScope (s) {
-+++@@ -93,27 +93,23 @@ module.exports = ({ scope = 'device', host, port, external, allowHalfOpen, pause
-+++       }
-+++     },
-+++     stringify: function (targetScope = 'device') {
-++++      // Check scope to ensure it's allowed on this interface.
-+++       if (isAllowedScope(targetScope) === false) {
-+++         return null
-+++       }
-+++ 
-+++-      // We want to avoid using `host` if the target scope is public and some
-+++-      // external host (like example.com) is defined.
-+++-      const externalHost = targetScope === 'public' && external
-+++-      const resultHost = externalHost || getAddress(host, targetScope)
-++++      // Give priority to `external` if targeting public scope.
-++++      const isPublic = targetScope === 'public' && external != null
-++++      const targetHost = isPublic ? external : host
-+++ 
-+++-      // console.log({ resultHost })
-++++      const addresses = getAddresses(targetHost, targetScope)
-+++ 
-+++-      if (resultHost == null) {
-++++      if (addresses.length === 0) {
-+++         // The device has no network interface for a given `targetScope`.
-+++         return null
-+++       }
-+++ 
-+++-      if (Array.isArray(resultHost)) {
-+++-        return resultHost.map(addr => toAddress(addr, port)).join(';')
-+++-      } else {
-+++-        return toAddress(resultHost, port)
-+++-      }
-++++      return addresses.map(addr => toAddress(addr, port)).join(';')
-+++     }
-+++   }
-+++ }
-+++diff --git a/plugins/ws.js b/plugins/ws.js
-+++index 552bcd2..bf0c75c 100644
-+++--- a/plugins/ws.js
-++++++ b/plugins/ws.js
-+++@@ -1,13 +1,16 @@
-+++-var WS = require('pull-ws')
-+++-var URL = require('url')
-+++-var pull = require('pull-stream/pull')
-+++-var Map = require('pull-stream/throughs/map')
-+++-var scopes = require('multiserver-scopes')
-+++-var http = require('http')
-+++-var debug = require('debug')('multiserver:ws')
-++++const WS = require('pull-ws')
-++++const URL = require('url')
-++++const pull = require('pull-stream/pull')
-++++const Map = require('pull-stream/throughs/map')
-++++const http = require('http')
-++++const debug = require('debug')('multiserver:ws')
-++++
-++++const {
-++++  getAddresses,
-++++  getRandomPort,
-++++} = require('../lib/util')
-+++ 
-+++ function safe_origin (origin, address, port) {
-+++-
-+++   //if the connection is not localhost, we shouldn't trust
-+++   //the origin header. So, use address instead of origin
-+++   //if origin not set, then it's definitely not a browser.
-+++@@ -25,14 +28,8 @@ function safe_origin (origin, address, port) {
-+++   //a connection from the browser on localhost,
-+++   //we choose to trust this came from a browser.
-+++   return origin.replace(/^http/, 'ws')
-+++-
-+++ }
-+++ 
-+++-// Choose a dynamic port between 49152 and 65535
-+++-// https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic,_private_or_ephemeral_ports
-+++-const getRandomPort = () =>
-+++-  Math.floor(49152 + (65535 - 49152 + 1) * Math.random())
-+++-
-+++ module.exports = function (opts = {}) {
-+++   // This takes options for `WebSocket.Server()`:
-+++   // https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketserveroptions-callback
-+++@@ -53,7 +50,8 @@ module.exports = function (opts = {}) {
-+++         return null
-+++       }
-+++ 
-+++-      // Maybe weird: this sets a random port each time that `server()` is run
-++++      // Maybe weird: this sets a random port each time that `server()`
-++++      // is run
-+++       // whereas the net plugin sets the port when the outer function is run.
-+++       //
-+++       // This server has a random port generated at runtime rather than when
-+++@@ -113,32 +111,37 @@ module.exports = function (opts = {}) {
-+++       }
-+++     },
-+++     stringify: function (targetScope = 'device') {
-++++      // Immediately return in browsers (why?)
-+++       if (WS.createServer == null) {
-+++         return null
-+++       }
-++++      // Immediately return if target scope isn't allowed by interface
-+++       if (isAllowedScope(targetScope) === false) {
-+++         return null
-+++       }
-+++ 
-+++       const port = opts.server ? opts.server.address().port : opts.port
-+++-      const externalHost = targetScope === 'public' && opts.external
-+++-      const resultHost = externalHost || opts.host || scopes.host(targetScope)
-++++      const isPublic = targetScope === 'public' && opts.external != null
-++++      const targetHost = isPublic ? opts.external : opts.host
-++++      const addresses = getAddresses(targetHost, targetScope)
-+++ 
-+++-      if (resultHost == null) {
-++++      if (addresses.length === 0) {
-+++         // The device has no network interface for a given `targetScope`.
-+++         return null
-+++       }
-+++ 
-+++-      return URL.format({
-+++-        protocol: secure ? 'wss' : 'ws',
-+++-        slashes: true,
-+++-        hostname: resultHost,
-+++-        port: (secure ? port == 443 : port == 80) ? undefined : port
-+++-      })
-++++      return addresses.map(addr =>
-++++        URL.format({
-++++          protocol: secure ? 'wss' : 'ws',
-++++          slashes: true,
-++++          hostname: addr,
-++++          port: (secure ? port == 443 : port == 80) ? undefined : port
-++++        })
-++++      ).join(';')
-+++     },
-+++     parse: function (str) {
-+++       var addr = URL.parse(str)
-+++-      if(!/^wss?\:$/.test(addr.protocol)) return null
-++++      if(!/^wss?:$/.test(addr.protocol)) return null
-+++       return addr
-+++     }
-+++   }
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index 5ee9902..f31d969 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -133,30 +133,37 @@ tape('combined, ipv6', function (t) {
-+++ })
-+++ 
-+++ tape('net: do not listen on all addresses', function (t) {
-++++  // This starts a server listening on localhost and then calls `stringify()`
-++++  // on a "fake" server configured to listen on the local scope (LAN). This
-++++  // fake server is never started, so when we attempt connection to it then
-++++  // as long as we get an error then we can be sure the real server is only
-++++  // listening on localhost.
-++++
-+++   var combined = Compose([
-+++     Net({
-+++       scope: 'device',
-+++       port: 4848,
-+++       host: 'localhost',
-+++-//      external: scopes.host('private') // unroutable IP, but not localhost (e.g. 192.168 ...)
-+++     }),
-+++     shs
-+++   ])
-++++
-++++  // This starts the server.
-+++   var close = combined.server(echo)
-+++ 
-+++-  //fake
-+++-  var fake_combined = Compose([
-++++  // this server should never be started, we 
-++++  var fakeLocal = Compose([
-+++     Net({
-+++       scope: 'local',
-+++       port: 4848,
-+++-      //host: 'localhost',
-+++-//      external: scopes.host('local') // unroutable IP, but not localhost (e.g. 192.168 ...)
-+++     }),
-+++     shs
-+++   ])
-+++ 
-+++-  var addr = fake_combined.stringify('local') // returns external
-++++
-++++  var addr = fakeLocal.stringify('local') // returns LAN addresses
-+++   console.log('addr local scope', addr)
-++++
-+++   combined.client(addr, function (err, stream) {
-+++     t.ok(err, 'should only listen on localhost')
-+++     close(function() {t.end()})
-+++@@ -433,11 +440,21 @@ tape('multiple scopes different hosts', function(t) {
-+++ 
-+++ tape('meta-address returns multiple', function(t) {
-+++   var net = Net({ host: '::', port: 4848, scope: ['local', 'device', 'public']})
-++++  var ws = Ws({ host: '::', port: 4848, scope: ['local', 'device', 'public']})
-++++
-++++  var combinedNet = Compose([net, shs])
-++++  var combinedWs = Compose([ws, shs])
-+++ 
-+++-  var combined = Compose([net, shs])
-++++  console.log(combinedNet.stringify('local').split(';'))
-++++  console.log(combinedWs.stringify('local').split(';'))
-+++  
-+++   t.equal(
-+++-    combined.stringify('local').split(';').length > 1,
-++++    combinedNet.stringify('local').split(';').length > 1,
-++++    true
-++++  )
-++++
-++++  t.equal(
-++++    combinedWs.stringify('local').split(';').length > 1,
-+++     true
-+++   )
-+++ 
-+++
-+++From d07ead68d56dc7b8d77d3c74a5b450c6dfd981d1 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 10:54:39 -0700
-+++Subject: [PATCH 04/14] Tidy up source code
-+++
-+++---
-+++ index.js               |  3 ++-
-+++ lib/compose.js         |  4 ----
-+++ package.json           |  6 ++----
-+++ plugins/noauth.js      |  2 --
-+++ plugins/onion.js       |  2 +-
-+++ plugins/unix-socket.js |  4 +++-
-+++ test/multi.js          |  7 -------
-+++ test/plugs.js          | 16 ++++------------
-+++ 8 files changed, 12 insertions(+), 32 deletions(-)
-+++
-+++diff --git a/index.js b/index.js
-+++index 8698dbc..d9b347a 100644
-+++--- a/index.js
-++++++ b/index.js
-+++@@ -15,7 +15,8 @@ module.exports = function (plugs, wrap) {
-+++   var _self = {
-+++     name: plugs.map(function (e) { return e.name }).join(';'),
-+++     client: function (addr, cb) {
-+++-      var _addr = split(addr).find(function (addr) {
-++++      let plug
-++++      const _addr = split(addr).find(function (addr) {
-+++         //connect with the first plug that understands this string.
-+++         plug = plugs.find(function (plug) {
-+++           return plug.parse(addr) ? plug : null
-+++diff --git a/lib/compose.js b/lib/compose.js
-+++index bfa7c41..9a05ab3 100644
-+++--- a/lib/compose.js
-++++++ b/lib/compose.js
-+++@@ -1,11 +1,7 @@
-+++-var assert = require('assert')
-+++ var separator = '~', escape = '!'
-+++ var SE = require('separator-escape')(separator, escape)
-+++ 
-+++ var isArray = Array.isArray
-+++-function isFunction (f) {
-+++-  return 'function' === typeof f
-+++-}
-+++ function isString (s) {
-+++   return 'string' === typeof s
-+++ }
-+++diff --git a/package.json b/package.json
-+++index 4861a8e..866ec1d 100644
-+++--- a/package.json
-++++++ b/package.json
-+++@@ -10,18 +10,16 @@
-+++   "dependencies": {
-+++     "debug": "^4.1.1",
-+++     "multicb": "^1.2.2",
-+++-    "multiserver-scopes": "^1.0.0",
-+++-    "pull-cat": "~1.1.5",
-+++     "pull-stream": "^3.6.1",
-+++     "pull-ws": "^3.3.0",
-+++     "secret-handshake": "^1.1.16",
-+++-    "separator-escape": "0.0.0",
-++++    "separator-escape": "0.0.1",
-+++     "socks": "^2.2.3",
-+++     "stream-to-pull-stream": "^1.7.2"
-+++   },
-+++   "devDependencies": {
-+++     "chloride": "^2.2.8",
-+++-    "pull-file": "^0.5.0",
-++++    "pull-pushable": "^2.2.0",
-+++     "tape": "^4.8.0"
-+++   },
-+++   "scripts": {
-+++diff --git a/plugins/noauth.js b/plugins/noauth.js
-+++index 0dbc868..bb47c4a 100644
-+++--- a/plugins/noauth.js
-++++++ b/plugins/noauth.js
-+++@@ -1,5 +1,3 @@
-+++-var pull = require('pull-stream')
-+++-
-+++ module.exports = function (opts) {
-+++   return {
-+++     name: 'noauth',
-+++diff --git a/plugins/onion.js b/plugins/onion.js
-+++index f215b3c..2392932 100644
-+++--- a/plugins/onion.js
-++++++ b/plugins/onion.js
-+++@@ -31,7 +31,7 @@ module.exports = function (opts) {
-+++       cb(new Error("Use net plugin for onion server instead"))
-+++     },
-+++     client: function (opts, cb) {
-+++-      var started = false, _socket, destroy
-++++      var _socket, destroy
-+++ 
-+++       function tryConnect(connectOpts, onFail) {
-+++         socks.createConnection(connectOpts, function(err, result) {
-+++diff --git a/plugins/unix-socket.js b/plugins/unix-socket.js
-+++index 6e01347..c86be57 100644
-+++--- a/plugins/unix-socket.js
-++++++ b/plugins/unix-socket.js
-+++@@ -48,7 +48,9 @@ module.exports = function (opts) {
-+++       })
-+++ 
-+++       if (process.platform !== 'win32') {
-+++-        fs.chmodSync(socket, 0600)
-++++        // mode is set to allow read and write
-++++        const mode = fs.constants.S_IRUSR + fs.constants.S_IWUSR
-++++        fs.chmodSync(socket, mode)
-+++       }
-+++ 
-+++       started = true
-+++diff --git a/test/multi.js b/test/multi.js
-+++index a235939..6b7621a 100644
-+++--- a/test/multi.js
-++++++ b/test/multi.js
-+++@@ -1,12 +1,10 @@
-+++ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++-var Pushable = require('pull-pushable')
-+++ 
-+++ var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++ var Ws = require('../plugins/ws')
-+++ var Shs = require('../plugins/shs')
-+++-var Onion = require('../plugins/onion')
-+++ var MultiServer = require('../')
-+++ 
-+++ var cl = require('chloride')
-+++@@ -14,8 +12,6 @@ var seed = cl.crypto_hash_sha256(Buffer.from('TESTSEED'))
-+++ var keys = cl.crypto_sign_seed_keypair(seed)
-+++ var appKey = cl.crypto_hash_sha256(Buffer.from('TEST'))
-+++ 
-+++-var requested, ts
-+++-
-+++ //this gets overwritten in the last test.
-+++ var check = function (id, cb) {
-+++   cb(null, true)
-+++@@ -25,9 +21,6 @@ var net = Net({port: 4848, scope: 'device'})
-+++ var ws = Ws({port: 4849, scope: 'device'})
-+++ console.log('appKey', appKey)
-+++ var shs = Shs({keys: keys, appKey: appKey, auth: function (id, cb) {
-+++-  requested = id
-+++-  ts = Date.now()
-+++-
-+++   check(id, cb)
-+++ }})
-+++ 
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index f31d969..925564f 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -1,8 +1,7 @@
-+++-var fs = require('fs')
-+++ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++-var scopes = require('multiserver-scopes')
-++++const fs = require('fs')
-+++ 
-+++ var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++@@ -17,20 +16,14 @@ var seed = cl.crypto_hash_sha256(Buffer.from('TESTSEED'))
-+++ var keys = cl.crypto_sign_seed_keypair(seed)
-+++ var appKey = cl.crypto_hash_sha256(Buffer.from('TEST'))
-+++ 
-+++-var requested, ts
-+++-
-+++ //this gets overwritten in the last test.
-+++ var check = function (id, cb) {
-+++   cb(null, true)
-+++ }
-+++ 
-+++-//var net = Net({port: 4848, scope: 'device'})
-+++ var net = Net({port: 4848})
-+++ var ws = Ws({port: 4848})
-+++ var shs = Shs({keys: keys, appKey: appKey, auth: function (id, cb) {
-+++-  requested = id
-+++-  ts = Date.now()
-+++-
-+++   check(id, cb)
-+++ }})
-+++ 
-+++@@ -389,9 +382,8 @@ tape('error should have client address on it', function (t) {
-+++   var close = combined.server(function (stream) {
-+++     throw new Error('should never happen')
-+++   }, function (err) {
-+++-    var addr = err.address
-+++-    t.ok(/^net\:/.test(err.address))
-+++-    t.ok(/\~shs\:/.test(err.address))
-++++    t.ok(/^net:/.test(err.address))
-++++    t.ok(/~shs:/.test(err.address))
-+++     //the shs address won't actually parse, because it doesn't have the key in it
-+++     //because the key is not known in a wrong number.
-+++   }, function () {
-+++@@ -464,7 +456,7 @@ tape('meta-address returns multiple', function(t) {
-+++   // should test for this behavior:
-+++   //
-+++   // ```javascript
-+++-  // console.log(combined.stringify('local')).split(';').join('\n') // =>
-++++  // console.log(combined.stringify('local').split(';').join('\n')) // =>
-+++   //   net:192.168.3.55:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++   //   net:172.18.0.1:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++   //   net:fce2:9811:4862:81a7:bb08:91d6:2e41:d220:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++
-+++From 0089be8ae2038cd2c3c6587ef39a6f2f91028e70 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 11:05:46 -0700
-+++Subject: [PATCH 05/14] Add test for multi-address count
-+++
-+++---
-+++ test/plugs.js | 25 +++++++------------------
-+++ 1 file changed, 7 insertions(+), 18 deletions(-)
-+++
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index 925564f..67f18b5 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -2,6 +2,7 @@ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++ const fs = require('fs')
-++++const { getAddresses } = require('../lib/util')
-+++ 
-+++ var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++@@ -440,29 +441,17 @@ tape('meta-address returns multiple', function(t) {
-+++   console.log(combinedNet.stringify('local').split(';'))
-+++   console.log(combinedWs.stringify('local').split(';'))
-+++  
-++++  const addressCount = getAddresses('::', 'local').length
-++++
-+++   t.equal(
-+++-    combinedNet.stringify('local').split(';').length > 1,
-+++-    true
-++++    combinedNet.stringify('local').split(';').length,
-++++    addressCount
-+++   )
-+++ 
-+++   t.equal(
-+++-    combinedWs.stringify('local').split(';').length > 1,
-+++-    true
-++++    combinedWs.stringify('local').split(';').length,
-++++    addressCount
-+++   )
-+++ 
-+++-  // TODO: add more tests here
-+++-  //
-+++-  // This is currently doing all the right things but I'm unclear on how we
-+++-  // should test for this behavior:
-+++-  //
-+++-  // ```javascript
-+++-  // console.log(combined.stringify('local').split(';').join('\n')) // =>
-+++-  //   net:192.168.3.55:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++-  //   net:172.18.0.1:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++-  //   net:fce2:9811:4862:81a7:bb08:91d6:2e41:d220:4848~shs:+y42DK+BGzqvU00EWMKiyj4fITskSm+Drxq1Dt2s3Yw=
-+++-  // ```
-+++-  // 
-+++-  // Now the net plugin can output multiple interfaces via `stringify()`!
-+++-
-+++   t.end()
-+++ })
-+++
-+++From c5d30f7fe1740988f0a171f2cd2a4687bf9d2a95 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 11:17:30 -0700
-+++Subject: [PATCH 06/14] Default to temporary directory for Unix socket
-+++
-+++---
-+++ plugins/unix-socket.js | 4 +++-
-+++ 1 file changed, 3 insertions(+), 1 deletion(-)
-+++
-+++diff --git a/plugins/unix-socket.js b/plugins/unix-socket.js
-+++index c86be57..46d6291 100644
-+++--- a/plugins/unix-socket.js
-++++++ b/plugins/unix-socket.js
-+++@@ -3,12 +3,14 @@ var net = require('net')
-+++ var fs = require('fs')
-+++ var path = require('path')
-+++ var debug = require('debug')('multiserver:unix')
-++++const os = require('os')
-+++ 
-+++ // hax on double transform
-+++ var started = false
-+++ 
-+++ module.exports = function (opts) {
-+++-  const socket = path.join(opts.path || '', 'socket')
-++++  opts.path = opts.path ||  fs.mkdtempSync(path.join(os.tmpdir(), 'multiserver-'))
-++++  const socket = path.join(opts.path, 'socket')
-+++   const addr = 'unix:' + socket
-+++   let scope = opts.scope || 'device'
-+++   opts = opts || {}
-+++
-+++From 8235b3f8db49a2c42419b62fa5dc751c3bf60ced Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 11:19:44 -0700
-+++Subject: [PATCH 07/14] Don't attempt to hardcode unix socket
-+++
-+++---
-+++ test/plugs.js | 4 ----
-+++ 1 file changed, 4 deletions(-)
-+++
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index 67f18b5..b2e4efa 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -165,12 +165,9 @@ tape('net: do not listen on all addresses', function (t) {
-+++ })
-+++ 
-+++ tape('combined, unix', function (t) {
-+++-  var p = 'multiunixtest'+(new Date()).getTime()
-+++-  fs.mkdirSync(p)
-+++   var combined = Compose([
-+++     Unix({
-+++       server: true,
-+++-      path: p,
-+++     }),
-+++     shs
-+++   ])
-+++@@ -188,7 +185,6 @@ tape('combined, unix', function (t) {
-+++         if(err) throw err
-+++         t.equal(Buffer.concat(ary).toString(), 'HELLO WORLD')
-+++         close(function() {
-+++-          fs.rmdirSync(p)
-+++           t.end()
-+++         })
-+++       })
-+++
-+++From 3fd74cf070bf7ebd4d1aec0b7ada992e9baa0b22 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 19 May 2019 11:38:13 -0700
-+++Subject: [PATCH 08/14] Use named pipe on Windows to unbreak build
-+++
-+++---
-+++ plugins/unix-socket.js | 14 ++++++++++++--
-+++ 1 file changed, 12 insertions(+), 2 deletions(-)
-+++
-+++diff --git a/plugins/unix-socket.js b/plugins/unix-socket.js
-+++index 46d6291..76ee594 100644
-+++--- a/plugins/unix-socket.js
-++++++ b/plugins/unix-socket.js
-+++@@ -9,7 +9,12 @@ const os = require('os')
-+++ var started = false
-+++ 
-+++ module.exports = function (opts) {
-+++-  opts.path = opts.path ||  fs.mkdtempSync(path.join(os.tmpdir(), 'multiserver-'))
-++++	if (process.platform === 'win32') {
-++++		opts.path = opts.path || path.join('\\\\?\\pipe', process.cwd(), 'multiserver')
-++++	} else {
-++++		opts.path = opts.path ||  fs.mkdtempSync(path.join(os.tmpdir(), 'multiserver-'))
-++++	}
-++++
-+++   const socket = path.join(opts.path, 'socket')
-+++   const addr = 'unix:' + socket
-+++   let scope = opts.scope || 'device'
-+++@@ -89,11 +94,16 @@ module.exports = function (opts) {
-+++     //MUST be unix:socket_path
-+++     parse: function (s) {
-+++       var ary = s.split(':')
-++++
-++++      // Immediately return if there's no path.
-+++       if(ary.length < 2) return null
-++++
-++++      // Immediately return if the first item isn't 'unix'.
-+++       if('unix' !== ary.shift()) return null
-++++
-+++       return {
-+++         name: '',
-+++-        path: ary.shift()
-++++        path: ary.join(':')
-+++       }
-+++     },
-+++     stringify: function (_scope) {
-+++
-+++From 4f930d221cb731202c45e28b70ac1012c0d1c207 Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sat, 16 Nov 2019 09:43:31 -0800
-+++Subject: [PATCH 09/14] Fix scope ID bug to pass new tests
-+++
-+++---
-+++ lib/{util.js => network.js} | 4 +++-
-+++ plugins/net.js              | 2 +-
-+++ plugins/ws.js               | 2 +-
-+++ test/plugs.js               | 2 +-
-+++ 4 files changed, 6 insertions(+), 4 deletions(-)
-+++ rename lib/{util.js => network.js} (93%)
-+++
-+++diff --git a/lib/util.js b/lib/network.js
-+++similarity index 93%
-+++rename from lib/util.js
-+++rename to lib/network.js
-+++index d01f57e..3a8ed26 100644
-+++--- a/lib/util.js
-++++++ b/lib/network.js
-+++@@ -31,6 +31,8 @@ module.exports.getRandomPort = () =>
-+++ module.exports.protocolToAddress = (protocol) =>
-+++   (host, port) => [protocol, host, port ].join(':')
-+++ 
-++++const removeScopeId = (host) => host.replace(/(%\w+)$/, '')
-++++
-+++ // returns array of hosts
-+++ module.exports.getAddresses = (host, scope) => {
-+++   if (scope === 'device') {
-+++@@ -38,7 +40,7 @@ module.exports.getAddresses = (host, scope) => {
-+++   }
-+++ 
-+++   if (typeof host === 'string' && metaAddresses.includes(host) === false) {
-+++-    return [ host ]
-++++    return [ removeScopeId(host) ]
-+++   }
-+++ 
-+++   return getNetworkAddresses({
-+++diff --git a/plugins/net.js b/plugins/net.js
-+++index 040a447..394712f 100644
-+++--- a/plugins/net.js
-++++++ b/plugins/net.js
-+++@@ -4,7 +4,7 @@ const {
-+++   getAddresses,
-+++   getRandomPort,
-+++   protocolToAddress
-+++-} = require('../lib/util')
-++++} = require('../lib/network')
-+++ 
-+++ var net
-+++ try {
-+++diff --git a/plugins/ws.js b/plugins/ws.js
-+++index 34724f2..014984c 100644
-+++--- a/plugins/ws.js
-++++++ b/plugins/ws.js
-+++@@ -10,7 +10,7 @@ const pull = require('pull-stream/pull')
-+++ const {
-+++   getAddresses,
-+++   getRandomPort,
-+++-} = require('../lib/util')
-++++} = require('../lib/network')
-+++ 
-+++ function safe_origin (origin, address, port) {
-+++   //if the connection is not localhost, we shouldn't trust
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index da9d2af..58550c8 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -2,7 +2,7 @@ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++ const fs = require('fs')
-+++-const { getAddresses } = require('../lib/util')
-++++const { getAddresses } = require('../lib/network')
-+++ 
-+++ var Compose = require('../lib/compose')
-+++ var Net = require('../plugins/net')
-+++
-+++From 4d27368f2e3c5e828a932e30524a726f5cfea9ae Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sat, 16 Nov 2019 09:44:20 -0800
-+++Subject: [PATCH 10/14] Remove unused fs import
-+++
-+++---
-+++ test/plugs.js | 1 -
-+++ 1 file changed, 1 deletion(-)
-+++
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index 58550c8..4b60c9a 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -1,7 +1,6 @@
-+++ var tape = require('tape')
-+++ var pull = require('pull-stream')
-+++ var Pushable = require('pull-pushable')
-+++-const fs = require('fs')
-+++ const { getAddresses } = require('../lib/network')
-+++ 
-+++ var Compose = require('../lib/compose')
-+++
-+++From 8f07137cf43378389b9a8ea31f689a17efdf634d Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sat, 16 Nov 2019 10:00:09 -0800
-+++Subject: [PATCH 11/14] Replace cartesian product implementation with module
-+++
-+++---
-+++ lib/compose.js | 38 ++++++++++++++------------------------
-+++ package.json   |  1 +
-+++ 2 files changed, 15 insertions(+), 24 deletions(-)
-+++
-+++diff --git a/lib/compose.js b/lib/compose.js
-+++index 9a05ab3..254b939 100644
-+++--- a/lib/compose.js
-++++++ b/lib/compose.js
-+++@@ -1,3 +1,5 @@
-++++const cartesianProduct = require('cartesian-product') 
-++++
-+++ var separator = '~', escape = '!'
-+++ var SE = require('separator-escape')(separator, escape)
-+++ 
-+++@@ -46,33 +48,21 @@ function asyncify(f) {
-+++   }
-+++ }
-+++ 
-+++-// This accepts an array of arrays and outputs a combination of their layers.
-++++// We can't call `cartesianProduct()` directly because it expects `[layer[]?]`.
-+++ //
-+++-// combineLayers([ [ 1, 2 ], [ 3, 4] ]) // => [
-+++-//   [ 1, 3 ],
-+++-//   [ 1, 4 ],
-+++-//   [ 2, 3 ],
-+++-//   [ 2, 4 ]
-+++-// ]
-++++// Sometimes this function is called with the correct inputs, but often it's
-+++ //
-+++-// This is used for combining plugin layers, like when the net plugin is
-+++-// listening on multiple addresses and we want to make sure that we combine
-+++-// all of the addresses with all of the transforms when we stringify.
-++++// - `undefined`
-++++// - `[undefined, layer]`
-++++// - etc
-+++ //
-+++-// combineLayers([ [ 'net:a', 'net:b' ], [ 'shs:c' ] ]) // => [
-+++-//   [ 'net:a', 'shs:c' ],
-+++-//   [ 'net:b', 'shs:c' ]
-+++-// ]
-+++-const combineLayers = x =>
-+++-  x.reduce((acc, group = []) =>
-+++-    acc.map(chain =>
-+++-      group.map((item) =>
-+++-        chain.concat(item))
-+++-    ).reduce((acc, val) =>
-+++-      // alternative to `Array.prototype.flat()`
-+++-      acc.concat(val), []
-+++-    ),
-+++-    [[]]
-++++// Since the `cartesianProduct()` function fails on any expected inputs, this
-++++// function ensures that we're always passing a `[]` or a 2-dimensional array.
-++++const combineLayers = (input = []) =>
-++++  cartesianProduct(
-++++    input.map((item) =>
-++++      Array.isArray(item) ? item : []
-++++    )
-+++   )
-+++ 
-+++ module.exports = function (ary, wrap) {
-+++diff --git a/package.json b/package.json
-+++index 7e13bef..00249ee 100644
-+++--- a/package.json
-++++++ b/package.json
-+++@@ -8,6 +8,7 @@
-+++     "url": "git://github.com/dominictarr/multiserver.git"
-+++   },
-+++   "dependencies": {
-++++    "cartesian-product": "^2.1.2",
-+++     "debug": "^4.1.1",
-+++     "multicb": "^1.2.2",
-+++     "pull-stream": "^3.6.1",
-+++
-+++From 22417bfc8e53336106c12594b9dcd3f037a9218d Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Sun, 17 Nov 2019 10:32:59 -0800
-+++Subject: [PATCH 12/14] Rename getNetworkAddresses to filterNetworkInterfaces
-+++
-+++---
-+++ lib/network.js | 4 ++--
-+++ 1 file changed, 2 insertions(+), 2 deletions(-)
-+++
-+++diff --git a/lib/network.js b/lib/network.js
-+++index 3a8ed26..e22c933 100644
-+++--- a/lib/network.js
-++++++ b/lib/network.js
-+++@@ -10,7 +10,7 @@ const metaAddresses = [
-+++   '::'
-+++ ]
-+++ 
-+++-const getNetworkAddresses = ({ internal, family } = {}) =>
-++++const filterNetworkInterfaces = ({ internal, family } = {}) =>
-+++   Object.values(os.networkInterfaces())
-+++     // Flatten
-+++     .reduce((acc, val) => acc.concat(val), [])
-+++@@ -43,7 +43,7 @@ module.exports.getAddresses = (host, scope) => {
-+++     return [ removeScopeId(host) ]
-+++   }
-+++ 
-+++-  return getNetworkAddresses({
-++++  return filterNetworkInterfaces({
-+++     internal: (scope === 'device'),
-+++     family: (host === '0.0.0.0' ? 'IPv4' : null)
-+++   })
-+++
-+++From 98b983eb70edeb695bbb18cf7ec13cf9e696f72e Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Wed, 20 Nov 2019 14:43:56 -0800
-+++Subject: [PATCH 13/14] Fix parser to return first matching address
-+++
-+++---
-+++ lib/compose.js | 47 +++++++++++++++++++++++++++++++++--------------
-+++ test/plugs.js  |  1 +
-+++ 2 files changed, 34 insertions(+), 14 deletions(-)
-+++
-+++diff --git a/lib/compose.js b/lib/compose.js
-+++index 9c8d039..8178bd8 100644
-+++--- a/lib/compose.js
-++++++ b/lib/compose.js
-+++@@ -65,28 +65,47 @@ const combineLayers = (input = []) =>
-+++     )
-+++   )
-+++ 
-+++-module.exports = function (ary, wrap) {
-++++module.exports = function (layers, wrap) {
-+++   if(!wrap) wrap = function (e) { return e }
-+++-  var protocol = head(ary)
-+++-  var transform = tail(ary)
-++++  var protocol = head(layers)
-++++  var transform = tail(layers)
-+++ 
-+++   function parse (str) {
-+++-    var parts = SE.parse(str)
-+++-    var out = []
-+++-    for(var i = 0; i < parts.length; i++) {
-+++-      var v = ary[i].parse(parts[i])
-+++-      if(!v) return null
-+++-      out[i] = v
-+++-    }
-+++-    return out
-++++    // We need to parse addresses that may be delimited by semicolons. The goal
-++++    // is to return the first address that's understood by all layers. For
-++++    // example, if we're using the `net` and `shs` plugins then we need to
-++++    // ensure that **both** plugins can understand the multiserver address that
-++++    // we listen on.
-++++    return str.split(';')
-++++      .map((singleAddress) => {
-++++        // First we split the multiserver address into parts.
-++++        // This might look like: [ "net:localhost:8008", "shs:abc" ]
-++++        const parts = SE.parse(singleAddress)
-++++
-++++        // Next we need to ensure that all of our layers can parse their part.
-++++        const parsedParts = parts.map((part, index) => layers[index].parse(part))
-++++
-++++        // The layer parsers don't throw errors, so we need ot make sure that
-++++        // they return a truthy value for all parts.
-++++        const allLayersHandled = parsedParts.every((part) => part)
-++++
-++++        if (allLayersHandled) {
-++++          return parsedParts
-++++        } else {
-++++          return null
-++++        }
-++++      }).find(option =>
-++++        // Find the first option where all layers are handled.
-++++        option !== null
-++++      ) || null // Fallback to `null` if we can't correctly parse this address.
-+++   }
-+++ 
-+++   function parseMaybe (str) {
-+++-    return  isString(str) ? parse(str.split(';')[0]) : str
-++++    return  isString(str) ? parse(str) : str
-+++   }
-+++ 
-+++   return {
-+++-    name: ary.map(function (e) { return e.name }).join(separator),
-++++    name: layers.map(function (e) { return e.name }).join(separator),
-+++     scope: protocol.scope,
-+++     client: function (_opts, cb) {
-+++       var opts = parseMaybe(_opts)
-+++@@ -123,7 +142,7 @@ module.exports = function (ary, wrap) {
-+++     stringify: function (scope) {
-+++       var none
-+++ 
-+++-      var identifierAry = combineLayers(ary.map(function (item) {
-++++      var identifierAry = combineLayers(layers.map(function (item) {
-+++         var v = item.stringify(scope)
-+++         if (typeof v === 'string') {
-+++           v = v.split(';')
-+++diff --git a/test/plugs.js b/test/plugs.js
-+++index a903a64..2eb0e0c 100644
-+++--- a/test/plugs.js
-++++++ b/test/plugs.js
-+++@@ -178,6 +178,7 @@ tape('net: do not listen on all addresses', function (t) {
-+++ 
-+++   combined.client(addr, function (err, stream) {
-+++     t.ok(err, 'should only listen on localhost')
-++++    t.equal(err.code, 'ECONNREFUSED', 'the error is a connection error')
-+++     close(function() {t.end()})
-+++   })
-+++ })
-+++
-+++From 272da0919118e6aad2f4216832329f8cd6c119cd Mon Sep 17 00:00:00 2001
-+++From: Christian Bundy <christianbundy@fraction.io>
-+++Date: Fri, 10 Jan 2020 13:22:46 -0800
-+++Subject: [PATCH 14/14] Filter duplicate addresses
-+++
-+++---
-+++ lib/network.js | 14 ++++++++++++++
-+++ 1 file changed, 14 insertions(+)
-+++
-+++diff --git a/lib/network.js b/lib/network.js
-+++index e22c933..58c8040 100644
-+++--- a/lib/network.js
-++++++ b/lib/network.js
-+++@@ -22,6 +22,20 @@ const filterNetworkInterfaces = ({ internal, family } = {}) =>
-+++     .filter(item => item.scopeid == null || item.scopeid === 0)
-+++     // Only return the address.
-+++     .map(item => item.address)
-++++    // It's possible to have two interfaces with the same IP address,
-++++    // but we don't want to try to listen on both of them. This only
-++++    // adds the interface to the list if it hasn't already been added.
-++++    .reduce((acc, cur) => {
-++++      const found = acc.find((item) =>
-++++	item === cur
-++++      )
-++++
-++++      if (found == null) {
-++++	acc.push(cur)
-++++      }
-++++
-++++      return acc
-++++    }, [])
-+++ 
-+++ // Choose a dynamic port between 49152 and 65535
-+++ // https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic,_private_or_ephemeral_ports
-+++
-+diff --git a/util/incoming-connections.js b/util/incoming-connections.js
-+deleted file mode 100644
-+index c3979c5..0000000
-+--- a/util/incoming-connections.js
-++++ /dev/null
-+@@ -1,110 +0,0 @@
-+-const get = require('lodash.get')
-+-const os = require('os')
-+-const defaultPorts = require('../default-ports')
-+-const ip = require('ip')
-+-
-+-// generates all possible incoming connection settings that you could bind to
-+-module.exports = function (config) {
-+-  var incoming
-+-
-+-  // We have to deal with some legacy behavior where:
-+-  //
-+-  // - net port is defined by `config.port`
-+-  // - ws port is defined by `config.ws.port`
-+-  // - other services have no canonical port config location (TODO?)
-+-  const getPort = (service) => {
-+-    const defaultPort = defaultPorts[service]
-+-
-+-    if (service === 'net') {
-+-      return get(config, 'port', defaultPort)
-+-    }
-+-    if (service === 'ws') {
-+-      return get(config, 'ws.port', defaultPort)
-+-    }
-+-
-+-    return defaultPort
-+-  }
-+-
-+-
-+-  //legacy configuration didn't have a scopes concept,
-+-  //so interpret that as every scope at once.
-+-  //I think there is probably a better way to do this,
-+-  //but am fairly sure this will probably work.
-+-  const allScopes = ['device', 'local', 'public']
-+-
-+-  // If `config.host` is defined then we don't need to enumerate interfaces.
-+-  if (config.host) {
-+-    incoming = {
-+-      net: [{
-+-        host: config.host,
-+-        port: getPort('net'),
-+-        scope: allScopes,
-+-        transform: 'shs'
-+-      }],
-+-      ws: [{
-+-        host: config.host,
-+-        port: getPort('ws'),
-+-        scope: allScopes,
-+-        transform: 'shs'
-+-      }]
-+-    }
-+-  } else {
-+-    // Trying to hardcode reasonable defaults here doesn't seem possible.
-+-    //
-+-    // Instead, the below code enumerates all network interfaces and adds them
-+-    // to `config.connections.incoming` for each service in `defaultPorts`.
-+-
-+-    // If you aren't familiar, you should at least skim these docs:
-+-    // https://nodejs.org/api/os.html#os_os_networkinterfaces
-+-    const interfaces = os.networkInterfaces()
-+-
-+-    // Game plan: we're going to enumerate the services (e.g. net and ws) and
-+-    // return an object that looks like this:
-+-    //
-+-    // {
-+-    //   net: [ interface, interface, ... ]
-+-    //   ws: [ interface, interface, ... ]
-+-    // }
-+-    incoming = Object.keys(defaultPorts).map((service) => {
-+-      return {
-+-        service,
-+-        interfaces: Object.values(interfaces).reduce((acc, val) => {
-+-          // Future TODO: replace with shiny new `Array.prototype.flat()`.
-+-          return acc.concat(val)
-+-        }, []).filter(item => {
-+-          // We want to avoid scoped IPv6 addresses since they don't seem to
-+-          // play nicely with the Node.js networking stack. These addresses
-+-          // often start with `fe80` and throw EINVAL when we try to bind to
-+-          // them.
-+-          return item.scopeid == null || item.scopeid === 0
-+-        }).map(item => {
-+-          // This bit is simple because the ssb-config options for `incoming`
-+-          // can either be hardcoded or directly inferred from `interfaces`.
-+-
-+-          //if an interface is internal, it can only be accessed from the device.
-+-          //if it's got a private ip address it can only be accessed from some network.
-+-          //otherwise, it's presumably a publically accessable address.
-+-          var scope = (
-+-            item.internal ? 'device'
-+-            : ip.isPrivate(item.address) ? 'local'
-+-            : 'public'
-+-          )
-+-
-+-          return {
-+-            host: item.address,
-+-            port: getPort(service),
-+-            scope: [scope],
-+-            transform: 'shs'
-+-          }
-+-        })
-+-      }
-+-    }).reduce((result, obj) => {
-+-      // This `reduce()` step is necessary because we need to return an object
-+-      // rather than an array. There may be a simpler way to do this.
-+-      result[obj.service] = obj.interfaces
-+-      return result
-+-    }, {})
-+-  }
-+-
-+-  return incoming
-+-}
-+
-+From 992520c5d058e27ae3f0e414cce4e413dfa1ba49 Mon Sep 17 00:00:00 2001
-+From: Christian Bundy <christianbundy@fraction.io>
-+Date: Fri, 10 Jan 2020 14:03:31 -0800
-+Subject: [PATCH 2/2] Enable IPv6 on Travis
-+
-+---
-+ .travis.yml | 7 +++++++
-+ 1 file changed, 7 insertions(+)
-+
-+diff --git a/.travis.yml b/.travis.yml
-+index 7b0a3a5..2d3ec39 100644
-+--- a/.travis.yml
-++++ b/.travis.yml
-+@@ -1,2 +1,9 @@
-+ language: node_js
-+ node_js: lts/*
-++sudo: required
-++before_script:
-++  # Add an IPv6 config - see the corresponding Travis issue
-++  # https://github.com/travis-ci/travis-ci/issues/8361
-++  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-++      sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
-++    fi
-+
+index 0000000..e5e1e37
+Binary files /dev/null and b/node_modules/ssb-config/ssb-config-3.4.3.tgz differ
+diff --git a/node_modules/ssb-config/util/incoming-connections.js b/node_modules/ssb-config/util/incoming-connections.js
+deleted file mode 100644
+index c3979c5..0000000
+--- a/node_modules/ssb-config/util/incoming-connections.js
++++ /dev/null
+@@ -1,110 +0,0 @@
+-const get = require('lodash.get')
+-const os = require('os')
+-const defaultPorts = require('../default-ports')
+-const ip = require('ip')
+-
+-// generates all possible incoming connection settings that you could bind to
+-module.exports = function (config) {
+-  var incoming
+-
+-  // We have to deal with some legacy behavior where:
+-  //
+-  // - net port is defined by `config.port`
+-  // - ws port is defined by `config.ws.port`
+-  // - other services have no canonical port config location (TODO?)
+-  const getPort = (service) => {
+-    const defaultPort = defaultPorts[service]
+-
+-    if (service === 'net') {
+-      return get(config, 'port', defaultPort)
+-    }
+-    if (service === 'ws') {
+-      return get(config, 'ws.port', defaultPort)
+-    }
+-
+-    return defaultPort
+-  }
+-
+-
+-  //legacy configuration didn't have a scopes concept,
+-  //so interpret that as every scope at once.
+-  //I think there is probably a better way to do this,
+-  //but am fairly sure this will probably work.
+-  const allScopes = ['device', 'local', 'public']
+-
+-  // If `config.host` is defined then we don't need to enumerate interfaces.
+-  if (config.host) {
+-    incoming = {
+-      net: [{
+-        host: config.host,
+-        port: getPort('net'),
+-        scope: allScopes,
+-        transform: 'shs'
+-      }],
+-      ws: [{
+-        host: config.host,
+-        port: getPort('ws'),
+-        scope: allScopes,
+-        transform: 'shs'
+-      }]
+-    }
+-  } else {
+-    // Trying to hardcode reasonable defaults here doesn't seem possible.
+-    //
+-    // Instead, the below code enumerates all network interfaces and adds them
+-    // to `config.connections.incoming` for each service in `defaultPorts`.
+-
+-    // If you aren't familiar, you should at least skim these docs:
+-    // https://nodejs.org/api/os.html#os_os_networkinterfaces
+-    const interfaces = os.networkInterfaces()
+-
+-    // Game plan: we're going to enumerate the services (e.g. net and ws) and
+-    // return an object that looks like this:
+-    //
+-    // {
+-    //   net: [ interface, interface, ... ]
+-    //   ws: [ interface, interface, ... ]
+-    // }
+-    incoming = Object.keys(defaultPorts).map((service) => {
+-      return {
+-        service,
+-        interfaces: Object.values(interfaces).reduce((acc, val) => {
+-          // Future TODO: replace with shiny new `Array.prototype.flat()`.
+-          return acc.concat(val)
+-        }, []).filter(item => {
+-          // We want to avoid scoped IPv6 addresses since they don't seem to
+-          // play nicely with the Node.js networking stack. These addresses
+-          // often start with `fe80` and throw EINVAL when we try to bind to
+-          // them.
+-          return item.scopeid == null || item.scopeid === 0
+-        }).map(item => {
+-          // This bit is simple because the ssb-config options for `incoming`
+-          // can either be hardcoded or directly inferred from `interfaces`.
+-
+-          //if an interface is internal, it can only be accessed from the device.
+-          //if it's got a private ip address it can only be accessed from some network.
+-          //otherwise, it's presumably a publically accessable address.
+-          var scope = (
+-            item.internal ? 'device'
+-            : ip.isPrivate(item.address) ? 'local'
+-            : 'public'
+-          )
+-
+-          return {
+-            host: item.address,
+-            port: getPort(service),
+-            scope: [scope],
+-            transform: 'shs'
+-          }
+-        })
+-      }
+-    }).reduce((result, obj) => {
+-      // This `reduce()` step is necessary because we need to return an object
+-      // rather than an array. There may be a simpler way to do this.
+-      result[obj.service] = obj.interfaces
+-      return result
+-    }, {})
+-  }
+-
+-  return incoming
+-}
