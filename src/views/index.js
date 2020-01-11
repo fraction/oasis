@@ -46,6 +46,12 @@ exports.authorView = ({
   const mention = `[@${name}](${feedId})`
   const markdownMention = highlightJs.highlight('markdown', mention).value
 
+  const areFollowing = relationship === 'you are following'
+
+  const contactFormType = areFollowing
+    ? 'unfollow'
+    : 'follow'
+
   const prefix = section({ class: 'message' },
     header({ class: 'profile' },
       img({ class: 'avatar', src: avatarUrl }),
@@ -59,7 +65,12 @@ exports.authorView = ({
       : null,
     footer(
       a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes'),
-      span(relationship)
+      span(relationship),
+      form({ action: `/${contactFormType}/${encodeURIComponent(feedId)}`, method: 'post' },
+        button({
+          type: 'submit'
+        },
+        contactFormType))
     )
   )
 
