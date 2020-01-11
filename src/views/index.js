@@ -52,6 +52,15 @@ exports.authorView = ({
     ? 'unfollow'
     : 'follow'
 
+  // We're on our own profile!
+  const contactForm = relationship !== null
+    ? form({ action: `/${contactFormType}/${encodeURIComponent(feedId)}`, method: 'post' },
+      button({
+        type: 'submit'
+      },
+      contactFormType))
+    : null
+
   const prefix = section({ class: 'message' },
     header({ class: 'profile' },
       img({ class: 'avatar', src: avatarUrl }),
@@ -66,11 +75,7 @@ exports.authorView = ({
     footer(
       a({ href: `/likes/${encodeURIComponent(feedId)}` }, 'view likes'),
       span(relationship),
-      form({ action: `/${contactFormType}/${encodeURIComponent(feedId)}`, method: 'post' },
-        button({
-          type: 'submit'
-        },
-        contactFormType))
+      contactForm
     )
   )
 
