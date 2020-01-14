@@ -653,7 +653,8 @@ module.exports = (cooler) => {
             return typeof msg.value.content === 'object' &&
         typeof msg.value.content.vote === 'object' &&
         typeof msg.value.content.vote.link === 'string' &&
-        typeof msg.value.content.vote.value === 'number'
+        typeof msg.value.content.vote.value === 'number' &&
+        msg.value.timestamp > earliest
           }),
           pull.reduce((acc, cur) => {
             const author = cur.value.author
