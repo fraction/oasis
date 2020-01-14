@@ -126,6 +126,29 @@ module.exports = (cooler) => {
       )
       return isFollowing
     },
+    setFollowing: async ({ feedId, following }) => {
+      const ssb = await cooler.connect()
+
+      const content = {
+        type: 'contact',
+        contact: feedId,
+        following
+      }
+
+      return cooler.get(ssb.publish, content)
+    },
+    follow: async (feedId) => {
+      const isFollowing = await models.friend.isFollowing(feedId)
+      if (!isFollowing) {
+        await models.friend.setFollowing({ feedId, following: true })
+      }
+    },
+    unfollow: async (feedId) => {
+      const isFollowing = await models.friend.isFollowing(feedId)
+      if (isFollowing) {
+        await models.friend.setFollowing({ feedId, following: false })
+      }
+    },
     getRelationship: async (feedId) => {
       const ssb = await cooler.connect()
       const { id } = ssb
@@ -160,6 +183,7 @@ module.exports = (cooler) => {
         return 'you are following and blocking (!)'
       }
     }
+
   }
 
   models.meta = {

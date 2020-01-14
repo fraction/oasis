@@ -454,6 +454,18 @@ router
     ctx.body = await publish({ text })
     ctx.redirect('/')
   })
+  .post('/follow/:feed', koaBody(), async (ctx) => {
+    const { feed } = ctx.params
+    const referer = new URL(ctx.request.header.referer)
+    ctx.body = await friend.follow(feed)
+    ctx.redirect(referer)
+  })
+  .post('/unfollow/:feed', koaBody(), async (ctx) => {
+    const { feed } = ctx.params
+    const referer = new URL(ctx.request.header.referer)
+    ctx.body = await friend.unfollow(feed)
+    ctx.redirect(referer)
+  })
   .post('/like/:message', koaBody(), async (ctx) => {
     const { message } = ctx.params
     // TODO: convert all so `message` is full message and `messageKey` is key
