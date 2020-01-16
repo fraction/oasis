@@ -14,7 +14,8 @@
     "fix": "standard --fix && stylelint --fix src/assets/*.css",
     "start": "node src/index.js",
     "test": "standard && dependency-check ./package.json --unused --no-dev --ignore-module highlight.js --ignore-module @fraction/base16-css && cspell --no-summary '**/*.{js,md}' && stylelint src/assets/*.css && tsc --allowJs --resolveJsonModule --lib dom --checkJs --noEmit --skipLibCheck src/index.js",
-    "preversion": "npm test"
+    "preversion": "npm test",
+    "version": "changelog-version && git add CHANGELOG.md"
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
@@ -44,6 +45,7 @@
     "yargs": "^15.0.0"
   },
   "devDependencies": {
+    "changelog-version": "^1.0.1",
     "cspell": "^4.0.43",
     "dependency-check": "^4.1.0",
     "husky": "^3.0.5",

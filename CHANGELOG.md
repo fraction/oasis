@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add follow/unfollow
+- Add `--offline` CLI flag
+
+### Fixed
+
+- Fixed old messages appearing outside 'popular' time range
 
 ## [2.1.0] - 2019-09-24
 
