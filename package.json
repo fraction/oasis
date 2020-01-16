@@ -1,6 +1,6 @@
 {
   "name": "@fraction/oasis",
-  "version": "2.10.0",
+  "version": "2.11.0",
   "description": "friendly neighborhood scuttlebutt interface",
   "repository": "git@github.com:fraction/oasis.git",
   "license": "AGPL-3.0",
