@@ -225,11 +225,13 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
         button({ type: 'submit' }, 'set theme')),
       base16Elements,
       h2('Status'),
-      h3('Indexes'),
-      progressElements,
+      h3('Peer Connections 💻⚡️💻'),
+      p('Your computer is syncing data with these other computers. It will connect to any scuttlebutt pub and peer it can find, even if you have no relationship with them, as it looks for data from your friends.'),
       peerList.length > 0
-        ? [h3('Peers'), ul(peerList)]
-        : null
+        ? ul(peerList)
+        : code('no peers connected'),
+      h3('Indexes'),
+      progressElements
     )
   )
 }
