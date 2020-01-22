@@ -13,7 +13,7 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "common-good fix",
     "start": "node src/index.js",
-    "test": "dependency_check_suffix='-i husky -i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended' common-good",
+    "test": "common-good check --dependency-check-suffix '-i husky -i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
     "preversion": "npm test",
     "version": "changelog-version && git add CHANGELOG.md"
   },
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "changelog-version": "^1.0.1",
-    "common-good": "^1.1.0",
+    "common-good": "^1.1.1",
     "husky": "^3.0.5",
     "mkdirp": "^0.5.1",
     "nodemon": "^2.0.2",
