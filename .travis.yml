@@ -13,6 +13,8 @@ os:
   - osx
   - windows
 
-# This keeps Yarn from hanging the build.
-env:
-  - YARN_GPG=no
+# Don't build arbitrary branches, just pull requests + master + semver tags.
+branches:
+  only:
+  - master
+  - "/^v\\d+\\.\\d+\\.\\d+$/"
