@@ -1,7 +1,7 @@
 # Install
 
 This is a guide on how to download the source code for Oasis so that you can
-build and install it on your computer.  If you'd like an easier installation
+build and install it on your computer. If you'd like an easier installation
 option, try one of the options in the readme.
 
 If you want to run Oasis in the background, see [`with-systemd.md`](./with-systemd.md).
@@ -47,4 +47,3 @@ oasis --help
 If you have problems, read the documentation on [downloading and installing
 packages globally](https://docs.npmjs.com/downloading-and-installing-packages-globally)
 or [get some help](https://github.com/fraction/oasis/issues/new/choose).
-
