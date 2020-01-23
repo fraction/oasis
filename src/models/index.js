@@ -991,7 +991,22 @@ module.exports = cooler => {
         // We default to `null` in case something goes wrong and we receive a
         // private message with no `recps` somehow. This adds a layer of security
         // because SSB-DB won't let us publish a message with `{ recps: null }`.
-        message.recps = lodash.get(parent, "value.content.recps", null);
+        message.recps = lodash
+          .get(parent, "value.content.recps", [])
+          .map(recipient => {
+            if (
+              typeof recipient === "object" &&
+              typeof recipient.link === "string" &&
+              recipient.link.length
+            ) {
+              // Some interfaces, like Patchbay, put `{ name, link }` objects in
+              // `recps`. The reply schema says this is invalid, so we want to
+              // fix the `recps` before publishing.
+              return recipient.link;
+            } else {
+              return recipient;
+            }
+          });
       }
 
       const parentHasFork = parentFork != null;
