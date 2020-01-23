@@ -175,7 +175,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   });
 
   const peerList = (peers || []).map(([, data]) =>
-    li(a({ href: `/author/${encodeURIComponent(data.key)}` }, code(data.key)))
+    li(a({ href: `/author/${encodeURIComponent(data.key)}` }, code(data.name)))
   );
 
   const themeElements = themeNames.map(cur => {
