@@ -2,12 +2,15 @@
   "name": "@fraction/oasis",
   "version": "2.11.0",
   "description": "friendly neighborhood scuttlebutt interface",
-  "repository": "git@github.com:fraction/oasis.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fraction/oasis.git"
+  },
   "license": "AGPL-3.0",
   "author": "Christian Bundy <christianbundy@fraction.io>",
   "main": "src/index.js",
   "bin": {
-    "oasis": "./src/index.js"
+    "oasis": "src/index.js"
   },
   "scripts": {
     "dev": "nodemon --inspect src/index.js --debug --no-open",
@@ -42,7 +45,8 @@
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
     "ssb-thread-schema": "^1.1.1",
-    "yargs": "^15.0.0"
+    "yargs": "^15.0.0",
+    "sharp": "^0.23.0"
   },
   "devDependencies": {
     "changelog-version": "^1.0.1",
@@ -54,5 +58,13 @@
   },
   "optionalDependencies": {
     "sharp": "^0.23.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/fraction/oasis/issues"
+  },
+  "homepage": "https://github.com/fraction/oasis#readme",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": []
 }
