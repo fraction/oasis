@@ -165,7 +165,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       li(
         a(
           { href: `/author/${encodeURIComponent(data.key)}` },
-          code(data.key)
+          data.name
         )
       )
     )

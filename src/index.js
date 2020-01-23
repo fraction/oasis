@@ -328,8 +328,14 @@ router
     const getMeta = async ({ theme }) => {
       const status = await meta.status()
       const peers = await meta.peers()
+      const peersWithNames = await Promise.all(
+        peers.map(async ([key, value]) => {
+          value.name = await about.name(value.key)
+          return [key, value]
+        })
+      )
 
-      return metaView({ status, peers, theme, themeNames })
+      return metaView({ status, peers: peersWithNames, theme, themeNames })
     }
     ctx.body = await getMeta({ theme })
   })
