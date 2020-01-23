@@ -4,7 +4,7 @@ Hey, welcome! This project is still very experimental so I won't make any
 promises about the future architecture, but today it's pretty simple:
 
 ```
-├── assets: static assets like CSS 
+├── assets: static assets like CSS
 ├── cli:    command-line interface (yargs)
 ├── http:   HTTP interface (koa)
 ├── index:  mediator that ties everything together
@@ -32,27 +32,27 @@ I have a hunch that importing modules from parent directories makes it really
 easy to create spaghetti code that's difficult to learn and maintain. I don't
 know whether that's true, but I'm experimenting with a layer-based approach
 where the only file with relative imports is `index.js` and all imports are in
-the style `require('./foo')`. I don't know whether this *actually* has any
+the style `require('./foo')`. I don't know whether this _actually_ has any
 interesting properties, but I'm trying it out to see whether it results in
 simpler software architectures.
 
 #### Pattern
 
 ```javascript
-require('./foo') // foo.js
-require('./bar') // bar/index.js
+require("./foo"); // foo.js
+require("./bar"); // bar/index.js
 ```
 
 #### Anti-pattern
 
 ```javascript
-require('../ancestor')       // two-way import
-require('./some/descendant') // layer violation
-require('./foobar/index.js') // excessive specificity
+require("../ancestor"); // two-way import
+require("./some/descendant"); // layer violation
+require("./foobar/index.js"); // excessive specificity
 ```
 
-**Note:** I want to make *very* clear that this is an experiment, not a claim
-that this is Objectively Better. 
+**Note:** I want to make _very_ clear that this is an experiment, not a claim
+that this is Objectively Better.
 
 ### Any my [hyper]axe
 
@@ -76,7 +76,7 @@ so I'm counting this as another experiment. It looks great and my first day with
 it has been really enjoyable, but if something goes horribly wrong then we can
 switch to hyperscript-helpers or something.
 
-**Note:** I wasn't aware of hyperscript-helpers until I *after* I refactored
+**Note:** I wasn't aware of hyperscript-helpers until I _after_ I refactored
 the templates to use hyperaxe. Oops. I think hyperaxe has a cooler name anyway.
 
 [dep-graph]: https://en.wikipedia.org/wiki/Dependency_graph
