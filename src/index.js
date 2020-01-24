@@ -326,8 +326,8 @@ router
       );
 
       return metaView({ status, peers: peersWithNames, theme, themeNames });
-    }
-    ctx.body = await getMeta({ theme })
+    };
+    ctx.body = await getMeta({ theme });
   })
   .get("/likes/:feed", async ctx => {
     const { feed } = ctx.params;
