@@ -10,6 +10,7 @@ const {
   main,
   meta,
   nav,
+  script,
   title,
   ul
 } = require("hyperaxe");
@@ -38,7 +39,8 @@ module.exports = (...elements) => {
       meta({
         name: "viewport",
         content: toAttributes({ width: "device-width", "initial-scale": 1 })
-      })
+      }),
+      script({src: "/assets/turbolinks.5.2.0.js"})
     ),
     body(
       nav(

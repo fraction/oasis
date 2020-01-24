@@ -28,7 +28,9 @@ module.exports = ({ host, port, routes }) => {
       "img-src 'self'",
       "form-action 'self'",
       "media-src 'self'",
-      "style-src 'self' 'unsafe-inline'"
+      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self'",
+      "connect-src 'self'",
     ].join("; ");
 
     // Disallow scripts.
