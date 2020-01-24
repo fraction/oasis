@@ -29,7 +29,7 @@ module.exports = (...elements) => {
       link({ rel: "stylesheet", href: "/theme.css" }),
       link({ rel: "stylesheet", href: "/assets/style.css" }),
       link({ rel: "stylesheet", href: "/assets/highlight.css" }),
-      link({ rel: 'icon', type: 'image/svg+xml', href: '/assets/favicon.svg' }),
+      link({ rel: "icon", type: "image/svg+xml", href: "/assets/favicon.svg" }),
       meta({ charset: "utf-8" }),
       meta({
         name: "description",

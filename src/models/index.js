@@ -988,9 +988,6 @@ module.exports = cooler => {
       const isPrivate = lodash.get(parent, "value.meta.private", false);
 
       if (isPrivate) {
-        // We default to `null` in case something goes wrong and we receive a
-        // private message with no `recps` somehow. This adds a layer of security
-        // because SSB-DB won't let us publish a message with `{ recps: null }`.
         message.recps = lodash
           .get(parent, "value.content.recps", [])
           .map(recipient => {
@@ -1007,6 +1004,10 @@ module.exports = cooler => {
               return recipient;
             }
           });
+
+        if (message.recps.length === 0) {
+          throw new Error("Refusing to publish message with no recipients");
+        }
       }
 
       const parentHasFork = parentFork != null;
