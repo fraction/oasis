@@ -16,7 +16,7 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "common-good fix",
     "start": "node src/index.js",
-    "test": "node -p \"require('child_process').spawnSync('npm', ['bin'])\"",
+    "test": "common-good check --dependency-check-suffix '-i husky -i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
     "preversion": "npm test",
     "version": "changelog-version && git add CHANGELOG.md"
   },
