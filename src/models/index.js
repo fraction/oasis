@@ -1036,22 +1036,22 @@ module.exports = cooler => {
 
       const options = configure(
         {
-          type: "post"
+          query: [{ $filter: { dest: ssb.id } }]
         },
         customOptions
       );
 
-      const source = await cooler.read(ssb.messagesByType, options);
+      const source = await cooler.read(ssb.backlinks.read, options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          // Make sure we're only getting private messages that are posts.
           pull.filter(
-            (
-              message // avoid private messages (!)
-            ) =>
+            message =>
               typeof message.value.content !== "string" &&
-              lodash.get(message, "value.meta.private")
+              lodash.get(message, "value.meta.private") &&
+              lodash.get(message, "value.content.type") === "post"
           ),
           pull.unique(message => {
             const { root } = message.value.content;
