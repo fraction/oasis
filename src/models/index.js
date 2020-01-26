@@ -21,6 +21,7 @@ const defaultOptions = {
   meta: true
 };
 
+/** @param {object[]} customOptions */
 const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions);
 
@@ -1078,6 +1079,7 @@ module.exports = cooler => {
   models.post = post;
 
   models.vote = {
+    /** @param {{messageKey: string, value: {}, recps: []}} input */
     publish: async ({ messageKey, value, recps }) => {
       const ssb = await cooler.connect();
       const branch = await cooler.get(ssb.tangle.branch, messageKey);
