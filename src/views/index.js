@@ -46,9 +46,9 @@ exports.authorView = ({
   const mention = `[@${name}](${feedId})`;
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
-  const areFollowing = relationship === "you are following";
+  const areFollowing = relationship === "You are following";
 
-  const contactFormType = areFollowing ? "unfollow" : "follow";
+  const contactFormType = areFollowing ? "Unfollow" : "Follow";
 
   // We're on our own profile!
   const contactForm =
@@ -82,7 +82,7 @@ exports.authorView = ({
       ? article({ innerHTML: description })
       : null,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, "view likes"),
+      a({ href: `/likes/${encodeURIComponent(feedId)}` }, "View likes"),
       span(relationship),
       contactForm
     )
@@ -150,7 +150,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
         {
           type: "submit"
         },
-        "comment"
+        "Comment"
       )
     )
   );
@@ -239,7 +239,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       form(
         { action: "/theme.css", method: "post" },
         select({ name: "theme" }, ...themeElements),
-        button({ type: "submit" }, "set theme")
+        button({ type: "submit" }, "Set theme")
       ),
       base16Elements,
       h2("Status"),
@@ -276,7 +276,7 @@ exports.publicView = ({ messages, prefix = null }) => {
           ". Messages cannot be edited or deleted."
         ),
         textarea({ required: true, name: "text" }),
-        button({ type: "submit" }, "submit")
+        button({ type: "submit" }, "Submit")
       )
     ),
     messages.map(msg => post({ msg }))
@@ -330,7 +330,7 @@ exports.replyView = async ({ messages, myFeedId }) => {
         {
           type: "submit"
         },
-        "reply"
+        "Reply"
       )
     )
   );
@@ -351,7 +351,7 @@ exports.searchView = ({ messages, query }) =>
           {
             type: "submit"
           },
-          "submit"
+          "Submit"
         )
       )
     ),
