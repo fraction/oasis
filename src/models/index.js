@@ -21,6 +21,7 @@ const defaultOptions = {
   meta: true
 };
 
+/** @param {object[]} customOptions */
 const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions);
 
@@ -988,10 +989,26 @@ module.exports = cooler => {
       const isPrivate = lodash.get(parent, "value.meta.private", false);
 
       if (isPrivate) {
-        // We default to `null` in case something goes wrong and we receive a
-        // private message with no `recps` somehow. This adds a layer of security
-        // because SSB-DB won't let us publish a message with `{ recps: null }`.
-        message.recps = lodash.get(parent, "value.content.recps", null);
+        message.recps = lodash
+          .get(parent, "value.content.recps", [])
+          .map(recipient => {
+            if (
+              typeof recipient === "object" &&
+              typeof recipient.link === "string" &&
+              recipient.link.length
+            ) {
+              // Some interfaces, like Patchbay, put `{ name, link }` objects in
+              // `recps`. The reply schema says this is invalid, so we want to
+              // fix the `recps` before publishing.
+              return recipient.link;
+            } else {
+              return recipient;
+            }
+          });
+
+        if (message.recps.length === 0) {
+          throw new Error("Refusing to publish message with no recipients");
+        }
       }
 
       const parentHasFork = parentFork != null;
@@ -1020,22 +1037,22 @@ module.exports = cooler => {
 
       const options = configure(
         {
-          type: "post"
+          query: [{ $filter: { dest: ssb.id } }]
         },
         customOptions
       );
 
-      const source = await cooler.read(ssb.messagesByType, options);
+      const source = await cooler.read(ssb.backlinks.read, options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          // Make sure we're only getting private messages that are posts.
           pull.filter(
-            (
-              message // avoid private messages (!)
-            ) =>
+            message =>
               typeof message.value.content !== "string" &&
-              lodash.get(message, "value.meta.private")
+              lodash.get(message, "value.meta.private") &&
+              lodash.get(message, "value.content.type") === "post"
           ),
           pull.unique(message => {
             const { root } = message.value.content;
@@ -1062,6 +1079,7 @@ module.exports = cooler => {
   models.post = post;
 
   models.vote = {
+    /** @param {{messageKey: string, value: {}, recps: []}} input */
     publish: async ({ messageKey, value, recps }) => {
       const ssb = await cooler.connect();
       const branch = await cooler.get(ssb.tangle.branch, messageKey);
