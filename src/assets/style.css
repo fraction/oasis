@@ -316,6 +316,8 @@ section {
   margin: var(--whole) 0;
   word-wrap: break-word;
   background: var(--bg);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 section > header {
@@ -471,10 +473,12 @@ hr {
     margin-bottom: var(--whole);
   }
   main {
+    width: 100%;
     max-width: var(--measure);
   }
   body {
     display: flex;
     justify-content: center;
+    max-width: none;
   }
 }
