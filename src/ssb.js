@@ -59,12 +59,14 @@ const rawConnect = () =>
         if (err) {
           reject(err);
         } else {
-          // HACK: SSB-Tangle isn't available in Patchwork, but we want that
-          // compatibility. This code automatically injects SSB-Tangle into our
-          // stack so that we don't get weird errors when using Patchwork.
-          //
-          // See: https://github.com/fraction/oasis/issues/21
-          api.tangle = ssbTangle.init(api);
+          if (api.tangle === undefined) {
+            // HACK: SSB-Tangle isn't available in Patchwork, but we want that
+            // compatibility. This code automatically injects SSB-Tangle into our
+            // stack so that we don't get weird errors when using Patchwork.
+            //
+            // See: https://github.com/fraction/oasis/issues/21
+            api.tangle = ssbTangle.init(api);
+          }
 
           resolve(api);
         }
