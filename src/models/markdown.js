@@ -4,20 +4,27 @@ const md = require("ssb-markdown");
 const ssbMessages = require("ssb-msgs");
 const ssbRef = require("ssb-ref");
 
-const toUrl = (mentions = []) => {
-  const mentionNames = {};
+/** @param {{ link: string}[]} mentions */
+const toUrl = mentions => {
+  /** @type {{name: string, link: string}[]} */
+  const mentionNames = [];
 
-  ssbMessages.links(mentions, "feed").forEach(link => {
-    if (link.name && typeof link.name === "string") {
-      const name = link.name.charAt(0) === "@" ? link.name : `@${link.name}`;
-      mentionNames[name] = link.link;
+  /** @param {{ link: string, name: string}} arg */
+  const handleLink = ({ name, link }) => {
+    if (typeof name === "string") {
+      const atName = name.charAt(0) === "@" ? name : `@${name}`;
+      mentionNames.push({ name: atName, link });
     }
-  });
+  };
 
-  return ref => {
+  ssbMessages.links(mentions, "feed").forEach(handleLink);
+
+  /** @param {string} ref */
+  const urlHandler = ref => {
     // @mentions
-    if (ref in mentionNames) {
-      return `/author/${encodeURIComponent(mentionNames[ref])}`;
+    const found = mentionNames.find(({ name }) => name === ref);
+    if (found !== undefined) {
+      return `/author/${encodeURIComponent(found.link)}`;
     }
 
     if (ssbRef.isFeedId(ref)) {
@@ -34,9 +41,15 @@ const toUrl = (mentions = []) => {
     }
     return "";
   };
+
+  return urlHandler;
 };
 
-module.exports = (input, mentions) =>
+/**
+ * @param {string} input
+ * @param {{name: string, link: string}[]} mentions
+ */
+module.exports = (input, mentions = []) =>
   md.block(input, {
     toUrl: toUrl(mentions)
   });
