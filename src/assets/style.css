@@ -456,3 +456,24 @@ input[type="search"] {
 hr {
   border: var(--pico) solid var(--fg-alt);
 }
+
+/* sidebar only appears on big screens */
+@media (min-width: calc(45rem)) {
+  body > nav > ul {
+    justify-content: right;
+    flex-direction: column;
+    margin-right: var(--kilo);
+    position: sticky;
+    top: var(--whole);
+  }
+  body > nav > ul > li {
+    margin-bottom: var(--whole);
+  }
+  main {
+    max-width: var(--measure);
+  }
+  body {
+    display: flex;
+    justify-content: center;
+  }
+}
