@@ -231,8 +231,8 @@ module.exports = cooler => {
       return result;
     },
     connRestart: async () => {
-      await models.meta.connStart();
       await models.meta.connStop();
+      await models.meta.connStart();
     }
   };
 
