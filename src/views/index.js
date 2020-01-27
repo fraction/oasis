@@ -174,6 +174,27 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
     return div(label({ for: id }, key), progress({ id, value: val, max }, val));
   });
 
+  const startButton = form(
+    { action: "/meta/conn/start", method: "post" },
+    button({ type: "submit" }, "start networking")
+  );
+
+  const restartButton = form(
+    { action: "/meta/conn/restart", method: "post" },
+    button({ type: "submit" }, "restart networking")
+  );
+
+  const stopButton = form(
+    { action: "/meta/conn/stop", method: "post" },
+    button({ type: "submit" }, "stop networking")
+  );
+
+  const connButtons = div({ class: "form-button-group" }, [
+    startButton,
+    restartButton,
+    stopButton
+  ]);
+
   const peerList = (peers || []).map(([, data]) => {
     return li(
       a(
@@ -248,6 +269,10 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
         "Your computer is syncing data with these other computers. It will connect to any scuttlebutt pub and peer it can find, even if you have no relationship with them, as it looks for data from your friends."
       ),
       peerList.length > 0 ? ul(peerList) : code("no peers connected"),
+      p(
+        "You can decide when you want your computer to network with peers. You can start, stop, or restart your networking whenever you'd like. Sometimes peers will remain in the list for a few moments after you select 'stop'."
+      ),
+      connButtons,
       h3("Indexes"),
       progressElements
     )

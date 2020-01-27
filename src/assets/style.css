@@ -456,3 +456,9 @@ input[type="search"] {
 hr {
   border: var(--pico) solid var(--fg-alt);
 }
+
+.form-button-group {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--whole) 0;
+}

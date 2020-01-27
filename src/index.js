@@ -508,6 +508,18 @@ router
     ctx.cookies.set("theme", theme);
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
+  })
+  .post("/meta/conn/start", koaBody(), async ctx => {
+    await meta.connStart();
+    ctx.redirect("/meta");
+  })
+  .post("/meta/conn/stop", koaBody(), async ctx => {
+    await meta.connStop();
+    ctx.redirect("/meta");
+  })
+  .post("/meta/conn/restart", koaBody(), async ctx => {
+    await meta.connRestart();
+    ctx.redirect("/meta");
   });
 
 const { host } = config;
