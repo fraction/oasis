@@ -3,6 +3,9 @@ const koaStatic = require("koa-static");
 const path = require("path");
 const mount = require("koa-mount");
 
+/**
+ * @param {{ host: string, port: number, routes: any }} input
+ */
 module.exports = ({ host, port, routes }) => {
   const assets = new Koa();
   assets.use(koaStatic(path.join(__dirname, "assets")));
@@ -10,10 +13,10 @@ module.exports = ({ host, port, routes }) => {
   const app = new Koa();
   module.exports = app;
 
-  app.on("error", e => {
+  app.on("error", err => {
     // Output full error objects
-    e.message = e.stack;
-    e.expose = true;
+    err.message = err.stack;
+    err.expose = true;
     return null;
   });
 
