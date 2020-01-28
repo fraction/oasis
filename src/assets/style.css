@@ -461,6 +461,12 @@ hr {
   border: var(--pico) solid var(--fg-alt);
 }
 
+.form-button-group {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--whole) 0;
+}
+
 /* sidebar only appears on big screens */
 @media (min-width: calc(45rem)) {
   body > nav > ul {

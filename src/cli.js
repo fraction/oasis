@@ -11,12 +11,13 @@ module.exports = () =>
     .usage("Usage: $0 [options]")
     .options("open", {
       describe:
-        "Automatically open app in web browser.  Use --no-open to disable.",
+        "Automatically open app in web browser. Use --no-open to disable.",
       default: true,
       type: "boolean"
     })
     .options("offline", {
-      describe: "Don't try to connect to scuttlebutt peers or pubs",
+      describe:
+        "Don't try to connect to scuttlebutt peers or pubs. This can be changed on the 'meta' page while Oasis is running.",
       default: false,
       type: "boolean"
     })

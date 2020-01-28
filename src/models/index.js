@@ -208,6 +208,33 @@ module.exports = cooler => {
           })
         );
       });
+    },
+    connStop: async () => {
+      const ssb = await cooler.connect();
+
+      try {
+        const result = await cooler.get(ssb.conn.stop);
+        return result;
+      } catch (e) {
+        const expectedName = "TypeError";
+        const expectedMessage = "Cannot read property 'close' of null";
+        if (e.name === expectedName && e.message === expectedMessage) {
+          // https://github.com/staltz/ssb-lan/issues/5
+          debug("ssbConn is already stopped -- caught error");
+        } else {
+          throw new Error(e);
+        }
+      }
+    },
+    connStart: async () => {
+      const ssb = await cooler.connect();
+      const result = await cooler.get(ssb.conn.start);
+
+      return result;
+    },
+    connRestart: async () => {
+      await models.meta.connStop();
+      await models.meta.connStart();
     }
   };
 

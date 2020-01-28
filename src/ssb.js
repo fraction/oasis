@@ -2,8 +2,7 @@
 
 // This module exports a function that connects to SSB and returns a "cooler"
 // interface. This interface is poorly defined and should be replaced with
-// native support for Promises in the MuxRPC module and auto-generated manifest
-// files in the SSB-Client module.
+// native support for Promises in the MuxRPC module.
 
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
@@ -22,56 +21,22 @@ const log = (...args) => {
 
 const rawConnect = () =>
   new Promise((resolve, reject) => {
-    ssbClient(
-      {
-        manifest: {
-          about: {
-            socialValue: "async",
-            read: "source"
-          },
-          backlinks: { read: "source" },
-          blobs: {
-            get: "source",
-            ls: "source",
-            want: "async"
-          },
-          conn: {
-            peers: "source"
-          },
-          createUserStream: "source",
-          createHistoryStream: "source",
-          get: "sync",
-          messagesByType: "source",
-          publish: "async",
-          status: "async",
-          tangle: { branch: "async" },
-          query: { read: "source" },
-          friends: {
-            isFollowing: "async",
-            isBlocking: "async"
-          },
-          search: {
-            query: "source"
-          }
+    ssbClient((err, api) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (api.tangle === undefined) {
+          // HACK: SSB-Tangle isn't available in Patchwork, but we want that
+          // compatibility. This code automatically injects SSB-Tangle into our
+          // stack so that we don't get weird errors when using Patchwork.
+          //
+          // See: https://github.com/fraction/oasis/issues/21
+          api.tangle = ssbTangle.init(api);
         }
-      },
-      (err, api) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (api.tangle === undefined) {
-            // HACK: SSB-Tangle isn't available in Patchwork, but we want that
-            // compatibility. This code automatically injects SSB-Tangle into our
-            // stack so that we don't get weird errors when using Patchwork.
-            //
-            // See: https://github.com/fraction/oasis/issues/21
-            api.tangle = ssbTangle.init(api);
-          }
 
-          resolve(api);
-        }
+        resolve(api);
       }
-    );
+    });
   });
 
 let handle;
