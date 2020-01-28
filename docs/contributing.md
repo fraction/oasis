@@ -3,6 +3,12 @@
 The Collective Code Construction Contract (C4) is an evolution of the github.com [Fork + Pull Model](https://help.github.com/articles/about-pull-requests/), aimed at providing an optimal collaboration model for free software projects.
 This is the Oasis-specific implementation, based on [revision 2 of C4](https://github.com/zeromq/rfc/blob/63024673f19ad136652ff7b3bfb3a6547811e006/42/README.md).
 
+## Summary
+
+Thank you for contributing to Oasis! Here we try capture how we collaborate, and why we do it this way.
+
+This entire document is open for changes, if there is anything that is confusing or can be improved, please start a discussion with us!
+
 ## License
 
 Copyright (c) 2009-2016 Pieter Hintjens.
