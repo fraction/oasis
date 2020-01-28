@@ -456,3 +456,58 @@ input[type="search"] {
 hr {
   border: var(--pico) solid var(--fg-alt);
 }
+
+/* show off each theme color as a background */
+
+.theme-demo {
+  /* 100 / 15 because we don't demo the background */
+  width: 6.66%;
+  height: 1rem;
+  margin-top: 1em;
+  display: inline-block;
+}
+.theme-demo-01 {
+  background: var(--base01);
+}
+.theme-demo-02 {
+  background: var(--base02);
+}
+.theme-demo-03 {
+  background: var(--base03);
+}
+.theme-demo-04 {
+  background: var(--base04);
+}
+.theme-demo-05 {
+  background: var(--base05);
+}
+.theme-demo-06 {
+  background: var(--base06);
+}
+.theme-demo-07 {
+  background: var(--base07);
+}
+.theme-demo-08 {
+  background: var(--base08);
+}
+.theme-demo-09 {
+  background: var(--base09);
+}
+.theme-demo-0A {
+  background: var(--base0A);
+}
+.theme-demo-0B {
+  background: var(--base0B);
+}
+.theme-demo-0C {
+  background: var(--base0C);
+}
+.theme-demo-0D {
+  background: var(--base0D);
+}
+.theme-demo-0E {
+  background: var(--base0E);
+}
+.theme-demo-0F {
+  background: var(--base0F);
+}

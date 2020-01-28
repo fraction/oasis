@@ -212,15 +212,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   ];
 
   const base16Elements = base16.map(base =>
-    div({
-      style: {
-        "background-color": `var(--base${base})`,
-        width: `${(1 / base16.length) * 100}%`,
-        height: "1em",
-        "margin-top": "1em",
-        display: "inline-block"
-      }
-    })
+    div({ class: `theme-demo theme-demo-${base}` })
   );
 
   return template(
