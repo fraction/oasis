@@ -21,6 +21,7 @@ const defaultOptions = {
   meta: true
 };
 
+/** @param {object[]} customOptions */
 const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions);
 
@@ -161,14 +162,15 @@ module.exports = cooler => {
         dest: feedId
       });
 
+      // TODO: Refactor to stop doing awful string comparison.
       if (isFollowing === true && isBlocking === false) {
-        return "you are following";
+        return "You are following";
       } else if (isFollowing === false && isBlocking === true) {
-        return "you are blocking";
+        return "You are blocking";
       } else if (isFollowing === false && isBlocking === false) {
-        return "you are not following or blocking";
+        return "You are not following or blocking";
       } else {
-        return "you are following and blocking (!)";
+        return "You are following and blocking (!)";
       }
     }
   };
@@ -1105,6 +1107,7 @@ module.exports = cooler => {
   models.post = post;
 
   models.vote = {
+    /** @param {{messageKey: string, value: {}, recps: []}} input */
     publish: async ({ messageKey, value, recps }) => {
       const ssb = await cooler.connect();
       const branch = await cooler.get(ssb.tangle.branch, messageKey);

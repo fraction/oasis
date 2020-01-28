@@ -46,6 +46,7 @@
   --common-radius: var(--micro);
   --measure: calc(var(--peta) + var(--mega));
   --line: 1.5rem;
+  --code-size: 85%;
 }
 
 * {
@@ -67,6 +68,7 @@ html {
   line-height: 1.5;
   margin: 0;
   padding: 0;
+  overflow-y: scroll;
 }
 
 main {
@@ -194,7 +196,7 @@ section code {
   overflow-wrap: break-word;
   padding: 0.125em 0.25em;
   margin: 0;
-  font-size: 85%;
+  font-size: var(--code-size);
   background-color: var(--bg);
   border-radius: var(--common-radius);
   border: var(--pico) solid var(--bg-status);
@@ -315,6 +317,8 @@ section {
   margin: var(--whole) 0;
   word-wrap: break-word;
   background: var(--bg);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 section > header {
@@ -461,4 +465,27 @@ hr {
   display: flex;
   justify-content: space-between;
   margin: var(--whole) 0;
+}
+
+/* sidebar only appears on big screens */
+@media (min-width: calc(45rem)) {
+  body > nav > ul {
+    justify-content: right;
+    flex-direction: column;
+    margin-right: var(--kilo);
+    position: sticky;
+    top: var(--whole);
+  }
+  body > nav > ul > li {
+    margin-bottom: var(--whole);
+  }
+  main {
+    width: 100%;
+    max-width: var(--measure);
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    max-width: none;
+  }
 }

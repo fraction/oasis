@@ -7,6 +7,7 @@
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
 const flotilla = require("@fraction/flotilla");
+const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
 
 const server = flotilla(ssbConfig);
@@ -24,6 +25,15 @@ const rawConnect = () =>
       if (err) {
         reject(err);
       } else {
+        if (api.tangle === undefined) {
+          // HACK: SSB-Tangle isn't available in Patchwork, but we want that
+          // compatibility. This code automatically injects SSB-Tangle into our
+          // stack so that we don't get weird errors when using Patchwork.
+          //
+          // See: https://github.com/fraction/oasis/issues/21
+          api.tangle = ssbTangle.init(api);
+        }
+
         resolve(api);
       }
     });
