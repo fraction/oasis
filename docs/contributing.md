@@ -1,4 +1,7 @@
-The Collective Code Construction Contract (C4) is an evolution of the github.com [Fork + Pull Model](https://help.github.com/articles/about-pull-requests/), aimed at providing an optimal collaboration model for free software projects. This is revision 2 of the C4 specification and deprecates RFC 22.
+# Collective Code Construction Contract - Oasis Implementation
+
+The Collective Code Construction Contract (C4) is an evolution of the github.com [Fork + Pull Model](https://help.github.com/articles/about-pull-requests/), aimed at providing an optimal collaboration model for free software projects.
+This is the Oasis-specific implementation, based on [revision 2 of C4](https://github.com/zeromq/rfc/blob/63024673f19ad136652ff7b3bfb3a6547811e006/42/README.md).
 
 ## License
 
