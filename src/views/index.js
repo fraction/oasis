@@ -270,7 +270,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       ),
       peerList.length > 0 ? ul(peerList) : code("no peers connected"),
       p(
-        "You can decide when you want your computer to network with peers. You can start, stop, or restart your networking whenever you'd like. Sometimes peers will remain in the list for a few moments after you select 'stop'."
+        "You can decide when you want your computer to network with peers. You can start, stop, or restart your networking whenever you'd like."
       ),
       connButtons,
       h3("Indexes"),

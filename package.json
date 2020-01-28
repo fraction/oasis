@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
-    "@fraction/flotilla": "^3.0.1",
+    "@fraction/flotilla": "^3.0.2",
     "debug": "^4.1.1",
     "highlight.js": "^9.18.0",
     "hyperaxe": "^1.3.0",
