@@ -152,9 +152,9 @@ module.exports = ({ msg }) => {
           `❤ ${likeCount}`
         )
       ),
-      a({ href: url.comment }, "comment"),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, "reply"),
-      a({ href: url.json }, "json")
+      a({ href: url.comment }, "Comment"),
+      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, "Reply"),
+      a({ href: url.json }, "JSON")
     )
   );
 

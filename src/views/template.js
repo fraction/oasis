@@ -43,13 +43,13 @@ module.exports = (...elements) => {
     body(
       nav(
         ul(
-          li(a({ href: "/" }, "popular")),
-          li(a({ href: "/public/latest" }, "latest")),
-          li(a({ href: "/inbox" }, "inbox")),
-          li(a({ href: "/mentions" }, "mentions")),
-          li(a({ href: "/profile" }, "profile")),
-          li(a({ href: "/search" }, "search")),
-          li(a({ href: "/meta" }, "meta"))
+          li(a({ href: "/" }, "Popular")),
+          li(a({ href: "/public/latest" }, "Latest")),
+          li(a({ href: "/inbox" }, "Inbox")),
+          li(a({ href: "/mentions" }, "Mentions")),
+          li(a({ href: "/profile" }, "Profile")),
+          li(a({ href: "/search" }, "Search")),
+          li(a({ href: "/meta" }, "Meta"))
         )
       ),
       main({ id: "content" }, elements)

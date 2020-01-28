@@ -162,14 +162,15 @@ module.exports = cooler => {
         dest: feedId
       });
 
+      // TODO: Refactor to stop doing awful string comparison.
       if (isFollowing === true && isBlocking === false) {
-        return "you are following";
+        return "You are following";
       } else if (isFollowing === false && isBlocking === true) {
-        return "you are blocking";
+        return "You are blocking";
       } else if (isFollowing === false && isBlocking === false) {
-        return "you are not following or blocking";
+        return "You are not following or blocking";
       } else {
-        return "you are following and blocking (!)";
+        return "You are following and blocking (!)";
       }
     }
   };
