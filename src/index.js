@@ -99,15 +99,17 @@ router
     const publicPopular = async ({ period }) => {
       const messages = await post.popular({ period });
 
-      const option = somePeriod =>
-        li(
-          period === somePeriod
-            ? a({ class: "current", href: `./${somePeriod}` }, somePeriod)
-            : a({ href: `./${somePeriod}` }, somePeriod)
+      const option = somePeriod => {
+        const lowerPeriod = somePeriod.toLowerCase();
+        return li(
+          period === lowerPeriod
+            ? a({ class: "current", href: `./${lowerPeriod}` }, somePeriod)
+            : a({ href: `./${lowerPeriod}` }, somePeriod)
         );
+      };
 
       const prefix = nav(
-        ul(option("day"), option("week"), option("month"), option("year"))
+        ul(option("Day"), option("Week"), option("Month"), option("Year"))
       );
 
       return publicView({

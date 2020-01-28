@@ -46,6 +46,7 @@
   --common-radius: var(--micro);
   --measure: calc(var(--peta) + var(--mega));
   --line: 1.5rem;
+  --code-size: 85%;
 }
 
 * {
@@ -194,7 +195,7 @@ section code {
   overflow-wrap: break-word;
   padding: 0.125em 0.25em;
   margin: 0;
-  font-size: 85%;
+  font-size: var(--code-size);
   background-color: var(--bg);
   border-radius: var(--common-radius);
   border: var(--pico) solid var(--bg-status);
