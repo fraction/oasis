@@ -435,7 +435,7 @@ module.exports = cooler => {
     );
 
   const post = {
-    fromFeed: async (feedId, customOptions = {}) => {
+    fromPublicFeed: async (feedId, customOptions = {}) => {
       const ssb = await cooler.connect();
 
       const myFeedId = ssb.id;
@@ -448,7 +448,7 @@ module.exports = cooler => {
           source,
           pull.filter(
             msg =>
-              typeof msg.value.content !== "string" &&
+              lodash.get(msg, "value.meta.private", false) === false &&
               msg.value.content.type === "post"
           ),
           pull.take(maxMessages),
