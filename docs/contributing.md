@@ -119,12 +119,12 @@ C4 is meant to provide a reusable optimal collaboration model for open source so
 
 ## Further Reading
 
-* [Argyris' Models 1 and 2](http://en.wikipedia.org/wiki/Chris_Argyris) - the goals of C4 are consistent with Argyris' Model 2.
+- [Argyris' Models 1 and 2](http://en.wikipedia.org/wiki/Chris_Argyris) - the goals of C4 are consistent with Argyris' Model 2.
 
-* [Toyota Kata](http://en.wikipedia.org/wiki/Toyota_Kata) - covering the Improvement Kata (fixing problems one at a time) and the Coaching Kata (helping others to learn the Improvement Kata).
+- [Toyota Kata](http://en.wikipedia.org/wiki/Toyota_Kata) - covering the Improvement Kata (fixing problems one at a time) and the Coaching Kata (helping others to learn the Improvement Kata).
 
 ## Implementations
 
-* The [ZeroMQ community](http://zeromq.org) uses the C4 process for many projects.
-* [OSSEC](http://www.ossec.net/) [uses the C4 process](https://ossec-docs.readthedocs.org/en/latest/development/oRFC/orfc-1.html).
-* The [Machinekit](http://www.machinekit.io/) community [uses the C4 process](http://www.machinekit.io/about/).
+- The [ZeroMQ community](http://zeromq.org) uses the C4 process for many projects.
+- [OSSEC](http://www.ossec.net/) [uses the C4 process](https://ossec-docs.readthedocs.org/en/latest/development/oRFC/orfc-1.html).
+- The [Machinekit](http://www.machinekit.io/) community [uses the C4 process](http://www.machinekit.io/about/).
