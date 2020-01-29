@@ -132,7 +132,7 @@ router
       const description = await about.description(feedId);
       const name = await about.name(feedId);
       const image = await about.image(feedId);
-      const messages = await post.fromFeed(feedId);
+      const messages = await post.fromPublicFeed(feedId);
       const relationship = await friend.getRelationship(feedId);
 
       const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
@@ -195,7 +195,7 @@ router
       const name = await about.name(myFeedId);
       const image = await about.image(myFeedId);
 
-      const messages = await post.fromFeed(myFeedId);
+      const messages = await post.fromPublicFeed(myFeedId);
 
       const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
 
