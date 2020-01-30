@@ -176,17 +176,17 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
 
   const startButton = form(
     { action: "/meta/conn/start", method: "post" },
-    button({ type: "submit" }, "start networking")
+    button({ type: "submit" }, "Start networking")
   );
 
   const restartButton = form(
     { action: "/meta/conn/restart", method: "post" },
-    button({ type: "submit" }, "restart networking")
+    button({ type: "submit" }, "Restart networking")
   );
 
   const stopButton = form(
     { action: "/meta/conn/stop", method: "post" },
-    button({ type: "submit" }, "stop networking")
+    button({ type: "submit" }, "Stop networking")
   );
 
   const connButtons = div({ class: "form-button-group" }, [
