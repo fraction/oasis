@@ -11,8 +11,6 @@ const pullSort = require("pull-sort");
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
 
-const markdown = require("./markdown");
-
 const nullImage = `&${"0".repeat(43)}=.sha256`;
 
 const defaultOptions = {
@@ -57,7 +55,7 @@ module.exports = cooler => {
         key: "description",
         dest: feedId
       });
-      return markdown(raw);
+      return raw;
     },
     all: async feedId => {
       const ssb = await cooler.connect();
@@ -314,10 +312,6 @@ module.exports = cooler => {
         if (msg == null) {
           return null;
         }
-
-        lodash.set(msg, "value.meta.md.block", () =>
-          markdown(msg.value.content.text, msg.value.content.mentions)
-        );
 
         const filterQuery = {
           $filter: {
