@@ -1,13 +1,14 @@
 # Use Node.js configuration.
 language: node_js
 
-# Both latest Node.js and latest LTS.
+# Test the latest and LTS releases >= LTS Dubnium (10).
 node_js:
-  - lts/*
+  - lts/dubnium
+  - lts/erbium
   - node
 
 # All of the operating systems!
-# Note: Windows support is very iffy.
+# Note: Windows support is iffy.
 os:
   - linux
   - osx
