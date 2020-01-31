@@ -127,6 +127,11 @@ router
     };
     ctx.body = await publicLatest();
   })
+  .get("/public/latest/following", async ctx => {
+    const messages = await post.latestFollowing();
+
+    ctx.body = await publicView({ messages });
+  })
   .get("/author/:feed", async ctx => {
     const { feed } = ctx.params;
     const author = async feedId => {
