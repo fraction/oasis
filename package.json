@@ -67,5 +67,8 @@
   "directories": {
     "doc": "docs"
   },
-  "keywords": []
+  "keywords": [],
+  "engines": {
+    "node": "^10.0.0 || >=12.0.0"
+  }
 }
