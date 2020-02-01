@@ -147,7 +147,7 @@ module.exports = cooler => {
       const { id } = ssb;
 
       if (feedId === id) {
-        return "this is you";
+        return null;
       }
 
       const isFollowing = await cooler.get(ssb.friends.isFollowing, {
@@ -160,16 +160,10 @@ module.exports = cooler => {
         dest: feedId
       });
 
-      // TODO: Refactor to stop doing awful string comparison.
-      if (isFollowing === true && isBlocking === false) {
-        return "You are following";
-      } else if (isFollowing === false && isBlocking === true) {
-        return "You are blocking";
-      } else if (isFollowing === false && isBlocking === false) {
-        return "You are not following or blocking";
-      } else {
-        return "You are following and blocking (!)";
-      }
+      return {
+        following: isFollowing,
+        blocking: isBlocking
+      };
     }
   };
 
