@@ -44,7 +44,7 @@ module.exports = (...elements) => {
       nav(
         ul(
           li(a({ href: "/" }, "📣 Popular")),
-          li(a({ href: "/public/latest" }, "🆕 Latest")),
+          li(a({ href: "/public/latest" }, "🐇 Latest")),
           li(a({ href: "/public/latest/following" }, "👭 Following")),
           li(a({ href: "/profile" }, "🐱 Profile")),
           li(a({ href: "/mentions" }, "💬 Mentions")),
