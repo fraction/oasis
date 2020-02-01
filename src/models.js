@@ -647,6 +647,43 @@ module.exports = cooler => {
 
       return messages;
     },
+    latestFollowing: async () => {
+      const ssb = await cooler.connect();
+
+      const myFeedId = ssb.id;
+
+      const options = configure({
+        type: "post",
+        private: false
+      });
+
+      const source = await cooler.read(ssb.messagesByType, options);
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.asyncMap((message, cb) => {
+            models.friend.isFollowing(message.value.author).then(following => {
+              cb(null, following ? message : null);
+            });
+          }),
+          pull.filter(
+            message =>
+              message !== null && typeof message.value.content !== "string"
+          ),
+          pull.take(maxMessages),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
     popular: async ({ period }) => {
       const ssb = await cooler.connect();
 
@@ -679,11 +716,11 @@ module.exports = cooler => {
           source,
           pull.filter(msg => {
             return (
+              msg.value.timestamp > earliest &&
               typeof msg.value.content === "object" &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
-              typeof msg.value.content.vote.value === "number" &&
-              msg.value.timestamp > earliest
+              typeof msg.value.content.vote.value === "number"
             );
           }),
           pull.reduce(

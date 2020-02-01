@@ -394,7 +394,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   return template(
     section(
       { class: "message" },
-      h1("Meta"),
+      h1("Settings"),
       p(
         "Check out ",
         a({ href: "/meta/readme" }, "the readme"),
