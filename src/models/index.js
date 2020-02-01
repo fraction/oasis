@@ -722,11 +722,11 @@ module.exports = cooler => {
           source,
           pull.filter(msg => {
             return (
+              msg.value.timestamp > earliest &&
               typeof msg.value.content === "object" &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
-              typeof msg.value.content.vote.value === "number" &&
-              msg.value.timestamp > earliest
+              typeof msg.value.content.vote.value === "number"
             );
           }),
           pull.reduce(
