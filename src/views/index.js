@@ -50,9 +50,8 @@ exports.authorView = ({
 
   const contactFormType = areFollowing ? "Unfollow" : "Follow";
 
-  // We're on our own profile!
   const contactForm =
-    relationship !== null
+    relationship !== null && relationship !== "this is you"
       ? form(
           {
             action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
@@ -65,7 +64,7 @@ exports.authorView = ({
             contactFormType
           )
         )
-      : null;
+      : null; // We're on our own profile!
 
   const prefix = section(
     { class: "message" },
