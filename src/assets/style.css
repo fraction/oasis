@@ -392,13 +392,15 @@ label {
 
 nav > ul {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   margin: 0;
   padding: 0;
 }
 
 nav > ul > li {
   list-style: none;
+  margin-right: var(--milli);
 }
 
 .profile {
