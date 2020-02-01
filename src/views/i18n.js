@@ -97,6 +97,6 @@ module.exports = {
     latest: "Nuevo",
     profile: "Pagina",
     search: "Buscar",
-    settings: "Regolas"
+    settings: "Reglas"
   }
 };
