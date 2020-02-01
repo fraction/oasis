@@ -299,11 +299,6 @@ exports.authorView = ({
     ) {
       return i18n.relationshipNone;
     } else if (
-      relationship.following === false &&
-      relationship.blocking === false
-    ) {
-      return i18n.relationshipNone;
-    } else if (
       relationship.following === true &&
       relationship.blocking === true
     ) {
