@@ -85,6 +85,18 @@ module.exports = {
       "replied to ",
       a({ href: parentUrl }, " message")
     ],
-    mysteryDescription: "posted a mysterious message"
+    mysteryDescription: "posted a mysterious message",
+    language: "Language",
+    languageDescription:
+      "Oasis is starting to support languages other than English. Please contribute improvements!",
+    setLanguage: "Set language"
+  },
+  /* spell-checker: disable */
+  es: {
+    popular: "Popular",
+    latest: "Nuevo",
+    profile: "Pagina",
+    search: "Buscar",
+    settings: "Regolas"
   }
 };

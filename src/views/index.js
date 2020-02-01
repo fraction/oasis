@@ -41,11 +41,17 @@ const {
   ul
 } = require("hyperaxe");
 
-// TODO: Add support for other languages.
-const i18n = require("./i18n").en;
+const lodash = require("lodash");
 const markdown = require("./markdown");
 
-const lodash = require("lodash");
+// TODO: Add support for other languages.
+const i18nBase = require("./i18n");
+let i18n = i18nBase.en;
+
+exports.setLanguage = language => {
+  i18n = Object.assign({}, i18nBase.en, i18nBase[language]);
+};
+
 const markdownUrl = "https://commonmark.org/help/";
 const doctypeString = "<!DOCTYPE html>";
 
@@ -252,7 +258,9 @@ exports.authorView = ({
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
   const areFollowing =
-    relationship.following === true && relationship.blocking === false;
+    relationship !== null &&
+    relationship.following === true &&
+    relationship.blocking === false;
 
   const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
 
@@ -483,6 +491,17 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
         button({ type: "submit" }, i18n.setTheme)
       ),
       base16Elements,
+      h2(i18n.language),
+      p(i18n.languageDescription),
+      form(
+        { action: "/language", method: "post" },
+        select(
+          { name: "language" },
+          option({ value: "en" }, "English"),
+          option({ value: "es" }, "Spanish")
+        ),
+        button({ type: "submit" }, i18n.setLanguage)
+      ),
       h2(i18n.status),
       h3(i18n.peerConnections),
       p(i18n.connectionsIntro),

@@ -51,7 +51,8 @@ const {
   metaView,
   publicView,
   replyView,
-  searchView
+  searchView,
+  setLanguage
 } = require("./views");
 
 let sharp;
@@ -524,6 +525,13 @@ router
   .post("/theme.css", koaBody(), async ctx => {
     const theme = String(ctx.request.body.theme);
     ctx.cookies.set("theme", theme);
+    const referer = new URL(ctx.request.header.referer);
+    ctx.redirect(referer);
+  })
+  .post("/language", koaBody(), async ctx => {
+    const language = String(ctx.request.body.language);
+    ctx.cookies.set("language", language);
+    setLanguage(language);
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
