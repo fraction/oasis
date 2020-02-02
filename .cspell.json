@@ -9,6 +9,7 @@
     "hyperaxe",
     "hyperscript",
     "manyverse",
+    "minlength",
     "monokai",
     "msgs",
     "multiserver",
@@ -23,12 +24,12 @@
     "recps",
     "roadmap",
     "sameorigin",
-    "systemctl",
     "socio",
     "ssbc",
     "summerfruit",
+    "systemctl",
+    "systemd",
     "unfollow",
-    "unikitty",
-    "systemd"
+    "unikitty"
   ]
 }

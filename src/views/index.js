@@ -361,8 +361,22 @@ exports.replyView = async ({ messages, myFeedId }) => {
   );
 };
 
-exports.searchView = ({ messages, query }) =>
-  template(
+exports.searchView = ({ messages, query }) => {
+  const searchInput = input({
+    name: "query",
+    required: false,
+    type: "search",
+    value: query
+  });
+
+  // - Minimum length of 3 because otherwise SSB-Search hangs forever. :)
+  //   https://github.com/ssbc/ssb-search/issues/8
+  // - Using `setAttribute()` because HyperScript (the HyperAxe dependency has
+  //   a bug where the `minlength` property is being ignored. No idea why.
+  //   https://github.com/hyperhype/hyperscript/issues/91
+  searchInput.setAttribute("minlength", 3);
+
+  return template(
     section(
       form(
         { action: "/search", method: "get" },
@@ -371,7 +385,7 @@ exports.searchView = ({ messages, query }) =>
           { for: "query" },
           "Add word(s) to look for in downloaded messages."
         ),
-        input({ required: true, type: "search", name: "query", value: query }),
+        searchInput,
         button(
           {
             type: "submit"
@@ -382,3 +396,4 @@ exports.searchView = ({ messages, query }) =>
     ),
     messages.map(msg => post({ msg }))
   );
+};
