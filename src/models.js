@@ -11,8 +11,6 @@ const pullSort = require("pull-sort");
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
 
-const markdown = require("./markdown");
-
 const nullImage = `&${"0".repeat(43)}=.sha256`;
 
 const defaultOptions = {
@@ -57,7 +55,7 @@ module.exports = cooler => {
         key: "description",
         dest: feedId
       });
-      return markdown(raw);
+      return raw;
     },
     all: async feedId => {
       const ssb = await cooler.connect();
@@ -315,10 +313,6 @@ module.exports = cooler => {
           return null;
         }
 
-        lodash.set(msg, "value.meta.md.block", () =>
-          markdown(msg.value.content.text, msg.value.content.mentions)
-        );
-
         const filterQuery = {
           $filter: {
             dest: msg.key
@@ -435,7 +429,7 @@ module.exports = cooler => {
     );
 
   const post = {
-    fromFeed: async (feedId, customOptions = {}) => {
+    fromPublicFeed: async (feedId, customOptions = {}) => {
       const ssb = await cooler.connect();
 
       const myFeedId = ssb.id;
@@ -448,7 +442,7 @@ module.exports = cooler => {
           source,
           pull.filter(
             msg =>
-              typeof msg.value.content !== "string" &&
+              lodash.get(msg, "value.meta.private", false) === false &&
               msg.value.content.type === "post"
           ),
           pull.take(maxMessages),
@@ -653,6 +647,43 @@ module.exports = cooler => {
 
       return messages;
     },
+    latestFollowing: async () => {
+      const ssb = await cooler.connect();
+
+      const myFeedId = ssb.id;
+
+      const options = configure({
+        type: "post",
+        private: false
+      });
+
+      const source = await cooler.read(ssb.messagesByType, options);
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.asyncMap((message, cb) => {
+            models.friend.isFollowing(message.value.author).then(following => {
+              cb(null, following ? message : null);
+            });
+          }),
+          pull.filter(
+            message =>
+              message !== null && typeof message.value.content !== "string"
+          ),
+          pull.take(maxMessages),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
     popular: async ({ period }) => {
       const ssb = await cooler.connect();
 
@@ -685,11 +716,11 @@ module.exports = cooler => {
           source,
           pull.filter(msg => {
             return (
+              msg.value.timestamp > earliest &&
               typeof msg.value.content === "object" &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
-              typeof msg.value.content.vote.value === "number" &&
-              msg.value.timestamp > earliest
+              typeof msg.value.content.vote.value === "number"
             );
           }),
           pull.reduce(

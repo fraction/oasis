@@ -32,6 +32,7 @@ const requireStyle = require("require-style");
 const router = require("koa-router")();
 const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
+const isSvg = require("is-svg");
 const { themeNames } = require("@fraction/base16-css");
 
 const ssb = require("./ssb");
@@ -126,13 +127,18 @@ router
     };
     ctx.body = await publicLatest();
   })
+  .get("/public/latest/following", async ctx => {
+    const messages = await post.latestFollowing();
+
+    ctx.body = await publicView({ messages });
+  })
   .get("/author/:feed", async ctx => {
     const { feed } = ctx.params;
     const author = async feedId => {
       const description = await about.description(feedId);
       const name = await about.name(feedId);
       const image = await about.image(feedId);
-      const messages = await post.fromFeed(feedId);
+      const messages = await post.fromPublicFeed(feedId);
       const relationship = await friend.getRelationship(feedId);
 
       const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
@@ -195,7 +201,7 @@ router
       const name = await about.name(myFeedId);
       const image = await about.image(myFeedId);
 
-      const messages = await post.fromFeed(myFeedId);
+      const messages = await post.fromPublicFeed(myFeedId);
 
       const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
 
@@ -240,7 +246,9 @@ router
         );
       });
     };
-    ctx.body = await getBlob({ blobId });
+
+    const buffer = await getBlob({ blobId });
+    ctx.body = buffer;
 
     if (ctx.body.length === 0) {
       ctx.response.status = 404;
@@ -250,6 +258,14 @@ router
 
     // This prevents an auto-download when visiting the URL.
     ctx.attachment(blobId, { type: "inline" });
+
+    // If we don't do this explicitly the browser downloads the SVG and thinks
+    // that it's plain XML, so it doesn't render SVG files correctly. Note that
+    // this library is **not a full SVG parser**, and may cause false positives
+    // in the case of malformed XML like `<svg><div></svg>`.
+    if (isSvg(buffer)) {
+      ctx.type = "image/svg+xml";
+    }
   })
   .get("/image/:imageSize/:blobId", async ctx => {
     const { blobId, imageSize } = ctx.params;
