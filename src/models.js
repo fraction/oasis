@@ -811,187 +811,195 @@ module.exports = cooler => {
       const myFeedId = ssb.id;
 
       const options = configure({ id: msgId }, customOptions);
-      const rawMsg = await cooler.get(ssb.get, options);
+      return cooler
+        .get(ssb.get, options)
+        .then(async rawMsg => {
+          debug("got raw message");
 
-      debug("got raw message");
+          const parents = [];
 
-      const parents = [];
+          const getRootAncestor = msg =>
+            new Promise((resolve, reject) => {
+              if (msg.key == null) {
+                debug("something is very wrong, we used `{ meta: true }`");
+                resolve(parents);
+              } else {
+                debug("getting root ancestor of %s", msg.key);
 
-      const getRootAncestor = msg =>
-        new Promise((resolve, reject) => {
-          if (msg.key == null) {
-            debug("something is very wrong, we used `{ meta: true }`");
-            resolve(parents);
-          } else {
-            debug("getting root ancestor of %s", msg.key);
+                if (typeof msg.value.content === "string") {
+                  debug("private message");
+                  // Private message we can't decrypt, stop looking for parents.
+                  resolve(parents);
+                }
 
-            if (typeof msg.value.content === "string") {
-              debug("private message");
-              // Private message we can't decrypt, stop looking for parents.
-              resolve(parents);
-            }
+                if (msg.value.content.type !== "post") {
+                  debug("not a post");
+                  resolve(msg);
+                }
 
-            if (msg.value.content.type !== "post") {
-              debug("not a post");
-              resolve(msg);
-            }
-
-            if (isLooseReply(msg)) {
-              debug("reply, get the parent");
-              try {
-                // It's a message reply, get the parent!
-                cooler
-                  .get(ssb.get, {
-                    id: msg.value.content.fork,
-                    meta: true,
-                    private: true
-                  })
-                  .then(fork => {
-                    resolve(getRootAncestor(fork));
-                  })
-                  .catch(reject);
-              } catch (e) {
-                debug(e);
-                resolve(msg);
+                if (isLooseReply(msg)) {
+                  debug("reply, get the parent");
+                  try {
+                    // It's a message reply, get the parent!
+                    cooler
+                      .get(ssb.get, {
+                        id: msg.value.content.fork,
+                        meta: true,
+                        private: true
+                      })
+                      .then(fork => {
+                        resolve(getRootAncestor(fork));
+                      })
+                      .catch(reject);
+                  } catch (e) {
+                    debug(e);
+                    resolve(msg);
+                  }
+                } else if (isLooseComment(msg)) {
+                  debug("comment: %s", msg.value.content.root);
+                  try {
+                    // It's a thread reply, get the parent!
+                    cooler
+                      .get(ssb.get, {
+                        id: msg.value.content.root,
+                        meta: true,
+                        private: true
+                      })
+                      .then(root => {
+                        resolve(getRootAncestor(root));
+                      })
+                      .catch(reject);
+                  } catch (e) {
+                    debug(e);
+                    resolve(msg);
+                  }
+                } else if (isLooseRoot(msg)) {
+                  debug("got root ancestor");
+                  resolve(msg);
+                } else {
+                  // type !== "post", probably
+                  // this should show up as JSON
+                  debug(
+                    "got mysterious root ancestor that fails all known schemas"
+                  );
+                  debug("%O", msg);
+                  resolve(msg);
+                }
               }
-            } else if (isLooseComment(msg)) {
-              debug("comment: %s", msg.value.content.root);
-              try {
-                // It's a thread reply, get the parent!
-                cooler
-                  .get(ssb.get, {
-                    id: msg.value.content.root,
-                    meta: true,
-                    private: true
-                  })
-                  .then(root => {
-                    resolve(getRootAncestor(root));
-                  })
-                  .catch(reject);
-              } catch (e) {
-                debug(e);
-                resolve(msg);
-              }
-            } else if (isLooseRoot(msg)) {
-              debug("got root ancestor");
-              resolve(msg);
-            } else {
-              // type !== "post", probably
-              // this should show up as JSON
-              debug(
-                "got mysterious root ancestor that fails all known schemas"
-              );
-              debug("%O", msg);
-              resolve(msg);
-            }
-          }
-        });
+            });
 
-      const getReplies = key =>
-        new Promise((resolve, reject) => {
-          const filterQuery = {
-            $filter: {
-              dest: key
-            }
-          };
+          const getReplies = key =>
+            new Promise((resolve, reject) => {
+              const filterQuery = {
+                $filter: {
+                  dest: key
+                }
+              };
 
-          cooler
-            .read(ssb.backlinks.read, {
-              query: [filterQuery],
-              index: "DTA" // use asserted timestamps
-            })
-            .then(referenceStream => {
-              pull(
-                referenceStream,
-                pull.filter(msg => {
-                  const isPost =
-                    lodash.get(msg, "value.content.type") === "post";
-                  if (isPost === false) {
-                    return false;
-                  }
-
-                  const root = lodash.get(msg, "value.content.root");
-                  const fork = lodash.get(msg, "value.content.fork");
-
-                  if (root !== key && fork !== key) {
-                    // mention
-                    return false;
-                  }
-
-                  if (fork === key) {
-                    // not a reply to this post
-                    // it's a reply *to a reply* of this post
-                    return false;
-                  }
-
-                  return true;
-                }),
-                pull.collect((err, messages) => {
-                  if (err) {
-                    reject(err);
-                  } else {
-                    resolve(messages || undefined);
-                  }
+              cooler
+                .read(ssb.backlinks.read, {
+                  query: [filterQuery],
+                  index: "DTA" // use asserted timestamps
                 })
-              );
-            })
-            .catch(reject);
-        });
+                .then(referenceStream => {
+                  pull(
+                    referenceStream,
+                    pull.filter(msg => {
+                      const isPost =
+                        lodash.get(msg, "value.content.type") === "post";
+                      if (isPost === false) {
+                        return false;
+                      }
 
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
-      const flattenDeep = arr1 =>
-        arr1.reduce(
-          (acc, val) =>
-            Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val),
-          []
-        );
+                      const root = lodash.get(msg, "value.content.root");
+                      const fork = lodash.get(msg, "value.content.fork");
 
-      const getDeepReplies = key =>
-        new Promise((resolve, reject) => {
-          const oneDeeper = async (replyKey, depth) => {
-            const replies = await getReplies(replyKey);
-            debug(
-              "replies",
-              replies.map(m => m.key)
+                      if (root !== key && fork !== key) {
+                        // mention
+                        return false;
+                      }
+
+                      if (fork === key) {
+                        // not a reply to this post
+                        // it's a reply *to a reply* of this post
+                        return false;
+                      }
+
+                      return true;
+                    }),
+                    pull.collect((err, messages) => {
+                      if (err) {
+                        reject(err);
+                      } else {
+                        resolve(messages || undefined);
+                      }
+                    })
+                  );
+                })
+                .catch(reject);
+            });
+
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+          const flattenDeep = arr1 =>
+            arr1.reduce(
+              (acc, val) =>
+                Array.isArray(val)
+                  ? acc.concat(flattenDeep(val))
+                  : acc.concat(val),
+              []
             );
 
-            debug("found %s replies for %s", replies.length, replyKey);
+          const getDeepReplies = key =>
+            new Promise((resolve, reject) => {
+              const oneDeeper = async (replyKey, depth) => {
+                const replies = await getReplies(replyKey);
+                debug(
+                  "replies",
+                  replies.map(m => m.key)
+                );
 
-            if (replies.length === 0) {
-              return replies;
-            }
-            return Promise.all(
-              replies.map(async reply => {
-                const deeperReplies = await oneDeeper(reply.key, depth + 1);
-                lodash.set(reply, "value.meta.thread.depth", depth);
-                lodash.set(reply, "value.meta.thread.reply", true);
-                return [reply, deeperReplies];
-              })
-            );
-          };
-          oneDeeper(key, 0)
-            .then(nested => {
-              const nestedReplies = [...nested];
-              const deepReplies = flattenDeep(nestedReplies);
-              resolve(deepReplies);
-            })
-            .catch(reject);
+                debug("found %s replies for %s", replies.length, replyKey);
+
+                if (replies.length === 0) {
+                  return replies;
+                }
+                return Promise.all(
+                  replies.map(async reply => {
+                    const deeperReplies = await oneDeeper(reply.key, depth + 1);
+                    lodash.set(reply, "value.meta.thread.depth", depth);
+                    lodash.set(reply, "value.meta.thread.reply", true);
+                    return [reply, deeperReplies];
+                  })
+                );
+              };
+              oneDeeper(key, 0)
+                .then(nested => {
+                  const nestedReplies = [...nested];
+                  const deepReplies = flattenDeep(nestedReplies);
+                  resolve(deepReplies);
+                })
+                .catch(reject);
+            });
+
+          debug("about to get root ancestor");
+          const rootAncestor = await getRootAncestor(rawMsg);
+          debug("got root ancestors");
+          const deepReplies = await getDeepReplies(rootAncestor.key);
+          debug("got deep replies");
+
+          const allMessages = [rootAncestor, ...deepReplies].map(message => {
+            const isThreadTarget = message.key === msgId;
+            lodash.set(message, "value.meta.thread.target", isThreadTarget);
+            return message;
+          });
+
+          return await transform(ssb, allMessages, myFeedId);
+        })
+        .catch(() => {
+          throw new Error(
+            "Message not found in the database. You've done nothing wrong. Maybe try again later?"
+          );
         });
-
-      debug("about to get root ancestor");
-      const rootAncestor = await getRootAncestor(rawMsg);
-      debug("got root ancestors");
-      const deepReplies = await getDeepReplies(rootAncestor.key);
-      debug("got deep replies");
-
-      const allMessages = [rootAncestor, ...deepReplies].map(message => {
-        const isThreadTarget = message.key === msgId;
-        lodash.set(message, "value.meta.thread.target", isThreadTarget);
-        return message;
-      });
-
-      const transformed = await transform(ssb, allMessages, myFeedId);
-      return transformed;
     },
     get: async (msgId, customOptions) => {
       debug("get: %s", msgId);
