@@ -531,7 +531,6 @@ router
   .post("/language", koaBody(), async ctx => {
     const language = String(ctx.request.body.language);
     ctx.cookies.set("language", language);
-    setLanguage(language);
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
@@ -550,9 +549,19 @@ router
 
 const { host } = config;
 const { port } = config;
+
 const routes = router.routes();
 
-http({ host, port, routes });
+const middleware = [
+  async (ctx, next) => {
+    const selectedLanguage = ctx.cookies.get("language") || "en";
+    setLanguage(selectedLanguage);
+    await next();
+  },
+  routes
+];
+
+http({ host, port, middleware });
 
 const uri = `http://${host}:${port}/`;
 

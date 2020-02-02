@@ -4,9 +4,9 @@ const path = require("path");
 const mount = require("koa-mount");
 
 /**
- * @param {{ host: string, port: number, routes: any }} input
+ * @param {{ host: string, port: number, middleware: [] }} input
  */
-module.exports = ({ host, port, routes }) => {
+module.exports = ({ host, port, middleware }) => {
   const assets = new Koa();
   assets.use(koaStatic(path.join(__dirname, "assets")));
 
@@ -60,6 +60,7 @@ module.exports = ({ host, port, routes }) => {
       );
     }
   });
-  app.use(routes);
+
+  middleware.forEach(m => app.use(m));
   app.listen({ host, port });
 };

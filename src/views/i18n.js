@@ -88,7 +88,7 @@ module.exports = {
     mysteryDescription: "posted a mysterious message",
     language: "Language",
     languageDescription:
-      "Oasis is starting to support languages other than English. Please contribute improvements!",
+      "If you'd like to use Oasis in another language, choose one below. Please be aware that this is very new and very basic. We'd love your help translating Oasis to other languages and locales.",
     setLanguage: "Set language"
   },
   /* spell-checker: disable */

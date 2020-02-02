@@ -44,11 +44,12 @@ const {
 const lodash = require("lodash");
 const markdown = require("./markdown");
 
-// TODO: Add support for other languages.
 const i18nBase = require("./i18n");
-let i18n = i18nBase.en;
+let i18n = null;
+let selectedLanguage = null;
 
 exports.setLanguage = language => {
+  selectedLanguage = language;
   i18n = Object.assign({}, i18nBase.en, i18nBase[language]);
 };
 
@@ -473,6 +474,11 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
     })
   );
 
+  const languageOption = (shortName, longName) =>
+    shortName === selectedLanguage
+      ? option({ value: shortName, selected: true }, longName)
+      : option({ value: shortName }, longName);
+
   return template(
     section(
       { class: "message" },
@@ -490,11 +496,10 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       p(i18n.languageDescription),
       form(
         { action: "/language", method: "post" },
-        select(
-          { name: "language" },
-          option({ value: "en" }, "English"),
-          option({ value: "es" }, "Spanish")
-        ),
+        select({ name: "language" }, [
+          languageOption("en", "English"),
+          languageOption("es", "Español")
+        ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
       h2(i18n.status),
