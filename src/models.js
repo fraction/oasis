@@ -56,40 +56,6 @@ module.exports = cooler => {
         dest: feedId
       });
       return raw;
-    },
-    all: async feedId => {
-      const ssb = await cooler.connect();
-      const raw = await cooler.read(ssb.about.read, {
-        dest: feedId
-      });
-
-      return new Promise((resolve, reject) =>
-        pull(
-          raw,
-          pull.filter(message => message.value.author === feedId),
-          pull.reduce(
-            (acc, cur) => {
-              const metaKeys = ["type", "about"];
-
-              Object.entries(cur.value.content)
-                .filter(([key]) => metaKeys.includes(key) === false)
-                .forEach(([key, value]) => {
-                  acc[key] = value;
-                });
-
-              return acc;
-            },
-            {},
-            (err, val) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(val);
-              }
-            }
-          )
-        )
-      );
     }
   };
 
@@ -282,10 +248,12 @@ module.exports = cooler => {
     const options = configure({ query, index: "DTA" }, customOptions);
 
     const source = await cooler.read(ssb.backlinks.read, options);
+    const basicSocialFilter = await socialFilter();
 
     return new Promise((resolve, reject) => {
       pull(
         source,
+        basicSocialFilter,
         pull.filter(
           msg =>
             typeof msg.value.content !== "string" &&
@@ -304,6 +272,34 @@ module.exports = cooler => {
     });
   };
 
+  const socialFilter = async ({
+    following = null,
+    blocking = false,
+    me = false
+  } = {}) => {
+    const ssb = await cooler.connect();
+    const { id } = ssb;
+    const relationshipObject = await cooler.get(ssb.friends.get, {
+      source: id
+    });
+
+    const followingList = Object.entries(relationshipObject)
+      .filter(([, val]) => val === true)
+      .map(([key]) => key);
+
+    const blockingList = Object.entries(relationshipObject)
+      .filter(([, val]) => val === false)
+      .map(([key]) => key);
+
+    return pull.filter(
+      message =>
+        (following === null ||
+          followingList.includes(message.value.author) === following) &&
+        (blocking === null ||
+          blockingList.includes(message.value.author) === blocking) &&
+        (me === null || (message.value.author === id) === me)
+    );
+  };
   const transform = (ssb, messages, myFeedId) =>
     Promise.all(
       messages.map(async msg => {
@@ -625,10 +621,12 @@ module.exports = cooler => {
       });
 
       const source = await cooler.read(ssb.messagesByType, options);
+      const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          followingFilter,
           pull.filter(
             (
               message // avoid private messages (!)
@@ -647,17 +645,8 @@ module.exports = cooler => {
 
       return messages;
     },
-    latestFollowing: async () => {
+    latestExtended: async () => {
       const ssb = await cooler.connect();
-      const { id } = ssb;
-
-      const relationshipObject = await cooler.get(ssb.friends.get, {
-        source: id
-      });
-
-      const followingList = Object.entries(relationshipObject)
-        .filter(([, val]) => val === true)
-        .map(([key]) => key);
 
       const myFeedId = ssb.id;
 
@@ -668,15 +657,15 @@ module.exports = cooler => {
 
       const source = await cooler.read(ssb.messagesByType, options);
 
+      const extendedFilter = await socialFilter({
+        following: false
+      });
+
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(
-            message =>
-              followingList.includes(message.value.author) &&
-              message !== null &&
-              typeof message.value.content !== "string"
-          ),
+          pull.filter(message => typeof message.value.content !== "string"),
+          extendedFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -716,10 +705,12 @@ module.exports = cooler => {
       });
 
       const source = await cooler.read(ssb.messagesByType, options);
+      const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          followingFilter,
           pull.filter(msg => {
             return (
               msg.value.timestamp > earliest &&
