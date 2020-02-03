@@ -1,4 +1,6 @@
 # Oasis
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffraction%2Foasis.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffraction%2Foasis?ref=badge_shield)
+
 
 **Friendly Scuttlebutt interface designed for simplicity and accessibility.**
 This is an experimental client built with HTML, CSS, and Node.js without any
@@ -56,3 +58,6 @@ Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/maste
 ## License
 
 AGPL-3.0
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffraction%2Foasis.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffraction%2Foasis?ref=badge_large)
