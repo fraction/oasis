@@ -510,6 +510,13 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       peerList.length > 0 ? ul(peerList) : i18n.noConnections,
       p(i18n.connectionActionIntro),
       connButtons,
+      h3(i18n.invites),
+      p(i18n.invitesDescription),
+      form(
+        { action: "/meta/invite/accept", method: "post" },
+        input({ name: "invite", type: "text" }),
+        button({ type: "submit" }, i18n.acceptInvite)
+      ),
       h3(i18n.indexes),
       progressElements
     )

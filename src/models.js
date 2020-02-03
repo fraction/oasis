@@ -193,6 +193,10 @@ module.exports = cooler => {
     connRestart: async () => {
       await models.meta.connStop();
       await models.meta.connStart();
+    },
+    acceptInvite: async invite => {
+      const ssb = await cooler.connect();
+      return await cooler.get(ssb.invite.accept, invite);
     }
   };
 
