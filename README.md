@@ -26,7 +26,7 @@ Options:
 
 ## Installation
 
-Most people should install Oasis with [npm](https://npmjs.org/).
+Most people should install stable releases with [npm](https://npmjs.org/).
 
 ```shell
 npm --global install @fraction/oasis@latest
@@ -34,13 +34,19 @@ npm --global install @fraction/oasis@latest
 
 Please make sure that your Node.js version is the [**current** or **active LTS** release](https://nodejs.org/en/about/releases/).
 
+For faster updates and less stability, install from GitHub and upgrade often.
+
+```shell
+npm --global install github:fraction/oasis
+```
+
 Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/master/docs/install.md).
 
 ## Resources
 
 - [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
 - [Architecture](https://github.com/fraction/oasis/blob/master/docs/architecture.md)
-- [Help](https://github.com/fraction/oasis/issues/new/choose)
+- [Help](https://github.com/fraction/oasis/issues/new)
 - [Roadmap](https://github.com/fraction/oasis/blob/master/docs/roadmap.md)
 - [Security Policy](https://github.com/fraction/oasis/blob/master/docs/security.md)
 - [Source Code](https://github.com/fraction/oasis.git)

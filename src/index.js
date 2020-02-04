@@ -270,11 +270,15 @@ router
   })
   .get("/image/:imageSize/:blobId", async ctx => {
     const { blobId, imageSize } = ctx.params;
-    ctx.type = "image/png";
+    if (sharp) {
+      ctx.type = "image/png";
+    }
+
     const fakePixel = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
       "base64"
     );
+
     const fakeImage = imageSize =>
       sharp
         ? sharp({
@@ -290,7 +294,10 @@ router
               }
             }
           })
+            .png()
+            .toBuffer()
         : new Promise(resolve => resolve(fakePixel));
+
     const image = async ({ blobId, imageSize }) => {
       const bufferSource = await blob.get({ blobId });
       const fakeId = "&0000000000000000000000000000000000000000000=.sha256";
