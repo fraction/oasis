@@ -649,6 +649,15 @@ module.exports = cooler => {
     },
     latestFollowing: async () => {
       const ssb = await cooler.connect();
+      const { id } = ssb;
+
+      const relationshipObject = await cooler.get(ssb.friends.get, {
+        source: id
+      });
+
+      const followingList = Object.entries(relationshipObject)
+        .filter(([, val]) => val === true)
+        .map(([key]) => key);
 
       const myFeedId = ssb.id;
 
@@ -662,14 +671,11 @@ module.exports = cooler => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.asyncMap((message, cb) => {
-            models.friend.isFollowing(message.value.author).then(following => {
-              cb(null, following ? message : null);
-            });
-          }),
           pull.filter(
             message =>
-              message !== null && typeof message.value.content !== "string"
+              followingList.includes(message.value.author) &&
+              message !== null &&
+              typeof message.value.content !== "string"
           ),
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
