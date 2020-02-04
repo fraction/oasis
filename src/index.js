@@ -46,13 +46,16 @@ const { about, blob, friend, meta, post, vote } = require("./models")(cooler);
 const {
   authorView,
   commentView,
+  extendedView,
+  latestView,
   listView,
   markdownView,
   metaView,
-  publicView,
+  popularView,
   replyView,
   searchView,
-  setLanguage
+  setLanguage,
+  topicsView
 } = require("./views");
 
 let sharp;
@@ -114,7 +117,7 @@ router
         ul(option("Day"), option("Week"), option("Month"), option("Year"))
       );
 
-      return publicView({
+      return popularView({
         messages,
         prefix
       });
@@ -123,15 +126,15 @@ router
   })
   .get("/public/latest", async ctx => {
     const messages = await post.latest();
-    ctx.body = await publicView({ messages });
+    ctx.body = await latestView({ messages });
   })
   .get("/public/latest/extended", async ctx => {
     const messages = await post.latestExtended();
-    ctx.body = await publicView({ messages });
+    ctx.body = await extendedView({ messages });
   })
   .get("/public/latest/topics", async ctx => {
     const messages = await post.latestTopics();
-    ctx.body = await publicView({ messages });
+    ctx.body = await topicsView({ messages });
   })
   .get("/author/:feed", async ctx => {
     const { feed } = ctx.params;

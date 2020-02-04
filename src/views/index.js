@@ -11,6 +11,7 @@ const {
   button,
   details,
   div,
+  em,
   footer,
   form,
   h1,
@@ -515,10 +516,25 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   );
 };
 
-exports.publicView = ({ messages, prefix = null }) => {
+exports.publicView = ({
+  messages,
+  prefix = null,
+  viewTitle = null,
+  viewDescription = null
+}) => {
   const publishForm = "/publish/";
 
+  let viewInfoBox = null;
+  if (viewTitle || viewDescription) {
+    viewInfoBox = section(
+      { class: "viewInfo" },
+      viewTitle ? h1(viewTitle) : null,
+      viewDescription ? em(viewDescription) : null
+    );
+  }
+
   return template(
+    viewInfoBox,
     prefix,
     section(
       header(strong(i18n.publish)),
@@ -534,6 +550,42 @@ exports.publicView = ({ messages, prefix = null }) => {
     ),
     messages.map(msg => post({ msg }))
   );
+};
+
+exports.popularView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.popular,
+    viewDescription: i18n.popularDescription
+  });
+};
+
+exports.extendedView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.extended,
+    viewDescription: i18n.extendedDescription
+  });
+};
+
+exports.latestView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.latest,
+    viewDescription: i18n.latestDescription
+  });
+};
+
+exports.topicsView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.topics,
+    viewDescription: i18n.topicsDescription
+  });
 };
 
 exports.replyView = async ({ messages, myFeedId }) => {
