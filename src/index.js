@@ -127,8 +127,8 @@ router
     };
     ctx.body = await publicLatest();
   })
-  .get("/public/latest/following", async ctx => {
-    const messages = await post.latestFollowing();
+  .get("/public/latest/extended", async ctx => {
+    const messages = await post.latestExtended();
 
     ctx.body = await publicView({ messages });
   })
