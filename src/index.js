@@ -51,7 +51,8 @@ const {
   metaView,
   publicView,
   replyView,
-  searchView
+  searchView,
+  setLanguage
 } = require("./views");
 
 let sharp;
@@ -534,6 +535,12 @@ router
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
+  .post("/language", koaBody(), async ctx => {
+    const language = String(ctx.request.body.language);
+    ctx.cookies.set("language", language);
+    const referer = new URL(ctx.request.header.referer);
+    ctx.redirect(referer);
+  })
   .post("/meta/conn/start", koaBody(), async ctx => {
     await meta.connStart();
     ctx.redirect("/meta");
@@ -549,9 +556,19 @@ router
 
 const { host } = config;
 const { port } = config;
+
 const routes = router.routes();
 
-http({ host, port, routes });
+const middleware = [
+  async (ctx, next) => {
+    const selectedLanguage = ctx.cookies.get("language") || "en";
+    setLanguage(selectedLanguage);
+    await next();
+  },
+  routes
+];
+
+http({ host, port, middleware });
 
 const uri = `http://${host}:${port}/`;
 

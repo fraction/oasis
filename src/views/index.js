@@ -7,8 +7,8 @@ const highlightJs = require("highlight.js");
 const {
   a,
   article,
+  body,
   button,
-  code,
   details,
   div,
   footer,
@@ -16,11 +16,17 @@ const {
   h1,
   h2,
   h3,
+  head,
   header,
+  html,
   img,
   input,
   label,
   li,
+  link,
+  main,
+  meta,
+  nav,
   option,
   p,
   pre,
@@ -31,14 +37,71 @@ const {
   strong,
   summary,
   textarea,
+  title,
   ul
 } = require("hyperaxe");
 
-const template = require("./template");
+const lodash = require("lodash");
 const markdown = require("./markdown");
 
-const lodash = require("lodash");
+const i18nBase = require("./i18n");
+let i18n = null;
+let selectedLanguage = null;
 
+exports.setLanguage = language => {
+  selectedLanguage = language;
+  i18n = Object.assign({}, i18nBase.en, i18nBase[language]);
+};
+
+const markdownUrl = "https://commonmark.org/help/";
+const doctypeString = "<!DOCTYPE html>";
+
+const toAttributes = obj =>
+  Object.entries(obj)
+    .map(([key, val]) => `${key}=${val}`)
+    .join(", ");
+
+const template = (...elements) => {
+  const nodes = html(
+    { lang: "en" },
+    head(
+      title("Oasis"),
+      link({ rel: "stylesheet", href: "/theme.css" }),
+      link({ rel: "stylesheet", href: "/assets/style.css" }),
+      link({ rel: "stylesheet", href: "/assets/highlight.css" }),
+      link({ rel: "icon", type: "image/svg+xml", href: "/assets/favicon.svg" }),
+      meta({ charset: "utf-8" }),
+      meta({
+        name: "description",
+        content: i18n.oasisDescription
+      }),
+      meta({
+        name: "viewport",
+        content: toAttributes({ width: "device-width", "initial-scale": 1 })
+      })
+    ),
+    body(
+      nav(
+        ul(
+          li(a({ href: "/public/latest/extended" }, `🗺️ ${i18n.extended}`)),
+          li(a({ href: "/" }, `📣 ${i18n.popular}`)),
+          li(a({ href: "/public/latest" }, `🐇 ${i18n.latest}`)),
+          li(a({ href: "/public/latest/topics" }, `📖 ${i18n.topics}`)),
+          li(a({ href: "/profile" }, `🐱 ${i18n.profile}`)),
+          li(a({ href: "/mentions" }, `💬 ${i18n.mentions}`)),
+          li(a({ href: "/inbox" }, `✉️  ${i18n.private}`)),
+          li(a({ href: "/search" }, `🔍 ${i18n.search}`)),
+          li(a({ href: "/meta" }, `⚙ ${i18n.settings}`))
+        )
+      ),
+      main({ id: "content" }, elements)
+    )
+  );
+
+  const result = doctypeString + nodes.outerHTML;
+
+  return result;
+};
 const post = ({ msg }) => {
   const encoded = {
     key: encodeURIComponent(msg.key),
@@ -102,11 +165,12 @@ const post = ({ msg }) => {
 
   const isFork = msg.value.meta.postType === "reply";
 
+  // TODO: Refactor to stop using strings and use constants/symbols.
   const postOptions = {
     post: null,
-    comment: ["commented on ", a({ href: url.parent }, " thread")],
-    reply: ["replied to ", a({ href: url.parent }, " message")],
-    mystery: "posted a mysterious message"
+    comment: i18n.commentDescription({ parentUrl: url.parent }),
+    reply: i18n.replyDescription({ parentUrl: url.parent }),
+    mystery: i18n.mysteryDescription
   };
 
   const emptyContent = "<p>undefined</p>\n";
@@ -175,9 +239,9 @@ const post = ({ msg }) => {
           `❤ ${likeCount}`
         )
       ),
-      a({ href: url.comment }, "Comment"),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, "Reply"),
-      a({ href: url.json }, "JSON")
+      a({ href: url.comment }, i18n.comment),
+      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
+      a({ href: url.json }, i18n.json)
     )
   );
 
@@ -195,13 +259,17 @@ exports.authorView = ({
   const mention = `[@${name}](${feedId})`;
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
-  const areFollowing = relationship === "You are following";
+  const areFollowing =
+    relationship !== null &&
+    relationship.following === true &&
+    relationship.blocking === false;
 
-  const contactFormType = areFollowing ? "Unfollow" : "Follow";
+  const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
 
   const contactForm =
-    relationship !== null && relationship !== "this is you"
-      ? form(
+    relationship === null
+      ? null // We're on our own profile!
+      : form(
           {
             action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
             method: "post"
@@ -212,8 +280,35 @@ exports.authorView = ({
             },
             contactFormType
           )
-        )
-      : null; // We're on our own profile!
+        );
+
+  const relationshipText = (() => {
+    if (relationship === null) {
+      return i18n.relationshipYou;
+    } else if (
+      relationship.following === true &&
+      relationship.blocking === false
+    ) {
+      return i18n.relationshipFollowing;
+    } else if (
+      relationship.following === false &&
+      relationship.blocking === true
+    ) {
+      return i18n.relationshipBlocking;
+    } else if (
+      relationship.following === false &&
+      relationship.blocking === false
+    ) {
+      return i18n.relationshipNone;
+    } else if (
+      relationship.following === true &&
+      relationship.blocking === true
+    ) {
+      return i18n.relationshipConflict;
+    } else {
+      throw new Error(`Unknown relationship ${JSON.stringify(relationship)}`);
+    }
+  })();
 
   const prefix = section(
     { class: "message" },
@@ -228,8 +323,8 @@ exports.authorView = ({
     }),
     description !== "" ? article({ innerHTML: markdown(description) }) : null,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, "View likes"),
-      span(relationship),
+      a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
+      span(relationshipText),
       contactForm
     )
   );
@@ -264,23 +359,13 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
   const isPrivate = parentMessage.value.meta.private;
 
   const publicOrPrivate = isPrivate ? "private" : "public";
-  const maybeReplyText = isPrivate
-    ? null
-    : [
-        " Messages cannot be edited or deleted. To respond to an individual message, select ",
-        strong("reply"),
-        " instead."
-      ];
+  const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
     messageElements,
     p(
-      "Write a ",
-      strong(`${publicOrPrivate} comment`),
-      " on this thread with ",
-      a({ href: "https://commonmark.org/help/" }, "Markdown"),
-      ".",
-      maybeReplyText
+      ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
+      ...maybeReplyText
     ),
     form(
       { action, method },
@@ -296,7 +381,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
         {
           type: "submit"
         },
-        "Comment"
+        i18n.comment
       )
     )
   );
@@ -322,17 +407,17 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
 
   const startButton = form(
     { action: "/meta/conn/start", method: "post" },
-    button({ type: "submit" }, "Start networking")
+    button({ type: "submit" }, i18n.startNetworking)
   );
 
   const restartButton = form(
     { action: "/meta/conn/restart", method: "post" },
-    button({ type: "submit" }, "Restart networking")
+    button({ type: "submit" }, i18n.restartNetworking)
   );
 
   const stopButton = form(
     { action: "/meta/conn/stop", method: "post" },
-    button({ type: "submit" }, "Stop networking")
+    button({ type: "submit" }, i18n.stopNetworking)
   );
 
   const connButtons = div({ class: "form-button-group" }, [
@@ -390,36 +475,41 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
     })
   );
 
+  const languageOption = (shortName, longName) =>
+    shortName === selectedLanguage
+      ? option({ value: shortName, selected: true }, longName)
+      : option({ value: shortName }, longName);
+
   return template(
     section(
       { class: "message" },
-      h1("Settings"),
-      p(
-        "Check out ",
-        a({ href: "/meta/readme" }, "the readme"),
-        ", configure your theme, or view debugging information below."
-      ),
-      h2("Theme"),
-      p(
-        "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light."
-      ),
+      h1(i18n.settings),
+      p(i18n.settingsIntro({ readmeUrl: "/meta/readme" })),
+      h2(i18n.theme),
+      p(i18n.themeIntro),
       form(
         { action: "/theme.css", method: "post" },
         select({ name: "theme" }, ...themeElements),
-        button({ type: "submit" }, "Set theme")
+        button({ type: "submit" }, i18n.setTheme)
       ),
       base16Elements,
-      h2("Status"),
-      h3("Peer Connections 💻⚡️💻"),
-      p(
-        "Your computer is syncing data with these other computers. It will connect to any scuttlebutt pub and peer it can find, even if you have no relationship with them, as it looks for data from your friends."
+      h2(i18n.language),
+      p(i18n.languageDescription),
+      form(
+        { action: "/language", method: "post" },
+        select({ name: "language" }, [
+          languageOption("en", "English"),
+          languageOption("es", "Español")
+        ]),
+        button({ type: "submit" }, i18n.setLanguage)
       ),
-      peerList.length > 0 ? ul(peerList) : code("no peers connected"),
-      p(
-        "You can decide when you want your computer to network with peers. You can start, stop, or restart your networking whenever you'd like."
-      ),
+      h2(i18n.status),
+      h3(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
       connButtons,
-      h3("Indexes"),
+      h3(i18n.indexes),
       progressElements
     )
   );
@@ -431,23 +521,15 @@ exports.publicView = ({ messages, prefix = null }) => {
   return template(
     prefix,
     section(
-      header(strong("🌐 Publish")),
+      header(strong(i18n.publish)),
       form(
         { action: publishForm, method: "post" },
         label(
           { for: "text" },
-          "Write a new message in ",
-          a(
-            {
-              href: "https://commonmark.org/help/",
-              target: "_blank"
-            },
-            "Markdown"
-          ),
-          ". Messages cannot be edited or deleted."
+          i18n.newMessageLabel({ markdownUrl, linkTarget: "_blank" })
         ),
         textarea({ required: true, name: "text" }),
-        button({ type: "submit" }, "Submit")
+        button({ type: "submit" }, i18n.submit)
       )
     ),
     messages.map(msg => post({ msg }))
@@ -478,15 +560,7 @@ exports.replyView = async ({ messages, myFeedId }) => {
 
   return template(
     messageElements,
-    p(
-      "Write a ",
-      strong("public reply"),
-      " to this message with ",
-      a({ href: "https://commonmark.org/help/" }, "Markdown"),
-      ". Messages cannot be edited or deleted. To respond to an entire thread, select ",
-      strong("comment"),
-      " instead."
-    ),
+    p(i18n.replyLabel({ markdownUrl })),
     form(
       { action: replyForm, method: "post" },
       textarea(
@@ -501,7 +575,7 @@ exports.replyView = async ({ messages, myFeedId }) => {
         {
           type: "submit"
         },
-        "Reply"
+        i18n.reply
       )
     )
   );
@@ -526,17 +600,14 @@ exports.searchView = ({ messages, query }) => {
     section(
       form(
         { action: "/search", method: "get" },
-        header(strong("Search")),
-        label(
-          { for: "query" },
-          "Add word(s) to look for in downloaded messages."
-        ),
+        header(strong(i18n.search)),
+        label({ for: "query" }, i18n.searchLabel),
         searchInput,
         button(
           {
             type: "submit"
           },
-          "Submit"
+          i18n.submit
         )
       )
     ),
