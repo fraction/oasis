@@ -11,6 +11,7 @@ const {
   button,
   details,
   div,
+  em,
   footer,
   form,
   h1,
@@ -515,10 +516,41 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   );
 };
 
-exports.publicView = ({ messages, prefix = null }) => {
+const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
+  if (!viewTitle && !viewDescription) {
+    return null;
+  }
+  return section(
+    { class: "viewInfo" },
+    viewTitle ? h1(viewTitle) : null,
+    viewDescription ? em(viewDescription) : null
+  );
+};
+
+exports.likesView = async ({ messages, feed, name }) => {
+  const authorLink = a(
+    { href: `/author/${encodeURIComponent(feed)}` },
+    "@" + name
+  );
+
+  return template(
+    viewInfoBox({
+      viewTitle: span(authorLink, i18n.likedBy)
+    }),
+    messages.map(msg => post({ msg }))
+  );
+};
+
+exports.publicView = ({
+  messages,
+  prefix = null,
+  viewTitle = null,
+  viewDescription = null
+}) => {
   const publishForm = "/publish/";
 
   return template(
+    viewInfoBox({ viewTitle, viewDescription }),
     prefix,
     section(
       header(strong(i18n.publish)),
@@ -534,6 +566,42 @@ exports.publicView = ({ messages, prefix = null }) => {
     ),
     messages.map(msg => post({ msg }))
   );
+};
+
+exports.popularView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.popular,
+    viewDescription: i18n.popularDescription
+  });
+};
+
+exports.extendedView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.extended,
+    viewDescription: i18n.extendedDescription
+  });
+};
+
+exports.latestView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.latest,
+    viewDescription: i18n.latestDescription
+  });
+};
+
+exports.topicsView = ({ messages, prefix = null }) => {
+  return this.publicView({
+    messages,
+    prefix,
+    viewTitle: i18n.topics,
+    viewDescription: i18n.topicsDescription
+  });
 };
 
 exports.replyView = async ({ messages, myFeedId }) => {

@@ -321,6 +321,11 @@ section {
   box-sizing: border-box;
 }
 
+.viewInfo {
+  background: none;
+  white-space: pre-line; /* preserve newlines */
+}
+
 section > header {
   height: var(--line);
   display: flex;
