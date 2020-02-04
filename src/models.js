@@ -679,6 +679,44 @@ module.exports = cooler => {
 
       return messages;
     },
+    latestTopics: async () => {
+      const ssb = await cooler.connect();
+
+      const myFeedId = ssb.id;
+
+      const options = configure({
+        type: "post",
+        private: false
+      });
+
+      const source = await cooler.read(ssb.messagesByType, options);
+
+      const extendedFilter = await socialFilter({
+        following: true
+      });
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.filter(
+            message =>
+              typeof message.value.content !== "string" &&
+              message.value.content.root == null
+          ),
+          extendedFilter,
+          pull.take(maxMessages),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
     popular: async ({ period }) => {
       const ssb = await cooler.connect();
 

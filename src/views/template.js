@@ -46,6 +46,7 @@ module.exports = (...elements) => {
           li(a({ href: "/public/latest/extended" }, "🗺️ Extended")),
           li(a({ href: "/" }, "📣 Popular")),
           li(a({ href: "/public/latest" }, "🐇 Latest")),
+          li(a({ href: "/public/latest/topics" }, "📖 Topics")),
           li(a({ href: "/profile" }, "🐱 Profile")),
           li(a({ href: "/mentions" }, "💬 Mentions")),
           li(a({ href: "/inbox" }, "✉️ Private")),
