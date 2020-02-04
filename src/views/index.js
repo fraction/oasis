@@ -83,9 +83,10 @@ const template = (...elements) => {
     body(
       nav(
         ul(
+          li(a({ href: "/public/latest/extended" }, `🗺️ ${i18n.extended}`)),
           li(a({ href: "/" }, `📣 ${i18n.popular}`)),
           li(a({ href: "/public/latest" }, `🐇 ${i18n.latest}`)),
-          li(a({ href: "/public/latest/following" }, `👭 ${i18n.following}`)),
+          li(a({ href: "/public/latest/topics" }, `📖 ${i18n.topics}`)),
           li(a({ href: "/profile" }, `🐱 ${i18n.profile}`)),
           li(a({ href: "/mentions" }, `💬 ${i18n.mentions}`)),
           li(a({ href: "/inbox" }, `✉️  ${i18n.private}`)),

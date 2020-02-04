@@ -89,7 +89,9 @@ module.exports = {
     language: "Language",
     languageDescription:
       "If you'd like to use Oasis in another language, choose one below. Please be aware that this is very new and very basic. We'd love your help translating Oasis to other languages and locales.",
-    setLanguage: "Set language"
+    setLanguage: "Set language",
+    extended: "Extended",
+    topics: "Topics"
   },
   /* spell-checker: disable */
   es: {

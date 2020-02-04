@@ -122,15 +122,15 @@ router
     ctx.body = await publicPopular({ period });
   })
   .get("/public/latest", async ctx => {
-    const publicLatest = async () => {
-      const messages = await post.latest();
-      return publicView({ messages });
-    };
-    ctx.body = await publicLatest();
+    const messages = await post.latest();
+    ctx.body = await publicView({ messages });
   })
-  .get("/public/latest/following", async ctx => {
-    const messages = await post.latestFollowing();
-
+  .get("/public/latest/extended", async ctx => {
+    const messages = await post.latestExtended();
+    ctx.body = await publicView({ messages });
+  })
+  .get("/public/latest/topics", async ctx => {
+    const messages = await post.latestTopics();
     ctx.body = await publicView({ messages });
   })
   .get("/author/:feed", async ctx => {
