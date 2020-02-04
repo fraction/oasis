@@ -528,7 +528,6 @@ const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
 };
 
 exports.likesView = async ({ messages, feed, name }) => {
-  console.log(feed);
   const authorLink = a(
     { href: `/author/${encodeURIComponent(feed)}` },
     "@" + name
