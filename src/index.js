@@ -48,6 +48,7 @@ const {
   commentView,
   extendedView,
   latestView,
+  likesView,
   listView,
   markdownView,
   metaView,
@@ -360,10 +361,14 @@ router
   })
   .get("/likes/:feed", async ctx => {
     const { feed } = ctx.params;
-
     const likes = async ({ feed }) => {
-      const messages = await post.likes({ feed });
-      return listView({ messages });
+      const pendingMessages = post.likes({ feed });
+      const pendingName = about.name(feed);
+      return likesView({
+        messages: await pendingMessages,
+        feed,
+        name: await pendingName
+      });
     };
     ctx.body = await likes({ feed });
   })

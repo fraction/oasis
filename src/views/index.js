@@ -516,6 +516,32 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   );
 };
 
+const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
+  if (!viewTitle && !viewDescription) {
+    return null;
+  }
+  return section(
+    { class: "viewInfo" },
+    viewTitle ? h1(viewTitle) : null,
+    viewDescription ? em(viewDescription) : null
+  );
+};
+
+exports.likesView = async ({ messages, feed, name }) => {
+  console.log(feed);
+  const authorLink = a(
+    { href: `/author/${encodeURIComponent(feed)}` },
+    "@" + name
+  );
+
+  return template(
+    viewInfoBox({
+      viewTitle: span(authorLink, i18n.likedBy)
+    }),
+    messages.map(msg => post({ msg }))
+  );
+};
+
 exports.publicView = ({
   messages,
   prefix = null,
@@ -524,17 +550,8 @@ exports.publicView = ({
 }) => {
   const publishForm = "/publish/";
 
-  let viewInfoBox = null;
-  if (viewTitle || viewDescription) {
-    viewInfoBox = section(
-      { class: "viewInfo" },
-      viewTitle ? h1(viewTitle) : null,
-      viewDescription ? em(viewDescription) : null
-    );
-  }
-
   return template(
-    viewInfoBox,
+    viewInfoBox({ viewTitle, viewDescription }),
     prefix,
     section(
       header(strong(i18n.publish)),

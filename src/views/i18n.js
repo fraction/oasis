@@ -33,6 +33,8 @@ module.exports = {
     relationshipConflict: "You are somehow both following and blocking",
     // author view
     viewLikes: "View likes",
+    // likes view
+    likedBy: "'s likes",
     // composer
     publish: "Publish",
     commentWarning: [
