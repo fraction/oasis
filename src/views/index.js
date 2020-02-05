@@ -35,7 +35,6 @@ const {
   section,
   select,
   span,
-  strong,
   summary,
   textarea,
   title,
@@ -62,6 +61,12 @@ const toAttributes = obj =>
     .map(([key, val]) => `${key}=${val}`)
     .join(", ");
 
+// non-breaking space
+const nbsp = "\xa0";
+
+const navLink = ({ href, emoji, text }) =>
+  li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
+
 const template = (...elements) => {
   const nodes = html(
     { lang: "en" },
@@ -84,16 +89,23 @@ const template = (...elements) => {
     body(
       nav(
         ul(
-          li(a({ href: "/publish" }, `📝 ${i18n.publish}`)),
-          li(a({ href: "/public/latest/extended" }, `🗺️ ${i18n.extended}`)),
-          li(a({ href: "/" }, `📣 ${i18n.popular}`)),
-          li(a({ href: "/public/latest" }, `🐇 ${i18n.latest}`)),
-          li(a({ href: "/public/latest/topics" }, `📖 ${i18n.topics}`)),
-          li(a({ href: "/profile" }, `🐱 ${i18n.profile}`)),
-          li(a({ href: "/mentions" }, `💬 ${i18n.mentions}`)),
-          li(a({ href: "/inbox" }, `✉️  ${i18n.private}`)),
-          li(a({ href: "/search" }, `🔍 ${i18n.search}`)),
-          li(a({ href: "/meta" }, `⚙ ${i18n.settings}`))
+          navLink({
+            href: "/public/latest/extended",
+            emoji: "🗺️",
+            text: i18n.extended
+          }),
+          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
+          navLink({
+            href: "/public/latest/topics",
+            emoji: "📖",
+            text: i18n.topics
+          }),
+          navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
+          navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
+          navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
+          navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
+          navLink({ href: "/meta", emoji: "⚙", text: i18n.settings })
         )
       ),
       main({ id: "content" }, elements)

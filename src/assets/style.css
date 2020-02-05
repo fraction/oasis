@@ -491,3 +491,11 @@ hr {
     max-width: none;
   }
 }
+
+/* Use the browser's default font rendering instead of using our fancy
+ * font-family above. This resolves a problem where some emoji were being
+ * rendered in the system-ui font, which is rarely what we want.
+ */
+.emoji {
+  font-family: initial;
+}
