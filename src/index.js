@@ -51,8 +51,11 @@ const {
   likesView,
   listView,
   markdownView,
+  mentionsView,
   metaView,
   popularView,
+  privateView,
+  publishView,
   replyView,
   searchView,
   setLanguage,
@@ -177,7 +180,7 @@ router
     const inbox = async () => {
       const messages = await post.inbox();
 
-      return listView({ messages });
+      return privateView({ messages });
     };
     ctx.body = await inbox();
   })
@@ -382,7 +385,7 @@ router
     const mentions = async () => {
       const messages = await post.mentionsMe();
 
-      return listView({ messages });
+      return mentionsView({ messages });
     };
     ctx.body = await mentions();
   })
@@ -409,6 +412,9 @@ router
       return replyView({ messages, myFeedId });
     };
     ctx.body = await reply(message);
+  })
+  .get("/publish", async ctx => {
+    ctx.body = await publishView();
   })
   .get("/comment/:message", async ctx => {
     const { message } = ctx.params;
