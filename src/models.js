@@ -269,7 +269,7 @@ module.exports = cooler => {
   const socialFilter = async ({
     following = null,
     blocking = false,
-    me = false
+    me = null
   } = {}) => {
     const ssb = await cooler.connect();
     const { id } = ssb;
