@@ -90,6 +90,11 @@ const template = (...elements) => {
       nav(
         ul(
           navLink({
+            href: "/publish",
+            emoji: "📝",
+            text: i18n.publish
+          }),
+          navLink({
             href: "/public/latest/extended",
             emoji: "🗺️",
             text: i18n.extended
