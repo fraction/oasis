@@ -566,6 +566,11 @@ router
   .post("/meta/conn/restart", koaBody(), async ctx => {
     await meta.connRestart();
     ctx.redirect("/meta");
+  })
+  .post("/meta/invite/accept", koaBody(), async ctx => {
+    const invite = String(ctx.request.body.invite);
+    await meta.acceptInvite(invite);
+    ctx.redirect("/meta");
   });
 
 const { host } = config;

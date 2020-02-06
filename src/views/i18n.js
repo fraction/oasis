@@ -116,6 +116,10 @@ module.exports = {
     stopNetworking: "Stop networking",
     restartNetworking: "Restart networking",
     indexes: "Indexes",
+    invites: "Invites",
+    invitesDescription:
+      "Redeem an invite by pasting it below. If it works, you'll follow the feed and they'll follow you back.",
+    acceptInvite: "Accept invite",
     // search page
     searchLabel: "Add word(s) to look for in downloaded messages.",
     // posts and comments
@@ -130,8 +134,7 @@ module.exports = {
     mysteryDescription: "posted a mysterious message",
     // misc
     oasisDescription: "Friendly neighborhood scuttlebutt interface",
-    submit: "Submit",
-    following: "Following" // TODO: remove this - it isn't used now that the Following page is gone
+    submit: "Submit"
   },
   /* spell-checker: disable */
   es: {
