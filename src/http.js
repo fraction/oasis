@@ -41,8 +41,15 @@ module.exports = ({ host, port, middleware }) => {
     // Disallow <iframe> embeds from other domains.
     ctx.set("X-Frame-Options", "SAMEORIGIN");
 
-    // Disallow browsers overwriting declared media types.
-    ctx.set("X-Content-Type-Options", "nosniff");
+    const isBlobPath = ctx.path.startsWith("/blob/");
+
+    if (isBlobPath === false) {
+      // Disallow browsers overwriting declared media types.
+      //
+      // This should only happen on non-blob URLs.
+      // See: https://github.com/fraction/oasis/issues/138
+      ctx.set("X-Content-Type-Options", "nosniff");
+    }
 
     // Disallow sharing referrer with other domains.
     ctx.set("Referrer-Policy", "same-origin");
@@ -54,9 +61,9 @@ module.exports = ({ host, port, middleware }) => {
       const referer = ctx.request.header.referer;
       ctx.assert(referer != null, `HTTP ${ctx.method} must include referer`);
       const refererUrl = new URL(referer);
-      const isBlobUrl = refererUrl.pathname.startsWith("/blob/");
+      const isBlobReferer = refererUrl.pathname.startsWith("/blob/");
       ctx.assert(
-        isBlobUrl === false,
+        isBlobReferer === false,
         `HTTP ${ctx.method} from blob URL not allowed`
       );
     }
