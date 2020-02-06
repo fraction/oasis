@@ -1,22 +1,43 @@
-const { a, strong } = require("hyperaxe");
+const { a, em, strong } = require("hyperaxe");
 
 module.exports = {
   en: {
     // navbar items
-    extendedDescription:
-      "Who: People you're not following\nWhat: Posts and comments",
     extended: "Extended",
+    extendedDescription: [
+      "Posts from ",
+      strong("people you don't follow"),
+      ", sorted by recency. When you follow someone you may download messages from the people they follow, and those messages show up here."
+    ],
     popular: "Popular",
-    popularDescription:
-      "Posts and comments (from anyone) with the most hearts (from people you follow)",
+    popularDescription: [
+      "Posts from people you follow, sorted by ",
+      strong("hearts"),
+      " in a given period. Hearts are counted from ",
+      em("everyone"),
+      ", including people you don't follow, so this shows posts from your friends that are popular in your extended network."
+    ],
     latest: "Latest",
-    latestDescription: "Who: People you're following\nWhat: Posts and comments",
+    latestDescription: "Posts from people you follow, sorted by recency.",
     topics: "Topics",
-    topicsDescription:
-      "Who: People you're following\nWhat: Posts.  (To see comments, click the timestamp of a post)",
+    topicsDescription: [
+      strong("Topics"),
+      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+    ],
     profile: "Profile",
     mentions: "Mentions",
+    mentionsDescription: [
+      strong("Posts that mention you"),
+      " from ",
+      strong("anyone"),
+      " sorted by recency. Sometimes people may forget to @mention you, and those posts won't show up here."
+    ],
     private: "Private",
+    privateDescription: [
+      "The latest comment from ",
+      strong("private threads that include you"),
+      ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread."
+    ],
     search: "Search",
     settings: "Settings",
     // post actions
@@ -49,7 +70,7 @@ module.exports = {
       a({ href: markdownUrl }, "Markdown"),
       "."
     ],
-    newMessageLabel: ({ markdownUrl, linkTarget }) => [
+    publishLabel: ({ markdownUrl, linkTarget }) => [
       "Write a new message in ",
       a(
         {

@@ -35,7 +35,6 @@ const {
   section,
   select,
   span,
-  strong,
   summary,
   textarea,
   title,
@@ -62,6 +61,12 @@ const toAttributes = obj =>
     .map(([key, val]) => `${key}=${val}`)
     .join(", ");
 
+// non-breaking space
+const nbsp = "\xa0";
+
+const navLink = ({ href, emoji, text }) =>
+  li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
+
 const template = (...elements) => {
   const nodes = html(
     { lang: "en" },
@@ -84,15 +89,28 @@ const template = (...elements) => {
     body(
       nav(
         ul(
-          li(a({ href: "/public/latest/extended" }, `🗺️ ${i18n.extended}`)),
-          li(a({ href: "/" }, `📣 ${i18n.popular}`)),
-          li(a({ href: "/public/latest" }, `🐇 ${i18n.latest}`)),
-          li(a({ href: "/public/latest/topics" }, `📖 ${i18n.topics}`)),
-          li(a({ href: "/profile" }, `🐱 ${i18n.profile}`)),
-          li(a({ href: "/mentions" }, `💬 ${i18n.mentions}`)),
-          li(a({ href: "/inbox" }, `✉️  ${i18n.private}`)),
-          li(a({ href: "/search" }, `🔍 ${i18n.search}`)),
-          li(a({ href: "/meta" }, `⚙ ${i18n.settings}`))
+          navLink({
+            href: "/publish",
+            emoji: "📝",
+            text: i18n.publish
+          }),
+          navLink({
+            href: "/public/latest/extended",
+            emoji: "🗺️",
+            text: i18n.extended
+          }),
+          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
+          navLink({
+            href: "/public/latest/topics",
+            emoji: "📖",
+            text: i18n.topics
+          }),
+          navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
+          navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
+          navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
+          navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
+          navLink({ href: "/meta", emoji: "⚙", text: i18n.settings })
         )
       ),
       main({ id: "content" }, elements)
@@ -388,6 +406,22 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
   );
 };
 
+exports.mentionsView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.mentions,
+    viewDescription: i18n.mentionsDescription
+  });
+};
+
+exports.privateView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.private,
+    viewDescription: i18n.privateDescription
+  });
+};
+
 exports.listView = ({ messages }) =>
   template(messages.map(msg => post({ msg })));
 
@@ -395,6 +429,25 @@ exports.markdownView = ({ text }) => {
   const rawHtml = ssbMarkdown.block(text);
 
   return template(section({ class: "message" }, { innerHTML: rawHtml }));
+};
+
+exports.publishView = () => {
+  const publishForm = "/publish/";
+
+  return template(
+    section(
+      h1(i18n.publish),
+      form(
+        { action: publishForm, method: "post" },
+        label(
+          { for: "text" },
+          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" })
+        ),
+        textarea({ required: true, name: "text" }),
+        button({ type: "submit" }, i18n.submit)
+      )
+    )
+  );
 };
 
 exports.metaView = ({ status, peers, theme, themeNames }) => {
@@ -548,64 +601,47 @@ exports.likesView = async ({ messages, feed, name }) => {
   );
 };
 
-exports.publicView = ({
+const messageListView = ({
   messages,
   prefix = null,
   viewTitle = null,
-  viewDescription = null
+  viewDescription = null,
+  viewElements = null
 }) => {
-  const publishForm = "/publish/";
-
   return template(
-    viewInfoBox({ viewTitle, viewDescription }),
-    prefix,
-    section(
-      header(strong(i18n.publish)),
-      form(
-        { action: publishForm, method: "post" },
-        label(
-          { for: "text" },
-          i18n.newMessageLabel({ markdownUrl, linkTarget: "_blank" })
-        ),
-        textarea({ required: true, name: "text" }),
-        button({ type: "submit" }, i18n.submit)
-      )
-    ),
+    section(h1(viewTitle), p(viewDescription), viewElements),
     messages.map(msg => post({ msg }))
   );
 };
 
-exports.popularView = ({ messages, prefix = null }) => {
-  return this.publicView({
+exports.popularView = ({ messages, prefix }) => {
+  return messageListView({
     messages,
-    prefix,
+    viewElements: prefix,
     viewTitle: i18n.popular,
     viewDescription: i18n.popularDescription
   });
 };
 
-exports.extendedView = ({ messages, prefix = null }) => {
-  return this.publicView({
+exports.extendedView = ({ messages }) => {
+  return messageListView({
     messages,
-    prefix,
     viewTitle: i18n.extended,
     viewDescription: i18n.extendedDescription
   });
 };
 
-exports.latestView = ({ messages, prefix = null }) => {
-  return this.publicView({
+exports.latestView = ({ messages }) => {
+  return messageListView({
     messages,
-    prefix,
     viewTitle: i18n.latest,
     viewDescription: i18n.latestDescription
   });
 };
 
-exports.topicsView = ({ messages, prefix = null }) => {
-  return this.publicView({
+exports.topicsView = ({ messages }) => {
+  return messageListView({
     messages,
-    prefix,
     viewTitle: i18n.topics,
     viewDescription: i18n.topicsDescription
   });
@@ -673,9 +709,9 @@ exports.searchView = ({ messages, query }) => {
 
   return template(
     section(
+      h1(i18n.search),
       form(
         { action: "/search", method: "get" },
-        header(strong(i18n.search)),
         label({ for: "query" }, i18n.searchLabel),
         searchInput,
         button(

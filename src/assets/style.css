@@ -321,11 +321,6 @@ section {
   box-sizing: border-box;
 }
 
-.viewInfo {
-  background: none;
-  white-space: pre-line; /* preserve newlines */
-}
-
 section > header {
   height: var(--line);
   display: flex;
@@ -398,7 +393,7 @@ label {
 nav > ul {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   margin: 0;
   padding: 0;
 }
@@ -495,4 +490,12 @@ hr {
     justify-content: center;
     max-width: none;
   }
+}
+
+/* Use the browser's default font rendering instead of using our fancy
+ * font-family above. This resolves a problem where some emoji were being
+ * rendered in the system-ui font, which is rarely what we want.
+ */
+.emoji {
+  font-family: initial;
 }
