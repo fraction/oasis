@@ -270,6 +270,14 @@ module.exports = cooler => {
     });
   };
 
+  /**
+   * Returns a function that filters messages based on who published the message.
+   *
+   * `null` means we don't care, `true` means it must be true, and `false` means
+   * that the value must be false. For example, if you set `me = true` then it
+   * will only allow messages that are from you. If you set `blocking = true`
+   * then you only see message from people you block.
+   */
   const socialFilter = async ({
     following = null,
     blocking = false,
@@ -289,14 +297,18 @@ module.exports = cooler => {
       .filter(([, val]) => val === false)
       .map(([key]) => key);
 
-    return pull.filter(
-      message =>
-        (following === null ||
-          followingList.includes(message.value.author) === following) &&
-        (blocking === null ||
-          blockingList.includes(message.value.author) === blocking) &&
-        (me === null || (message.value.author === id) === me)
-    );
+    return pull.filter(message => {
+      if (message.value.author === id) {
+        return me !== false;
+      } else {
+        return (
+          (following === null ||
+            followingList.includes(message.value.author) === following) &&
+          (blocking === null ||
+            blockingList.includes(message.value.author) === blocking)
+        );
+      }
+    });
   };
   const transform = (ssb, messages, myFeedId) =>
     Promise.all(
