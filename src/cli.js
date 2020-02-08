@@ -31,6 +31,12 @@ module.exports = () =>
       default: 3000,
       type: "number"
     })
+    .options("public", {
+      describe:
+        "Assume Oasis is being hosted publicly, disable HTTP POST and redact messages from people who haven't given consent for public web hosting.",
+      default: false,
+      type: "boolean"
+    })
     .options("debug", {
       describe: "Use verbose output for debugging",
       default: false,

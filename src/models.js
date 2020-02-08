@@ -23,12 +23,24 @@ const defaultOptions = {
 const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions);
 
-module.exports = cooler => {
+module.exports = ({ cooler, isPublic }) => {
   const models = {};
 
   models.about = {
+    publicWebHosting: async feedId => {
+      const ssb = await cooler.connect();
+      const result = await cooler.get(ssb.about.socialValue, {
+        key: "publicWebHosting",
+        dest: feedId
+      });
+      return result === true;
+    },
     name: async feedId => {
       const ssb = await cooler.connect();
+      if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
+        return "Redacted";
+      }
+
       return cooler.get(ssb.about.socialValue, {
         key: "name",
         dest: feedId
@@ -36,6 +48,10 @@ module.exports = cooler => {
     },
     image: async feedId => {
       const ssb = await cooler.connect();
+      if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
+        return nullImage;
+      }
+
       const raw = await cooler.get(ssb.about.socialValue, {
         key: "image",
         dest: feedId
@@ -44,6 +60,7 @@ module.exports = cooler => {
       if (raw == null || raw.link == null) {
         return nullImage;
       }
+
       if (typeof raw.link === "string") {
         return raw.link;
       }
@@ -51,6 +68,10 @@ module.exports = cooler => {
     },
     description: async feedId => {
       const ssb = await cooler.connect();
+      if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
+        return "Redacted";
+      }
+
       const raw = await cooler.get(ssb.about.socialValue, {
         key: "description",
         dest: feedId
@@ -356,18 +377,28 @@ module.exports = cooler => {
           .filter(([, value]) => value === 1)
           .map(([key]) => key);
 
-        const pendingName = cooler.get(ssb.about.socialValue, {
-          key: "name",
-          dest: msg.value.author
-        });
-
-        const pendingAvatarMsg = cooler.get(ssb.about.socialValue, {
-          key: "image",
-          dest: msg.value.author
-        });
+        const pendingName = models.about.name(msg.value.author);
+        const pendingAvatarMsg = models.about.image(msg.value.author);
 
         const pending = [pendingName, pendingAvatarMsg];
         const [name, avatarMsg] = await Promise.all(pending);
+
+        if (isPublic) {
+          const publicOptIn = await models.about.publicWebHosting(
+            msg.value.author
+          );
+          if (publicOptIn === false) {
+            lodash.set(
+              msg,
+              "value.content.text",
+              "This is a public message that has been redacted because Oasis is running in public mode. This redaction is only meant to make Oasis consistent with other public SSB viewers. Please do not mistake this for privacy. All public messages are public. Any peer on the SSB network can see this message."
+            );
+
+            if (msg.value.content.contentWarning != null) {
+              msg.value.content.contentWarning = "Redacted";
+            }
+          }
+        }
 
         const avatarId =
           avatarMsg != null && typeof avatarMsg.link === "string"
