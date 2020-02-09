@@ -41,7 +41,10 @@ const ssb = require("./ssb");
 // This handle is passed to the models for their convenience.
 const cooler = ssb({ offline: config.offline });
 
-const { about, blob, friend, meta, post, vote } = require("./models")(cooler);
+const { about, blob, friend, meta, post, vote } = require("./models")({
+  cooler,
+  isPublic: config.public
+});
 
 const {
   authorView,
@@ -225,6 +228,11 @@ router
     ctx.body = await profile();
   })
   .get("/json/:message", async ctx => {
+    if (config.public) {
+      throw new Error(
+        "Sorry, many actions are unavailable when Oasis is running in public mode. Please run Oasis in the default mode and try again."
+      );
+    }
     const { message } = ctx.params;
     ctx.type = "application/json";
     const json = async message => {
@@ -579,6 +587,14 @@ const { port } = config;
 const routes = router.routes();
 
 const middleware = [
+  async (ctx, next) => {
+    if (config.public && ctx.method !== "GET") {
+      throw new Error(
+        "Sorry, many actions are unavailable when Oasis is running in public mode. Please run Oasis in the default mode and try again."
+      );
+    }
+    await next();
+  },
   async (ctx, next) => {
     const selectedLanguage = ctx.cookies.get("language") || "en";
     setLanguage(selectedLanguage);
