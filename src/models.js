@@ -49,7 +49,7 @@ module.exports = ({ cooler, isPublic }) => {
         {
           $filter: {
             dest: feedId,
-            value: { content: { type: "about", about: feedId } }
+            value: { author: feedId, content: { type: "about", about: feedId } }
           }
         }
       ]
