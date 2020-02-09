@@ -106,6 +106,9 @@ router
   .get("/", async ctx => {
     ctx.redirect("/public/popular/day");
   })
+  .get("/robots.txt", ctx => {
+    ctx.body = "User-agent: *\nDisallow: /";
+  })
   .get("/public/popular/:period", async ctx => {
     const { period } = ctx.params;
     const publicPopular = async ({ period }) => {
