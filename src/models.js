@@ -26,35 +26,81 @@ const configure = (...customOptions) =>
 module.exports = ({ cooler, isPublic }) => {
   const models = {};
 
+  /**
+   * The SSB-About plugin is a thin wrapper around the SSB-Social-Index plugin.
+   * Unfortunately, this plugin has two problems that make it incompatible with
+   * our needs:
+   *
+   * - We want to get the latest value from an author, like what someone calls
+   *   themselves, **not what other people call them**.
+   * - The plugin has a bug where `false` isn't handled correctly, which is very
+   *   important since we use `publicWebHosting`, a boolean field.
+   *
+   * It feels very silly to have to maintain an alternative implementation of
+   * SSB-About, but this is much smaller code and doesn't have either of the
+   * above problems. Maybe this should be moved somewhere else in the future?
+   */
+  const getAbout = async ({ key, feedId }) => {
+    const ssb = await cooler.connect();
+
+    const source = await cooler.read(ssb.backlinks.read, {
+      reverse: true,
+      query: [
+        {
+          $filter: {
+            dest: feedId,
+            value: { content: { type: "about", about: feedId } }
+          }
+        }
+      ]
+    });
+    return new Promise((resolve, reject) =>
+      pull(
+        source,
+        pull.find(
+          message => message.value.content[key] !== undefined,
+          (err, message) => {
+            if (err) {
+              reject(err);
+            } else {
+              if (message === null) {
+                resolve(null);
+              } else {
+                resolve(message.value.content[key]);
+              }
+            }
+          }
+        )
+      )
+    );
+  };
+
   models.about = {
     publicWebHosting: async feedId => {
-      const ssb = await cooler.connect();
-      const result = await cooler.get(ssb.about.socialValue, {
+      const result = await getAbout({
         key: "publicWebHosting",
-        dest: feedId
+        feedId
       });
       return result === true;
     },
     name: async feedId => {
-      const ssb = await cooler.connect();
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
         return "Redacted";
       }
 
-      return cooler.get(ssb.about.socialValue, {
+      return getAbout({
         key: "name",
-        dest: feedId
+        feedId
       });
     },
     image: async feedId => {
-      const ssb = await cooler.connect();
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
         return nullImage;
       }
 
-      const raw = await cooler.get(ssb.about.socialValue, {
+      const raw = await getAbout({
         key: "image",
-        dest: feedId
+        feedId
       });
 
       if (raw == null || raw.link == null) {
@@ -67,14 +113,13 @@ module.exports = ({ cooler, isPublic }) => {
       return raw;
     },
     description: async feedId => {
-      const ssb = await cooler.connect();
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
         return "Redacted";
       }
 
-      const raw = await cooler.get(ssb.about.socialValue, {
+      const raw = await getAbout({
         key: "description",
-        dest: feedId
+        feedId
       });
       return raw;
     }
