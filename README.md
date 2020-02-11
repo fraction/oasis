@@ -5,6 +5,8 @@ This is an experimental client built with HTML, CSS, and Node.js without any
 front-end JavaScript. The goal is to support basic social messaging schemas with
 some extra tools for debugging, _not_ to support all known message types.
 
+![screenshot of oasis](./screenshot.png)
+
 ## Usage
 
 ```console
