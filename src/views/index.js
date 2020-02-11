@@ -110,7 +110,7 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
-          navLink({ href: "/meta", emoji: "⚙", text: i18n.settings })
+          navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
       main({ id: "content" }, elements)
@@ -450,7 +450,7 @@ exports.publishView = () => {
   );
 };
 
-exports.metaView = ({ status, peers, theme, themeNames }) => {
+exports.settingsView = ({ status, peers, theme, themeNames }) => {
   const max = status.sync.since;
 
   const progressElements = Object.entries(status.sync.plugins).map(e => {
@@ -460,17 +460,17 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
   });
 
   const startButton = form(
-    { action: "/meta/conn/start", method: "post" },
+    { action: "/settings/conn/start", method: "post" },
     button({ type: "submit" }, i18n.startNetworking)
   );
 
   const restartButton = form(
-    { action: "/meta/conn/restart", method: "post" },
+    { action: "/settings/conn/restart", method: "post" },
     button({ type: "submit" }, i18n.restartNetworking)
   );
 
   const stopButton = form(
-    { action: "/meta/conn/stop", method: "post" },
+    { action: "/settings/conn/stop", method: "post" },
     button({ type: "submit" }, i18n.stopNetworking)
   );
 
@@ -538,7 +538,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
     section(
       { class: "message" },
       h1(i18n.settings),
-      p(i18n.settingsIntro({ readmeUrl: "/meta/readme" })),
+      p(i18n.settingsIntro({ readmeUrl: "/settings/readme" })),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
@@ -566,7 +566,7 @@ exports.metaView = ({ status, peers, theme, themeNames }) => {
       h3(i18n.invites),
       p(i18n.invitesDescription),
       form(
-        { action: "/meta/invite/accept", method: "post" },
+        { action: "/settings/invite/accept", method: "post" },
         input({ name: "invite", type: "text" }),
         button({ type: "submit" }, i18n.acceptInvite)
       ),
