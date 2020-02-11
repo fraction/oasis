@@ -55,7 +55,7 @@ const {
   listView,
   markdownView,
   mentionsView,
-  metaView,
+  settingsView,
   popularView,
   privateView,
   publishView,
@@ -357,7 +357,7 @@ router
     };
     ctx.body = await image({ blobId, imageSize: Number(imageSize) });
   })
-  .get("/meta/", async ctx => {
+  .get("/settings/", async ctx => {
     const theme = ctx.cookies.get("theme") || defaultTheme;
     const getMeta = async ({ theme }) => {
       const status = await meta.status();
@@ -369,7 +369,7 @@ router
         })
       );
 
-      return metaView({ status, peers: peersWithNames, theme, themeNames });
+      return settingsView({ status, peers: peersWithNames, theme, themeNames });
     };
     ctx.body = await getMeta({ theme });
   })
@@ -386,7 +386,7 @@ router
     };
     ctx.body = await likes({ feed });
   })
-  .get("/meta/readme/", async ctx => {
+  .get("/settings/readme/", async ctx => {
     const status = async text => {
       return markdownView({ text });
     };
@@ -566,22 +566,22 @@ router
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
-  .post("/meta/conn/start", koaBody(), async ctx => {
+  .post("/settings/conn/start", koaBody(), async ctx => {
     await meta.connStart();
-    ctx.redirect("/meta");
+    ctx.redirect("/settings");
   })
-  .post("/meta/conn/stop", koaBody(), async ctx => {
+  .post("/settings/conn/stop", koaBody(), async ctx => {
     await meta.connStop();
-    ctx.redirect("/meta");
+    ctx.redirect("/settings");
   })
-  .post("/meta/conn/restart", koaBody(), async ctx => {
+  .post("/settings/conn/restart", koaBody(), async ctx => {
     await meta.connRestart();
-    ctx.redirect("/meta");
+    ctx.redirect("/settings");
   })
-  .post("/meta/invite/accept", koaBody(), async ctx => {
+  .post("/settings/invite/accept", koaBody(), async ctx => {
     const invite = String(ctx.request.body.invite);
     await meta.acceptInvite(invite);
-    ctx.redirect("/meta");
+    ctx.redirect("/settings");
   });
 
 const { host } = config;

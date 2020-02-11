@@ -17,7 +17,7 @@ module.exports = () =>
     })
     .options("offline", {
       describe:
-        "Don't try to connect to scuttlebutt peers or pubs. This can be changed on the 'meta' page while Oasis is running.",
+        "Don't try to connect to scuttlebutt peers or pubs. This can be changed on the 'settings' page while Oasis is running.",
       default: false,
       type: "boolean"
     })
