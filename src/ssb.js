@@ -1,8 +1,8 @@
 "use strict";
 
-// This module exports a function that connects to SSB and returns a "cooler"
-// interface. This interface is poorly defined and should be replaced with
-// native support for Promises in the MuxRPC module.
+// This module exports a function that connects to SSB and returns an interface
+// to call methods over MuxRPC. It's a thin wrapper around SSB-Client, which is
+// a thin wrapper around the MuxRPC module.
 
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
@@ -21,10 +21,8 @@ const log = (...args) => {
 
 const rawConnect = () =>
   new Promise((resolve, reject) => {
-    ssbClient((err, api) => {
-      if (err) {
-        reject(err);
-      } else {
+    ssbClient()
+      .then(api => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
           // compatibility. This code automatically injects SSB-Tangle into our
@@ -35,8 +33,8 @@ const rawConnect = () =>
         }
 
         resolve(api);
-      }
-    });
+      })
+      .catch(reject);
   });
 
 let handle;
@@ -89,8 +87,13 @@ module.exports = ({ offline }) => {
   };
 
   createConnection(config);
+
+  /**
+   * This is "cooler", a tiny interface for opening or reusing an instance of
+   * SSB-Client.
+   */
   return {
-    connect() {
+    open() {
       // This has interesting behavior that may be unexpected.
       //
       // If `handle` is already an active [non-closed] connection, return that.
@@ -105,25 +108,6 @@ module.exports = ({ offline }) => {
           }
           resolve(handle);
         });
-      });
-    },
-    /**
-     * @param {function} method
-     */
-    get(method, ...opts) {
-      return new Promise((resolve, reject) => {
-        method(...opts, (err, val) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(val);
-          }
-        });
-      });
-    },
-    read(method, ...args) {
-      return new Promise(resolve => {
-        resolve(method(...args));
       });
     }
   };
