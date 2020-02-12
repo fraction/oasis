@@ -63,7 +63,6 @@ Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/maste
 - [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
 - [Architecture](https://github.com/fraction/oasis/blob/master/docs/architecture.md)
 - [Help](https://github.com/fraction/oasis/issues/new)
-- [Roadmap](https://github.com/fraction/oasis/blob/master/docs/roadmap.md)
 - [Security Policy](https://github.com/fraction/oasis/blob/master/docs/security.md)
 - [Source Code](https://github.com/fraction/oasis.git)
 
