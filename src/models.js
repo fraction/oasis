@@ -836,7 +836,6 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          followingFilter,
           pull.filter(msg => {
             return (
               msg.value.timestamp > earliest &&
@@ -912,6 +911,7 @@ module.exports = ({ cooler, isPublic }) => {
                     message // avoid private messages (!)
                   ) => message && typeof message.value.content !== "string"
                 ),
+                followingFilter,
                 pull.collect((err, collectedMessages) => {
                   if (err) {
                     reject(err);
