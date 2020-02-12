@@ -444,6 +444,13 @@ exports.publishView = () => {
           i18n.publishLabel({ markdownUrl, linkTarget: "_blank" })
         ),
         textarea({ required: true, name: "text" }),
+        label({ for: "contentWarning" }, i18n.contentWarningLabel),
+        input({
+          name: "contentWarning",
+          type: "text",
+          class: "contentWarning",
+          placeholder: "Optional warning for the post"
+        }),
         button({ type: "submit" }, i18n.submit)
       )
     )
