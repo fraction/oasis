@@ -744,7 +744,8 @@ module.exports = ({ cooler, isPublic }) => {
       const source = await cooler.read(ssb.messagesByType, options);
 
       const extendedFilter = await socialFilter({
-        following: false
+        following: false,
+        me: false
       });
 
       const messages = await new Promise((resolve, reject) => {
