@@ -3,6 +3,7 @@
 const md = require("ssb-markdown");
 const ssbMessages = require("ssb-msgs");
 const ssbRef = require("ssb-ref");
+const { span } = require("hyperaxe");
 
 /** @param {{ link: string}[]} mentions */
 const toUrl = mentions => {
@@ -51,5 +52,6 @@ const toUrl = mentions => {
  */
 module.exports = (input, mentions = []) =>
   md.block(input, {
-    toUrl: toUrl(mentions)
+    toUrl: toUrl(mentions),
+    emoji: character => span({ class: "emoji" }, character).outerHTML
   });
