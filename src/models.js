@@ -7,6 +7,7 @@ const prettyMs = require("pretty-ms");
 const pullParallelMap = require("pull-paramap");
 const pull = require("pull-stream");
 const pullSort = require("pull-sort");
+const ssbRef = require("ssb-ref");
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
@@ -959,7 +960,7 @@ module.exports = ({ cooler, isPublic }) => {
                   resolve(msg);
                 }
 
-                if (isLooseReply(msg)) {
+                if (isLooseReply(msg) && ssbRef.isMsg(msg.value.content.fork)) {
                   debug("reply, get the parent");
                   try {
                     // It's a message reply, get the parent!
@@ -977,7 +978,10 @@ module.exports = ({ cooler, isPublic }) => {
                     debug(e);
                     resolve(msg);
                   }
-                } else if (isLooseComment(msg)) {
+                } else if (
+                  isLooseComment(msg) &&
+                  ssbRef.isMsg(msg.value.content.root)
+                ) {
                   debug("comment: %s", msg.value.content.root);
                   try {
                     // It's a thread reply, get the parent!
@@ -1113,10 +1117,14 @@ module.exports = ({ cooler, isPublic }) => {
 
           return await transform(ssb, allMessages, myFeedId);
         })
-        .catch(() => {
-          throw new Error(
-            "Message not found in the database. You've done nothing wrong. Maybe try again later?"
-          );
+        .catch(err => {
+          if (err.name === "NotFoundError") {
+            throw new Error(
+              "Message not found in the database. You've done nothing wrong. Maybe try again later?"
+            );
+          } else {
+            throw err;
+          }
         });
     },
     get: async (msgId, customOptions) => {
