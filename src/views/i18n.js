@@ -143,5 +143,17 @@ module.exports = {
     profile: "Pagina",
     search: "Buscar",
     settings: "Reglas"
+  },
+  de: {
+    extended: "Erweitert",
+    popular: "Beliebt",
+    latest: "Neuestes",
+    mentions: "Erwähnungen",
+    topics: "Themen",
+    profile: "Profil",
+    search: "Suche",
+    settings: "Einstellungen",
+    publish: "Veröffentlichen",
+    private: "Privat"
   }
 };
