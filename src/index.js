@@ -490,16 +490,19 @@ router
   })
   .post("/publish/", koaBody(), async ctx => {
     const text = String(ctx.request.body.text);
-    const publish = async ({ text }) => {
+    const contentWarning = String(ctx.request.body.contentWarning);
+
+    const publish = async ({ text, contentWarning }) => {
       const mentions =
         ssbMentions(text).filter(mention => mention != null) || undefined;
 
       return post.root({
         text,
-        mentions
+        mentions,
+        contentWarning
       });
     };
-    ctx.body = await publish({ text });
+    ctx.body = await publish({ text, contentWarning });
     ctx.redirect("/");
   })
   .post("/follow/:feed", koaBody(), async ctx => {

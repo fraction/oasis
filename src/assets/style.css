@@ -150,6 +150,19 @@ input {
   border-radius: var(--common-radius);
 }
 
+.contentWarning {
+  background-color: var(--bg);
+  box-sizing: border-box;
+  display: block;
+  font-size: var(--whole);
+  padding: var(--whole);
+  width: 100%;
+  margin: var(--whole) 0;
+  border: var(--pico) solid var(--bg-selection);
+  border-radius: var(--common-radius);
+  color: var(--fg);
+}
+
 textarea {
   background-color: var(--bg);
   box-sizing: border-box;
