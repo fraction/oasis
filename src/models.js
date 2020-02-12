@@ -43,7 +43,7 @@ module.exports = ({ cooler, isPublic }) => {
   const getAbout = async ({ key, feedId }) => {
     const ssb = await cooler.open();
 
-    const source = await ssb.backlinks.read({
+    const source = ssb.backlinks.read({
       reverse: true,
       query: [
         {
@@ -311,7 +311,7 @@ module.exports = ({ cooler, isPublic }) => {
   }) => {
     const options = configure({ query, index: "DTA" }, customOptions);
 
-    const source = await ssb.backlinks.read(options);
+    const source = ssb.backlinks.read(options);
     const basicSocialFilter = await socialFilter();
 
     return new Promise((resolve, reject) => {
@@ -391,7 +391,7 @@ module.exports = ({ cooler, isPublic }) => {
           }
         };
 
-        const referenceStream = await ssb.backlinks.read({
+        const referenceStream = ssb.backlinks.read({
           query: [filterQuery],
           index: "DTA", // use asserted timestamps
           private: true,
@@ -517,7 +517,7 @@ module.exports = ({ cooler, isPublic }) => {
       const myFeedId = ssb.id;
 
       const options = configure({ id: feedId }, customOptions);
-      const source = await ssb.createUserStream(options);
+      const source = ssb.createUserStream(options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(
@@ -706,7 +706,7 @@ module.exports = ({ cooler, isPublic }) => {
         private: false
       });
 
-      const source = await ssb.messagesByType(options);
+      const source = ssb.messagesByType(options);
       const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
@@ -741,7 +741,7 @@ module.exports = ({ cooler, isPublic }) => {
         private: false
       });
 
-      const source = await ssb.messagesByType(options);
+      const source = ssb.messagesByType(options);
 
       const extendedFilter = await socialFilter({
         following: false,
@@ -776,7 +776,7 @@ module.exports = ({ cooler, isPublic }) => {
         private: false
       });
 
-      const source = await ssb.messagesByType(options);
+      const source = ssb.messagesByType(options);
 
       const extendedFilter = await socialFilter({
         following: true
@@ -829,7 +829,7 @@ module.exports = ({ cooler, isPublic }) => {
         private: false
       });
 
-      const source = await ssb.messagesByType(options);
+      const source = ssb.messagesByType(options);
       const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
@@ -1018,47 +1018,43 @@ module.exports = ({ cooler, isPublic }) => {
                 }
               };
 
-              ssb.backlinks
-                .read({
-                  query: [filterQuery],
-                  index: "DTA" // use asserted timestamps
+              const referenceStream = ssb.backlinks.read({
+                query: [filterQuery],
+                index: "DTA" // use asserted timestamps
+              });
+              pull(
+                referenceStream,
+                pull.filter(msg => {
+                  const isPost =
+                    lodash.get(msg, "value.content.type") === "post";
+                  if (isPost === false) {
+                    return false;
+                  }
+
+                  const root = lodash.get(msg, "value.content.root");
+                  const fork = lodash.get(msg, "value.content.fork");
+
+                  if (root !== key && fork !== key) {
+                    // mention
+                    return false;
+                  }
+
+                  if (fork === key) {
+                    // not a reply to this post
+                    // it's a reply *to a reply* of this post
+                    return false;
+                  }
+
+                  return true;
+                }),
+                pull.collect((err, messages) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(messages || undefined);
+                  }
                 })
-                .then(referenceStream => {
-                  pull(
-                    referenceStream,
-                    pull.filter(msg => {
-                      const isPost =
-                        lodash.get(msg, "value.content.type") === "post";
-                      if (isPost === false) {
-                        return false;
-                      }
-
-                      const root = lodash.get(msg, "value.content.root");
-                      const fork = lodash.get(msg, "value.content.fork");
-
-                      if (root !== key && fork !== key) {
-                        // mention
-                        return false;
-                      }
-
-                      if (fork === key) {
-                        // not a reply to this post
-                        // it's a reply *to a reply* of this post
-                        return false;
-                      }
-
-                      return true;
-                    }),
-                    pull.collect((err, messages) => {
-                      if (err) {
-                        reject(err);
-                      } else {
-                        resolve(messages || undefined);
-                      }
-                    })
-                  );
-                })
-                .catch(reject);
+              );
             });
 
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
@@ -1231,7 +1227,7 @@ module.exports = ({ cooler, isPublic }) => {
         customOptions
       );
 
-      const source = await ssb.backlinks.read(options);
+      const source = ssb.backlinks.read(options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(
