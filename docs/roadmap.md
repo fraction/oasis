@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Get
+- [x] Get
   - [x] Author
     - [x] Name
     - [x] Description
@@ -37,7 +37,7 @@
     - [ ] Pre-publish preview
     - [ ] Add blob attachment(s)
     - [x] Correctly set `branch`
-    - [ ] Content warning
+    - [x] Content warning
   - [x] Votes
     - [x] Like
     - [x] Unlike
