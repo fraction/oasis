@@ -394,7 +394,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
           required: true,
           name: "text"
         },
-        markdownMention
+        isPrivate ? null : markdownMention
       ),
       button(
         {
