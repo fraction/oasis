@@ -25,6 +25,7 @@ module.exports = {
       " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
     ],
     profile: "Profile",
+    manualMode: "Manual Mode",
     mentions: "Mentions",
     mentionsDescription: [
       strong("Posts that mention you"),

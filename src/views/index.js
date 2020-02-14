@@ -110,7 +110,8 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
-          navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
+          navLink({ href: "/settings", emoji: "⚙", text: i18n.settings }),
+          navLink({ href: "/raw_json", emoji: "👽", text: i18n.manualMode })
         )
       ),
       main({ id: "content" }, elements)
@@ -420,6 +421,42 @@ exports.privateView = ({ messages }) => {
     viewTitle: i18n.private,
     viewDescription: i18n.privateDescription
   });
+};
+
+exports.rawJsonView = async () => {
+  const action = `/publish_json`;
+  const method = "post";
+
+  return template(
+    p(
+      "Publish any  ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " message on your feed. This can be useful for prototyping,",
+      " or for doing things that Oasis doesn't support (yet). ",
+      "To insert line breaks into strings, use \\n instead of ",
+      'just hitting enter, and \\" for quotes.'
+    ),
+    form(
+      { action, method },
+      textarea(
+        {
+          autofocus: true,
+          required: true,
+          name: "text"
+        },
+        "{\n",
+        '    "type": "test_type",\n',
+        '    "your_field_name": "whatever you want!"\n',
+        "}"
+      ),
+      button(
+        {
+          type: "submit"
+        },
+        "Publish"
+      )
+    )
+  );
 };
 
 exports.listView = ({ messages }) =>

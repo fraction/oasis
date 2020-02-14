@@ -1148,6 +1148,11 @@ module.exports = ({ cooler, isPublic }) => {
       debug("Published: %O", body);
       return ssb.publish(body);
     },
+    publish_json: async options => {
+      const ssb = await cooler.open();
+      debug("Published: %O", options);
+      return ssb.publish(options);
+    },
     reply: async ({ parent, message }) => {
       message.root = parent.key;
       message.fork = lodash.get(parent, "value.content.root");
