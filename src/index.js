@@ -490,7 +490,11 @@ router
   })
   .post("/publish/", koaBody(), async ctx => {
     const text = String(ctx.request.body.text);
-    const contentWarning = String(ctx.request.body.contentWarning);
+    const rawContentWarning = String(ctx.request.body.contentWarning);
+
+    // Only submit content warning if it's a string with non-zero length.
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
     const publish = async ({ text, contentWarning }) => {
       const mentions =
