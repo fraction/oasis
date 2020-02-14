@@ -89,10 +89,12 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
-      return getAbout({
-        key: "name",
-        feedId
-      });
+      return (
+        (await getAbout({
+          key: "name",
+          feedId
+        })) || feedId.slice(1, 1 + 8)
+      ); // First 8 chars of public key
     },
     image: async feedId => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
@@ -118,10 +120,11 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
-      const raw = await getAbout({
-        key: "description",
-        feedId
-      });
+      const raw =
+        (await getAbout({
+          key: "description",
+          feedId
+        })) || "";
       return raw;
     }
   };
