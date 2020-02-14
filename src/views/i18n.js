@@ -1,4 +1,4 @@
-const { a, em, strong } = require("hyperaxe");
+const { a, em, strong, code } = require("hyperaxe");
 
 module.exports = {
   en: {
@@ -59,6 +59,11 @@ module.exports = {
     likedBy: "'s likes",
     // composer
     publish: "Publish",
+    publishCustomDescription: [
+      "Publish a custom message by entering ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
+    ],
     commentWarning: [
       " Messages cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
@@ -82,6 +87,18 @@ module.exports = {
       ),
       ". Messages cannot be edited or deleted."
     ],
+    publishCustomInfo: ({ href }) => [
+      "If you're an advanced user, you can also ",
+      a({ href }, "publish a custom message"),
+      "."
+    ],
+    publishBasicInfo: ({ href }) => [
+      "If you're not an advanced user, you should ",
+      a({ href }, "publish a basic post"),
+      "."
+    ],
+    publishCustom: "Publish custom",
+
     replyLabel: ({ markdownUrl }) => [
       "Write a ",
       strong("public reply"),
