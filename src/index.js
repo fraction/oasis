@@ -52,17 +52,17 @@ const {
   extendedView,
   latestView,
   likesView,
-  rawJsonView,
   listView,
   markdownView,
   mentionsView,
-  settingsView,
   popularView,
   privateView,
+  publishCustomView,
   publishView,
   replyView,
   searchView,
   setLanguage,
+  settingsView,
   topicsView
 } = require("./views");
 
@@ -231,8 +231,8 @@ router
     };
     ctx.body = await profile();
   })
-  .get("/raw_json/", async ctx => {
-    ctx.body = await rawJsonView();
+  .get("/publish/custom/", async ctx => {
+    ctx.body = await publishCustomView();
   })
   .get("/json/:message", async ctx => {
     if (config.public) {
@@ -513,10 +513,10 @@ router
     ctx.body = await publish({ text, contentWarning });
     ctx.redirect("/");
   })
-  .post("/publish_json/", koaBody(), async ctx => {
+  .post("/publish/custom", koaBody(), async ctx => {
     const text = String(ctx.request.body.text);
     const obj = JSON.parse(text);
-    ctx.body = await post.publish_json(obj);
+    ctx.body = await post.publishCustom(obj);
     ctx.redirect(`/thread/${encodeURIComponent(ctx.body.key)}`);
   })
   .post("/follow/:feed", koaBody(), async ctx => {

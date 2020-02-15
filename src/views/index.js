@@ -110,8 +110,7 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
-          navLink({ href: "/settings", emoji: "⚙", text: i18n.settings }),
-          navLink({ href: "/raw_json", emoji: "👽", text: i18n.manualMode })
+          navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
       main({ id: "content" }, elements)
@@ -423,39 +422,36 @@ exports.privateView = ({ messages }) => {
   });
 };
 
-exports.rawJsonView = async () => {
-  const action = `/publish_json`;
+exports.publishCustomView = async () => {
+  const action = "/publish/custom";
   const method = "post";
 
   return template(
-    p(
-      "Publish any  ",
-      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
-      " message on your feed. This can be useful for prototyping,",
-      " or for doing things that Oasis doesn't support (yet). ",
-      "To insert line breaks into strings, use \\n instead of ",
-      'just hitting enter, and \\" for quotes.'
-    ),
-    form(
-      { action, method },
-      textarea(
-        {
-          autofocus: true,
-          required: true,
-          name: "text"
-        },
-        "{\n",
-        '    "type": "test_type",\n',
-        '    "your_field_name": "whatever you want!"\n',
-        "}"
-      ),
-      button(
-        {
-          type: "submit"
-        },
-        "Publish"
+    section(
+      h1(i18n.publishCustom),
+      p(i18n.publishCustomDescription),
+      form(
+        { action, method },
+        textarea(
+          {
+            autofocus: true,
+            required: true,
+            name: "text"
+          },
+          "{\n",
+          '  "type": "test",\n',
+          '  "hello": "world"\n',
+          "}"
+        ),
+        button(
+          {
+            type: "submit"
+          },
+          i18n.submit
+        )
       )
-    )
+    ),
+    p(i18n.publishBasicInfo({ href: "/publish" }))
   );
 };
 
@@ -490,7 +486,8 @@ exports.publishView = () => {
         }),
         button({ type: "submit" }, i18n.submit)
       )
-    )
+    ),
+    p(i18n.publishCustomInfo({ href: "/publish/custom" }))
   );
 };
 
