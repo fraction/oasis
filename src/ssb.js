@@ -4,6 +4,7 @@
 // to call methods over MuxRPC. It's a thin wrapper around SSB-Client, which is
 // a thin wrapper around the MuxRPC module.
 
+const { promisify } = require("util");
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
 const flotilla = require("@fraction/flotilla");
@@ -30,6 +31,9 @@ const rawConnect = () =>
           //
           // See: https://github.com/fraction/oasis/issues/21
           api.tangle = ssbTangle.init(api);
+
+          // MuxRPC supports promises but the raw plugin does not.
+          api.tangle.branch = promisify(api.tangle.branch);
         }
 
         resolve(api);
@@ -46,7 +50,10 @@ const createConnection = config => {
         log("Using pre-existing Scuttlebutt server instead of starting one");
         resolve(ssb);
       })
-      .catch(() => {
+      .catch(e => {
+        if (e.message !== "could not connect to sbot") {
+          throw e;
+        }
         log("Initial connection attempt failed");
         log("Starting Scuttlebutt server");
         server(config);
@@ -80,9 +87,6 @@ module.exports = ({ offline }) => {
   const config = {
     conn: {
       autostart: !offline
-    },
-    ws: {
-      http: false
     }
   };
 
