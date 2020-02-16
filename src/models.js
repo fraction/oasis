@@ -903,10 +903,14 @@ module.exports = ({ cooler, isPublic }) => {
                 pull.map(([key]) => key),
                 pullParallelMap(async (key, cb) => {
                   try {
-                    const msg = await post.get(key);
-                    cb(null, msg);
+                    const msg = await post.get(key)
+
+                    // Retrieve a preview of this post's comments / thread
+                    const thread = await post.fromThread(key)
+                    msg.thread = await transform(ssb, thread, myFeedId)
+                    cb(null, msg)
                   } catch (e) {
-                    cb(null, null);
+                    cb(null, null)
                   }
                 }),
                 pull.filter(
@@ -917,12 +921,12 @@ module.exports = ({ cooler, isPublic }) => {
                 followingFilter,
                 pull.collect((err, collectedMessages) => {
                   if (err) {
-                    reject(err);
+                    reject(err)
                   } else {
-                    resolve(transform(ssb, collectedMessages, myFeedId));
+                    resolve(transform(ssb, collectedMessages, myFeedId))
                   }
                 })
-              );
+              )
             }
           )
         );

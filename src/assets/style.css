@@ -331,6 +331,7 @@ section {
   word-wrap: break-word;
   background: var(--bg);
   width: 100%;
+  max-width: var(--measure);
   box-sizing: border-box;
 }
 
@@ -396,6 +397,32 @@ section > footer > * {
 
 section > footer > form > button.liked {
   color: var(--red);
+}
+
+.post-aside-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (min-width: 80rem) {
+  .post-aside-wrapper {
+    flex-direction: row;
+  }
+}
+
+.post-aside  {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: var(--micro);
+  margin: var(--whole) 0;
+}
+
+.post-aside section  {
+  max-width: var(--peta);
+  margin: 0 0 var(--micro) 0;
 }
 
 label {
@@ -495,8 +522,7 @@ hr {
     margin-bottom: var(--whole);
   }
   main {
-    width: 100%;
-    max-width: var(--measure);
+    width: 85vw;
   }
   body {
     display: flex;

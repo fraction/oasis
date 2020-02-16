@@ -56,6 +56,8 @@ exports.setLanguage = language => {
 const markdownUrl = "https://commonmark.org/help/";
 const doctypeString = "<!DOCTYPE html>";
 
+const THREAD_PREVIEW_LENGTH = 3;
+
 const toAttributes = obj =>
   Object.entries(obj)
     .map(([key, val]) => `${key}=${val}`)
@@ -121,6 +123,188 @@ const template = (...elements) => {
 
   return result;
 };
+
+const postInAside = msg => {
+  const encoded = {
+    key: encodeURIComponent(msg.key),
+    author: encodeURIComponent(msg.value.author),
+    parent: encodeURIComponent(msg.value.content.root)
+  }
+
+  const url = {
+    author: `/author/${encoded.author}`,
+    likeForm: `/like/${encoded.key}`,
+    link: `/thread/${encoded.parent}#${encoded.key}`,
+    parent: `/thread/${encoded.parent}#${encoded.parent}`,
+    avatar: msg.value.meta.author.avatar.url,
+    json: `/json/${encoded.key}`,
+    reply: `/reply/${encoded.key}`,
+    comment: `/comment/${encoded.key}`
+  }
+
+  const isPrivate = Boolean(msg.value.meta.private)
+  const isRoot = msg.value.content.root == null
+  const isFork = msg.value.meta.postType === "reply"
+  const hasContentWarning = typeof msg.value.content.contentWarning === "string"
+  const isThreadTarget = Boolean(
+    lodash.get(msg, "value.meta.thread.target", false)
+  )
+
+  // TODO: I think this is actually true for both replies and comments.
+  const isReply = Boolean(lodash.get(msg, "value.meta.thread.reply", false))
+
+  const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "")
+
+  const markdownContent = markdown(
+    msg.value.content.text,
+    msg.value.content.mentions
+  )
+
+  const likeButton = msg.value.meta.voted
+    ? { value: 0, class: "liked" }
+    : { value: 1, class: null }
+
+  const likeCount = msg.value.meta.votes.length
+
+  const messageClasses = []
+
+  if (isPrivate) {
+    messageClasses.push("private")
+  }
+
+  if (isThreadTarget) {
+    messageClasses.push("thread-target")
+  }
+
+  if (isReply) {
+    // True for comments too, I think
+    messageClasses.push("reply")
+  }
+
+  const postOptions = {
+    post: null,
+    comment: i18n.commentDescription({ parentUrl: url.parent }),
+    reply: i18n.replyDescription({ parentUrl: url.parent }),
+    mystery: i18n.mysteryDescription
+  }
+
+  const isMarkdownEmpty = md => md === "<p>undefined</p>\n"
+  const articleElement = isMarkdownEmpty(markdownContent)
+    ? article(
+        { class: "content" },
+        pre({
+          innerHTML: highlightJs.highlight("json", JSON.stringify(msg, null, 2))
+            .value
+        })
+      )
+    : article({ class: "content", innerHTML: markdownContent })
+
+  const articleContent = hasContentWarning
+    ? details(summary(msg.value.content.contentWarning), articleElement)
+    : articleElement
+
+  return section(
+    {
+      class: messageClasses.join(" ")
+    },
+    header(
+      span(
+        { class: "author" },
+        a(
+          { href: url.author },
+          img({ class: "avatar", src: url.avatar, alt: "" }),
+          msg.value.meta.author.name
+        ),
+        postOptions[msg.value.meta.postType]
+      ),
+      span(
+        { class: "time" },
+        isPrivate ? "🔒" : null,
+        a({ href: url.link }, timeAgo)
+      )
+    ),
+    articleContent,
+    footer(
+      form(
+        { action: url.likeForm, method: "post" },
+        button(
+          {
+            name: "voteValue",
+            type: "submit",
+            value: likeButton.value,
+            class: likeButton.class
+          },
+          `❤ ${likeCount}`
+        )
+      ),
+      a({ href: url.comment }, i18n.comment),
+      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
+      a({ href: url.json }, i18n.json)
+    )
+  )
+}
+
+/**
+ * Render a section containing a link that takes users to the context for a 
+ * thread preview.
+ * 
+ * @param {Array} thread with SSB message objects
+ * @param {Boolean} isComment true if this is shown in the context of a comment
+ *  instead of a post
+ */
+const continueThreadComponent = (thread, isComment) => {
+  const encoded = {
+    next: encodeURIComponent(thread[THREAD_PREVIEW_LENGTH + 1].key),
+    parent: encodeURIComponent(thread[0].key)
+  }
+  const left = thread.length - (THREAD_PREVIEW_LENGTH + 1)
+  let continueLink
+  if (isComment == false) {
+    continueLink = `/thread/${encoded.parent}#${encoded.next}`
+    return a(
+      { href: continueLink },
+      `continue reading ${left} more comment${left === 1 ? "" : "s"}`
+    )
+  } else {
+    continueLink = `/thread/${encoded.parent}`
+    return a({ href: continueLink }, "read the rest of the thread")
+  }
+}
+
+/**
+ * Render an aside with a preview of comments on a message
+ * 
+ * For posts, up to three comments are shown, for comments, up to 3 messages
+ * directly following this one in the thread are displayed. If there are more
+ * messages in the thread, a link is rendered that links to the rest of the
+ * context.
+ * 
+ * @param {Object} post for which to display the aside
+ */
+const postAside = ({ key, value, thread }) => {
+  if (thread == null) return null
+
+  const isComment = value.meta.postType === "comment"
+
+  let postsToShow
+  if (isComment) {
+    const commentPosition = thread.findIndex(msg => msg.key === key)
+    postsToShow = thread.slice(
+      commentPosition + 1,
+      Math.min(commentPosition + (THREAD_PREVIEW_LENGTH + 1), thread.length)
+    )
+  } else {
+    postsToShow = thread.slice(1, Math.min(thread.length, (THREAD_PREVIEW_LENGTH + 1)))
+  }
+
+  const fragments = postsToShow.map(postInAside)
+
+  if (thread.length > (THREAD_PREVIEW_LENGTH + 1)) {
+    fragments.push(section(footer(continueThreadComponent(thread, isComment))))
+  }
+  return div({ class: "post-aside" }, fragments)
+}
+
 const post = ({ msg }) => {
   const encoded = {
     key: encodeURIComponent(msg.key),
@@ -167,7 +351,7 @@ const post = ({ msg }) => {
 
   const likeCount = msg.value.meta.votes.length;
 
-  const messageClasses = [];
+  const messageClasses = ["post"];
 
   if (isPrivate) {
     messageClasses.push("private");
@@ -262,9 +446,11 @@ const post = ({ msg }) => {
       isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
       a({ href: url.json }, i18n.json)
     )
-  );
+  )
 
-  return fragment;
+  const aside = postAside(msg)
+  const wrapper = div({ class: "post-aside-wrapper" }, fragment, aside)
+  return wrapper
 };
 
 exports.authorView = ({
