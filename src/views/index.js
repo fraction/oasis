@@ -108,6 +108,11 @@ const template = (...elements) => {
             emoji: "📖",
             text: i18n.topics
           }),
+          navLink({
+            href: "/public/latest/summaries",
+            emoji: "🗒️",
+            text: i18n.summaries
+          }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
@@ -282,7 +287,8 @@ const continueThreadComponent = (thread, isComment) => {
  *
  * @param {Object} post for which to display the aside
  */
-const postAside = ({ key, value, thread }) => {
+const postAside = ({ key, value }) => {
+  const thread = value.meta.thread;
   if (thread == null) return null;
 
   const isComment = value.meta.postType === "comment";
@@ -306,10 +312,11 @@ const postAside = ({ key, value, thread }) => {
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
     fragments.push(section(footer(continueThreadComponent(thread, isComment))));
   }
-  return div({ class: "post-aside" }, fragments);
+
+  return div({ class: "indent" }, fragments);
 };
 
-const post = ({ msg }) => {
+const post = ({ msg, aside = false }) => {
   const encoded = {
     key: encodeURIComponent(msg.key),
     author: encodeURIComponent(msg.value.author),
@@ -452,9 +459,11 @@ const post = ({ msg }) => {
     )
   );
 
-  const aside = postAside(msg);
-  const wrapper = div({ class: "post-aside-wrapper" }, fragment, aside);
-  return wrapper;
+  if (aside) {
+    return [fragment, postAside(msg)];
+  } else {
+    return fragment;
+  }
 };
 
 exports.authorView = ({
@@ -834,14 +843,15 @@ exports.likesView = async ({ messages, feed, name }) => {
 
 const messageListView = ({
   messages,
-  prefix = null,
   viewTitle = null,
   viewDescription = null,
-  viewElements = null
+  viewElements = null,
+  // If `aside = true`, it will show a few comments in the thread.
+  aside = null
 }) => {
   return template(
     section(h1(viewTitle), p(viewDescription), viewElements),
-    messages.map(msg => post({ msg }))
+    messages.map(msg => post({ msg, aside }))
   );
 };
 
@@ -875,6 +885,15 @@ exports.topicsView = ({ messages }) => {
     messages,
     viewTitle: i18n.topics,
     viewDescription: i18n.topicsDescription
+  });
+};
+
+exports.summaryView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.summaries,
+    viewDescription: i18n.summariesDescription,
+    aside: true
   });
 };
 

@@ -808,6 +808,55 @@ module.exports = ({ cooler, isPublic }) => {
 
       return messages;
     },
+    latestSummaries: async () => {
+      const ssb = await cooler.open();
+
+      const myFeedId = ssb.id;
+
+      const options = configure({
+        type: "post",
+        private: false
+      });
+
+      const source = ssb.messagesByType(options);
+
+      const extendedFilter = await socialFilter({
+        following: true
+      });
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.filter(
+            message =>
+              typeof message.value.content !== "string" &&
+              message.value.content.root == null
+          ),
+          extendedFilter,
+          pull.take(maxMessages),
+          pullParallelMap(async (message, cb) => {
+            // Retrieve a preview of this post's comments / thread
+            const thread = await post.fromThread(message.key);
+            lodash.set(
+              message,
+              "value.meta.thread",
+              await transform(ssb, thread, myFeedId)
+            );
+            cb(null, message);
+          }),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
+
     popular: async ({ period }) => {
       const ssb = await cooler.open();
 
@@ -904,10 +953,6 @@ module.exports = ({ cooler, isPublic }) => {
                 pullParallelMap(async (key, cb) => {
                   try {
                     const msg = await post.get(key);
-
-                    // Retrieve a preview of this post's comments / thread
-                    const thread = await post.fromThread(key);
-                    msg.thread = await transform(ssb, thread, myFeedId);
                     cb(null, msg);
                   } catch (e) {
                     cb(null, null);

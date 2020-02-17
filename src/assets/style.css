@@ -331,7 +331,6 @@ section {
   word-wrap: break-word;
   background: var(--bg);
   width: 100%;
-  max-width: var(--measure);
   box-sizing: border-box;
 }
 
@@ -397,32 +396,6 @@ section > footer > * {
 
 section > footer > form > button.liked {
   color: var(--red);
-}
-
-.post-aside-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-@media (min-width: 80rem) {
-  .post-aside-wrapper {
-    flex-direction: row;
-  }
-}
-
-.post-aside {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: var(--micro);
-  margin: var(--whole) 0;
-}
-
-.post-aside section {
-  max-width: var(--peta);
-  margin: 0 0 var(--micro) 0;
 }
 
 label {
@@ -522,7 +495,8 @@ hr {
     margin-bottom: var(--whole);
   }
   main {
-    width: 85vw;
+    width: 100%;
+    max-width: var(--measure);
   }
   body {
     display: flex;
@@ -537,4 +511,12 @@ hr {
  */
 .emoji {
   font-family: initial;
+}
+
+/* This indent is used on the summaries page to create an indent of 1. It might
+ * be wise to nest these recursively on the thread view, which would make it so
+ * that we don't need any inline CSS anymore.
+ */
+.indent {
+  margin-left: 1rem;
 }

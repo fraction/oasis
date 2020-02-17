@@ -63,7 +63,8 @@ const {
   searchView,
   setLanguage,
   settingsView,
-  topicsView
+  topicsView,
+  summaryView
 } = require("./views");
 
 let sharp;
@@ -146,6 +147,10 @@ router
   .get("/public/latest/topics", async ctx => {
     const messages = await post.latestTopics();
     ctx.body = await topicsView({ messages });
+  })
+  .get("/public/latest/summaries", async ctx => {
+    const messages = await post.latestSummaries();
+    ctx.body = await summaryView({ messages });
   })
   .get("/author/:feed", async ctx => {
     const { feed } = ctx.params;
