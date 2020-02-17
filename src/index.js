@@ -34,6 +34,7 @@ const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
 const isSvg = require("is-svg");
 const { themeNames } = require("@fraction/base16-css");
+const { isFeed, isMsg, isBlob } = require("ssb-ref");
 
 const ssb = require("./ssb");
 
@@ -170,18 +171,26 @@ router
     ctx.body = await author(feed);
   })
   .get("/search/", async ctx => {
-    const { query } = ctx.query;
-    const search = async ({ query }) => {
-      if (typeof query === "string") {
-        // https://github.com/ssbc/ssb-search/issues/7
-        query = query.toLowerCase();
-      }
+    let { query } = ctx.query;
 
-      const messages = await post.search({ query });
+    if (isMsg(query)) {
+      return ctx.redirect(`/thread/${encodeURIComponent(query)}`);
+    }
+    if (isFeed(query)) {
+      return ctx.redirect(`/author/${encodeURIComponent(query)}`);
+    }
+    if (isBlob(query)) {
+      return ctx.redirect(`/blob/${encodeURIComponent(query)}`);
+    }
 
-      return searchView({ messages, query });
-    };
-    ctx.body = await search({ query });
+    if (typeof query === "string") {
+      // https://github.com/ssbc/ssb-search/issues/7
+      query = query.toLowerCase();
+    }
+
+    const messages = await post.search({ query });
+
+    ctx.body = await searchView({ messages, query });
   })
   .get("/inbox", async ctx => {
     const inbox = async () => {
