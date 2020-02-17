@@ -411,7 +411,7 @@ section > footer > form > button.liked {
   }
 }
 
-.post-aside  {
+.post-aside {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
@@ -420,7 +420,7 @@ section > footer > form > button.liked {
   margin: var(--whole) 0;
 }
 
-.post-aside section  {
+.post-aside section {
   max-width: var(--peta);
   margin: 0 0 var(--micro) 0;
 }
