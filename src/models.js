@@ -904,6 +904,10 @@ module.exports = ({ cooler, isPublic }) => {
                 pullParallelMap(async (key, cb) => {
                   try {
                     const msg = await post.get(key);
+
+                    // Retrieve a preview of this post's comments / thread
+                    const thread = await post.fromThread(key);
+                    msg.thread = await transform(ssb, thread, myFeedId);
                     cb(null, msg);
                   } catch (e) {
                     cb(null, null);
