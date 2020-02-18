@@ -562,7 +562,9 @@ module.exports = ({ cooler, isPublic }) => {
         customOptions,
         ssb,
         query,
-        filter: msg => msg.value.author !== myFeedId
+        filter: msg =>
+          msg.value.author !== myFeedId &&
+          lodash.get(msg, "value.meta.private") !== true
       });
 
       return messages;
