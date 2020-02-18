@@ -520,13 +520,13 @@ router
       });
     };
     ctx.body = await publish({ text, contentWarning });
-    ctx.redirect("/");
+    ctx.redirect("/public/latest");
   })
   .post("/publish/custom", koaBody(), async ctx => {
     const text = String(ctx.request.body.text);
     const obj = JSON.parse(text);
     ctx.body = await post.publishCustom(obj);
-    ctx.redirect(`/thread/${encodeURIComponent(ctx.body.key)}`);
+    ctx.redirect(`/public/latest`);
   })
   .post("/follow/:feed", koaBody(), async ctx => {
     const { feed } = ctx.params;
