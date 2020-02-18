@@ -1,4 +1,4 @@
-const { a, em, strong, code } = require("hyperaxe");
+const { a, em, strong } = require("hyperaxe");
 
 module.exports = {
   en: {
@@ -109,8 +109,8 @@ module.exports = {
       " instead."
     ],
     // settings
-    settingsIntro: ({ readmeUrl }) => [
-      "Check out ",
+    settingsIntro: ({ readmeUrl, version }) => [
+      `You're using Oasis ${version}. Check out `,
       a({ href: readmeUrl }, "the readme"),
       ", configure your theme, or view debugging information below."
     ],

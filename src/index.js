@@ -77,12 +77,17 @@ try {
 
 const defaultTheme = "atelier-sulphurPool-light".toLowerCase();
 
-// TODO: refactor
-const start = async () => {
-  const filePath = path.join(__dirname, "..", "README.md");
-  config.readme = await fs.readFile(filePath, "utf8");
-};
-start();
+const readmePath = path.join(__dirname, "..", "README.md");
+const packagePath = path.join(__dirname, "..", "package.json");
+
+fs.readFile(readmePath, "utf8").then(text => {
+  config.readme = text;
+});
+
+fs.readFile(packagePath, "utf8").then(text => {
+  config.version = JSON.parse(text).version;
+  console.log(config.version);
+});
 
 router
   .param("imageSize", (imageSize, ctx, next) => {
@@ -382,7 +387,13 @@ router
         })
       );
 
-      return settingsView({ status, peers: peersWithNames, theme, themeNames });
+      return settingsView({
+        status,
+        peers: peersWithNames,
+        theme,
+        themeNames,
+        version: config.version
+      });
     };
     ctx.body = await getMeta({ theme });
   })
