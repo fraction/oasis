@@ -11,6 +11,24 @@ if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";
 }
 
+process.on("uncaughtException", function(err) {
+  // This isn't `err.code` because TypeScript doesn't like that.
+  if (err["code"] === "EADDRINUSE") {
+    const url = `http://${config.host}:${config.port}`;
+
+    throw new Error(
+      `Another server is already running at ${url}.
+It might be another copy of Oasis or another program on your computer.
+You can run Oasis on a different port number with this option:
+
+    oasis --port ${config.port + 1}
+`
+    );
+  } else {
+    throw err;
+  }
+});
+
 // HACK: We must get the CLI config and then delete environment variables.
 // This hides arguments from other upstream modules who might parse them.
 //
