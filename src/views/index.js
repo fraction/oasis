@@ -690,7 +690,7 @@ exports.publishView = () => {
   );
 };
 
-exports.settingsView = ({ status, peers, theme, themeNames }) => {
+exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const max = status.sync.since;
 
   const progressElements = Object.entries(status.sync.plugins).map(e => {
@@ -778,7 +778,7 @@ exports.settingsView = ({ status, peers, theme, themeNames }) => {
     section(
       { class: "message" },
       h1(i18n.settings),
-      p(i18n.settingsIntro({ readmeUrl: "/settings/readme" })),
+      p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
