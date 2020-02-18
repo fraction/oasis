@@ -43,17 +43,17 @@ Options:
 
 ## Installation
 
-Most people should install stable releases with [npm](https://npmjs.org/).
-Please make sure that your Node.js version is the [**current** or **active LTS** release](https://nodejs.org/en/about/releases/).
+Most people should install stable releases with [npm](https://npmjs.org/) and
+Node.js [**current** or **active LTS** release](https://nodejs.org/en/about/releases/).
 
 ```shell
-npm --global install @fraction/oasis@latest
+npm --global install 'fraction/oasis#semver:*'
 ```
 
 For faster updates and less stability, install from GitHub and upgrade often.
 
 ```shell
-npm --global install github:fraction/oasis
+npm --global install fraction/oasis
 ```
 
 Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/master/docs/install.md).
