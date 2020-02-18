@@ -87,7 +87,6 @@ fs.readFile(readmePath, "utf8").then(text => {
 
 fs.readFile(packagePath, "utf8").then(text => {
   config.version = JSON.parse(text).version;
-  console.log(config.version);
 });
 
 router
