@@ -505,8 +505,7 @@ router
     const text = String(ctx.request.body.text);
     const publishReply = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
 
       const parent = await post.get(message);
       return post.reply({
@@ -522,8 +521,7 @@ router
     const text = String(ctx.request.body.text);
     const publishComment = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
       const parent = await meta.get(message);
 
       return post.comment({
@@ -543,8 +541,7 @@ router
       rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
     const publish = async ({ text, contentWarning }) => {
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
 
       return post.root({
         text,
