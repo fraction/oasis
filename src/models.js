@@ -20,6 +20,10 @@ const defaultOptions = {
   meta: true
 };
 
+const publicOnlyFilter = pull.filter(
+  message => lodash.get(message, "value.meta.private", false) === false
+);
+
 /** @param {object[]} customOptions */
 const configure = (...customOptions) =>
   Object.assign({}, defaultOptions, ...customOptions);
@@ -720,8 +724,7 @@ module.exports = ({ cooler, isPublic }) => {
               }
             }
           ],
-          index: "DTA",
-          private: false
+          index: "DTA"
         })
       );
       const followingFilter = await socialFilter({ following: true });
@@ -730,11 +733,7 @@ module.exports = ({ cooler, isPublic }) => {
         pull(
           source,
           followingFilter,
-          pull.filter(
-            (
-              message // avoid private messages (!)
-            ) => typeof message.value.content !== "string"
-          ),
+          publicOnlyFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -766,8 +765,7 @@ module.exports = ({ cooler, isPublic }) => {
               }
             }
           ],
-          index: "DTA",
-          private: false
+          index: "DTA"
         })
       );
 
@@ -779,7 +777,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(message => typeof message.value.content !== "string"),
+          publicOnlyFilter,
           extendedFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
@@ -812,8 +810,7 @@ module.exports = ({ cooler, isPublic }) => {
               }
             }
           ],
-          index: "DTA",
-          private: false
+          index: "DTA"
         })
       );
 
@@ -824,11 +821,8 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(
-            message =>
-              typeof message.value.content !== "string" &&
-              message.value.content.root == null
-          ),
+          publicOnlyFilter,
+          pull.filter(message => message.value.content.root == null),
           extendedFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
@@ -926,8 +920,7 @@ module.exports = ({ cooler, isPublic }) => {
               }
             }
           ],
-          index: "DTA",
-          private: false
+          index: "DTA"
         })
       );
       const followingFilter = await socialFilter({ following: true });
@@ -935,6 +928,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          publicOnlyFilter,
           pull.filter(msg => {
             return (
               typeof msg.value.content === "object" &&
