@@ -707,12 +707,23 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false
-      });
-
-      const source = ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ],
+          index: "DTA",
+          private: false
+        })
+      );
       const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
@@ -742,12 +753,23 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false
-      });
-
-      const source = ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ],
+          index: "DTA",
+          private: false
+        })
+      );
 
       const extendedFilter = await socialFilter({
         following: false,
@@ -777,12 +799,23 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false
-      });
-
-      const source = ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ],
+          index: "DTA",
+          private: false
+        })
+      );
 
       const extendedFilter = await socialFilter({
         following: true
@@ -878,13 +911,25 @@ module.exports = ({ cooler, isPublic }) => {
       const now = new Date();
       const earliest = Number(now) - 1000 * 60 * 60 * 24 * periodDict[period];
 
-      const options = configure({
-        type: "vote",
-        gt: earliest,
-        private: false
-      });
-
-      const source = ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $gte: earliest },
+                  content: {
+                    type: "vote"
+                  }
+                },
+                timestamp: { $gte: earliest }
+              }
+            }
+          ],
+          index: "DTA",
+          private: false
+        })
+      );
       const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
@@ -892,7 +937,6 @@ module.exports = ({ cooler, isPublic }) => {
           source,
           pull.filter(msg => {
             return (
-              msg.value.timestamp > earliest &&
               typeof msg.value.content === "object" &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
