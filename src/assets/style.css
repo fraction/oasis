@@ -235,7 +235,6 @@ section img,
 section video {
   max-width: 100%;
   max-height: 100vh;
-  border: var(--pico) solid var(--bg-status);
   border-radius: var(--common-radius);
   box-sizing: border-box;
 }
