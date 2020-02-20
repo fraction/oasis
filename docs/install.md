@@ -8,6 +8,8 @@ If you want to run Oasis in the background, see [`with-systemd.md`](./with-syste
 
 If you want to run Oasis in a container, see [`with-docker.md`](./with-docker.md).
 
+If you want to run Oasis on Android via Termux, see [`with-termux.md`](./with-termux.md).
+
 ## Download
 
 ### HTTPS
