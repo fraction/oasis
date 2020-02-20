@@ -32,7 +32,7 @@ source ~/.profile
 npm install -g npm
 
 # Install Oasis
-npm --global install --no-optional 'fraction/oasis#semver:*'
+npm --global install 'fraction/oasis#semver:*'
 ```
 
 ## Run
@@ -40,5 +40,12 @@ npm --global install --no-optional 'fraction/oasis#semver:*'
 Oasis should open in your browser at http://localhost:3000 after you run:
 
 ```
+oasis
+```
+
+If you see an error about Sharp installing incorrectly, delete it and try again.
+
+```
+rm -rf node_modules/sharp
 oasis
 ```
