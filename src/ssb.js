@@ -10,6 +10,16 @@ const ssbConfig = require("ssb-config");
 const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
+const path = require("path");
+
+const socketPath = path.join(ssbConfig.path, "socket");
+const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
+const remote = `unix:${socketPath}~noauth:${publicInteger}`;
+
+// This is unnecessary when https://github.com/ssbc/ssb-config/pull/72 is merged
+ssbConfig.connections.incoming.unix = [
+  { scope: "device", transform: "noauth" }
+];
 
 const server = flotilla(ssbConfig);
 
@@ -22,7 +32,7 @@ const log = (...args) => {
 
 const rawConnect = () =>
   new Promise((resolve, reject) => {
-    ssbClient()
+    ssbClient(null, { remote })
       .then(api => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
@@ -64,7 +74,9 @@ const createConnection = config => {
               resolve(ssb);
             })
             .catch(e => {
-              log(e);
+              if (e.message !== "could not connect to sbot") {
+                log(e);
+              }
               connectOrRetry();
             });
         };

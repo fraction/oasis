@@ -28,6 +28,7 @@
     "multiserver",
     "muxrpc",
     "nanohtml",
+    "noauth",
     "nosniff",
     "paramap",
     "patchbay",
