@@ -42,7 +42,7 @@ npm () {
   "\$node" "\$BASEDIR/vendor/node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH/lib/node_modules/npm/bin/npm-cli.js" --scripts-prepend-node-path=true --silent \$@;
 }
 
-npm start > /dev/null 2>&1 || rm -rf "\$BASEDIR/node_modules" && npm install --only=prod --no-audit --no-fund && npm start
+npm start -- \$@ > /dev/null 2>&1 || rm -rf "\$BASEDIR/node_modules" && npm install --only=prod --no-audit --no-fund; npm start \$@
 EOF
 
 chmod +x oasis
