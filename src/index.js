@@ -6,22 +6,35 @@
 
 const fs = require("fs");
 const envPaths = require("env-paths");
-const config_file = envPaths("oasis", { suffix: "" }).config + "/config.json";
-console.log(`Trying to read config file ${config_file}`);
-var presets;
-if (fs.existsSync(config_file)) {
-  presets = require(config_file);
-} else {
-  presets = {};
+const path = require("path");
+
+const defaultConfigFile = path.join(
+  envPaths("oasis", { suffix: "" }).config,
+  "/default.json"
+);
+
+const defaultConfig = {};
+
+try {
+  const defaultConfigOverride = fs.readFileSync(defaultConfigFile, "utf8");
+  Object.entries(JSON.parse(defaultConfigOverride)).forEach(([key, value]) => {
+    defaultConfig[key] = value;
+  });
+} catch (e) {
+  if (e.code === "ENOENT") {
+    // No default config, no problem.
+  } else {
+    console.log(`There was a problem loading ${defaultConfigFile}`);
+    throw e;
+  }
 }
+
 const cli = require("./cli");
-const config = cli(presets);
+const config = cli(defaultConfig);
 
 if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";
 }
-
-console.log(JSON.parse(JSON.stringify(config)));
 
 process.on("uncaughtException", function(err) {
   // This isn't `err.code` because TypeScript doesn't like that.
@@ -35,7 +48,11 @@ You can run Oasis on a different port number with this option:
 
     oasis --port ${config.port + 1}
 
-Or you can set a default port in ${config_file}
+Alternatively, you can set the default port in ${defaultConfigFile} with:
+
+    {
+      "port": ${config.port + 1}
+    }
 `
     );
   } else {
@@ -57,7 +74,6 @@ const debug = require("debug")("oasis");
 const koaBody = require("koa-body");
 const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
-const path = require("path");
 const pull = require("pull-stream");
 const requireStyle = require("require-style");
 const router = require("koa-router")();
