@@ -14,15 +14,17 @@ const defaultConfigFile = path.join(
 );
 
 const defaultConfig = {};
+var haveConfig;
 
 try {
   const defaultConfigOverride = fs.readFileSync(defaultConfigFile, "utf8");
   Object.entries(JSON.parse(defaultConfigOverride)).forEach(([key, value]) => {
     defaultConfig[key] = value;
   });
+  haveConfig = true;
 } catch (e) {
   if (e.code === "ENOENT") {
-    // No default config, no problem.
+    haveConfig = false;
   } else {
     console.log(`There was a problem loading ${defaultConfigFile}`);
     throw e;
@@ -30,7 +32,26 @@ try {
 }
 
 const cli = require("./cli");
-const config = cli(defaultConfig);
+const config = cli(defaultConfig, defaultConfigFile);
+delete config._;
+delete config.$0;
+
+console.log();
+if (haveConfig) {
+  console.log(`Configuration read defaults from ${defaultConfigFile}`);
+} else {
+  console.log(
+    `No configuration file found at ${defaultConfigFile}. ` +
+      "Using built-in default values."
+  );
+}
+console.log("Current configuration:");
+console.log();
+console.log(JSON.stringify(config, null, 2));
+console.log();
+console.log(`Note: You can save the above to ${defaultConfigFile} to make \
+these settings the default. See the readme for details.`);
+console.log();
 
 if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";

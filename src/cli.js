@@ -3,7 +3,7 @@
 const yargs = require("yargs");
 const _ = require("lodash");
 
-module.exports = presets =>
+module.exports = (presets, defaultConfigFile) =>
   yargs
     .scriptName("oasis")
     .env("OASIS")
@@ -42,4 +42,5 @@ module.exports = presets =>
       describe: "Use verbose output for debugging",
       default: _.get(presets, "debug", false),
       type: "boolean"
-    }).argv;
+    })
+    .epilog(`The defaults can be configured in ${defaultConfigFile}.`).argv;
