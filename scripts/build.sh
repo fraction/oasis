@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set -ex
 
 BASEDIR="$(dirname $0)"
 
@@ -29,12 +29,13 @@ tar -xvf "$TARBALL"
 rm -rf "$TARBALL"
 cd ..
 
+# Avoid building anything from source.
+npm ci --only=prod --ignore-scripts --no-audit --no-fund
+
 cat << EOF > oasis
 #!/bin/sh
 
-echo "Installing dependencies..."
-
-BASEDIR="\$(dirname $)"
+BASEDIR="\$(cd "\$(dirname "\$0")" && pwd)"
 
 node="\$BASEDIR/vendor/node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH/bin/node"
 
@@ -42,11 +43,26 @@ npm () {
   "\$node" "\$BASEDIR/vendor/node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH/lib/node_modules/npm/bin/npm-cli.js" --scripts-prepend-node-path=true --silent \$@;
 }
 
-npm start -- \$@ > /dev/null 2>&1 || rm -rf "\$BASEDIR/node_modules" && npm install --only=prod --no-audit --no-fund; npm start \$@
+verify () {
+  node -p "require('\$1')" \$@ > /dev/null 2>&1 || echo "Building \$1..."; (cd "node_modules/\$1" && npm install --only=prod --offline --no-audit --no-fund)
+}
+
+verify_optional () {
+  node -p "require('\$1')" \$@ > /dev/null 2>&1 || rm -rf "node_modules/\$1"
+}
+
+verify_all () {
+  verify leveldown
+  verify sodium-native
+  verify_optional sharp
+}
+
+verify_all
+exec "\$node" "src/index.js" \$@
+
 EOF
 
 chmod +x oasis
 
 zip -r "/tmp/oasis-$TARGET_PLATFORM-$TARGET_ARCH.zip" . -x '.git/**'
 git clean -fdx
-
