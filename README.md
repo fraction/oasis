@@ -51,7 +51,7 @@ standard folder for configuration, depending on your operating system:
   Usually this is `/home/<your username>/.config/oasis/default.json`
   <!-- cspell:disable-next-line -->
 - Windows `%APPDATA%\oasis\default.json`.
-- Mac OS, `<Library>/Preferences/oasis/default.json`
+- Mac OS, `/Users/<your username>/Library/Preferences/oasis/default.json`
 
 The configuration file can override any or all of the command-line _defaults_.
 Here is an example customizing the port number and the "open" settings:
