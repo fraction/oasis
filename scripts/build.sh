@@ -45,10 +45,10 @@ cat << EOF > "$BINARY_NAME"
 BASEDIR="\$(cd "\$(dirname "\$0")" && pwd)"
 node="\$BASEDIR/vendor/node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH/bin/node"
 verify () {
-  node -p "require('\$1')" > /dev/null 2>&1 || echo "Error: \$1 not supported on your platform"
+  node -e "require('\$1')" || echo "Error: \$1 may not work correctly on your platform"
 }
 verify_optional () {
-  node -p "require('\$1')" > /dev/null 2>&1 || rm -rf "node_modules/\$1"
+  node -e "require('\$1')" > /dev/null 2>&1 || rm -rf "node_modules/\$1"
 }
 verify_all () {
   verify leveldown
