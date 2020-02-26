@@ -61,7 +61,7 @@ chmod +x oasis-linux-x64
 
 # Windows (batch file)
 cat << EOF > oasis-win-x64.bat
-vendor\\node-v$TARGET_VERSION-darwin-x64\\bin\\node src "\$@"
+vendor\\node-v$TARGET_VERSION-win-x64\\bin\\node src "\$@"
 EOF
 
 chmod +x oasis-win-x64.bat
