@@ -30,9 +30,10 @@ cd vendor
 TARGET="node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH"
 TARBALL="$TARGET.tar.gz"
 URL="https://nodejs.org/dist/v$TARGET_VERSION/$TARBALL"
+TARGET_NODE="$TARGET/bin/node"
 
 wget "$URL"
-tar -xvf "$TARBALL" "$TARGET/bin/node"
+tar -xvf "$TARBALL" "$TARGET_NODE"
 rm -rf "$TARBALL"
 cd ..
 
@@ -43,43 +44,17 @@ rm -rf ./node_modules/sharp
 
 BINARY_NAME="oasis"
 
-echo $BINARY_NAME
+VENDOR_NODE="vendor/$TARGET_NODE"
 
-cat << EOF | gcc -Wall -g -no-pie -o "$BINARY_NAME" -x c -march="$GCC_ARCH" -
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-
-int main (int argc, char *argv[]) {
-	static const char node[] = "./vendor/node-v$TARGET_VERSION-$TARGET_PLATFORM-$TARGET_ARCH/bin/node";
-	static const char src[] = "src";
-
-	char** new_argv = malloc(((argc+1) * sizeof *new_argv) + sizeof src);
-
-	int pad = 0;
-	for(int i = 0; i < argc; i++) {
-		size_t length = strlen(argv[i])+1;
-		new_argv[i+pad] = malloc(length);
-		memcpy(new_argv[i+pad], argv[i], length);
-		if (i == 0) {
-			pad = 1;
-			new_argv[i + pad] = src;
-		}
-	}
-
-	new_argv[argc + 1] = NULL;
-
-	execv(node, new_argv);
-	return 1;
-}
-
-EOF
+gcc scripts/oasis.c -Wall -g -no-pie -o "$BINARY_NAME" -march="$GCC_ARCH" -D "NODE=\"$VENDOR_NODE\""
 
 chmod +x "$BINARY_NAME"
 
 # I think if the zip already exists it's adding files to the existing archive?
 ZIP_PATH="/tmp/oasis-$TARGET_PLATFORM-$TARGET_ARCH.zip"
-rm -f "$ZIP_PATH"
 
+rm -f "$ZIP_PATH"
 zip -r "$ZIP_PATH" . -x ".git/**"
-git clean -fdx
+
+rm -f oasis
+rm -rf vendor
