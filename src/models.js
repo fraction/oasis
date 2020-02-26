@@ -627,6 +627,7 @@ module.exports = ({ cooler, isPublic }) => {
           $filter: {
             value: {
               author: feed,
+              timestamp: { $lte: Date.now() },
               content: {
                 type: "vote"
               }
@@ -638,7 +639,6 @@ module.exports = ({ cooler, isPublic }) => {
       const options = configure(
         {
           query,
-          index: "DTA",
           reverse: true
         },
         customOptions
@@ -717,14 +717,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now() },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
       const followingFilter = await socialFilter({ following: true });
@@ -758,14 +758,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
 
@@ -803,14 +803,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now() },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
 
@@ -915,12 +915,10 @@ module.exports = ({ cooler, isPublic }) => {
                   content: {
                     type: "vote"
                   }
-                },
-                timestamp: { $gte: earliest }
+                }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
       const followingFilter = await socialFilter({ following: true });
