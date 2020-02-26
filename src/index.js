@@ -7,11 +7,20 @@
 const fs = require("fs");
 const envPaths = require("env-paths");
 const path = require("path");
+const nodeHttp = require("http");
+const debug = require("debug")("oasis");
 
 const defaultConfigFile = path.join(
   envPaths("oasis", { suffix: "" }).config,
   "/default.json"
 );
+
+const log = (...args) => {
+  const isDebugEnabled = debug.enabled;
+  debug.enabled = true;
+  debug(...args);
+  debug.enabled = isDebugEnabled;
+};
 
 const defaultConfig = {};
 var haveConfig;
@@ -36,6 +45,10 @@ const config = cli(defaultConfig, defaultConfigFile);
 delete config._;
 delete config.$0;
 
+const { host } = config;
+const { port } = config;
+const url = `http://${host}:${port}`;
+
 console.log();
 if (haveConfig) {
   console.log(`Configuration read defaults from ${defaultConfigFile}`);
@@ -57,13 +70,31 @@ if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";
 }
 
+const oasisCheckPath = "/.well-known/oasis";
+
 process.on("uncaughtException", function(err) {
   // This isn't `err.code` because TypeScript doesn't like that.
   if (err["code"] === "EADDRINUSE") {
-    const url = `http://${config.host}:${config.port}`;
-
-    throw new Error(
-      `Another server is already running at ${url}.
+    nodeHttp.get(url + oasisCheckPath, res => {
+      let rawData = "";
+      res.on("data", chunk => {
+        rawData += chunk;
+      });
+      res.on("end", () => {
+        log(rawData);
+        if (rawData === "oasis") {
+          log(`Oasis is already running on host ${host} and port ${port}`);
+          if (config.open === true) {
+            log("Opening link to existing instance of Oasis");
+            open(url);
+          } else {
+            log(
+              "Not opening your browser because opening is disabled by your config"
+            );
+          }
+          process.exit(0);
+        } else {
+          throw new Error(`Another server is already running at ${url}.
 It might be another copy of Oasis or another program on your computer.
 You can run Oasis on a different port number with this option:
 
@@ -74,8 +105,10 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
     {
       "port": ${config.port + 1}
     }
-`
-    );
+`);
+        }
+      });
+    });
   } else {
     throw err;
   }
@@ -91,7 +124,6 @@ process.argv = [];
 
 const http = require("./http");
 
-const debug = require("debug")("oasis");
 const koaBody = require("koa-body");
 const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
@@ -183,6 +215,9 @@ router
   })
   .get("/robots.txt", ctx => {
     ctx.body = "User-agent: *\nDisallow: /";
+  })
+  .get(oasisCheckPath, ctx => {
+    ctx.body = "oasis";
   })
   .get("/public/popular/:period", async ctx => {
     const { period } = ctx.params;
@@ -690,9 +725,6 @@ router
     ctx.redirect("/settings");
   });
 
-const { host } = config;
-const { port } = config;
-
 const routes = router.routes();
 
 const middleware = [
@@ -714,13 +746,8 @@ const middleware = [
 
 http({ host, port, middleware });
 
-const uri = `http://${host}:${port}/`;
-
-const isDebugEnabled = debug.enabled;
-debug.enabled = true;
-debug(`Listening on ${uri}`);
-debug.enabled = isDebugEnabled;
+log(`Listening on ${url}`);
 
 if (config.open === true) {
-  open(uri);
+  open(url);
 }
