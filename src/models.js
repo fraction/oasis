@@ -1240,6 +1240,13 @@ module.exports = ({ cooler, isPublic }) => {
       debug("Published: %O", body);
       return ssb.publish(body);
     },
+    publishProfileEdit: async ({ name, description }) => {
+      const ssb = await cooler.open();
+      const body = { type: "about", about: ssb.id, name, description };
+
+      debug("Published: %O", body);
+      return ssb.publish(body);
+    },
     publishCustom: async options => {
       const ssb = await cooler.open();
       debug("Published: %O", options);

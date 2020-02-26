@@ -466,6 +466,37 @@ const post = ({ msg, aside = false }) => {
   }
 };
 
+exports.editProfileView = ({ name, description }) =>
+  template(
+    section(
+      h1(i18n.editProfile),
+      p(i18n.editProfileDescription),
+      form(
+        { action: "/profile/edit", method: "POST" },
+        label(
+          i18n.profileName,
+          input({ name: "name", autofocus: true, value: name })
+        ),
+        label(
+          i18n.profileDescription,
+          textarea(
+            {
+              autofocus: true,
+              name: "description"
+            },
+            description
+          )
+        ),
+        button(
+          {
+            type: "submit"
+          },
+          i18n.submit
+        )
+      )
+    )
+  );
+
 exports.authorView = ({
   avatarUrl,
   description,
@@ -543,7 +574,10 @@ exports.authorView = ({
     footer(
       a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
       span(relationshipText),
-      contactForm
+      contactForm,
+      relationship === null
+        ? a({ href: `/profile/edit` }, i18n.editProfile)
+        : null
     )
   );
 
@@ -672,17 +706,18 @@ exports.publishView = () => {
       form(
         { action: publishForm, method: "post" },
         label(
-          { for: "text" },
-          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" })
+          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
+          textarea({ required: true, name: "text" })
         ),
-        textarea({ required: true, name: "text" }),
-        label({ for: "contentWarning" }, i18n.contentWarningLabel),
-        input({
-          name: "contentWarning",
-          type: "text",
-          class: "contentWarning",
-          placeholder: "Optional warning for the post"
-        }),
+        label(
+          i18n.contentWarningLabel,
+          input({
+            name: "contentWarning",
+            type: "text",
+            class: "contentWarning",
+            placeholder: "Optional warning for the post"
+          })
+        ),
         button({ type: "submit" }, i18n.submit)
       )
     ),
@@ -696,7 +731,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const progressElements = Object.entries(status.sync.plugins).map(e => {
     const [key, val] = e;
     const id = `progress-${key}`;
-    return div(label({ for: id }, key), progress({ id, value: val, max }, val));
+    return div(label(key, progress({ id, value: val, max }, val)));
   });
 
   const startButton = form(
@@ -962,8 +997,7 @@ exports.searchView = ({ messages, query }) => {
       h1(i18n.search),
       form(
         { action: "/search", method: "get" },
-        label({ for: "query" }, i18n.searchLabel),
-        searchInput,
+        label(i18n.searchLabel, searchInput),
         button(
           {
             type: "submit"

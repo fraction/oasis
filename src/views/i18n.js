@@ -157,7 +157,12 @@ module.exports = {
     mysteryDescription: "posted a mysterious message",
     // misc
     oasisDescription: "Friendly neighborhood scuttlebutt interface",
-    submit: "Submit"
+    submit: "Submit",
+    editProfile: "Edit profile",
+    editProfileDescription:
+      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+    profileName: "Profile name (text)",
+    profileDescription: "Profile description (Markdown)"
   },
   /* spell-checker: disable */
   es: {

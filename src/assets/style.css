@@ -144,10 +144,11 @@ input {
   color: var(--fg);
   border: var(--pico) solid var(--bg-selection);
   padding: var(--milli);
-  margin-right: var(--whole);
+  margin: var(--whole) 0;
   -moz-appearance: none;
   appearance: none;
   border-radius: var(--common-radius);
+  display: block;
 }
 
 .contentWarning {
