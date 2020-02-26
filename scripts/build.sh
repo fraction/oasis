@@ -3,10 +3,9 @@
 set -ex
 
 BASEDIR="$(dirname "$0")"
+TARGET_VERSION="12.16.1"
 
 cd "$BASEDIR/.."
-
-TARGET_VERSION="12.16.1"
 
 git clean -fdx
 
@@ -51,12 +50,13 @@ rm -rf ./node_modules/sharp
 # Darwin (shell script)
 cat << EOF > oasis-darwin-x64
 #!/bin/sh
-exec vendor/node-v$TARGET_VERSION-darwin-x64/bin/node src "\$@"
+BASEDIR="\$(dirname "\$0")"
+exec "\$BASEDIR/vendor/node-v$TARGET_VERSION-darwin-x64/bin/node" "\$BASEDIR/src" "\$@"
 EOF
 chmod +x oasis-darwin-x64
 
 # Linux (ELF executable)
-clang scripts/oasis.c  -Wall -g -no-pie -o "oasis-linux-x64" --target=x86_64-linux-unknown -D "NODE=\"vendor/node-v$TARGET_VERSION-linux-x64/bin/node\""
+clang scripts/oasis.c  -Wall -g -no-pie -o "oasis-linux-x64" --target=x86_64-linux -D "NODE=\"vendor/node-v$TARGET_VERSION-linux-x64/bin/node\""
 chmod +x oasis-linux-x64
 
 # Windows (batch file)
@@ -72,7 +72,4 @@ ZIP_PATH="/tmp/oasis-x64.zip"
 rm -f "$ZIP_PATH"
 zip -r "$ZIP_PATH" . -x ".git/**"
 
-rm -f oasis-darwin-x64
-rm -f oasis-linux-x64
-rm -f oasis-win-x64.bat
-rm -rf vendor
+git clean -fdx
