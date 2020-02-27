@@ -150,6 +150,7 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
 const {
   authorView,
   commentView,
+  editProfileView,
   extendedView,
   latestView,
   likesView,
@@ -332,27 +333,44 @@ router
     ctx.body = requireStyle(filePath);
   })
   .get("/profile/", async ctx => {
-    const profile = async () => {
-      const myFeedId = await meta.myFeedId();
+    const myFeedId = await meta.myFeedId();
 
-      const description = await about.description(myFeedId);
-      const name = await about.name(myFeedId);
-      const image = await about.image(myFeedId);
+    const description = await about.description(myFeedId);
+    const name = await about.name(myFeedId);
+    const image = await about.image(myFeedId);
 
-      const messages = await post.fromPublicFeed(myFeedId);
+    const messages = await post.fromPublicFeed(myFeedId);
 
-      const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
+    const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
 
-      return authorView({
-        feedId: myFeedId,
-        messages,
-        name,
-        description,
-        avatarUrl,
-        relationship: null
-      });
-    };
-    ctx.body = await profile();
+    ctx.body = await authorView({
+      feedId: myFeedId,
+      messages,
+      name,
+      description,
+      avatarUrl,
+      relationship: null
+    });
+  })
+  .get("/profile/edit", async ctx => {
+    const myFeedId = await meta.myFeedId();
+    const description = await about.description(myFeedId);
+    const name = await about.name(myFeedId);
+
+    ctx.body = await editProfileView({
+      name,
+      description
+    });
+  })
+  .post("/profile/edit", koaBody(), async ctx => {
+    const name = String(ctx.request.body.name);
+    const description = String(ctx.request.body.description);
+
+    ctx.body = await post.publishProfileEdit({
+      name,
+      description
+    });
+    ctx.redirect("/profile");
   })
   .get("/publish/custom/", async ctx => {
     ctx.body = await publishCustomView();
