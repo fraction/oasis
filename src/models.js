@@ -923,7 +923,7 @@ module.exports = ({ cooler, isPublic }) => {
           index: "DTA"
         })
       );
-      const followingFilter = await socialFilter({ following: true });
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
@@ -998,12 +998,14 @@ module.exports = ({ cooler, isPublic }) => {
                     cb(null, null);
                   }
                 }),
+                // avoid private messages (!) and non-posts
                 pull.filter(
-                  (
-                    message // avoid private messages (!)
-                  ) => message && typeof message.value.content !== "string"
+                  message =>
+                    message &&
+                    typeof message.value.content !== "string" &&
+                    message.value.content.type === "post"
                 ),
-                followingFilter,
+                basicSocialFilter,
                 pull.collect((err, collectedMessages) => {
                   if (err) {
                     reject(err);
