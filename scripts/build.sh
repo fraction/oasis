@@ -21,7 +21,7 @@ get_tgz () {
 
   wget "$URL"
   tar -xvf "$ARCHIVE" "$TARGET_NODE"
-  rm -rf "$ARCHIVE"
+  rm -f "$ARCHIVE"
 }
 
 get_zip () {
@@ -33,7 +33,7 @@ get_zip () {
 
   wget "$URL"
   unzip "$ARCHIVE" "$TARGET_NODE"
-  rm -rf "$ARCHIVE"
+  rm -f "$ARCHIVE"
 }
 
 get_tgz darwin
@@ -47,24 +47,25 @@ npm ci --only=prod --ignore-scripts --no-audit --no-fund
 # More trouble than it's worth :)
 rm -rf ./node_modules/sharp
 
+export GOARCH="amd64"
+
 # Darwin (shell script)
-cat << EOF > oasis-darwin-x64
-#!/bin/sh
-BASEDIR="\$(dirname "\$0")"
-exec "\$BASEDIR/vendor/node-v$TARGET_VERSION-darwin-x64/bin/node" "\$BASEDIR/src" "\$@"
-EOF
-chmod +x oasis-darwin-x64
+export GOOS="darwin"
+OUTFILE="oasis-$GOOS-$GOARCH"
+go build -ldflags "-X main.node=vendor/node-v$TARGET_VERSION-darwin-x64/bin/node" -o "$OUTFILE" scripts/oasis.go
+chmod +x "$OUTFILE"
 
 # Linux (ELF executable)
-clang scripts/oasis.c  -Wall -g -no-pie -o "oasis-linux-x64" --target=x86_64-linux -D "NODE=\"vendor/node-v$TARGET_VERSION-linux-x64/bin/node\""
-chmod +x oasis-linux-x64
+export GOOS="linux"
+OUTFILE="oasis-$GOOS-$GOARCH"
+go build -ldflags "-X main.node=vendor/node-v$TARGET_VERSION-linux-x64/bin/node" -o "$OUTFILE" scripts/oasis.go
+chmod +x "$OUTFILE"
 
 # Windows (batch file)
-cat << EOF > oasis-win-x64.bat
-vendor\\node-v$TARGET_VERSION-win-x64\\bin\\node src %*
-EOF
-
-chmod +x oasis-win-x64.bat
+export GOOS="windows"
+OUTFILE="oasis-$GOOS-$GOARCH.exe"
+go build -ldflags "-X main.node=vendor\\node-v$TARGET_VERSION-win-x64\\bin\\node" -o "$OUTFILE" scripts/oasis.go
+chmod +x "$OUTFILE"
 
 # I think if the zip already exists it's adding files to the existing archive?
 ZIP_PATH="/tmp/oasis-x64.zip"
@@ -73,3 +74,4 @@ rm -f "$ZIP_PATH"
 zip -r "$ZIP_PATH" . -x ".git/**"
 
 git clean -fdx
+
