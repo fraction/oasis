@@ -684,10 +684,12 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       const source = await ssb.search.query(options);
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          basicSocialFilter,
           pull.filter(
             (
               message // avoid private messages (!)
