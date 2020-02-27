@@ -627,6 +627,7 @@ module.exports = ({ cooler, isPublic }) => {
           $filter: {
             value: {
               author: feed,
+              timestamp: { $lte: Date.now() },
               content: {
                 type: "vote"
               }
@@ -638,7 +639,6 @@ module.exports = ({ cooler, isPublic }) => {
       const options = configure(
         {
           query,
-          index: "DTA",
           reverse: true
         },
         customOptions
@@ -684,10 +684,12 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       const source = await ssb.search.query(options);
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          basicSocialFilter,
           pull.filter(
             (
               message // avoid private messages (!)
@@ -717,14 +719,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now() },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
       const followingFilter = await socialFilter({ following: true });
@@ -758,14 +760,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
 
@@ -803,14 +805,14 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
+                  timestamp: { $lte: Date.now() },
                   content: {
                     type: "post"
                   }
                 }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
 
@@ -915,15 +917,13 @@ module.exports = ({ cooler, isPublic }) => {
                   content: {
                     type: "vote"
                   }
-                },
-                timestamp: { $gte: earliest }
+                }
               }
             }
-          ],
-          index: "DTA"
+          ]
         })
       );
-      const followingFilter = await socialFilter({ following: true });
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
@@ -998,12 +998,14 @@ module.exports = ({ cooler, isPublic }) => {
                     cb(null, null);
                   }
                 }),
+                // avoid private messages (!) and non-posts
                 pull.filter(
-                  (
-                    message // avoid private messages (!)
-                  ) => message && typeof message.value.content !== "string"
+                  message =>
+                    message &&
+                    typeof message.value.content !== "string" &&
+                    message.value.content.type === "post"
                 ),
-                followingFilter,
+                basicSocialFilter,
                 pull.collect((err, collectedMessages) => {
                   if (err) {
                     reject(err);
