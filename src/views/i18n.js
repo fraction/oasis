@@ -11,7 +11,7 @@ module.exports = {
     ],
     popular: "Popular",
     popularDescription: [
-      "Posts from people you follow, sorted by ",
+      "Posts from people in your network, sorted by ",
       strong("hearts"),
       " in a given period. Hearts are counted from ",
       em("everyone"),
@@ -157,7 +157,14 @@ module.exports = {
     mysteryDescription: "posted a mysterious message",
     // misc
     oasisDescription: "Friendly neighborhood scuttlebutt interface",
-    submit: "Submit"
+    submit: "Submit",
+    editProfile: "Edit profile",
+    editProfileDescription:
+      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+    profileName: "Profile name (text)",
+    profileDescription: "Profile description (Markdown)",
+    hashtagDescription:
+      "Posts from people in your network that reference this hashtag, sorted by recency."
   },
   /* spell-checker: disable */
   es: {

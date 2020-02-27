@@ -121,7 +121,8 @@ const {
   extendedView,
   latestView,
   likesView,
-  listView,
+  threadView,
+  hashtagView,
   markdownView,
   mentionsView,
   popularView,
@@ -263,6 +264,10 @@ router
     if (typeof query === "string") {
       // https://github.com/ssbc/ssb-search/issues/7
       query = query.toLowerCase();
+      if (query.length > 1 && query.startsWith("#")) {
+        const hashtag = query.slice(1);
+        return ctx.redirect(`/hashtag/${encodeURIComponent(hashtag)}`);
+      }
     }
 
     const messages = await post.search({ query });
@@ -277,14 +282,11 @@ router
     };
     ctx.body = await inbox();
   })
-  .get("/hashtag/:channel", async ctx => {
-    const { channel } = ctx.params;
-    const hashtag = async channel => {
-      const messages = await post.fromHashtag(channel);
+  .get("/hashtag/:hashtag", async ctx => {
+    const { hashtag } = ctx.params;
+    const messages = await post.fromHashtag(hashtag);
 
-      return listView({ messages });
-    };
-    ctx.body = await hashtag(channel);
+    ctx.body = await hashtagView({ hashtag, messages });
   })
   .get("/theme.css", ctx => {
     const theme = ctx.cookies.get("theme") || defaultTheme;
@@ -502,7 +504,7 @@ router
       const messages = await post.fromThread(message);
       debug("got %i messages", messages.length);
 
-      return listView({ messages });
+      return threadView({ messages });
     };
 
     ctx.body = await thread(message);

@@ -654,7 +654,7 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.listView = ({ messages }) =>
+exports.threadView = ({ messages }) =>
   template(messages.map(msg => post({ msg })));
 
 exports.markdownView = ({ text }) => {
@@ -972,6 +972,13 @@ exports.searchView = ({ messages, query }) => {
         )
       )
     ),
+    messages.map(msg => post({ msg }))
+  );
+};
+
+exports.hashtagView = ({ messages, hashtag }) => {
+  return template(
+    section(h1(`#${hashtag}`), p(i18n.hashtagDescription)),
     messages.map(msg => post({ msg }))
   );
 };
