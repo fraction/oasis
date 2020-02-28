@@ -760,7 +760,7 @@ module.exports = ({ cooler, isPublic }) => {
             {
               $filter: {
                 value: {
-                  timestamp: { $lte: Date.now },
+                  timestamp: { $lte: Date.now() },
                   content: {
                     type: "post"
                   }
