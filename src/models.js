@@ -465,6 +465,13 @@ module.exports = ({ cooler, isPublic }) => {
           }
         }
 
+        const channel = lodash.get(msg, "value.content.channel");
+        const hasChannel = typeof channel === "string" && channel.length > 2;
+
+        if (hasChannel) {
+          msg.value.content.text += `\n\n#${channel}`;
+        }
+
         const avatarId =
           avatarMsg != null && typeof avatarMsg.link === "string"
             ? avatarMsg.link || nullImage
