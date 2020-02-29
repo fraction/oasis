@@ -12,40 +12,35 @@ If you want to run Oasis on Android via Termux, see [`with-termux.md`](./with-te
 
 ## Download
 
-### HTTPS
-
-Most people should download Oasis over HTTPS.
+Download Oasis from GitHub over HTTPS.
 
 ```shell
 git clone https://github.com/fraction/oasis.git
 ```
 
-### SSH
-
-If you already have SSH, you may prefer to download over SSH instead.
-
-```shell
-git clone git@github.com:fraction/oasis.git
-```
-
-## Install
+## Install dependencies
 
 Most people should build and install Oasis with npm.
 
 ```shell
 cd oasis
-npm install
-npm --global install .
+npm install --only=prod
 ```
 
 ## Start
 
-You did it! Oasis should now be installed.
+You can try Oasis without installing with:
 
 ```shell
-oasis --help
+node .
 ```
 
-If you have problems, read the documentation on [downloading and installing
-packages globally](https://docs.npmjs.com/downloading-and-installing-packages-globally)
-or [get some help](https://github.com/fraction/oasis/issues/new/choose).
+## Install globally
+
+If you want to install to make `oasis` available globally:
+
+```shell
+npm -g install .
+```
+
+If you see a permission error, see [resolving EACCESS permission errors](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). If you any other problems, please [reach out for help](https://github.com/fraction/oasis/issues/new).
