@@ -1,7 +1,6 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-debug.enabled = true;
 const { isRoot, isReply } = require("ssb-thread-schema");
 const lodash = require("lodash");
 const prettyMs = require("pretty-ms");
@@ -9,6 +8,7 @@ const pullParallelMap = require("pull-paramap");
 const pull = require("pull-stream");
 const pullSort = require("pull-sort");
 const ssbRef = require("ssb-ref");
+const crypto = require("crypto");
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
@@ -1253,7 +1253,6 @@ module.exports = ({ cooler, isPublic }) => {
     publishProfileEdit: async ({ name, description, image }) => {
       const ssb = await cooler.open();
       if (image.length > 0) {
-        console.log("have img");
         // 5 MiB check
         const mebibyte = Math.pow(2, 20);
         const maxSize = 5 * mebibyte;
@@ -1261,7 +1260,7 @@ module.exports = ({ cooler, isPublic }) => {
           throw new Error("Image file is too big, maximum size is 5 mebibytes");
         }
         const algorithm = "sha256";
-        const hash = require("crypto")
+        const hash = crypto
           .createHash(algorithm)
           .update(image)
           .digest("base64");
@@ -1288,7 +1287,6 @@ module.exports = ({ cooler, isPublic }) => {
           );
         });
       } else {
-        console.log("no img");
         const body = { type: "about", about: ssb.id, name, description };
         debug("Published: %O", body);
         return ssb.publish(body);
