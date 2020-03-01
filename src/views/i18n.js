@@ -162,6 +162,7 @@ module.exports = {
     editProfileDescription:
       "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
     profileName: "Profile name (text)",
+    profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
       "Posts from people in your network that reference this hashtag, sorted by recency."
