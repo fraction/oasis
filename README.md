@@ -10,8 +10,8 @@ spam again. Migrate your data to another SSB app any time you want.
 
 **🌐 Bring your own browser.**  
 Use your favorite web browser to read and write messages to the people you care
-about. Oasis runs over HTTP, so you don't need to worry about adding another
-Electron app to your computer.
+about. Oasis runs a small HTTP server on your own computer, so you don't need
+to worry about adding another Electron app to your computer.
 
 **🏰 Just HTML and CSS.**  
 No browser JavaScript! Oasis has strict security rules that prevent any
@@ -20,9 +20,11 @@ and easy to improve.
 
 ## Example
 
+After installing, launch Oasis from the command line by running:
 ```sh
 oasis
 ```
+It will then pop open a browser window for you.
 
 ![Screenshot of Oasis](./docs/screenshot.png)
 
@@ -31,14 +33,15 @@ values with a custom [configuration](./docs/configuring.md).
 
 ## Installation
 
-Most people should install stable releases with [npm](https://npmjs.org/) and
-Node.js [**current** or **active LTS** release](https://nodejs.org/en/about/releases/).
+First, you'll need Node.js and npm on your computer.  Run `node --version` to see if you have it.  If not, or if it's older than the [**current** or **active LTS** version](https://nodejs.org/en/about/releases/), you should [download Node.js](https://nodejs.org/en/about/releases/) first.
+
+Then you can install the stable version of Oasis:
 
 ```shell
 npm -g install fraction/oasis#semver:
 ```
 
-For faster updates and less stability, install from GitHub and upgrade often.
+Or, for faster updates and less stability, install Oasis from GitHub and upgrade often.
 
 ```shell
 npm -g install fraction/oasis
