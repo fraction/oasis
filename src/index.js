@@ -2,28 +2,18 @@
 
 "use strict";
 
-// Koa application to provide HTTP interface.
-
-const fs = require("fs");
-const envPaths = require("env-paths");
+// Minimum required to get config
 const path = require("path");
-const nodeHttp = require("http");
-const debug = require("debug")("oasis");
+const envPaths = require("env-paths");
+const cli = require("./cli");
+const fs = require("fs");
 
+const defaultConfig = {};
 const defaultConfigFile = path.join(
   envPaths("oasis", { suffix: "" }).config,
   "/default.json"
 );
-
-const log = (...args) => {
-  const isDebugEnabled = debug.enabled;
-  debug.enabled = true;
-  debug(...args);
-  debug.enabled = isDebugEnabled;
-};
-
-const defaultConfig = {};
-var haveConfig;
+let haveConfig;
 
 try {
   const defaultConfigOverride = fs.readFileSync(defaultConfigFile, "utf8");
@@ -40,8 +30,21 @@ try {
   }
 }
 
-const cli = require("./cli");
 const config = cli(defaultConfig, defaultConfigFile);
+if (config.debug) {
+  process.env.DEBUG = "oasis,oasis:*";
+}
+
+const nodeHttp = require("http");
+const debug = require("debug")("oasis");
+
+const log = (...args) => {
+  const isDebugEnabled = debug.enabled;
+  debug.enabled = true;
+  debug(...args);
+  debug.enabled = isDebugEnabled;
+};
+
 delete config._;
 delete config.$0;
 
@@ -49,26 +52,17 @@ const { host } = config;
 const { port } = config;
 const url = `http://${host}:${port}`;
 
-console.log();
 if (haveConfig) {
-  console.log(`Configuration read defaults from ${defaultConfigFile}`);
+  log(`Configuration read defaults from ${defaultConfigFile}`);
 } else {
-  console.log(
-    `No configuration file found at ${defaultConfigFile}. ` +
-      "Using built-in default values."
+  log(
+    `No configuration file found at ${defaultConfigFile}, using built-in default values.`
   );
 }
-console.log("Current configuration:");
-console.log();
-console.log(JSON.stringify(config, null, 2));
-console.log();
-console.log(`Note: You can save the above to ${defaultConfigFile} to make \
-these settings the default. See the readme for details.`);
-console.log();
 
-if (config.debug) {
-  process.env.DEBUG = "oasis,oasis:*";
-}
+debug("Current configuration: %O", config);
+debug(`You can save the above to ${defaultConfigFile} to make \
+these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
 
