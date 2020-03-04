@@ -715,7 +715,7 @@ exports.publishView = () => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
-            placeholder: "Optional warning for the post"
+            placeholder: "Optional content warning for this post"
           })
         ),
         button({ type: "submit" }, i18n.submit)
