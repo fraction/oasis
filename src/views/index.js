@@ -1,8 +1,9 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-const ssbMarkdown = require("ssb-markdown");
 const highlightJs = require("highlight.js");
+
+const MarkdownIt = require("markdown-it");
 
 const {
   a,
@@ -43,6 +44,8 @@ const {
 
 const lodash = require("lodash");
 const markdown = require("./markdown");
+
+const md = new MarkdownIt();
 
 const i18nBase = require("./i18n");
 let i18n = null;
@@ -692,7 +695,7 @@ exports.threadView = ({ messages }) =>
   template(messages.map(msg => post({ msg })));
 
 exports.markdownView = ({ text }) => {
-  const rawHtml = ssbMarkdown.block(text);
+  const rawHtml = md.render(text);
 
   return template(section({ class: "message" }, { innerHTML: rawHtml }));
 };
