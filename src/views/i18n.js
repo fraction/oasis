@@ -82,7 +82,7 @@ module.exports = {
       "."
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
-      "Write a new message in ",
+      "Write a new public message in ",
       a(
         {
           href: markdownUrl,
