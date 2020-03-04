@@ -82,7 +82,7 @@ module.exports = {
       "."
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
-      "Write a new public message in ",
+      "Write a new public post in ",
       a(
         {
           href: markdownUrl,
@@ -90,7 +90,7 @@ module.exports = {
         },
         "Markdown"
       ),
-      ". Messages cannot be edited or deleted."
+      ". Posts cannot be edited or deleted."
     ],
     publishCustomInfo: ({ href }) => [
       "If you're an advanced user, you can also ",
