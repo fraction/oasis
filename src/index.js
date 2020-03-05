@@ -2,14 +2,111 @@
 
 "use strict";
 
-// Koa application to provide HTTP interface.
-
+// Minimum required to get config
+const path = require("path");
+const envPaths = require("env-paths");
 const cli = require("./cli");
-const config = cli();
+const fs = require("fs");
 
+const defaultConfig = {};
+const defaultConfigFile = path.join(
+  envPaths("oasis", { suffix: "" }).config,
+  "/default.json"
+);
+let haveConfig;
+
+try {
+  const defaultConfigOverride = fs.readFileSync(defaultConfigFile, "utf8");
+  Object.entries(JSON.parse(defaultConfigOverride)).forEach(([key, value]) => {
+    defaultConfig[key] = value;
+  });
+  haveConfig = true;
+} catch (e) {
+  if (e.code === "ENOENT") {
+    haveConfig = false;
+  } else {
+    console.log(`There was a problem loading ${defaultConfigFile}`);
+    throw e;
+  }
+}
+
+const config = cli(defaultConfig, defaultConfigFile);
 if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";
 }
+
+const nodeHttp = require("http");
+const debug = require("debug")("oasis");
+
+const log = (...args) => {
+  const isDebugEnabled = debug.enabled;
+  debug.enabled = true;
+  debug(...args);
+  debug.enabled = isDebugEnabled;
+};
+
+delete config._;
+delete config.$0;
+
+const { host } = config;
+const { port } = config;
+const url = `http://${host}:${port}`;
+
+if (haveConfig) {
+  log(`Configuration read defaults from ${defaultConfigFile}`);
+} else {
+  log(
+    `No configuration file found at ${defaultConfigFile}, using built-in default values.`
+  );
+}
+
+debug("Current configuration: %O", config);
+debug(`You can save the above to ${defaultConfigFile} to make \
+these settings the default. See the readme for details.`);
+
+const oasisCheckPath = "/.well-known/oasis";
+
+process.on("uncaughtException", function(err) {
+  // This isn't `err.code` because TypeScript doesn't like that.
+  if (err["code"] === "EADDRINUSE") {
+    nodeHttp.get(url + oasisCheckPath, res => {
+      let rawData = "";
+      res.on("data", chunk => {
+        rawData += chunk;
+      });
+      res.on("end", () => {
+        log(rawData);
+        if (rawData === "oasis") {
+          log(`Oasis is already running on host ${host} and port ${port}`);
+          if (config.open === true) {
+            log("Opening link to existing instance of Oasis");
+            open(url);
+          } else {
+            log(
+              "Not opening your browser because opening is disabled by your config"
+            );
+          }
+          process.exit(0);
+        } else {
+          throw new Error(`Another server is already running at ${url}.
+It might be another copy of Oasis or another program on your computer.
+You can run Oasis on a different port number with this option:
+
+    oasis --port ${config.port + 1}
+
+Alternatively, you can set the default port in ${defaultConfigFile} with:
+
+    {
+      "port": ${config.port + 1}
+    }
+`);
+        }
+      });
+    });
+  } else {
+    throw err;
+  }
+});
 
 // HACK: We must get the CLI config and then delete environment variables.
 // This hides arguments from other upstream modules who might parse them.
@@ -21,12 +118,9 @@ process.argv = [];
 
 const http = require("./http");
 
-const debug = require("debug")("oasis");
-const fs = require("fs").promises;
 const koaBody = require("koa-body");
 const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
-const path = require("path");
 const pull = require("pull-stream");
 const requireStyle = require("require-style");
 const router = require("koa-router")();
@@ -34,6 +128,7 @@ const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
 const isSvg = require("is-svg");
 const { themeNames } = require("@fraction/base16-css");
+const { isFeed, isMsg, isBlob } = require("ssb-ref");
 
 const ssb = require("./ssb");
 
@@ -49,20 +144,24 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
 const {
   authorView,
   commentView,
+  editProfileView,
   extendedView,
   latestView,
   likesView,
-  listView,
+  threadView,
+  hashtagView,
   markdownView,
   mentionsView,
-  settingsView,
   popularView,
   privateView,
+  publishCustomView,
   publishView,
   replyView,
   searchView,
   setLanguage,
-  topicsView
+  settingsView,
+  topicsView,
+  summaryView
 } = require("./views");
 
 let sharp;
@@ -75,12 +174,16 @@ try {
 
 const defaultTheme = "atelier-sulphurPool-light".toLowerCase();
 
-// TODO: refactor
-const start = async () => {
-  const filePath = path.join(__dirname, "..", "README.md");
-  config.readme = await fs.readFile(filePath, "utf8");
-};
-start();
+const readmePath = path.join(__dirname, "..", "README.md");
+const packagePath = path.join(__dirname, "..", "package.json");
+
+fs.promises.readFile(readmePath, "utf8").then(text => {
+  config.readme = text;
+});
+
+fs.promises.readFile(packagePath, "utf8").then(text => {
+  config.version = JSON.parse(text).version;
+});
 
 router
   .param("imageSize", (imageSize, ctx, next) => {
@@ -108,6 +211,9 @@ router
   })
   .get("/robots.txt", ctx => {
     ctx.body = "User-agent: *\nDisallow: /";
+  })
+  .get(oasisCheckPath, ctx => {
+    ctx.body = "oasis";
   })
   .get("/public/popular/:period", async ctx => {
     const { period } = ctx.params;
@@ -146,6 +252,10 @@ router
     const messages = await post.latestTopics();
     ctx.body = await topicsView({ messages });
   })
+  .get("/public/latest/summaries", async ctx => {
+    const messages = await post.latestSummaries();
+    ctx.body = await summaryView({ messages });
+  })
   .get("/author/:feed", async ctx => {
     const { feed } = ctx.params;
     const author = async feedId => {
@@ -169,18 +279,30 @@ router
     ctx.body = await author(feed);
   })
   .get("/search/", async ctx => {
-    const { query } = ctx.query;
-    const search = async ({ query }) => {
-      if (typeof query === "string") {
-        // https://github.com/ssbc/ssb-search/issues/7
-        query = query.toLowerCase();
+    let { query } = ctx.query;
+
+    if (isMsg(query)) {
+      return ctx.redirect(`/thread/${encodeURIComponent(query)}`);
+    }
+    if (isFeed(query)) {
+      return ctx.redirect(`/author/${encodeURIComponent(query)}`);
+    }
+    if (isBlob(query)) {
+      return ctx.redirect(`/blob/${encodeURIComponent(query)}`);
+    }
+
+    if (typeof query === "string") {
+      // https://github.com/ssbc/ssb-search/issues/7
+      query = query.toLowerCase();
+      if (query.length > 1 && query.startsWith("#")) {
+        const hashtag = query.slice(1);
+        return ctx.redirect(`/hashtag/${encodeURIComponent(hashtag)}`);
       }
+    }
 
-      const messages = await post.search({ query });
+    const messages = await post.search({ query });
 
-      return searchView({ messages, query });
-    };
-    ctx.body = await search({ query });
+    ctx.body = await searchView({ messages, query });
   })
   .get("/inbox", async ctx => {
     const inbox = async () => {
@@ -190,14 +312,11 @@ router
     };
     ctx.body = await inbox();
   })
-  .get("/hashtag/:channel", async ctx => {
-    const { channel } = ctx.params;
-    const hashtag = async channel => {
-      const messages = await post.fromHashtag(channel);
+  .get("/hashtag/:hashtag", async ctx => {
+    const { hashtag } = ctx.params;
+    const messages = await post.fromHashtag(hashtag);
 
-      return listView({ messages });
-    };
-    ctx.body = await hashtag(channel);
+    ctx.body = await hashtagView({ hashtag, messages });
   })
   .get("/theme.css", ctx => {
     const theme = ctx.cookies.get("theme") || defaultTheme;
@@ -208,27 +327,47 @@ router
     ctx.body = requireStyle(filePath);
   })
   .get("/profile/", async ctx => {
-    const profile = async () => {
-      const myFeedId = await meta.myFeedId();
+    const myFeedId = await meta.myFeedId();
 
-      const description = await about.description(myFeedId);
-      const name = await about.name(myFeedId);
-      const image = await about.image(myFeedId);
+    const description = await about.description(myFeedId);
+    const name = await about.name(myFeedId);
+    const image = await about.image(myFeedId);
 
-      const messages = await post.fromPublicFeed(myFeedId);
+    const messages = await post.fromPublicFeed(myFeedId);
 
-      const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
+    const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
 
-      return authorView({
-        feedId: myFeedId,
-        messages,
-        name,
-        description,
-        avatarUrl,
-        relationship: null
-      });
-    };
-    ctx.body = await profile();
+    ctx.body = await authorView({
+      feedId: myFeedId,
+      messages,
+      name,
+      description,
+      avatarUrl,
+      relationship: null
+    });
+  })
+  .get("/profile/edit", async ctx => {
+    const myFeedId = await meta.myFeedId();
+    const description = await about.description(myFeedId);
+    const name = await about.name(myFeedId);
+
+    ctx.body = await editProfileView({
+      name,
+      description
+    });
+  })
+  .post("/profile/edit", koaBody(), async ctx => {
+    const name = String(ctx.request.body.name);
+    const description = String(ctx.request.body.description);
+
+    ctx.body = await post.publishProfileEdit({
+      name,
+      description
+    });
+    ctx.redirect("/profile");
+  })
+  .get("/publish/custom/", async ctx => {
+    ctx.body = await publishCustomView();
   })
   .get("/json/:message", async ctx => {
     if (config.public) {
@@ -369,7 +508,13 @@ router
         })
       );
 
-      return settingsView({ status, peers: peersWithNames, theme, themeNames });
+      return settingsView({
+        status,
+        peers: peersWithNames,
+        theme,
+        themeNames,
+        version: config.version
+      });
     };
     ctx.body = await getMeta({ theme });
   })
@@ -406,7 +551,7 @@ router
       const messages = await post.fromThread(message);
       debug("got %i messages", messages.length);
 
-      return listView({ messages });
+      return threadView({ messages });
     };
 
     ctx.body = await thread(message);
@@ -459,8 +604,7 @@ router
     const text = String(ctx.request.body.text);
     const publishReply = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
 
       const parent = await post.get(message);
       return post.reply({
@@ -476,8 +620,7 @@ router
     const text = String(ctx.request.body.text);
     const publishComment = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
       const parent = await meta.get(message);
 
       return post.comment({
@@ -490,11 +633,14 @@ router
   })
   .post("/publish/", koaBody(), async ctx => {
     const text = String(ctx.request.body.text);
-    const contentWarning = String(ctx.request.body.contentWarning);
+    const rawContentWarning = String(ctx.request.body.contentWarning);
+
+    // Only submit content warning if it's a string with non-zero length.
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
     const publish = async ({ text, contentWarning }) => {
-      const mentions =
-        ssbMentions(text).filter(mention => mention != null) || undefined;
+      const mentions = ssbMentions(text) || undefined;
 
       return post.root({
         text,
@@ -503,7 +649,13 @@ router
       });
     };
     ctx.body = await publish({ text, contentWarning });
-    ctx.redirect("/");
+    ctx.redirect("/public/latest");
+  })
+  .post("/publish/custom", koaBody(), async ctx => {
+    const text = String(ctx.request.body.text);
+    const obj = JSON.parse(text);
+    ctx.body = await post.publishCustom(obj);
+    ctx.redirect(`/public/latest`);
   })
   .post("/follow/:feed", koaBody(), async ctx => {
     const { feed } = ctx.params;
@@ -587,9 +739,6 @@ router
     ctx.redirect("/settings");
   });
 
-const { host } = config;
-const { port } = config;
-
 const routes = router.routes();
 
 const middleware = [
@@ -611,13 +760,8 @@ const middleware = [
 
 http({ host, port, middleware });
 
-const uri = `http://${host}:${port}/`;
-
-const isDebugEnabled = debug.enabled;
-debug.enabled = true;
-debug(`Listening on ${uri}`);
-debug.enabled = isDebugEnabled;
+log(`Listening on ${url}`);
 
 if (config.open === true) {
-  open(uri);
+  open(url);
 }

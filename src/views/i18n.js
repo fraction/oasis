@@ -11,7 +11,7 @@ module.exports = {
     ],
     popular: "Popular",
     popularDescription: [
-      "Posts from people you follow, sorted by ",
+      "Posts from people in your network, sorted by ",
       strong("hearts"),
       " in a given period. Hearts are counted from ",
       em("everyone"),
@@ -24,7 +24,13 @@ module.exports = {
       strong("Topics"),
       " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
     ],
+    summaries: "Summaries",
+    summariesDescription: [
+      strong("Topics and some comments"),
+      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+    ],
     profile: "Profile",
+    manualMode: "Manual Mode",
     mentions: "Mentions",
     mentionsDescription: [
       strong("Posts that mention you"),
@@ -58,6 +64,11 @@ module.exports = {
     likedBy: "'s likes",
     // composer
     publish: "Publish",
+    publishCustomDescription: [
+      "Publish a custom message by entering ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
+    ],
     commentWarning: [
       " Messages cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
@@ -71,7 +82,7 @@ module.exports = {
       "."
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
-      "Write a new message in ",
+      "Write a new public post in ",
       a(
         {
           href: markdownUrl,
@@ -79,8 +90,20 @@ module.exports = {
         },
         "Markdown"
       ),
-      ". Messages cannot be edited or deleted."
+      ". Posts cannot be edited or deleted."
     ],
+    publishCustomInfo: ({ href }) => [
+      "If you're an advanced user, you can also ",
+      a({ href }, "publish a custom message"),
+      "."
+    ],
+    publishBasicInfo: ({ href }) => [
+      "If you're not an advanced user, you should ",
+      a({ href }, "publish a basic post"),
+      "."
+    ],
+    publishCustom: "Publish custom",
+
     replyLabel: ({ markdownUrl }) => [
       "Write a ",
       strong("public reply"),
@@ -91,8 +114,8 @@ module.exports = {
       " instead."
     ],
     // settings
-    settingsIntro: ({ readmeUrl }) => [
-      "Check out ",
+    settingsIntro: ({ readmeUrl, version }) => [
+      `You're using Oasis ${version}. Check out `,
       a({ href: readmeUrl }, "the readme"),
       ", configure your theme, or view debugging information below."
     ],
@@ -134,7 +157,14 @@ module.exports = {
     mysteryDescription: "posted a mysterious message",
     // misc
     oasisDescription: "Friendly neighborhood scuttlebutt interface",
-    submit: "Submit"
+    submit: "Submit",
+    editProfile: "Edit profile",
+    editProfileDescription:
+      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+    profileName: "Profile name (text)",
+    profileDescription: "Profile description (Markdown)",
+    hashtagDescription:
+      "Posts from people in your network that reference this hashtag, sorted by recency."
   },
   /* spell-checker: disable */
   es: {

@@ -6,3 +6,7 @@ dist/
 node_modules/
 tmp/
 yarn.lock
+
+# Visual Studio Code
+launch.json
+*.code-workspace

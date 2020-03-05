@@ -7,6 +7,7 @@ const prettyMs = require("pretty-ms");
 const pullParallelMap = require("pull-paramap");
 const pull = require("pull-stream");
 const pullSort = require("pull-sort");
+const ssbRef = require("ssb-ref");
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
@@ -18,6 +19,10 @@ const defaultOptions = {
   reverse: true,
   meta: true
 };
+
+const publicOnlyFilter = pull.filter(
+  message => lodash.get(message, "value.meta.private", false) === false
+);
 
 /** @param {object[]} customOptions */
 const configure = (...customOptions) =>
@@ -43,7 +48,7 @@ module.exports = ({ cooler, isPublic }) => {
   const getAbout = async ({ key, feedId }) => {
     const ssb = await cooler.open();
 
-    const source = await ssb.backlinks.read({
+    const source = ssb.backlinks.read({
       reverse: true,
       query: [
         {
@@ -88,10 +93,12 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
-      return getAbout({
-        key: "name",
-        feedId
-      });
+      return (
+        (await getAbout({
+          key: "name",
+          feedId
+        })) || feedId.slice(1, 1 + 8)
+      ); // First 8 chars of public key
     },
     image: async feedId => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
@@ -117,10 +124,11 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
-      const raw = await getAbout({
-        key: "description",
-        feedId
-      });
+      const raw =
+        (await getAbout({
+          key: "description",
+          feedId
+        })) || "";
       return raw;
     }
   };
@@ -311,7 +319,7 @@ module.exports = ({ cooler, isPublic }) => {
   }) => {
     const options = configure({ query, index: "DTA" }, customOptions);
 
-    const source = await ssb.backlinks.read(options);
+    const source = ssb.backlinks.read(options);
     const basicSocialFilter = await socialFilter();
 
     return new Promise((resolve, reject) => {
@@ -391,7 +399,7 @@ module.exports = ({ cooler, isPublic }) => {
           }
         };
 
-        const referenceStream = await ssb.backlinks.read({
+        const referenceStream = ssb.backlinks.read({
           query: [filterQuery],
           index: "DTA", // use asserted timestamps
           private: true,
@@ -457,6 +465,13 @@ module.exports = ({ cooler, isPublic }) => {
           }
         }
 
+        const channel = lodash.get(msg, "value.content.channel");
+        const hasChannel = typeof channel === "string" && channel.length > 2;
+
+        if (hasChannel) {
+          msg.value.content.text += `\n\n#${channel}`;
+        }
+
         const avatarId =
           avatarMsg != null && typeof avatarMsg.link === "string"
             ? avatarMsg.link || nullImage
@@ -517,7 +532,7 @@ module.exports = ({ cooler, isPublic }) => {
       const myFeedId = ssb.id;
 
       const options = configure({ id: feedId }, customOptions);
-      const source = await ssb.createUserStream(options);
+      const source = ssb.createUserStream(options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(
@@ -558,7 +573,9 @@ module.exports = ({ cooler, isPublic }) => {
         customOptions,
         ssb,
         query,
-        filter: msg => msg.value.author !== myFeedId
+        filter: msg =>
+          msg.value.author !== myFeedId &&
+          lodash.get(msg, "value.meta.private") !== true
       });
 
       return messages;
@@ -617,6 +634,7 @@ module.exports = ({ cooler, isPublic }) => {
           $filter: {
             value: {
               author: feed,
+              timestamp: { $lte: Date.now() },
               content: {
                 type: "vote"
               }
@@ -628,7 +646,6 @@ module.exports = ({ cooler, isPublic }) => {
       const options = configure(
         {
           query,
-          index: "DTA",
           reverse: true
         },
         customOptions
@@ -674,10 +691,12 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       const source = await ssb.search.query(options);
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          basicSocialFilter,
           pull.filter(
             (
               message // avoid private messages (!)
@@ -701,23 +720,29 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false
-      });
-
-      const source = await ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $lte: Date.now() },
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ]
+        })
+      );
       const followingFilter = await socialFilter({ following: true });
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
           followingFilter,
-          pull.filter(
-            (
-              message // avoid private messages (!)
-            ) => typeof message.value.content !== "string"
-          ),
+          publicOnlyFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -736,12 +761,22 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false
-      });
-
-      const source = await ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $lte: Date.now() },
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ]
+        })
+      );
 
       const extendedFilter = await socialFilter({
         following: false,
@@ -751,7 +786,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(message => typeof message.value.content !== "string"),
+          publicOnlyFilter,
           extendedFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
@@ -771,12 +806,57 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $lte: Date.now() },
+                  content: {
+                    type: "post"
+                  }
+                }
+              }
+            }
+          ]
+        })
+      );
+
+      const extendedFilter = await socialFilter({
+        following: true
+      });
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          publicOnlyFilter,
+          pull.filter(message => message.value.content.root == null),
+          extendedFilter,
+          pull.take(maxMessages),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
+    latestSummaries: async () => {
+      const ssb = await cooler.open();
+
+      const myFeedId = ssb.id;
+
       const options = configure({
         type: "post",
         private: false
       });
 
-      const source = await ssb.messagesByType(options);
+      const source = ssb.messagesByType(options);
 
       const extendedFilter = await socialFilter({
         following: true
@@ -792,6 +872,16 @@ module.exports = ({ cooler, isPublic }) => {
           ),
           extendedFilter,
           pull.take(maxMessages),
+          pullParallelMap(async (message, cb) => {
+            // Retrieve a preview of this post's comments / thread
+            const thread = await post.fromThread(message.key);
+            lodash.set(
+              message,
+              "value.meta.thread",
+              await transform(ssb, thread, myFeedId)
+            );
+            cb(null, message);
+          }),
           pull.collect((err, collectedMessages) => {
             if (err) {
               reject(err);
@@ -804,6 +894,7 @@ module.exports = ({ cooler, isPublic }) => {
 
       return messages;
     },
+
     popular: async ({ period }) => {
       const ssb = await cooler.open();
 
@@ -823,22 +914,30 @@ module.exports = ({ cooler, isPublic }) => {
       const now = new Date();
       const earliest = Number(now) - 1000 * 60 * 60 * 24 * periodDict[period];
 
-      const options = configure({
-        type: "vote",
-        gt: earliest,
-        private: false
-      });
-
-      const source = await ssb.messagesByType(options);
-      const followingFilter = await socialFilter({ following: true });
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $gte: earliest },
+                  content: {
+                    type: "vote"
+                  }
+                }
+              }
+            }
+          ]
+        })
+      );
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          followingFilter,
+          publicOnlyFilter,
           pull.filter(msg => {
             return (
-              msg.value.timestamp > earliest &&
               typeof msg.value.content === "object" &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
@@ -906,11 +1005,14 @@ module.exports = ({ cooler, isPublic }) => {
                     cb(null, null);
                   }
                 }),
+                // avoid private messages (!) and non-posts
                 pull.filter(
-                  (
-                    message // avoid private messages (!)
-                  ) => message && typeof message.value.content !== "string"
+                  message =>
+                    message &&
+                    typeof message.value.content !== "string" &&
+                    message.value.content.type === "post"
                 ),
+                basicSocialFilter,
                 pull.collect((err, collectedMessages) => {
                   if (err) {
                     reject(err);
@@ -959,7 +1061,7 @@ module.exports = ({ cooler, isPublic }) => {
                   resolve(msg);
                 }
 
-                if (isLooseReply(msg)) {
+                if (isLooseReply(msg) && ssbRef.isMsg(msg.value.content.fork)) {
                   debug("reply, get the parent");
                   try {
                     // It's a message reply, get the parent!
@@ -977,7 +1079,10 @@ module.exports = ({ cooler, isPublic }) => {
                     debug(e);
                     resolve(msg);
                   }
-                } else if (isLooseComment(msg)) {
+                } else if (
+                  isLooseComment(msg) &&
+                  ssbRef.isMsg(msg.value.content.root)
+                ) {
                   debug("comment: %s", msg.value.content.root);
                   try {
                     // It's a thread reply, get the parent!
@@ -1018,47 +1123,43 @@ module.exports = ({ cooler, isPublic }) => {
                 }
               };
 
-              ssb.backlinks
-                .read({
-                  query: [filterQuery],
-                  index: "DTA" // use asserted timestamps
+              const referenceStream = ssb.backlinks.read({
+                query: [filterQuery],
+                index: "DTA" // use asserted timestamps
+              });
+              pull(
+                referenceStream,
+                pull.filter(msg => {
+                  const isPost =
+                    lodash.get(msg, "value.content.type") === "post";
+                  if (isPost === false) {
+                    return false;
+                  }
+
+                  const root = lodash.get(msg, "value.content.root");
+                  const fork = lodash.get(msg, "value.content.fork");
+
+                  if (root !== key && fork !== key) {
+                    // mention
+                    return false;
+                  }
+
+                  if (fork === key) {
+                    // not a reply to this post
+                    // it's a reply *to a reply* of this post
+                    return false;
+                  }
+
+                  return true;
+                }),
+                pull.collect((err, messages) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(messages || undefined);
+                  }
                 })
-                .then(referenceStream => {
-                  pull(
-                    referenceStream,
-                    pull.filter(msg => {
-                      const isPost =
-                        lodash.get(msg, "value.content.type") === "post";
-                      if (isPost === false) {
-                        return false;
-                      }
-
-                      const root = lodash.get(msg, "value.content.root");
-                      const fork = lodash.get(msg, "value.content.fork");
-
-                      if (root !== key && fork !== key) {
-                        // mention
-                        return false;
-                      }
-
-                      if (fork === key) {
-                        // not a reply to this post
-                        // it's a reply *to a reply* of this post
-                        return false;
-                      }
-
-                      return true;
-                    }),
-                    pull.collect((err, messages) => {
-                      if (err) {
-                        reject(err);
-                      } else {
-                        resolve(messages || undefined);
-                      }
-                    })
-                  );
-                })
-                .catch(reject);
+              );
             });
 
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
@@ -1117,10 +1218,14 @@ module.exports = ({ cooler, isPublic }) => {
 
           return await transform(ssb, allMessages, myFeedId);
         })
-        .catch(() => {
-          throw new Error(
-            "Message not found in the database. You've done nothing wrong. Maybe try again later?"
-          );
+        .catch(err => {
+          if (err.name === "NotFoundError") {
+            throw new Error(
+              "Message not found in the database. You've done nothing wrong. Maybe try again later?"
+            );
+          } else {
+            throw err;
+          }
         });
     },
     get: async (msgId, customOptions) => {
@@ -1143,6 +1248,18 @@ module.exports = ({ cooler, isPublic }) => {
 
       debug("Published: %O", body);
       return ssb.publish(body);
+    },
+    publishProfileEdit: async ({ name, description }) => {
+      const ssb = await cooler.open();
+      const body = { type: "about", about: ssb.id, name, description };
+
+      debug("Published: %O", body);
+      return ssb.publish(body);
+    },
+    publishCustom: async options => {
+      const ssb = await cooler.open();
+      debug("Published: %O", options);
+      return ssb.publish(options);
     },
     reply: async ({ parent, message }) => {
       message.root = parent.key;
@@ -1231,7 +1348,7 @@ module.exports = ({ cooler, isPublic }) => {
         customOptions
       );
 
-      const source = await ssb.backlinks.read(options);
+      const source = ssb.backlinks.read(options);
 
       const messages = await new Promise((resolve, reject) => {
         pull(

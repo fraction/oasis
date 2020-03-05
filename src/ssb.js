@@ -4,11 +4,22 @@
 // to call methods over MuxRPC. It's a thin wrapper around SSB-Client, which is
 // a thin wrapper around the MuxRPC module.
 
+const { promisify } = require("util");
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
 const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
+const path = require("path");
+
+const socketPath = path.join(ssbConfig.path, "socket");
+const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
+const remote = `unix:${socketPath}~noauth:${publicInteger}`;
+
+// This is unnecessary when https://github.com/ssbc/ssb-config/pull/72 is merged
+ssbConfig.connections.incoming.unix = [
+  { scope: "device", transform: "noauth" }
+];
 
 const server = flotilla(ssbConfig);
 
@@ -21,7 +32,7 @@ const log = (...args) => {
 
 const rawConnect = () =>
   new Promise((resolve, reject) => {
-    ssbClient()
+    ssbClient(null, { remote })
       .then(api => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
@@ -30,6 +41,9 @@ const rawConnect = () =>
           //
           // See: https://github.com/fraction/oasis/issues/21
           api.tangle = ssbTangle.init(api);
+
+          // MuxRPC supports promises but the raw plugin does not.
+          api.tangle.branch = promisify(api.tangle.branch);
         }
 
         resolve(api);
@@ -46,7 +60,10 @@ const createConnection = config => {
         log("Using pre-existing Scuttlebutt server instead of starting one");
         resolve(ssb);
       })
-      .catch(() => {
+      .catch(e => {
+        if (e.message !== "could not connect to sbot") {
+          throw e;
+        }
         log("Initial connection attempt failed");
         log("Starting Scuttlebutt server");
         server(config);
@@ -57,7 +74,9 @@ const createConnection = config => {
               resolve(ssb);
             })
             .catch(e => {
-              log(e);
+              if (e.message !== "could not connect to sbot") {
+                log(e);
+              }
               connectOrRetry();
             });
         };
@@ -80,9 +99,6 @@ module.exports = ({ offline }) => {
   const config = {
     conn: {
       autostart: !offline
-    },
-    ws: {
-      http: false
     }
   };
 
