@@ -176,13 +176,60 @@ module.exports = {
   },
   de: {
     extended: "Erweitert",
+    extendedDescription: [
+      "Beiträge von ",
+      strong("Leuten denen du nicht folgst"),
+      ", sortiert nach Aktualität. Wenn du jemandem folgst lädst du eventuell auch Beiträge von Leuten herunter denen diese Person folgt, hier erscheinen diese Beiträge."
+    ],
     popular: "Beliebt",
-    latest: "Neuestes",
-    mentions: "Erwähnungen",
+    popularDescription: [
+      "Beiträge von Leuten in deinem Netzwerk, sortiert nach ",
+      strong("Herzen"),
+      " in der angegebenen Periode. Herzen werden von ",
+      em("jedem"),
+      " gezählt, auch von Personen denen du nicht folgst. D.h. hier werden Beiträge von deinen Freund*innen angezeigt die in deinem erweiterten Netzwerk populär sind."
+    ],
+    latest: "Aktuell",
+    latestDescription:
+      "Beiträge von Leuten denen du folgst, sortiert nach Aktualität.",
     topics: "Themen",
+    topicsDescription: [
+      strong("Themen"),
+      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen."
+    ],
+    summaries: "Übersicht",
+    summariesDescription: [
+      strong("Themen und einige Kommentare"),
+      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen."
+    ],
     profile: "Profil",
+    manualMode: "Manueller Modus",
+    mentions: "Erwähnungen",
+    mentionsDescription: [
+      strong("Beiträge in denen du erwähnt wirst"),
+      " von ",
+      strong("allen"),
+      " sortiert nach Aktualität. Manchmal vergessen Leute dich zu @erwähnen, diese Beiträge werden hier nicht erscheinen."
+    ],
     search: "Suche",
     settings: "Einstellungen",
+    // post actions
+    comment: "Kommentieren",
+    reply: "Antworten",
+    json: "JSON",
+    // relationships
+    unfollow: "Entfolgen",
+    follow: "Folgen",
+    relationshipFollowing: "Du folgst",
+    relationshipYou: "Das bist du",
+    relationshipBlocking: "Du blockierst",
+    relationshipNone: "Weder folgst noch blockst du",
+    relationshipConflict: "Irgendwie folgst und blockst du gleichzeitig",
+    // author view
+    viewLikes: "Likes ansehen",
+    // likes view
+    likedBy: "'s Likes",
+    // composer
     publish: "Veröffentlichen",
     private: "Privat"
   }
