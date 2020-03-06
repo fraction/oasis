@@ -315,7 +315,7 @@ const thread = messages => {
         });
       }
     }
-    return listWithHints;
+    return lodash.flatten(listWithHints);
   };
 
   const renderWithForks = messages => {
