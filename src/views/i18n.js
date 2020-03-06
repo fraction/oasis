@@ -231,6 +231,54 @@ module.exports = {
     likedBy: "'s Likes",
     // composer
     publish: "Veröffentlichen",
+    publishCustomDescription: [
+      "Veröffentliche eine benutzerdefinierte Nachricht durch das Eingeben von ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " unten. Dies kann zum Prototyping oder dem veröffentlichen von Nachrichten die Oasis nicht unterstützt nützlich sein. Diese Nachricht kann nicht bearbeitet oder gelöscht werden."
+    ],
+    commentWarning: [
+      " Nachrichten können nicht bearbeitet oder gelöscht werden. Um auf eine einzelne Nachricht zu antworten, wähle ",
+      strong("antworten"),
+      " stattdessen."
+    ],
+    commentLabel: ({ publicOrPrivate, markdownUrl }) => [
+      "Verfasse einen ",
+      strong(`${publicOrPrivate} Kommentar`),
+      " in diesem Thread mit ",
+      a({ href: markdownUrl }, "Markdown"),
+      "."
+    ],
+    publishLabel: ({ markdownUrl, linkTarget }) => [
+      "Verfasse einen neuen öffentlichen Beitrag in ",
+      a(
+        {
+          href: markdownUrl,
+          target: linkTarget
+        },
+        "Markdown"
+      ),
+      ". Beiträge können nicht bearbeitet oder gelöscht werden."
+    ],
+    publishCustomInfo: ({ href }) => [
+      "Wenn du ein fortgeschrittener Benutzer bist kannst du auch ",
+      a({ href }, "eine benutzerdefinierte Nachricht veröffentlichen"),
+      "."
+    ],
+    publishBasicInfo: ({ href }) => [
+      "Wenn du kein fortgeschrittener Benutzer bist, solltest du ",
+      a({ href }, "einen einfachen Beitrag veröffentlichen"),
+      "."
+    ],
+    publishCustom: "Benutzerdefinierte Veröffentlichung",
+    replyLabel: ({ markdownUrl }) => [
+      "Verfasse eine ",
+      strong("öffentliche Antwort"),
+      " zu dieser Nachricht mit ",
+      a({ href: markdownUrl }, "Markdown"),
+      ". Nachrichten können nicht bearbeitet oder gelöscht werden. Um auf einen kompletten Thread zu antworten, klicke auf ",
+      strong("kommentieren"),
+      " stattdessen."
+    ],
     private: "Privat"
   }
 };
