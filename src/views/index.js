@@ -250,6 +250,143 @@ const postInAside = msg => {
   );
 };
 
+const thread = messages => {
+  // const renderPart = msgs => {
+  //   return msgs.map(msg => {
+  //     if (Array.isArray(msg)) {
+  //       if (msg.length === 0) return []
+  //       return details(renderPart(msg))
+  //     } else {
+  //       return post({ msg })
+  //     }
+  //   })
+  // }
+
+  // return renderPart(messages)
+
+  const addHints = messages => {
+    const listWithHints = [];
+    for (let i = 0; i <= messages.length; i++) {
+      const j = i + 1;
+
+      const currentMsg = messages[i];
+      const nextMsg = messages[j];
+
+      const depth = msg => {
+        if (msg === undefined) return 0;
+        return lodash.get(msg, "value.meta.thread.depth", 0);
+      };
+
+      if (depth(currentMsg) > depth(nextMsg)) {
+        // getting more shallow
+        const diffDepth = depth(currentMsg) - depth(nextMsg);
+
+        const msgList = [
+          {
+            type: "msg",
+            msg: currentMsg
+          }
+        ];
+
+        for (let d = 0; d < diffDepth; d++) {
+          // on the way up it might go several depths at once
+          msgList.push({
+            type: "ascend",
+            msg: undefined // ts wants this?
+          });
+        }
+
+        listWithHints.push(msgList);
+      } else if (depth(currentMsg) < depth(nextMsg)) {
+        listWithHints.push([
+          {
+            type: "msg",
+            msg: currentMsg
+          },
+          {
+            type: "descend",
+            msg: undefined // ts wants this?
+          }
+        ]);
+      } else {
+        listWithHints.push({
+          type: "msg",
+          msg: currentMsg
+        });
+      }
+    }
+    return listWithHints;
+  };
+
+  const renderWithForks = messages => {
+    const htmlStrings = messages.map(msg => {
+      if (msg.type === "descend") {
+        return "<details>";
+      } else if (msg.type === "ascend") {
+        return "</details>";
+      } else {
+        // msg.type === 'msg'
+        if (msg.msg === undefined) return "";
+
+        return post({ msg: msg.msg }).outerHTML;
+      }
+    });
+
+    return div({}, { innerHTML: htmlStrings.join("") });
+  };
+
+  // console.log(addHints(messages))
+
+  return renderWithForks(addHints(messages));
+
+  // let i = 0
+  // let lastDepth = 0
+
+  // const wrapDepth = (messages) => {
+  //   const renderedList = []
+
+  //   let firstMsg = true
+
+  //   while (i < messages.length) {
+  //     const msg = messages[i]
+  //     const currentDepth = lodash.get(msg, "value.meta.thread.depth", 0);
+  //     console.log('i', i)
+  //     console.log('lastDepth', lastDepth)
+  //     console.log('currentDepth', currentDepth)
+  //     console.log('msg', msg)
+
+  //     if (firstMsg) {
+  //       // we're on the first post and we don't want the top level to be minimized
+  //       renderedList.push(post({ msg }))
+  //       i++
+  //       lastDepth = currentDepth
+  //       firstMsg = false
+  //     } else if (currentDepth > lastDepth) {
+  //       wrapDepth(messages)
+  //     } else if (currentDepth < lastDepth) {
+  //       return details(renderedList)
+  //     } else { // ===
+  //       renderedList.push(post({ msg }))
+  //       i++
+  //       lastDepth = currentDepth
+  //     }
+
+  //   }
+
+  //   return details(renderedList)
+  // }
+
+  // return wrapDepth(messages)
+
+  // return messages.flatMap(msg => {
+  //   return [
+  //     //div({}, 'is this injected?'),
+  //     '<div>does this work??</div>',
+  //     post({ msg })
+  //   ];
+  // });
+};
+
 /**
  * Render a section containing a link that takes users to the context for a
  * thread preview.
@@ -688,8 +825,7 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.threadView = ({ messages }) =>
-  template(messages.map(msg => post({ msg })));
+exports.threadView = ({ messages }) => template(thread(messages));
 
 exports.markdownView = ({ text }) => {
   const rawHtml = ssbMarkdown.block(text);

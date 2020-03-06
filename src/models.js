@@ -386,12 +386,17 @@ module.exports = ({ cooler, isPublic }) => {
   };
   const transform = (ssb, messages, myFeedId) =>
     Promise.all(
+      // messages.flatMap(async msg => {
       messages.map(async msg => {
         debug("transforming %s", msg.key);
 
         if (msg == null) {
           return null;
         }
+
+        // if (Array.isArray(msg)) {
+        //   return await transform(ssb, msg, myFeedId)
+        // }
 
         const filterQuery = {
           $filter: {
@@ -1198,8 +1203,14 @@ module.exports = ({ cooler, isPublic }) => {
               oneDeeper(key, 0)
                 .then(nested => {
                   const nestedReplies = [...nested];
+                  console.log("nested", JSON.stringify(nestedReplies, null, 2));
                   const deepReplies = flattenDeep(nestedReplies);
                   resolve(deepReplies);
+                  // note: returning this instead doesn't seem to help with rendering
+                  // forks since there are a lot more arrays than just for forks
+                  // (would maybe need some flattening in parts, but skipping all the
+                  // flattening doesn't work)
+                  // resolve(nestedReplies)
                 })
                 .catch(reject);
             });
