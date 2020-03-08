@@ -209,7 +209,13 @@ module.exports = {
       strong("Beiträge in denen du erwähnt wirst"),
       " von ",
       strong("allen"),
-      " sortiert nach Aktualität. Manchmal vergessen Leute dich zu @erwähnen, diese Beiträge werden hier nicht erscheinen."
+      ", sortiert nach Aktualität. Manchmal vergessen Leute dich zu @erwähnen, diese Beiträge werden hier nicht erscheinen."
+    ],
+    private: "Privat",
+    privateDescription: [
+      "Die letzten Kommentare aus ",
+      strong("privaten Threads die dich beinhalten"),
+      ", sortiert nach Aktualität. Private Beiträge werden mit deinem öffentlichen Schlüssel verschlüsselt und haben maximal 7 Empfänger*innen. Empfänger*innen können nicht hinzugefügt werden nachdem ein Thread gestartet wurde. Klicke auf den Zeitstämpel um einen komplette Thread anzuzeigen."
     ],
     search: "Suche",
     settings: "Einstellungen",
@@ -260,12 +266,12 @@ module.exports = {
       ". Beiträge können nicht bearbeitet oder gelöscht werden."
     ],
     publishCustomInfo: ({ href }) => [
-      "Wenn du ein fortgeschrittener Benutzer bist kannst du auch ",
+      "Wenn du ein erfahrener Benutzer bist kannst du auch ",
       a({ href }, "eine benutzerdefinierte Nachricht veröffentlichen"),
       "."
     ],
     publishBasicInfo: ({ href }) => [
-      "Wenn du kein fortgeschrittener Benutzer bist, solltest du ",
+      "Wenn du kein erfahrener Benutzer bist, solltest du ",
       a({ href }, "einen einfachen Beitrag veröffentlichen"),
       "."
     ],
@@ -279,6 +285,57 @@ module.exports = {
       strong("kommentieren"),
       " stattdessen."
     ],
-    private: "Privat"
+    // settings
+    settingsIntro: ({ readmeUrl, version }) => [
+      `Du verwendest Oasis ${version}. Lese `,
+      a({ href: readmeUrl }, "die Readme"),
+      ", konfiguriere dein Theme oder schaue dir Debugging-Informationen weiter unten an."
+    ],
+    theme: "Theme",
+    themeIntro:
+      "Wähle ein Theme das dir gefällt. Das Standard-Theme ist Atelier-SulphurPool-Light.",
+    setTheme: "Theme einstellen",
+    language: "Sprache",
+    languageDescription:
+      "Wenn du Oasis in einer anderen Sprache nutzen möchtest, wähle unten eine aus. Bitte beachte, dass dies sehr neu und noch am Anfang ist. Wir freuen uns über deine Hilfe bei der Übersetzung von Oasis in andere Sprachen.",
+    setLanguage: "Sprache einstellen",
+    status: "Status",
+    peerConnections: "Verbindungen zu Peers 💻⚡️💻",
+    connectionsIntro:
+      "Dein Computer synchronisiert Daten mit diesen anderen Computern. Auf der Suche nach Daten von deinen Freund*innen werden Verbindungen zu allen Scuttlebutt Pubs und Peers aufgenommen die gefunden werden, auch wenn du keine Beziehung mit diesen hast.",
+    noConnections: "Keine Peers verbunden.",
+    connectionActionIntro:
+      "Du kannst entscheiden wann dein Computer mit Peers netzwerken soll. Du kannst das Netzwerken starten, stoppen oder neustarten wann immer du willst.",
+    startNetworking: "Netzwerken starten",
+    stopNetworking: "Netzwerken stoppen",
+    restartNetworking: "Netzwerken neustarten",
+    indexes: "Indizes",
+    invites: "Einladungen",
+    invitesDescription:
+      "Löse eine Einladung durch einfügen unten ein. Wenn es geklappt hat wirst du dem Feed folgen und sie werden dir folgen.",
+    acceptInvite: "Einladung annehmen",
+    // search page
+    searchLabel:
+      "Füge Wörte hinzu nach denen in heruntergeladenen Nachrichten gesucht werden soll.",
+    // posts and comments
+    commentDescription: ({ parentUrl }) => [
+      "kommentierte auf ",
+      a({ href: parentUrl }, " Thread")
+    ],
+    replyDescription: ({ parentUrl }) => [
+      "antwortete auf ",
+      a({ href: parentUrl }, " Nachricht")
+    ],
+    mysteryDescription: "veröffentlichte eine mysteriöse Nachricht",
+    // misc
+    oasisDescription: "Freundliches Scuttlebutt Interface",
+    submit: "Abschicken",
+    editProfile: "Profil bearbeiten",
+    editProfileDescription:
+      "Bearbeite dein Profil mit Markdown. Nachrichten können nicht bearbeitet oder gelöscht werden. Alte Versionen deiner Profilinformationen bleiben existieren und sind öffentliche Informationen, aber die meisten SSB-Apps zeigen diese nicht an.",
+    profileName: "Profilname (Text)",
+    profileDescription: "Profilbeschreibung (Markdown)",
+    hashtagDescription:
+      "Beiträge von Leuten in deinem Netzwerk die dieses Hashtag referenzieren, sortiert nach Aktualität."
   }
 };
