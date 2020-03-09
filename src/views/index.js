@@ -613,7 +613,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
 
   const isPrivate = parentMessage.value.meta.private;
 
-  const publicOrPrivate = isPrivate ? "private" : "public";
+  const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(

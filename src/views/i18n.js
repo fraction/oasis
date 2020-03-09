@@ -75,6 +75,8 @@ module.exports = {
       strong("reply"),
       " instead."
     ],
+    commentPublic: "public",
+    commentPrivate: "private",
     commentLabel: ({ publicOrPrivate, markdownUrl }) => [
       "Write a ",
       strong(`${publicOrPrivate} comment`),
@@ -249,6 +251,8 @@ module.exports = {
       strong("antworten"),
       " stattdessen."
     ],
+    commentPublic: "öffentlichen",
+    commentPrivate: "privaten",
     commentLabel: ({ publicOrPrivate, markdownUrl }) => [
       "Verfasse einen ",
       strong(`${publicOrPrivate} Kommentar`),
