@@ -64,6 +64,7 @@ module.exports = {
     likedBy: "'s likes",
     // composer
     publish: "Publish",
+    contentWarningPlaceholder: "Optional content warning for this post",
     publishCustomDescription: [
       "Publish a custom message by entering ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
@@ -237,6 +238,7 @@ module.exports = {
     likedBy: "'s Likes",
     // composer
     publish: "Veröffentlichen",
+    contentWarningPlaceholder: "Optionale Inhaltswarnung für diesen Beitrag",
     publishCustomDescription: [
       "Veröffentliche eine benutzerdefinierte Nachricht durch das Eingeben von ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
