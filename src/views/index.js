@@ -831,7 +831,9 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         { action: "/language", method: "post" },
         select({ name: "language" }, [
           languageOption("en", "English"),
-          languageOption("es", "Español")
+          languageOption("es", "Español"),
+          /* cspell:disable-next-line */
+          languageOption("de", "Deutsch")
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
