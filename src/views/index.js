@@ -613,7 +613,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
 
   const isPrivate = parentMessage.value.meta.private;
 
-  const publicOrPrivate = isPrivate ? "private" : "public";
+  const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
@@ -718,7 +718,7 @@ exports.publishView = () => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
-            placeholder: "Optional content warning for this post"
+            placeholder: i18n.contentWarningPlaceholder
           })
         ),
         button({ type: "submit" }, i18n.submit)

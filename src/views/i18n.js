@@ -64,6 +64,7 @@ module.exports = {
     likedBy: "'s likes",
     // composer
     publish: "Publish",
+    contentWarningPlaceholder: "Optional content warning for this post",
     publishCustomDescription: [
       "Publish a custom message by entering ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
@@ -74,6 +75,8 @@ module.exports = {
       strong("reply"),
       " instead."
     ],
+    commentPublic: "public",
+    commentPrivate: "private",
     commentLabel: ({ publicOrPrivate, markdownUrl }) => [
       "Write a ",
       strong(`${publicOrPrivate} comment`),
@@ -237,6 +240,7 @@ module.exports = {
     likedBy: "'s Likes",
     // composer
     publish: "Veröffentlichen",
+    contentWarningPlaceholder: "Optionale Inhaltswarnung für diesen Beitrag",
     publishCustomDescription: [
       "Veröffentliche eine benutzerdefinierte Nachricht durch das Eingeben von ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
@@ -247,6 +251,8 @@ module.exports = {
       strong("antworten"),
       " stattdessen."
     ],
+    commentPublic: "öffentlichen",
+    commentPrivate: "privaten",
     commentLabel: ({ publicOrPrivate, markdownUrl }) => [
       "Verfasse einen ",
       strong(`${publicOrPrivate} Kommentar`),
