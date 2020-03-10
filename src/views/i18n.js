@@ -165,6 +165,7 @@ module.exports = {
     editProfileDescription:
       "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
     profileName: "Profile name (text)",
+    profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
       "Posts from people in your network that reference this hashtag, sorted by recency."
@@ -190,7 +191,8 @@ module.exports = {
       em("todos"),
       ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto."
     ],
-    latestDescription: "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
+    latestDescription:
+      "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
     topics: "Topicos",
     topicsDescription: [
       strong("Topicos"),
@@ -214,11 +216,10 @@ module.exports = {
       strong("hilos privados que te incluyen"),
       ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo."
     ],
-    search: "Buscar",
     // post actions
     comment: "Comentar",
     reply: "Responder",
-    json: "JSON",
+    json: "JSON"
   },
   de: {
     extended: "Erweitert",
