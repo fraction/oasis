@@ -171,7 +171,6 @@ module.exports = {
   },
   /* spell-checker: disable */
   es: {
-    popular: "Populares",
     latest: "Novedades",
     profile: "Mi Perfil",
     search: "Buscar",
@@ -181,44 +180,44 @@ module.exports = {
     extendedDescription: [
       "Publicaciones de ",
       strong("personas que no seguís"),
-      ", ordenas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que este sigue y esos mensajes aparecen aquí."
+      ", ordenadas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que esta siga y esos mensajes aparecen aquí."
     ],
+    popular: "Populares",
     popularDescription: [
-      "Posts from people in your network, sorted by ",
-      strong("hearts"),
-      " in a given period. Hearts are counted from ",
-      em("everyone"),
-      ", including people you don't follow, so this shows posts from your friends that are popular in your extended network."
+      "Publicaciones de personas de tu red, ordenadas por cantidad de ",
+      strong("corazones"),
+      " en determinados periodos. Se cuentan los corazones de ",
+      em("todos"),
+      ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto."
     ],
-    latestDescription: "Posts from people you follow, sorted by recency.",
-    topics: "Topics",
+    latestDescription: "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
+    topics: "Topicos",
     topicsDescription: [
-      strong("Topics"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      strong("Topicos"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
     ],
-    summaries: "Summaries",
+    summaries: "Resumen",
     summariesDescription: [
-      strong("Topics and some comments"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      strong("Topicos y algunos comentarios"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
     ],
-    manualMode: "Manual Mode",
-    mentions: "Mentions",
+    manualMode: "Modo manual",
+    mentions: "Menciones",
     mentionsDescription: [
-      strong("Posts that mention you"),
-      " from ",
-      strong("anyone"),
-      " sorted by recency. Sometimes people may forget to @mention you, and those posts won't show up here."
+      strong("Publicaciones de "),
+      strong("cualquier persona"),
+      " que te mencionan, ordenadas por las más recientes. Solo figuran menciones en el formato @mención."
     ],
-    private: "Private",
+    private: "Privado",
     privateDescription: [
-      "The latest comment from ",
-      strong("private threads that include you"),
-      ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread."
+      "Los comentarios más recientes de ",
+      strong("hilos privados que te incluyen"),
+      ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo."
     ],
-    search: "Search",
+    search: "Buscar",
     // post actions
-    comment: "Comment",
-    reply: "Reply",
+    comment: "Comentar",
+    reply: "Responder",
     json: "JSON",
   },
   de: {
