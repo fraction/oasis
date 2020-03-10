@@ -165,17 +165,61 @@ module.exports = {
     editProfileDescription:
       "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
     profileName: "Profile name (text)",
+    profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
       "Posts from people in your network that reference this hashtag, sorted by recency."
   },
   /* spell-checker: disable */
   es: {
-    popular: "Popular",
-    latest: "Nuevo",
-    profile: "Pagina",
+    latest: "Novedades",
+    profile: "Mi Perfil",
     search: "Buscar",
-    settings: "Reglas"
+    settings: "Configuración",
+    // navbar items
+    extended: "Red extendida",
+    extendedDescription: [
+      "Publicaciones de ",
+      strong("personas que no seguís"),
+      ", ordenadas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que esta siga y esos mensajes aparecen aquí."
+    ],
+    popular: "Populares",
+    popularDescription: [
+      "Publicaciones de personas de tu red, ordenadas por cantidad de ",
+      strong("corazones"),
+      " en determinados periodos. Se cuentan los corazones de ",
+      em("todos"),
+      ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto."
+    ],
+    latestDescription:
+      "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
+    topics: "Topicos",
+    topicsDescription: [
+      strong("Topicos"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    summaries: "Resumen",
+    summariesDescription: [
+      strong("Topicos y algunos comentarios"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    manualMode: "Modo manual",
+    mentions: "Menciones",
+    mentionsDescription: [
+      strong("Publicaciones de "),
+      strong("cualquier persona"),
+      " que te mencionan, ordenadas por las más recientes. Solo figuran menciones en el formato @mención."
+    ],
+    private: "Privado",
+    privateDescription: [
+      "Los comentarios más recientes de ",
+      strong("hilos privados que te incluyen"),
+      ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    // post actions
+    comment: "Comentar",
+    reply: "Responder",
+    json: "JSON"
   },
   de: {
     extended: "Erweitert",
