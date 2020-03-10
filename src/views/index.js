@@ -475,11 +475,16 @@ exports.editProfileView = ({ name, description }) =>
       h1(i18n.editProfile),
       p(i18n.editProfileDescription),
       form(
-        { action: "/profile/edit", method: "POST" },
+        {
+          action: "/profile/edit",
+          method: "POST",
+          enctype: "multipart/form-data"
+        },
         label(
-          i18n.profileName,
-          input({ name: "name", autofocus: true, value: name })
+          i18n.profileImage,
+          input({ type: "file", name: "image", accept: "image/*" })
         ),
+        label(i18n.profileName, input({ name: "name", value: name })),
         label(
           i18n.profileDescription,
           textarea(
