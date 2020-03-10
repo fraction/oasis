@@ -29,6 +29,11 @@ module.exports = {
       strong("Topics and some comments"),
       " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
     ],
+    threads: "Threads",
+    threadsDescription: [
+      strong("Posts that have comments"),
+      " from people you follow and your extended network, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+    ],
     profile: "Profile",
     manualMode: "Manual Mode",
     mentions: "Mentions",
