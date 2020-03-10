@@ -171,11 +171,55 @@ module.exports = {
   },
   /* spell-checker: disable */
   es: {
-    popular: "Popular",
-    latest: "Nuevo",
-    profile: "Pagina",
+    popular: "Populares",
+    latest: "Novedades",
+    profile: "Mi Perfil",
     search: "Buscar",
-    settings: "Reglas"
+    settings: "Configuración",
+    // navbar items
+    extended: "Red extendida",
+    extendedDescription: [
+      "Publicaciones de ",
+      strong("personas que no seguís"),
+      ", ordenas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que este sigue y esos mensajes aparecen aquí."
+    ],
+    popularDescription: [
+      "Posts from people in your network, sorted by ",
+      strong("hearts"),
+      " in a given period. Hearts are counted from ",
+      em("everyone"),
+      ", including people you don't follow, so this shows posts from your friends that are popular in your extended network."
+    ],
+    latestDescription: "Posts from people you follow, sorted by recency.",
+    topics: "Topics",
+    topicsDescription: [
+      strong("Topics"),
+      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+    ],
+    summaries: "Summaries",
+    summariesDescription: [
+      strong("Topics and some comments"),
+      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+    ],
+    manualMode: "Manual Mode",
+    mentions: "Mentions",
+    mentionsDescription: [
+      strong("Posts that mention you"),
+      " from ",
+      strong("anyone"),
+      " sorted by recency. Sometimes people may forget to @mention you, and those posts won't show up here."
+    ],
+    private: "Private",
+    privateDescription: [
+      "The latest comment from ",
+      strong("private threads that include you"),
+      ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread."
+    ],
+    search: "Search",
+    // post actions
+    comment: "Comment",
+    reply: "Reply",
+    json: "JSON",
   },
   de: {
     extended: "Erweitert",
