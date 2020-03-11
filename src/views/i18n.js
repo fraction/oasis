@@ -99,7 +99,7 @@ module.exports = {
     ],
     publishBasicInfo: ({ href }) => [
       "If you're not an advanced user, you should ",
-      a({ href }, "publish a basic post"),
+      a({ href }, "publish a post"),
       "."
     ],
     publishCustom: "Publish custom",
