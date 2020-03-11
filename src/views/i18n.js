@@ -18,7 +18,7 @@ module.exports = {
       ", including people you don't follow, so this shows posts from your friends that are popular in your extended network."
     ],
     latest: "Latest",
-    latestDescription: "Posts from people you follow, sorted by recency.",
+    latestDescription: "Posts from yourself and people you follow, sorted by recency.",
     topics: "Topics",
     topicsDescription: [
       strong("Topics"),
