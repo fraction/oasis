@@ -71,7 +71,7 @@ module.exports = {
       " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
     ],
     commentWarning: [
-      " Messages cannot be edited or deleted. To respond to an individual message, select ",
+      " Comments cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
       " instead."
     ],
@@ -102,7 +102,7 @@ module.exports = {
     ],
     publishBasicInfo: ({ href }) => [
       "If you're not an advanced user, you should ",
-      a({ href }, "publish a basic post"),
+      a({ href }, "publish a post"),
       "."
     ],
     publishCustom: "Publish custom",
@@ -163,7 +163,7 @@ module.exports = {
     submit: "Submit",
     editProfile: "Edit profile",
     editProfileDescription:
-      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+      "Edit your profile with Markdown. Old versions of your profile information still exist and can't be deleted, but most SSB apps don't show them.",
     profileName: "Profile name (text)",
     profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
