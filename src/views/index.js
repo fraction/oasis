@@ -813,6 +813,11 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       { class: "message" },
       h1(i18n.settings),
       p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
+      h2(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
+      connButtons,
       h2(i18n.invites),
       p(i18n.invitesDescription),
       form(
@@ -820,11 +825,6 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         input({ name: "invite", type: "text" }),
         button({ type: "submit" }, i18n.acceptInvite)
       ),
-      h2(i18n.peerConnections),
-      p(i18n.connectionsIntro),
-      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
-      p(i18n.connectionActionIntro),
-      connButtons,
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
