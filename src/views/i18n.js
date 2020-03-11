@@ -22,12 +22,12 @@ module.exports = {
     topics: "Topics",
     topicsDescription: [
       strong("Topics"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      " from yourself and people you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
     ],
     summaries: "Summaries",
     summariesDescription: [
       strong("Topics and some comments"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      " from yourself and people you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
     ],
     profile: "Profile",
     manualMode: "Manual Mode",
