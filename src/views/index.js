@@ -104,7 +104,11 @@ const template = (...elements) => {
             emoji: "🗺️",
             text: i18n.extended
           }),
-          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({
+            href: "/public/popular/day",
+            emoji: "📣",
+            text: i18n.popular
+          }),
           navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
           navLink({
             href: "/public/latest/topics",
