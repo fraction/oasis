@@ -160,7 +160,7 @@ module.exports = {
     submit: "Submit",
     editProfile: "Edit profile",
     editProfileDescription:
-      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+      "Edit your profile with Markdown. Old versions of your profile information still exist and can't be deleted, but most SSB apps don't show them.",
     profileName: "Profile name (text)",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
