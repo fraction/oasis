@@ -207,7 +207,7 @@ router
     return next();
   })
   .get("/", async ctx => {
-    ctx.redirect("/public/popular/day");
+    ctx.redirect("/mentions");
   })
   .get("/robots.txt", ctx => {
     ctx.body = "User-agent: *\nDisallow: /";
