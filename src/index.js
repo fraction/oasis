@@ -755,6 +755,30 @@ const middleware = [
     setLanguage(selectedLanguage);
     await next();
   },
+  async (ctx, next) => {
+    const ssb = await cooler.open();
+
+    const status = await ssb.status();
+    const values = Object.values(status.sync.plugins);
+    const totalCurrent = Object.values(status.sync.plugins).reduce(
+      (acc, cur) => acc + cur,
+      0
+    );
+    const totalTarget = status.sync.since * values.length;
+
+    const left = totalTarget - totalCurrent;
+
+    // Weird trick to get percentage with 1 decimal place (e.g. 78.9)
+    const percent = Math.floor((totalCurrent / totalTarget) * 1000) / 10;
+    const mebibyte = 1024 * 1024;
+
+    if (left > mebibyte) {
+      throw new Error(`Sorry, Oasis has only processed ${percent}% of the messages and needs to catch up.
+       Thanks for your patience, please wait for a moment and refresh this page to try again.`);
+    } else {
+      await next();
+    }
+  },
   routes
 ];
 
