@@ -70,7 +70,7 @@ module.exports = {
       " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
     ],
     commentWarning: [
-      " Messages cannot be edited or deleted. To respond to an individual message, select ",
+      " Comments cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
       " instead."
     ],
