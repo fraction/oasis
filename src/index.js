@@ -356,13 +356,15 @@ router
       description
     });
   })
-  .post("/profile/edit", koaBody(), async ctx => {
+  .post("/profile/edit", koaBody({ multipart: true }), async ctx => {
     const name = String(ctx.request.body.name);
     const description = String(ctx.request.body.description);
 
+    const image = await fs.promises.readFile(ctx.request.files.image.path);
     ctx.body = await post.publishProfileEdit({
       name,
-      description
+      description,
+      image
     });
     ctx.redirect("/profile");
   })
