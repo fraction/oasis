@@ -76,7 +76,7 @@ module.exports = {
       " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
     ],
     commentWarning: [
-      " Messages cannot be edited or deleted. To respond to an individual message, select ",
+      " Comments cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
       " instead."
     ],
@@ -107,7 +107,7 @@ module.exports = {
     ],
     publishBasicInfo: ({ href }) => [
       "If you're not an advanced user, you should ",
-      a({ href }, "publish a basic post"),
+      a({ href }, "publish a post"),
       "."
     ],
     publishCustom: "Publish custom",
@@ -168,19 +168,183 @@ module.exports = {
     submit: "Submit",
     editProfile: "Edit profile",
     editProfileDescription:
-      "Edit your profile with Markdown. Messages cannot be edited or deleted. Old versions of your profile information still exist and are public information, but most SSB apps don't show it.",
+      "Edit your profile with Markdown. Old versions of your profile information still exist and can't be deleted, but most SSB apps don't show them.",
     profileName: "Profile name (text)",
+    profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
       "Posts from people in your network that reference this hashtag, sorted by recency."
   },
   /* spell-checker: disable */
   es: {
-    popular: "Popular",
-    latest: "Nuevo",
-    profile: "Pagina",
+    latest: "Novedades",
+    profile: "Mi Perfil",
     search: "Buscar",
-    settings: "Reglas"
+    settings: "Configuración",
+    // navbar items
+    extended: "Red extendida",
+    extendedDescription: [
+      "Publicaciones de ",
+      strong("personas que no seguís"),
+      ", ordenadas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que esta siga y esos mensajes aparecen aquí."
+    ],
+    popular: "Populares",
+    popularDescription: [
+      "Publicaciones de personas de tu red, ordenadas por cantidad de ",
+      strong("Me Gusta"),
+      " en determinados periodos. Se cuentan los Me Gusta de ",
+      em("todos"),
+      ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto."
+    ],
+    latestDescription:
+      "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
+    topics: "Topicos",
+    topicsDescription: [
+      strong("Topicos"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    summaries: "Resumen",
+    summariesDescription: [
+      strong("Topicos y algunos comentarios"),
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    manualMode: "Modo manual",
+    mentions: "Menciones",
+    mentionsDescription: [
+      strong("Publicaciones de "),
+      strong("cualquier persona"),
+      " que te mencionan, ordenadas por las más recientes. Solo figuran menciones en el formato @mención."
+    ],
+    private: "Privado",
+    privateDescription: [
+      "Los comentarios más recientes de ",
+      strong("hilos privados que te incluyen"),
+      ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo."
+    ],
+    // post actions
+    comment: "Comentar",
+    reply: "Responder",
+    json: "JSON",
+    // relationships
+    unfollow: "Dejar de seguir",
+    follow: "Seguir",
+    relationshipFollowing: "Siguiendo",
+    relationshipYou: "Vos",
+    relationshipBlocking: "Bloqueado",
+    relationshipNone: "No estás siguiendo ni bloqueando",
+    relationshipConflict: "De alguna forma le estás siguiendo y bloqueando",
+    // author view
+    viewLikes: "Ver Me Gusta ",
+    // likes view
+    likedBy: "le gusta",
+    // composer
+    publish: "Publicar",
+    contentWarningPlaceholder: "Advertencia opcional para esta publicación",
+    publishCustomDescription: [
+      "Compone un mensaje custom usando ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      ". Esto puede ser util para prototipar o componer tipos de mensaje que Oasis aún no soporta. Este mensaje no podrá ser editado o borrado."
+    ],
+    commentWarning: [
+      " Los mensajes no podrán ser editados o borrados. Para responde a mensajes, seleccione ",
+      strong("Responder"),
+      "."
+    ],
+    commentPublic: "publico",
+    commentPrivate: "privado",
+    commentLabel: ({ publicOrPrivate, markdownUrl }) => [
+      "Escribí un ",
+      strong(`${publicOrPrivate} comentário`),
+      " con ",
+      a({ href: markdownUrl }, "Markdown"),
+      " en este hilo."
+    ],
+    publishLabel: ({ markdownUrl, linkTarget }) => [
+      "Escribí mensaje publico con ",
+      a(
+        {
+          href: markdownUrl,
+          target: linkTarget
+        },
+        "Markdown"
+      ),
+      ". Los mensajes no podrán ser editados o borrados."
+    ],
+    publishCustomInfo: ({ href }) => [
+      "Si sos un usário avanzado, podrás ",
+      a({ href }, "publicar un mensaje custom"),
+      "."
+    ],
+    publishBasicInfo: ({ href }) => [
+      "Si no sos un usuário avanzado, podés ",
+      a({ href }, "publicar un mensaje basico."),
+      "."
+    ],
+    publishCustom: "Publicar custom",
+
+    replyLabel: ({ markdownUrl }) => [
+      "Escribí una ",
+      strong("respuesta publica"),
+      " a este mensaje con ",
+      a({ href: markdownUrl }, "Markdown"),
+      ". Los mensajes no podrán ser editados o borrados. Para responder a todo un hilo, seleccioná ",
+      strong("comentário"),
+      "."
+    ],
+    // settings
+    settingsIntro: ({ readmeUrl, version }) => [
+      `Estás usando Oasis ${version}. Leé `,
+      a({ href: readmeUrl }, "el Readme"),
+      ", configura un tema, o consultá información de debug abajo."
+    ],
+    theme: "Tema",
+    themeIntro:
+      "Eligí un tema. Atelier-SulphurPool-Light és el tema por defecto.",
+    setTheme: "Eligí el tema",
+    language: "Idioma",
+    languageDescription:
+      "Sí queres usar Oasis en otro idioma, eligí acá. Atención, que esta funcionalidad és aún nueva y básica. Necesitamos ayuda con traducciones para otros idiomas y formatos.",
+    setLanguage: "Seleccionar idioma",
+
+    status: "Status",
+    peerConnections: "Conexiones de pares 💻⚡️💻",
+    connectionsIntro:
+      "Tu computadora está sincronizando con las siguientes computadoras. Se conectará con cualquier par de scuttlebutt que encuentre a medida que busque informacion de tus amigos, mismo que no hayas establecido una relación prévia.",
+    noConnections: "Sin pares conectados.",
+    connectionActionIntro:
+      "Podrás decidir cuando conectar tu computadora a la red de pares. Podrás arrancar, detener o reiniciar las conexiones siempre que quieras.",
+    startNetworking: "Arrancar las conexiones",
+    stopNetworking: "Detener las conexiones",
+    restartNetworking: "Reiniciar las conexiones",
+    indexes: "Indices",
+    invites: "Invitaciones",
+    invitesDescription:
+      "Utilizá una invitación pegando abajo. Sí funcionar, empezarás a seguir esa persona y ella te seguirá a vós también.",
+    acceptInvite: "Aceptar la invitación",
+    // search page
+    searchLabel:
+      "Buscá las siguientes palabras por los mensajes que tenés descargados.",
+    // posts and comments
+    commentDescription: ({ parentUrl }) => [
+      "comentado en el hilo ",
+      a({ href: parentUrl }, "")
+    ],
+    replyDescription: ({ parentUrl }) => [
+      "respondido al mensaje ",
+      a({ href: parentUrl }, "")
+    ],
+    mysteryDescription: "publicó un mensaje misterioso",
+    // misc
+    oasisDescription: "Interface del vecinario amistoso scuttlebutt",
+    submit: "Enviar",
+    editProfile: "Editar perfil",
+    editProfileDescription:
+      "Editá tu perfil con Markdown. Los mensajes no podrán ser editados o borrados. La información en tu perfil será siempre publico, mismo aquella de versiones antiguas. La mayoria de los clientes de ssb no presentarán versiones antiguas de tu perfil",
+    profileName: "Nombre de perfil (texto)",
+    profileImage: "Imagen de perfil",
+    profileDescription: "Descripción de perfil (Markdown)",
+    hashtagDescription:
+      "Publicaciones de personas en tu red que mencionan este hashtag, ordenadas por las más recientes."
   },
   de: {
     extended: "Erweitert",

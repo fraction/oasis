@@ -17,7 +17,6 @@ const {
   form,
   h1,
   h2,
-  h3,
   head,
   header,
   html,
@@ -104,7 +103,11 @@ const template = (...elements) => {
             emoji: "🗺️",
             text: i18n.extended
           }),
-          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({
+            href: "/public/popular/day",
+            emoji: "📣",
+            text: i18n.popular
+          }),
           navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
           navLink({
             href: "/public/latest/topics",
@@ -480,11 +483,16 @@ exports.editProfileView = ({ name, description }) =>
       h1(i18n.editProfile),
       p(i18n.editProfileDescription),
       form(
-        { action: "/profile/edit", method: "POST" },
+        {
+          action: "/profile/edit",
+          method: "POST",
+          enctype: "multipart/form-data"
+        },
         label(
-          i18n.profileName,
-          input({ name: "name", autofocus: true, value: name })
+          i18n.profileImage,
+          input({ type: "file", name: "image", accept: "image/*" })
         ),
+        label(i18n.profileName, input({ name: "name", value: name })),
         label(
           i18n.profileDescription,
           textarea(
@@ -822,6 +830,18 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       { class: "message" },
       h1(i18n.settings),
       p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
+      h2(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
+      connButtons,
+      h2(i18n.invites),
+      p(i18n.invitesDescription),
+      form(
+        { action: "/settings/invite/accept", method: "post" },
+        input({ name: "invite", type: "text" }),
+        button({ type: "submit" }, i18n.acceptInvite)
+      ),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
@@ -842,20 +862,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
-      h2(i18n.status),
-      h3(i18n.peerConnections),
-      p(i18n.connectionsIntro),
-      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
-      p(i18n.connectionActionIntro),
-      connButtons,
-      h3(i18n.invites),
-      p(i18n.invitesDescription),
-      form(
-        { action: "/settings/invite/accept", method: "post" },
-        input({ name: "invite", type: "text" }),
-        button({ type: "submit" }, i18n.acceptInvite)
-      ),
-      h3(i18n.indexes),
+      h2(i18n.indexes),
       progressElements
     )
   );
