@@ -164,7 +164,7 @@ module.exports = {
     editProfile: "Edit profile",
     editProfileDescription:
       "Edit your profile with Markdown. Old versions of your profile information still exist and can't be deleted, but most SSB apps don't show them.",
-    profileName: "Profile name (text)",
+    profileName: "Profile name (plain text)",
     profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
