@@ -1,8 +1,9 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-const ssbMarkdown = require("ssb-markdown");
 const highlightJs = require("highlight.js");
+
+const MarkdownIt = require("markdown-it");
 
 const {
   a,
@@ -16,7 +17,6 @@ const {
   form,
   h1,
   h2,
-  h3,
   head,
   header,
   html,
@@ -43,6 +43,8 @@ const {
 
 const lodash = require("lodash");
 const markdown = require("./markdown");
+
+const md = new MarkdownIt();
 
 const i18nBase = require("./i18n");
 let i18n = null;
@@ -101,7 +103,11 @@ const template = (...elements) => {
             emoji: "🗺️",
             text: i18n.extended
           }),
-          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({
+            href: "/public/popular/day",
+            emoji: "📣",
+            text: i18n.popular
+          }),
           navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
           navLink({
             href: "/public/latest/topics",
@@ -615,7 +621,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
 
   const isPrivate = parentMessage.value.meta.private;
 
-  const publicOrPrivate = isPrivate ? "private" : "public";
+  const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
@@ -697,7 +703,7 @@ exports.threadView = ({ messages }) =>
   template(messages.map(msg => post({ msg })));
 
 exports.markdownView = ({ text }) => {
-  const rawHtml = ssbMarkdown.block(text);
+  const rawHtml = md.render(text);
 
   return template(section({ class: "message" }, { innerHTML: rawHtml }));
 };
@@ -720,7 +726,7 @@ exports.publishView = () => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
-            placeholder: "Optional warning for the post"
+            placeholder: i18n.contentWarningPlaceholder
           })
         ),
         button({ type: "submit" }, i18n.submit)
@@ -819,6 +825,18 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       { class: "message" },
       h1(i18n.settings),
       p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
+      h2(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
+      connButtons,
+      h2(i18n.invites),
+      p(i18n.invitesDescription),
+      form(
+        { action: "/settings/invite/accept", method: "post" },
+        input({ name: "invite", type: "text" }),
+        button({ type: "submit" }, i18n.acceptInvite)
+      ),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
@@ -833,24 +851,13 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         { action: "/language", method: "post" },
         select({ name: "language" }, [
           languageOption("en", "English"),
-          languageOption("es", "Español")
+          languageOption("es", "Español"),
+          /* cspell:disable-next-line */
+          languageOption("de", "Deutsch")
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
-      h2(i18n.status),
-      h3(i18n.peerConnections),
-      p(i18n.connectionsIntro),
-      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
-      p(i18n.connectionActionIntro),
-      connButtons,
-      h3(i18n.invites),
-      p(i18n.invitesDescription),
-      form(
-        { action: "/settings/invite/accept", method: "post" },
-        input({ name: "invite", type: "text" }),
-        button({ type: "submit" }, i18n.acceptInvite)
-      ),
-      h3(i18n.indexes),
+      h2(i18n.indexes),
       progressElements
     )
   );

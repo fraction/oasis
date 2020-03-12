@@ -6,87 +6,69 @@ you follow friends and discover new ones on [Secure Scuttlebutt (SSB)][ssb].
 **🦀 Powered by SSB.**  
 You're the center of your own distributed network. Online or offline, SSB works
 anywhere that you are. Follow the people you want to see and never worry about
-spam again. Migrate your data to another SSB app any time you want.
+spam again. Switch to any SSB app you want at any time.
 
 **🌐 Bring your own browser.**  
 Use your favorite web browser to read and write messages to the people you care
-about. Oasis runs over HTTP, so you don't need to worry about adding another
-Electron app to your computer.
+about. Oasis runs a small HTTP server on your own computer, so you don't need
+to worry about adding another Electron app to your computer.
 
 **🏰 Just HTML and CSS.**  
 No browser JavaScript! Oasis has strict security rules that prevent any
 JavaScript from running in your browser, which helps us make Oasis accessible
 and easy to improve.
 
+## Example
+
+After installing, launch Oasis from the command line by running:
+
+```sh
+oasis
+```
+
+It will then pop open a browser window for you.
+
 ![Screenshot of Oasis](./docs/screenshot.png)
 
-## Usage
-
-Start Oasis from a command-line interface with the `oasis` command.
-
-```console
-$ oasis --help
-Usage: oasis [options]
-
-Options:
-  --version   Show version number                                      [boolean]
-  -h, --help  Show help                                                [boolean]
-  --open      Automatically open app in web browser. Use --no-open to disable.
-                                                       [boolean] [default: true]
-  --offline   Don't try to connect to scuttlebutt peers or pubs. This can be
-              changed on the 'settings' page while Oasis is running.
-                                                      [boolean] [default: false]
-  --host      Hostname for web app to listen on  [string] [default: "localhost"]
-  --port      Port for web app to listen on             [number] [default: 3000]
-  --debug     Use verbose output for debugging        [boolean] [default: false]
-  -c --config Show current default configuration      [boolean] [default: false]
-```
-
-## Configuration
-
-The above options can be permanently set with a configuration file found in a
-standard folder for configuration, depending on your operating system:
-
-- Linux: `$XDG_CONFIG_HOME/oasis/default.json`.
-  Usually this is `/home/<your username>/.config/oasis/default.json`
-  <!-- cspell:disable-next-line -->
-- Windows `%APPDATA%\oasis\default.json`.
-- Mac OS, `/Users/<your username>/Library/Preferences/oasis/default.json`
-
-The configuration file can override any or all of the command-line _defaults_.
-Here is an example customizing the port number and the "open" settings:
-
-```json
-{
-  "open": false,
-  "port": 19192
-}
-```
-
-### Configuration Semantics
-
-Which value is given is decided like this:
-
-1. If an argument is given on the command-line, use that value.
-2. Otherwise, use the value from the configuration file if present.
-3. If neither command-line nor configuration file are given, use the built-in default value.
+Use `oasis --help` to get configuration options. You can change the default
+values with a custom [configuration](./docs/configuring.md).
 
 ## Installation
 
-Most people should install stable releases with [npm](https://npmjs.org/) and
-Node.js [**current** or **active LTS** release](https://nodejs.org/en/about/releases/).
+First, you'll need Node.js and npm on your computer. Run `node --version` to see if you have it. If not, or if it's older than the [**current** or **active LTS** version](https://nodejs.org/en/about/releases/), you should [download Node.js](https://nodejs.org/en/about/releases/) first.
+
+Then you can install the stable version of Oasis:
 
 ```shell
-npm --global install 'fraction/oasis#semver:*'
+npm -g install fraction/oasis#semver:
 ```
 
-For faster updates and less stability, install from GitHub and upgrade often.
+Or, for faster updates and less stability, install Oasis from GitHub and upgrade often.
 
 ```shell
-npm --global install fraction/oasis
+npm -g install fraction/oasis
 ```
 
-Want more? Check out [`install.md`](https://github.com/fraction/oasis/blob/master/docs/install.md).
+Check out [`install.md`](https://github.com/fraction/oasis/blob/master/docs/install.md)
+for more information.
+
+## FAQ
+
+### Can I use the same profile from multiple computers?
+
+No, this is a limitation of SSB. You'll need to make a separate profile on each device. There is a workaround [we'd like to implement](https://github.com/fraction/oasis/issues/267) which ties your multiple profiles together.
+
+### Can I run this at the same time as Patchwork and other SSB apps?
+
+Yes! They will both use the same data and profile. You can either run them one at a time or simultaneously. If you run them at the same time, start Patchwork first, then Oasis.
+
+Details: SSB apps have two parts: a "server" that manages the database (on your own computer), and a user interface that gets things from the server to display. Only one server can run at a time, but multiple apps can use it.
+
+| App       | Runs its own SSB server            | Can use SSB server of another app              |
+| --------- | ---------------------------------- | ---------------------------------------------- |
+| Oasis     | Yes, unless one is already running | Yes                                            |
+| Patchwork | Yes                                | No, only uses its own server                   |
+| Patchfox  | No                                 | Yes, depends on other apps to provide a server |
 
 ## Resources
 

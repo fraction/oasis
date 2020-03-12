@@ -16,8 +16,8 @@ module.exports = ({ host, port, middleware }) => {
   app.on("error", err => {
     // Output full error objects
     err.message = err.stack;
-    err.expose = true;
     console.error(err);
+    err.expose = true;
     return null;
   });
 
