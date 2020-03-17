@@ -774,9 +774,10 @@ const middleware = [
     const percent = Math.floor((totalCurrent / totalTarget) * 1000) / 10;
     const mebibyte = 1024 * 1024;
 
-    if (left > mebibyte) {
-      throw new Error(`Sorry, Oasis has only processed ${percent}% of the messages and needs to catch up.
-       Thanks for your patience, please wait for a moment and refresh this page to try again.`);
+    if (true || left > mebibyte) {
+      ctx.response.body = "<h1>Hey Christian, put the error message nicely here.</h1>"
+      // throw new Error(`Sorry, Oasis has only processed ${percent}% of the messages and needs to catch up.
+      //  Thanks for your patience, please wait for a moment and refresh this page to try again.`);
     } else {
       await next();
     }
