@@ -145,6 +145,7 @@ const {
   authorView,
   commentView,
   editProfileView,
+  indexingView,
   extendedView,
   latestView,
   likesView,
@@ -775,8 +776,7 @@ const middleware = [
     const mebibyte = 1024 * 1024;
 
     if (left > mebibyte) {
-      throw new Error(`Sorry, Oasis has only processed ${percent}% of the messages and needs to catch up.
-       Thanks for your patience, please wait for a moment and refresh this page to try again.`);
+      ctx.response.body = indexingView({ percent });
     } else {
       await next();
     }
