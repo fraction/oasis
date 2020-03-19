@@ -68,6 +68,7 @@ Details: SSB apps have two parts: a "server" that manages the database (on your 
 | --------- | ---------------------------------- | ---------------------------------------------- |
 | Oasis     | Yes, unless one is already running | Yes                                            |
 | Patchwork | Yes                                | No, only uses its own server                   |
+| Patchbay  | Yes                                | No, only uses its own server                   |
 | Patchfox  | No                                 | Yes, depends on other apps to provide a server |
 
 ## Resources
