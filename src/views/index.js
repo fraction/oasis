@@ -1,8 +1,9 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-const ssbMarkdown = require("ssb-markdown");
 const highlightJs = require("highlight.js");
+
+const MarkdownIt = require("markdown-it");
 
 const {
   a,
@@ -16,7 +17,6 @@ const {
   form,
   h1,
   h2,
-  h3,
   head,
   header,
   html,
@@ -43,6 +43,8 @@ const {
 
 const lodash = require("lodash");
 const markdown = require("./markdown");
+
+const md = new MarkdownIt();
 
 const i18nBase = require("./i18n");
 let i18n = null;
@@ -101,7 +103,11 @@ const template = (...elements) => {
             emoji: "🗺️",
             text: i18n.extended
           }),
-          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({
+            href: "/public/popular/day",
+            emoji: "📣",
+            text: i18n.popular
+          }),
           navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
           navLink({
             href: "/public/latest/topics",
@@ -609,11 +615,16 @@ exports.editProfileView = ({ name, description }) =>
       h1(i18n.editProfile),
       p(i18n.editProfileDescription),
       form(
-        { action: "/profile/edit", method: "POST" },
+        {
+          action: "/profile/edit",
+          method: "POST",
+          enctype: "multipart/form-data"
+        },
         label(
-          i18n.profileName,
-          input({ name: "name", autofocus: true, value: name })
+          i18n.profileImage,
+          input({ type: "file", name: "image", accept: "image/*" })
         ),
+        label(i18n.profileName, input({ name: "name", value: name })),
         label(
           i18n.profileDescription,
           textarea(
@@ -747,7 +758,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
 
   const isPrivate = parentMessage.value.meta.private;
 
-  const publicOrPrivate = isPrivate ? "private" : "public";
+  const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
@@ -828,7 +839,7 @@ exports.publishCustomView = async () => {
 exports.threadView = ({ messages }) => template(thread(messages));
 
 exports.markdownView = ({ text }) => {
-  const rawHtml = ssbMarkdown.block(text);
+  const rawHtml = md.render(text);
 
   return template(section({ class: "message" }, { innerHTML: rawHtml }));
 };
@@ -851,7 +862,7 @@ exports.publishView = () => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
-            placeholder: "Optional content warning for this post"
+            placeholder: i18n.contentWarningPlaceholder
           })
         ),
         button({ type: "submit" }, i18n.submit)
@@ -950,6 +961,18 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       { class: "message" },
       h1(i18n.settings),
       p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
+      h2(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
+      connButtons,
+      h2(i18n.invites),
+      p(i18n.invitesDescription),
+      form(
+        { action: "/settings/invite/accept", method: "post" },
+        input({ name: "invite", type: "text" }),
+        button({ type: "submit" }, i18n.acceptInvite)
+      ),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
@@ -964,24 +987,13 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         { action: "/language", method: "post" },
         select({ name: "language" }, [
           languageOption("en", "English"),
-          languageOption("es", "Español")
+          languageOption("es", "Español"),
+          /* cspell:disable-next-line */
+          languageOption("de", "Deutsch")
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
-      h2(i18n.status),
-      h3(i18n.peerConnections),
-      p(i18n.connectionsIntro),
-      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
-      p(i18n.connectionActionIntro),
-      connButtons,
-      h3(i18n.invites),
-      p(i18n.invitesDescription),
-      form(
-        { action: "/settings/invite/accept", method: "post" },
-        input({ name: "invite", type: "text" }),
-        button({ type: "submit" }, i18n.acceptInvite)
-      ),
-      h3(i18n.indexes),
+      h2(i18n.indexes),
       progressElements
     )
   );
@@ -1151,4 +1163,38 @@ exports.hashtagView = ({ messages, hashtag }) => {
     section(h1(`#${hashtag}`), p(i18n.hashtagDescription)),
     messages.map(msg => post({ msg }))
   );
+};
+
+exports.indexingView = ({ percent }) => {
+  // TODO: i18n
+  const message = `Oasis has only processed ${percent}% of the messages and needs to catch up. This page will refresh every 10 seconds. Thanks for your patience! ❤`;
+
+  const nodes = html(
+    { lang: "en" },
+    head(
+      title("Oasis"),
+      link({ rel: "icon", type: "image/svg+xml", href: "/assets/favicon.svg" }),
+      meta({ charset: "utf-8" }),
+      meta({
+        name: "description",
+        content: i18n.oasisDescription
+      }),
+      meta({
+        name: "viewport",
+        content: toAttributes({ width: "device-width", "initial-scale": 1 })
+      }),
+      meta({ "http-equiv": "refresh", content: 10 })
+    ),
+    body(
+      main(
+        { id: "content" },
+        p(message),
+        progress({ value: percent, max: 100 })
+      )
+    )
+  );
+
+  const result = doctypeString + nodes.outerHTML;
+
+  return result;
 };

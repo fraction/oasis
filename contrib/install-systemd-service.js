@@ -21,7 +21,7 @@ const targetPath = path.join(systemdUserHome, "oasis.service");
 if (fs.existsSync(targetPath)) {
   console.log("Cowardly refusing to overwrite file:", targetPath);
 } else {
-  mkdirp(systemdUserHome);
+  mkdirp.sync(systemdUserHome);
 
   const sourcePath = path.join(__dirname, "oasis.service");
   fs.copyFileSync(sourcePath, targetPath);

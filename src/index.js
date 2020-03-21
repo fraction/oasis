@@ -145,6 +145,7 @@ const {
   authorView,
   commentView,
   editProfileView,
+  indexingView,
   extendedView,
   latestView,
   likesView,
@@ -207,7 +208,7 @@ router
     return next();
   })
   .get("/", async ctx => {
-    ctx.redirect("/public/popular/day");
+    ctx.redirect("/mentions");
   })
   .get("/robots.txt", ctx => {
     ctx.body = "User-agent: *\nDisallow: /";
@@ -356,13 +357,15 @@ router
       description
     });
   })
-  .post("/profile/edit", koaBody(), async ctx => {
+  .post("/profile/edit", koaBody({ multipart: true }), async ctx => {
     const name = String(ctx.request.body.name);
     const description = String(ctx.request.body.description);
 
+    const image = await fs.promises.readFile(ctx.request.files.image.path);
     ctx.body = await post.publishProfileEdit({
       name,
-      description
+      description,
+      image
     });
     ctx.redirect("/profile");
   })
@@ -754,6 +757,29 @@ const middleware = [
     const selectedLanguage = ctx.cookies.get("language") || "en";
     setLanguage(selectedLanguage);
     await next();
+  },
+  async (ctx, next) => {
+    const ssb = await cooler.open();
+
+    const status = await ssb.status();
+    const values = Object.values(status.sync.plugins);
+    const totalCurrent = Object.values(status.sync.plugins).reduce(
+      (acc, cur) => acc + cur,
+      0
+    );
+    const totalTarget = status.sync.since * values.length;
+
+    const left = totalTarget - totalCurrent;
+
+    // Weird trick to get percentage with 1 decimal place (e.g. 78.9)
+    const percent = Math.floor((totalCurrent / totalTarget) * 1000) / 10;
+    const mebibyte = 1024 * 1024;
+
+    if (left > mebibyte) {
+      ctx.response.body = indexingView({ percent });
+    } else {
+      await next();
+    }
   },
   routes
 ];
