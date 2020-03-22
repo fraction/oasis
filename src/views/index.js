@@ -389,8 +389,6 @@ const post = ({ msg, aside = false }) => {
   const { name } = msg.value.meta.author;
   const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
 
-  const depth = lodash.get(msg, "value.meta.thread.depth", 0);
-
   const markdownContent = markdown(
     msg.value.content.text,
     msg.value.content.mentions
@@ -451,8 +449,7 @@ const post = ({ msg, aside = false }) => {
   const fragment = section(
     {
       id: msg.key,
-      class: messageClasses.join(" "),
-      style: `margin-left: ${depth}rem;`
+      class: messageClasses.join(" ")
     },
     header(
       span(

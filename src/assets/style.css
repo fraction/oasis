@@ -522,6 +522,6 @@ hr {
 }
 
 .fork {
-  margin-left: var(--micro);
+  padding-left: var(--whole);
   border-left: var(--nano) solid var(--violet);
 }
