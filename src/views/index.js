@@ -265,28 +265,27 @@ const thread = messages => {
     const nextMsg = messages[j];
 
     const depth = msg => {
+      // will be undefined when checking depth(nextMsg) when currentMsg is the
+      // last message in the thread
       if (msg === undefined) return 0;
       return lodash.get(msg, "value.meta.thread.depth", 0);
     };
 
-    const render = msg => post({ msg }).outerHTML;
+    listWithHints.push(post({ msg: currentMsg }).outerHTML);
 
-    if (depth(currentMsg) > depth(nextMsg)) {
+    if (depth(currentMsg) < depth(nextMsg)) {
+      listWithHints.push('<details class="fork">');
+    } else if (depth(currentMsg) > depth(nextMsg)) {
       // getting more shallow
       const diffDepth = depth(currentMsg) - depth(nextMsg);
 
-      const msgList = [render(currentMsg)];
-
+      const msgList = [];
       for (let d = 0; d < diffDepth; d++) {
         // on the way up it might go several depths at once
         msgList.push("</details>");
       }
 
       listWithHints.push(msgList);
-    } else if (depth(currentMsg) < depth(nextMsg)) {
-      listWithHints.push([render(currentMsg), '<details class="fork">']);
-    } else {
-      listWithHints.push(render(currentMsg));
     }
   }
 
