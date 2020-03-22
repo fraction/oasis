@@ -522,6 +522,7 @@ hr {
 }
 
 .fork {
-  padding-left: var(--whole);
+  padding-left: 1rem;
+  margin-right: -1rem;
   border-left: var(--nano) solid var(--violet);
 }
