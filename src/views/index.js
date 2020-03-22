@@ -257,77 +257,41 @@ const postInAside = msg => {
 };
 
 const thread = messages => {
-  const addHints = messages => {
-    const listWithHints = [];
-    for (let i = 0; i < messages.length; i++) {
-      const j = i + 1;
+  const listWithHints = [];
+  for (let i = 0; i < messages.length; i++) {
+    const j = i + 1;
 
-      const currentMsg = messages[i];
-      const nextMsg = messages[j];
+    const currentMsg = messages[i];
+    const nextMsg = messages[j];
 
-      const depth = msg => {
-        if (msg === undefined) return 0;
-        return lodash.get(msg, "value.meta.thread.depth", 0);
-      };
+    const depth = msg => {
+      if (msg === undefined) return 0;
+      return lodash.get(msg, "value.meta.thread.depth", 0);
+    };
 
-      if (depth(currentMsg) > depth(nextMsg)) {
-        // getting more shallow
-        const diffDepth = depth(currentMsg) - depth(nextMsg);
+    const render = msg => post({ msg }).outerHTML;
 
-        const msgList = [
-          {
-            type: "msg",
-            msg: currentMsg
-          }
-        ];
+    if (depth(currentMsg) > depth(nextMsg)) {
+      // getting more shallow
+      const diffDepth = depth(currentMsg) - depth(nextMsg);
 
-        for (let d = 0; d < diffDepth; d++) {
-          // on the way up it might go several depths at once
-          msgList.push({
-            type: "ascend",
-            msg: undefined // ts wants this?
-          });
-        }
+      const msgList = [render(currentMsg)];
 
-        listWithHints.push(msgList);
-      } else if (depth(currentMsg) < depth(nextMsg)) {
-        listWithHints.push([
-          {
-            type: "msg",
-            msg: currentMsg
-          },
-          {
-            type: "descend",
-            msg: undefined // ts wants this?
-          }
-        ]);
-      } else {
-        listWithHints.push({
-          type: "msg",
-          msg: currentMsg
-        });
+      for (let d = 0; d < diffDepth; d++) {
+        // on the way up it might go several depths at once
+        msgList.push("</details>");
       }
+
+      listWithHints.push(msgList);
+    } else if (depth(currentMsg) < depth(nextMsg)) {
+      listWithHints.push([render(currentMsg), '<details class="fork">']);
+    } else {
+      listWithHints.push(render(currentMsg));
     }
+  }
 
-    return lodash.flatten(listWithHints);
-  };
-
-  const renderWithForks = messages => {
-    const htmlStrings = messages.map(msg => {
-      if (msg.type === "descend") {
-        return '<details class="fork">';
-      } else if (msg.type === "ascend") {
-        return "</details>";
-      } else {
-        // msg.type === 'msg'
-        return post({ msg: msg.msg }).outerHTML;
-      }
-    });
-
-    return div({}, { innerHTML: htmlStrings.join("") });
-  };
-
-  return renderWithForks(addHints(messages));
+  const htmlStrings = lodash.flatten(listWithHints);
+  return div({}, { innerHTML: htmlStrings.join("") });
 };
 
 /**
