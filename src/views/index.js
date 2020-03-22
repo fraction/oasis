@@ -275,6 +275,13 @@ const thread = messages => {
 
     if (depth(currentMsg) < depth(nextMsg)) {
       msgList.push('<details class="fork">');
+
+      const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
+      const nextSnippet = postSnippet(
+        lodash.get(nextMsg, "value.content.text")
+      );
+
+      msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
     } else if (depth(currentMsg) > depth(nextMsg)) {
       // getting more shallow
       const diffDepth = depth(currentMsg) - depth(nextMsg);
@@ -291,6 +298,29 @@ const thread = messages => {
 
   const htmlStrings = lodash.flatten(msgList);
   return div({}, { innerHTML: htmlStrings.join("") });
+};
+
+const postSnippet = text => {
+  const max = 40;
+
+  text = text
+    .trim()
+    .split("\n", 3)
+    .join("\n");
+  // this is taken directly from patchwork. i'm not entirely sure what this
+  // regex is doing
+  text = text.replace(/_|`|\*|#|^\[@.*?]|\[|]|\(\S*?\)/g, "").trim();
+  text = text.replace(/:$/, "");
+  text = text
+    .trim()
+    .split("\n", 1)[0]
+    .trim();
+
+  if (text.length > max) {
+    text = text.substring(0, max - 1) + "…";
+  }
+
+  return text;
 };
 
 /**
