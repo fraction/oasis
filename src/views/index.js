@@ -257,7 +257,7 @@ const postInAside = msg => {
 };
 
 const thread = messages => {
-  const listWithHints = [];
+  const msgList = [];
   for (let i = 0; i < messages.length; i++) {
     const j = i + 1;
 
@@ -271,25 +271,25 @@ const thread = messages => {
       return lodash.get(msg, "value.meta.thread.depth", 0);
     };
 
-    listWithHints.push(post({ msg: currentMsg }).outerHTML);
+    msgList.push(post({ msg: currentMsg }).outerHTML);
 
     if (depth(currentMsg) < depth(nextMsg)) {
-      listWithHints.push('<details class="fork">');
+      msgList.push('<details class="fork">');
     } else if (depth(currentMsg) > depth(nextMsg)) {
       // getting more shallow
       const diffDepth = depth(currentMsg) - depth(nextMsg);
 
-      const msgList = [];
+      const shallowList = [];
       for (let d = 0; d < diffDepth; d++) {
         // on the way up it might go several depths at once
-        msgList.push("</details>");
+        shallowList.push("</details>");
       }
 
-      listWithHints.push(msgList);
+      msgList.push(shallowList);
     }
   }
 
-  const htmlStrings = lodash.flatten(listWithHints);
+  const htmlStrings = lodash.flatten(msgList);
   return div({}, { innerHTML: htmlStrings.join("") });
 };
 
