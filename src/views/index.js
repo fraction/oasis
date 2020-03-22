@@ -259,7 +259,7 @@ const postInAside = msg => {
 const thread = messages => {
   const addHints = messages => {
     const listWithHints = [];
-    for (let i = 0; i <= messages.length; i++) {
+    for (let i = 0; i < messages.length; i++) {
       const j = i + 1;
 
       const currentMsg = messages[i];
@@ -308,6 +308,7 @@ const thread = messages => {
         });
       }
     }
+
     return lodash.flatten(listWithHints);
   };
 
@@ -319,8 +320,6 @@ const thread = messages => {
         return "</details>";
       } else {
         // msg.type === 'msg'
-        if (msg.msg === undefined) return "";
-
         return post({ msg: msg.msg }).outerHTML;
       }
     });
