@@ -327,7 +327,7 @@ const thread = messages => {
   const renderWithForks = messages => {
     const htmlStrings = messages.map(msg => {
       if (msg.type === "descend") {
-        return "<details>";
+        return '<details class="fork">';
       } else if (msg.type === "ascend") {
         return "</details>";
       } else {

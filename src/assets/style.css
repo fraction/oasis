@@ -520,3 +520,8 @@ hr {
 .indent {
   margin-left: 1rem;
 }
+
+.fork {
+  margin-left: var(--micro);
+  border-left: var(--nano) solid var(--violet);
+}
