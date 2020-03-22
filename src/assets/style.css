@@ -517,6 +517,6 @@ hr {
  * be wise to nest these recursively on the thread view, which would make it so
  * that we don't need any inline CSS anymore.
  */
-.indent {
-  margin-left: 1rem;
+.indent > section {
+  margin-left: 2rem;
 }
