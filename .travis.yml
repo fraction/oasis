@@ -17,5 +17,5 @@ os:
 # Don't build arbitrary branches, just pull requests + master + semver tags.
 branches:
   only:
-  - master
-  - "/^v\\d+\\.\\d+\\.\\d+$/"
+    - master
+    - "/^v\\d+\\.\\d+\\.\\d+$/"

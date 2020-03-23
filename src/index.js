@@ -66,12 +66,12 @@ these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
 
-process.on("uncaughtException", function(err) {
+process.on("uncaughtException", function (err) {
   // This isn't `err.code` because TypeScript doesn't like that.
   if (err["code"] === "EADDRINUSE") {
-    nodeHttp.get(url + oasisCheckPath, res => {
+    nodeHttp.get(url + oasisCheckPath, (res) => {
       let rawData = "";
-      res.on("data", chunk => {
+      res.on("data", (chunk) => {
         rawData += chunk;
       });
       res.on("end", () => {
@@ -123,7 +123,7 @@ const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
 const pull = require("pull-stream");
 const requireStyle = require("require-style");
-const router = require("koa-router")();
+const router = require("@koa/router")();
 const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
 const isSvg = require("is-svg");
@@ -138,7 +138,7 @@ const cooler = ssb({ offline: config.offline });
 
 const { about, blob, friend, meta, post, vote } = require("./models")({
   cooler,
-  isPublic: config.public
+  isPublic: config.public,
 });
 
 const {
@@ -162,7 +162,7 @@ const {
   setLanguage,
   settingsView,
   topicsView,
-  summaryView
+  summaryView,
 } = require("./views");
 
 let sharp;
@@ -178,11 +178,11 @@ const defaultTheme = "atelier-sulphurPool-light".toLowerCase();
 const readmePath = path.join(__dirname, "..", "README.md");
 const packagePath = path.join(__dirname, "..", "package.json");
 
-fs.promises.readFile(readmePath, "utf8").then(text => {
+fs.promises.readFile(readmePath, "utf8").then((text) => {
   config.readme = text;
 });
 
-fs.promises.readFile(packagePath, "utf8").then(text => {
+fs.promises.readFile(packagePath, "utf8").then((text) => {
   config.version = JSON.parse(text).version;
 });
 
@@ -207,21 +207,21 @@ router
     ctx.assert(ssbRef.isFeedId(message), 400, "Invalid feed link");
     return next();
   })
-  .get("/", async ctx => {
+  .get("/", async (ctx) => {
     ctx.redirect("/mentions");
   })
-  .get("/robots.txt", ctx => {
+  .get("/robots.txt", (ctx) => {
     ctx.body = "User-agent: *\nDisallow: /";
   })
-  .get(oasisCheckPath, ctx => {
+  .get(oasisCheckPath, (ctx) => {
     ctx.body = "oasis";
   })
-  .get("/public/popular/:period", async ctx => {
+  .get("/public/popular/:period", async (ctx) => {
     const { period } = ctx.params;
     const publicPopular = async ({ period }) => {
       const messages = await post.popular({ period });
 
-      const option = somePeriod => {
+      const option = (somePeriod) => {
         const lowerPeriod = somePeriod.toLowerCase();
         return li(
           period === lowerPeriod
@@ -236,30 +236,30 @@ router
 
       return popularView({
         messages,
-        prefix
+        prefix,
       });
     };
     ctx.body = await publicPopular({ period });
   })
-  .get("/public/latest", async ctx => {
+  .get("/public/latest", async (ctx) => {
     const messages = await post.latest();
     ctx.body = await latestView({ messages });
   })
-  .get("/public/latest/extended", async ctx => {
+  .get("/public/latest/extended", async (ctx) => {
     const messages = await post.latestExtended();
     ctx.body = await extendedView({ messages });
   })
-  .get("/public/latest/topics", async ctx => {
+  .get("/public/latest/topics", async (ctx) => {
     const messages = await post.latestTopics();
     ctx.body = await topicsView({ messages });
   })
-  .get("/public/latest/summaries", async ctx => {
+  .get("/public/latest/summaries", async (ctx) => {
     const messages = await post.latestSummaries();
     ctx.body = await summaryView({ messages });
   })
-  .get("/author/:feed", async ctx => {
+  .get("/author/:feed", async (ctx) => {
     const { feed } = ctx.params;
-    const author = async feedId => {
+    const author = async (feedId) => {
       const description = await about.description(feedId);
       const name = await about.name(feedId);
       const image = await about.image(feedId);
@@ -274,12 +274,12 @@ router
         name,
         description,
         avatarUrl,
-        relationship
+        relationship,
       });
     };
     ctx.body = await author(feed);
   })
-  .get("/search/", async ctx => {
+  .get("/search/", async (ctx) => {
     let { query } = ctx.query;
 
     if (isMsg(query)) {
@@ -305,7 +305,7 @@ router
 
     ctx.body = await searchView({ messages, query });
   })
-  .get("/inbox", async ctx => {
+  .get("/inbox", async (ctx) => {
     const inbox = async () => {
       const messages = await post.inbox();
 
@@ -313,13 +313,13 @@ router
     };
     ctx.body = await inbox();
   })
-  .get("/hashtag/:hashtag", async ctx => {
+  .get("/hashtag/:hashtag", async (ctx) => {
     const { hashtag } = ctx.params;
     const messages = await post.fromHashtag(hashtag);
 
     ctx.body = await hashtagView({ hashtag, messages });
   })
-  .get("/theme.css", ctx => {
+  .get("/theme.css", (ctx) => {
     const theme = ctx.cookies.get("theme") || defaultTheme;
 
     const packageName = "@fraction/base16-css";
@@ -327,7 +327,7 @@ router
     ctx.type = "text/css";
     ctx.body = requireStyle(filePath);
   })
-  .get("/profile/", async ctx => {
+  .get("/profile/", async (ctx) => {
     const myFeedId = await meta.myFeedId();
 
     const description = await about.description(myFeedId);
@@ -344,20 +344,20 @@ router
       name,
       description,
       avatarUrl,
-      relationship: null
+      relationship: null,
     });
   })
-  .get("/profile/edit", async ctx => {
+  .get("/profile/edit", async (ctx) => {
     const myFeedId = await meta.myFeedId();
     const description = await about.description(myFeedId);
     const name = await about.name(myFeedId);
 
     ctx.body = await editProfileView({
       name,
-      description
+      description,
     });
   })
-  .post("/profile/edit", koaBody({ multipart: true }), async ctx => {
+  .post("/profile/edit", koaBody({ multipart: true }), async (ctx) => {
     const name = String(ctx.request.body.name);
     const description = String(ctx.request.body.description);
 
@@ -365,14 +365,14 @@ router
     ctx.body = await post.publishProfileEdit({
       name,
       description,
-      image
+      image,
     });
     ctx.redirect("/profile");
   })
-  .get("/publish/custom/", async ctx => {
+  .get("/publish/custom/", async (ctx) => {
     ctx.body = await publishCustomView();
   })
-  .get("/json/:message", async ctx => {
+  .get("/json/:message", async (ctx) => {
     if (config.public) {
       throw new Error(
         "Sorry, many actions are unavailable when Oasis is running in public mode. Please run Oasis in the default mode and try again."
@@ -380,19 +380,19 @@ router
     }
     const { message } = ctx.params;
     ctx.type = "application/json";
-    const json = async message => {
+    const json = async (message) => {
       const json = await meta.get(message);
       return JSON.stringify(json, null, 2);
     };
     ctx.body = await json(message);
   })
-  .get("/blob/:blobId", async ctx => {
+  .get("/blob/:blobId", async (ctx) => {
     const { blobId } = ctx.params;
     const getBlob = async ({ blobId }) => {
       const bufferSource = await blob.get({ blobId });
 
       debug("got buffer source");
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         pull(
           bufferSource,
           pull.collect(async (err, bufferArray) => {
@@ -428,7 +428,7 @@ router
       ctx.type = "image/svg+xml";
     }
   })
-  .get("/image/:imageSize/:blobId", async ctx => {
+  .get("/image/:imageSize/:blobId", async (ctx) => {
     const { blobId, imageSize } = ctx.params;
     if (sharp) {
       ctx.type = "image/png";
@@ -439,7 +439,7 @@ router
       "base64"
     );
 
-    const fakeImage = imageSize =>
+    const fakeImage = (imageSize) =>
       sharp
         ? sharp({
             create: {
@@ -450,23 +450,23 @@ router
                 r: 0,
                 g: 0,
                 b: 0,
-                alpha: 0.5
-              }
-            }
+                alpha: 0.5,
+              },
+            },
           })
             .png()
             .toBuffer()
-        : new Promise(resolve => resolve(fakePixel));
+        : new Promise((resolve) => resolve(fakePixel));
 
     const image = async ({ blobId, imageSize }) => {
       const bufferSource = await blob.get({ blobId });
       const fakeId = "&0000000000000000000000000000000000000000000=.sha256";
 
       debug("got buffer source");
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         if (blobId === fakeId) {
           debug("fake image");
-          fakeImage(imageSize).then(result => resolve(result));
+          fakeImage(imageSize).then((result) => resolve(result));
         } else {
           debug("not fake image");
           pull(
@@ -485,7 +485,7 @@ router
                     .resize(imageSize, imageSize)
                     .png()
                     .toBuffer()
-                    .then(data => {
+                    .then((data) => {
                       resolve(data);
                     });
                 } else {
@@ -499,7 +499,7 @@ router
     };
     ctx.body = await image({ blobId, imageSize: Number(imageSize) });
   })
-  .get("/settings/", async ctx => {
+  .get("/settings/", async (ctx) => {
     const theme = ctx.cookies.get("theme") || defaultTheme;
     const getMeta = async ({ theme }) => {
       const status = await meta.status();
@@ -516,12 +516,12 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version
+        version: config.version,
       });
     };
     ctx.body = await getMeta({ theme });
   })
-  .get("/likes/:feed", async ctx => {
+  .get("/likes/:feed", async (ctx) => {
     const { feed } = ctx.params;
     const likes = async ({ feed }) => {
       const pendingMessages = post.likes({ feed });
@@ -529,18 +529,18 @@ router
       return likesView({
         messages: await pendingMessages,
         feed,
-        name: await pendingName
+        name: await pendingName,
       });
     };
     ctx.body = await likes({ feed });
   })
-  .get("/settings/readme/", async ctx => {
-    const status = async text => {
+  .get("/settings/readme/", async (ctx) => {
+    const status = async (text) => {
       return markdownView({ text });
     };
     ctx.body = await status(config.readme);
   })
-  .get("/mentions/", async ctx => {
+  .get("/mentions/", async (ctx) => {
     const mentions = async () => {
       const messages = await post.mentionsMe();
 
@@ -548,9 +548,9 @@ router
     };
     ctx.body = await mentions();
   })
-  .get("/thread/:message", async ctx => {
+  .get("/thread/:message", async (ctx) => {
     const { message } = ctx.params;
-    const thread = async message => {
+    const thread = async (message) => {
       const messages = await post.fromThread(message);
       debug("got %i messages", messages.length);
 
@@ -559,9 +559,9 @@ router
 
     ctx.body = await thread(message);
   })
-  .get("/reply/:message", async ctx => {
+  .get("/reply/:message", async (ctx) => {
     const { message } = ctx.params;
-    const reply = async parentId => {
+    const reply = async (parentId) => {
       const rootMessage = await post.get(parentId);
       const myFeedId = await meta.myFeedId();
 
@@ -572,12 +572,12 @@ router
     };
     ctx.body = await reply(message);
   })
-  .get("/publish", async ctx => {
+  .get("/publish", async (ctx) => {
     ctx.body = await publishView();
   })
-  .get("/comment/:message", async ctx => {
+  .get("/comment/:message", async (ctx) => {
     const { message } = ctx.params;
-    const comment = async parentId => {
+    const comment = async (parentId) => {
       const parentMessage = await post.get(parentId);
       const myFeedId = await meta.myFeedId();
 
@@ -602,7 +602,7 @@ router
     };
     ctx.body = await comment(message);
   })
-  .post("/reply/:message", koaBody(), async ctx => {
+  .post("/reply/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
     const publishReply = async ({ message, text }) => {
@@ -612,13 +612,13 @@ router
       const parent = await post.get(message);
       return post.reply({
         parent,
-        message: { text, mentions }
+        message: { text, mentions },
       });
     };
     ctx.body = await publishReply({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
-  .post("/comment/:message", koaBody(), async ctx => {
+  .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
     const publishComment = async ({ message, text }) => {
@@ -628,13 +628,13 @@ router
 
       return post.comment({
         parent,
-        message: { text, mentions }
+        message: { text, mentions },
       });
     };
     ctx.body = await publishComment({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
-  .post("/publish/", koaBody(), async ctx => {
+  .post("/publish/", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
     const rawContentWarning = String(ctx.request.body.contentWarning);
 
@@ -648,31 +648,31 @@ router
       return post.root({
         text,
         mentions,
-        contentWarning
+        contentWarning,
       });
     };
     ctx.body = await publish({ text, contentWarning });
     ctx.redirect("/public/latest");
   })
-  .post("/publish/custom", koaBody(), async ctx => {
+  .post("/publish/custom", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
     const obj = JSON.parse(text);
     ctx.body = await post.publishCustom(obj);
     ctx.redirect(`/public/latest`);
   })
-  .post("/follow/:feed", koaBody(), async ctx => {
+  .post("/follow/:feed", koaBody(), async (ctx) => {
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.follow(feed);
     ctx.redirect(referer);
   })
-  .post("/unfollow/:feed", koaBody(), async ctx => {
+  .post("/unfollow/:feed", koaBody(), async (ctx) => {
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.unfollow(feed);
     ctx.redirect(referer);
   })
-  .post("/like/:message", koaBody(), async ctx => {
+  .post("/like/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     // TODO: convert all so `message` is full message and `messageKey` is key
     const messageKey = message;
@@ -680,7 +680,7 @@ router
     const voteValue = Number(ctx.request.body.voteValue);
 
     const encoded = {
-      message: encodeURIComponent(message)
+      message: encodeURIComponent(message),
     };
 
     const referer = new URL(ctx.request.header.referer);
@@ -693,7 +693,7 @@ router
       const isPrivate = message.value.meta.private === true;
       const messageRecipients = isPrivate ? message.value.content.recps : [];
 
-      const normalized = messageRecipients.map(recipient => {
+      const normalized = messageRecipients.map((recipient) => {
         if (typeof recipient === "string") {
           return recipient;
         }
@@ -712,31 +712,31 @@ router
     ctx.body = await like({ messageKey, voteValue });
     ctx.redirect(referer);
   })
-  .post("/theme.css", koaBody(), async ctx => {
+  .post("/theme.css", koaBody(), async (ctx) => {
     const theme = String(ctx.request.body.theme);
     ctx.cookies.set("theme", theme);
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
-  .post("/language", koaBody(), async ctx => {
+  .post("/language", koaBody(), async (ctx) => {
     const language = String(ctx.request.body.language);
     ctx.cookies.set("language", language);
     const referer = new URL(ctx.request.header.referer);
     ctx.redirect(referer);
   })
-  .post("/settings/conn/start", koaBody(), async ctx => {
+  .post("/settings/conn/start", koaBody(), async (ctx) => {
     await meta.connStart();
     ctx.redirect("/settings");
   })
-  .post("/settings/conn/stop", koaBody(), async ctx => {
+  .post("/settings/conn/stop", koaBody(), async (ctx) => {
     await meta.connStop();
     ctx.redirect("/settings");
   })
-  .post("/settings/conn/restart", koaBody(), async ctx => {
+  .post("/settings/conn/restart", koaBody(), async (ctx) => {
     await meta.connRestart();
     ctx.redirect("/settings");
   })
-  .post("/settings/invite/accept", koaBody(), async ctx => {
+  .post("/settings/invite/accept", koaBody(), async (ctx) => {
     const invite = String(ctx.request.body.invite);
     await meta.acceptInvite(invite);
     ctx.redirect("/settings");
@@ -781,7 +781,7 @@ const middleware = [
       await next();
     }
   },
-  routes
+  routes,
 ];
 
 http({ host, port, middleware });
