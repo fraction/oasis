@@ -47,8 +47,8 @@ const markdown = require("./markdown");
 const md = new MarkdownIt();
 
 const i18nBase = require("./i18n");
-let i18n = null;
-let selectedLanguage = null;
+let selectedLanguage = "en";
+let i18n = i18nBase[selectedLanguage];
 
 exports.setLanguage = (language) => {
   selectedLanguage = language;

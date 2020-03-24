@@ -4,14 +4,15 @@ const path = require("path");
 const mount = require("koa-mount");
 
 /**
- * @param {{ host: string, port: number, middleware: [] }} input
+ * @type function
+ * @param {{ host: string, port: number, middleware }} input
+ * @return function
  */
-module.exports = ({ host, port, middleware }) => {
+const http = ({ host, port, middleware }) => {
   const assets = new Koa();
   assets.use(koaStatic(path.join(__dirname, "assets")));
 
   const app = new Koa();
-  module.exports = app;
 
   app.on("error", (err) => {
     // Output full error objects
@@ -59,16 +60,23 @@ module.exports = ({ host, port, middleware }) => {
 
     if (ctx.method !== "GET") {
       const referer = ctx.request.header.referer;
-      ctx.assert(referer != null, `HTTP ${ctx.method} must include referer`);
+      ctx.assert(
+        referer != null,
+        400,
+        `HTTP ${ctx.method} must include referer`
+      );
       const refererUrl = new URL(referer);
       const isBlobReferer = refererUrl.pathname.startsWith("/blob/");
       ctx.assert(
         isBlobReferer === false,
+        400,
         `HTTP ${ctx.method} from blob URL not allowed`
       );
     }
   });
 
   middleware.forEach((m) => app.use(m));
-  app.listen({ host, port });
+  return app.listen({ host, port });
 };
+
+module.exports = http;

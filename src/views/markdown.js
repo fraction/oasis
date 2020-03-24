@@ -53,5 +53,6 @@ const toUrl = (mentions) => {
 module.exports = (input, mentions = []) =>
   md.block(input, {
     toUrl: toUrl(mentions),
+    /** @param character {string} */
     emoji: (character) => span({ class: "emoji" }, character).outerHTML,
   });
