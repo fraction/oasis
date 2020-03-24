@@ -151,11 +151,11 @@ module.exports = {
     searchLabel: "Add word(s) to look for in downloaded messages.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "commented on ",
+      " commented on ",
       a({ href: parentUrl }, " thread")
     ],
     replyDescription: ({ parentUrl }) => [
-      "replied to ",
+      " replied to ",
       a({ href: parentUrl }, " message")
     ],
     mysteryDescription: "posted a mysterious message",
@@ -322,11 +322,11 @@ module.exports = {
       "Buscá las siguientes palabras por los mensajes que tenés descargados.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "comentado en el hilo ",
+      " comentado en el hilo ",
       a({ href: parentUrl }, "")
     ],
     replyDescription: ({ parentUrl }) => [
-      "respondido al mensaje ",
+      " respondido al mensaje ",
       a({ href: parentUrl }, "")
     ],
     mysteryDescription: "publicó un mensaje misterioso",
@@ -490,11 +490,11 @@ module.exports = {
       "Füge Wörte hinzu nach denen in heruntergeladenen Nachrichten gesucht werden soll.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "kommentierte auf ",
+      " kommentierte auf ",
       a({ href: parentUrl }, " Thread")
     ],
     replyDescription: ({ parentUrl }) => [
-      "antwortete auf ",
+      " antwortete auf ",
       a({ href: parentUrl }, " Nachricht")
     ],
     mysteryDescription: "veröffentlichte eine mysteriöse Nachricht",

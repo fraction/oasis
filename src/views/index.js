@@ -8,6 +8,7 @@ const MarkdownIt = require("markdown-it");
 const {
   a,
   article,
+  br,
   body,
   button,
   details,
@@ -220,38 +221,45 @@ const postInAside = msg => {
       class: messageClasses.join(" ")
     },
     header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          msg.value.meta.author.name
+      div(
+        span(
+          { class: "author" },
+          a(
+            { href: url.author },
+            img({ class: "avatar", src: url.avatar, alt: "" }),
+            msg.value.meta.author.name
+          ),
+          postOptions[msg.value.meta.postType]
         ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
+        span(
+          { class: "time" },
+          isPrivate ? "🔒" : null,
+          a({ href: url.link }, nbsp, timeAgo)
+        )
       )
     ),
     articleContent,
     footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class
-          },
-          `❤ ${likeCount}`
-        )
+      div(
+        form(
+          { action: url.likeForm, method: "post" },
+          button(
+            {
+              name: "voteValue",
+              type: "submit",
+              value: likeButton.value,
+              class: likeButton.class
+            },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.comment }, i18n.comment),
+        isPrivate || isRoot || isFork
+          ? null
+          : a({ href: url.reply }, nbsp, i18n.reply),
+        a({ href: url.json }, nbsp, i18n.json)
       ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
+      br()
     )
   );
 };
@@ -418,19 +426,21 @@ const post = ({ msg, aside = false }) => {
       style: `margin-left: ${depth}rem;`
     },
     header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          name
+      div(
+        span(
+          { class: "author" },
+          a(
+            { href: url.author },
+            img({ class: "avatar", src: url.avatar, alt: "" }),
+            name
+          ),
+          postOptions[msg.value.meta.postType]
         ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
+        span(
+          { class: "time" },
+          isPrivate ? "🔒" : null,
+          a({ href: url.link }, nbsp, timeAgo)
+        )
       )
     ),
     articleContent,
@@ -447,21 +457,26 @@ const post = ({ msg, aside = false }) => {
     div({ id: `centered-footer-${encoded.key}`, class: "centered-footer" }),
 
     footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class
-          },
-          `❤ ${likeCount}`
-        )
+      div(
+        form(
+          { action: url.likeForm, method: "post" },
+          button(
+            {
+              name: "voteValue",
+              type: "submit",
+              value: likeButton.value,
+              class: likeButton.class
+            },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.comment }, i18n.comment),
+        isPrivate || isRoot || isFork
+          ? null
+          : a({ href: url.reply }, nbsp, i18n.reply),
+        a({ href: url.json }, nbsp, i18n.json)
       ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
+      br()
     )
   );
 
@@ -572,7 +587,7 @@ exports.authorView = ({
 
   const prefix = section(
     { class: "message" },
-    header(
+    div(
       { class: "profile" },
       img({ class: "avatar", src: avatarUrl }),
       h1(name)
@@ -583,12 +598,15 @@ exports.authorView = ({
     }),
     description !== "" ? article({ innerHTML: markdown(description) }) : null,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
-      span(relationshipText),
-      contactForm,
-      relationship === null
-        ? a({ href: `/profile/edit` }, i18n.editProfile)
-        : null
+      div(
+        a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
+        span(nbsp, relationshipText),
+        contactForm,
+        relationship === null
+          ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
+          : null
+      ),
+      br()
     )
   );
 
