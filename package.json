@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "changelog-version": "^1.0.1",
-    "common-good": "^2.0.2",
+    "common-good": "^2.0.3",
     "husky": "^4.0.0",
     "mkdirp": "^1.0.0",
     "nodemon": "^2.0.2",

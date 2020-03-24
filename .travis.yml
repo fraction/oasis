@@ -19,3 +19,8 @@ branches:
   only:
     - master
     - "/^v\\d+\\.\\d+\\.\\d+$/"
+
+# Never convert EOL characters.
+# https://github.com/prettier/prettier/issues/7853
+git:
+  autocrlf: input
