@@ -469,10 +469,17 @@ module.exports = ({ cooler, isPublic }) => {
           }
         }
 
+        const isPost =
+          lodash.get(msg, "value.content.type") === "post" &&
+          lodash.get(msg, "value.content.text", false) !== false;
+        const hasRoot = lodash.get(msg, "value.content.root", false) !== false;
+        const hasFork = lodash.get(msg, "value.content.fork", false) !== false;
+
         const channel = lodash.get(msg, "value.content.channel");
         const hasChannel = typeof channel === "string" && channel.length > 2;
+        const isRoot = hasRoot === false;
 
-        if (hasChannel) {
+        if (hasChannel && isRoot) {
           msg.value.content.text += `\n\n#${channel}`;
         }
 
@@ -505,12 +512,6 @@ module.exports = ({ cooler, isPublic }) => {
           id: avatarId,
           url: avatarUrl,
         });
-
-        const isPost =
-          lodash.get(msg, "value.content.type") === "post" &&
-          lodash.get(msg, "value.content.text") != null;
-        const hasRoot = lodash.get(msg, "value.content.root") != null;
-        const hasFork = lodash.get(msg, "value.content.fork") != null;
 
         if (isPost && hasRoot === false && hasFork === false) {
           lodash.set(msg, "value.meta.postType", "post");
