@@ -125,7 +125,7 @@ module.exports = {
     ],
     theme: "Theme",
     themeIntro:
-      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light.",
+      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light. You can also set your theme in the default configuration file.",
     setTheme: "Set theme",
     language: "Language",
     languageDescription:
