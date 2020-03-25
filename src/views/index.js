@@ -269,7 +269,7 @@ const postInAside = (msg) => {
   );
 };
 
-const thread = messages => {
+const thread = (messages) => {
   // this first loop is preprocessing to enable auto-expansion of forks when a
   // message in the fork is linked to
 
@@ -303,7 +303,7 @@ const thread = messages => {
     const currentMsg = messages[i];
     const nextMsg = messages[j];
 
-    const depth = msg => {
+    const depth = (msg) => {
       // will be undefined when checking depth(nextMsg) when currentMsg is the
       // last message in the thread
       if (msg === undefined) return 0;
@@ -342,21 +342,15 @@ const thread = messages => {
   return div({}, { innerHTML: htmlStrings.join("") });
 };
 
-const postSnippet = text => {
+const postSnippet = (text) => {
   const max = 40;
 
-  text = text
-    .trim()
-    .split("\n", 3)
-    .join("\n");
+  text = text.trim().split("\n", 3).join("\n");
   // this is taken directly from patchwork. i'm not entirely sure what this
   // regex is doing
   text = text.replace(/_|`|\*|#|^\[@.*?]|\[|]|\(\S*?\)/g, "").trim();
   text = text.replace(/:$/, "");
-  text = text
-    .trim()
-    .split("\n", 1)[0]
-    .trim();
+  text = text.trim().split("\n", 1)[0].trim();
 
   if (text.length > max) {
     text = text.substring(0, max - 1) + "…";
