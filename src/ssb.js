@@ -30,9 +30,9 @@ const log = (...args) => {
   debug.enabled = isDebugEnabled;
 };
 
-const rawConnect = () =>
+const rawConnect = (options) =>
   new Promise((resolve, reject) => {
-    ssbClient(null, { remote })
+    ssbClient(null, options)
       .then((api) => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
@@ -55,33 +55,44 @@ let handle;
 
 const createConnection = (config) => {
   handle = new Promise((resolve) => {
-    rawConnect()
+    rawConnect({ remote })
       .then((ssb) => {
-        log("Using pre-existing Scuttlebutt server instead of starting one");
+        log("Connected to existing Scuttlebutt service over Unix socket");
         resolve(ssb);
       })
       .catch((e) => {
         if (e.message !== "could not connect to sbot") {
           throw e;
         }
-        log("Initial connection attempt failed");
-        log("Starting Scuttlebutt server");
-        server(config);
-        const connectOrRetry = () => {
-          rawConnect()
-            .then((ssb) => {
-              log("Retrying connection to own server");
-              resolve(ssb);
-            })
-            .catch((e) => {
-              if (e.message !== "could not connect to sbot") {
-                log(e);
-              }
-              connectOrRetry();
-            });
-        };
+        rawConnect()
+          .then((ssb) => {
+            log("Connected to existing Scuttlebutt service over TCP socket");
+            resolve(ssb);
+          })
+          .catch((e) => {
+            if (e.message !== "could not connect to sbot") {
+              throw e;
+            }
 
-        connectOrRetry();
+            log("Connection attempts to existing Scuttlebutt services failed");
+            log("Starting Scuttlebutt service");
+            server(config);
+            const connectOrRetry = () => {
+              rawConnect()
+                .then((ssb) => {
+                  log("Connected to new Scuttlebutt service");
+                  resolve(ssb);
+                })
+                .catch((e) => {
+                  if (e.message !== "could not connect to sbot") {
+                    log(e);
+                  }
+                  connectOrRetry();
+                });
+            };
+
+            connectOrRetry();
+          });
       });
   });
 
