@@ -109,6 +109,7 @@ h6 {
 ul,
 ol {
   padding-left: var(--whole);
+  margin-left: var(--nano);
 }
 
 a {
@@ -124,13 +125,22 @@ button {
   border-radius: var(--common-radius);
 }
 
-section > footer > a,
-section > footer > form > button {
+section header a {
+  display: flex;
+  color: var(--fg-status);
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: var(--micro);
+  margin-left: var(--micro);
+}
+
+section > footer > div > a,
+section > footer > div > form > button {
   color: var(--fg-status);
   font-weight: bold;
 }
 
-section > footer > form > button {
+section > footer > div > form > button {
   display: inline-block;
   border: 0;
   background: transparent;
@@ -240,6 +250,11 @@ section video {
   box-sizing: border-box;
 }
 
+section > h1 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .profile > img,
 .profile > h1 {
   display: inline-block;
@@ -278,11 +293,6 @@ section audio {
   width: 100%;
 }
 
-section > :first-child {
-  margin-top: 0;
-  padding-top: 0;
-}
-
 .content > :last-child {
   margin-bottom: 0;
 }
@@ -303,15 +313,6 @@ section > :first-child {
 
 nav {
   margin: var(--whole) 0;
-}
-
-section header a {
-  display: flex;
-  color: var(--fg-status);
-  text-decoration: none;
-  font-weight: bold;
-  margin-right: var(--micro);
-  margin-left: var(--micro);
 }
 
 nav > ul > li > a {
@@ -335,11 +336,20 @@ section {
 }
 
 section > header {
-  height: var(--line);
-  display: flex;
-  margin-bottom: var(--whole);
-  justify-content: space-between;
+  background: var(--bg);
   color: var(--fg-status);
+  height: var(--line);
+  margin-bottom: -10px;
+  margin-top: -10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  position: sticky;
+  top: 0;
+}
+
+section > header > div {
+  display: flex;
+  justify-content: space-between;
 }
 
 section header a > .avatar {
@@ -349,10 +359,9 @@ section header a > .avatar {
   margin-right: var(--micro);
 }
 
-section header span {
-  display: flex;
+section header .author {
+  display: inline-flex;
 }
-
 section header .author > a:first-child {
   margin-left: 0;
   color: var(--fg-light);
@@ -384,17 +393,24 @@ section > .centered-footer {
 }
 
 section > footer {
-  display: flex;
-  justify-content: space-between;
   margin-top: var(--whole);
   color: var(--fg-status);
 }
 
-section > footer > * {
+section > footer br {
+  display: none;
+}
+
+section > footer > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+section > footer > div > * {
   text-decoration: none;
 }
 
-section > footer > form > button.liked {
+section > footer > div > form > button.liked {
   color: var(--red);
 }
 
@@ -417,7 +433,6 @@ nav > ul > li {
 }
 
 .profile {
-  margin-top: var(--whole);
   display: flex;
   margin-bottom: var(--whole);
 }
@@ -437,7 +452,7 @@ progress {
 /* content warning! */
 summary {
   padding: var(--milli);
-  margin: 0;
+  margin-top: var(--whole);
   cursor: pointer;
   border: var(--pico) solid var(--bg-selection);
 }
@@ -517,8 +532,8 @@ hr {
  * be wise to nest these recursively on the thread view, which would make it so
  * that we don't need any inline CSS anymore.
  */
-.indent {
-  margin-left: 1rem;
+.indent > section {
+  margin-left: 2rem;
 }
 
 .fork {
