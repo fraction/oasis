@@ -120,6 +120,11 @@ const template = (...elements) => {
             emoji: "🗒️",
             text: i18n.summaries,
           }),
+          navLink({
+            href: "/public/latest/threads",
+            emoji: "🧵",
+            text: i18n.threads,
+          }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
@@ -958,6 +963,15 @@ exports.summaryView = ({ messages }) => {
     messages,
     viewTitle: i18n.summaries,
     viewDescription: i18n.summariesDescription,
+    aside: true,
+  });
+};
+
+exports.threadsView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.threads,
+    viewDescription: i18n.threadsDescription,
     aside: true,
   });
 };
