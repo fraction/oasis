@@ -7,7 +7,7 @@ module.exports = {
     extendedDescription: [
       "Posts from ",
       strong("people you don't follow"),
-      ", sorted by recency. When you follow someone you may download messages from the people they follow, and those messages show up here."
+      ", sorted by recency. When you follow someone you may download messages from the people they follow, and those messages show up here.",
     ],
     popular: "Popular",
     popularDescription: [
@@ -15,19 +15,20 @@ module.exports = {
       strong("hearts"),
       " in a given period. Hearts are counted from ",
       em("everyone"),
-      ", including people you don't follow, so this shows posts from your friends that are popular in your extended network."
+      ", including people you don't follow, so this shows posts from your friends that are popular in your extended network.",
     ],
     latest: "Latest",
-    latestDescription: "Posts from people you follow, sorted by recency.",
+    latestDescription:
+      "Posts from yourself and people you follow, sorted by recency.",
     topics: "Topics",
     topicsDescription: [
       strong("Topics"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      " from yourself and people you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread.",
     ],
     summaries: "Summaries",
     summariesDescription: [
       strong("Topics and some comments"),
-      " from people  you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      " from yourself and people you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread.",
     ],
     threads: "Threads",
     threadsDescription: [
@@ -41,13 +42,13 @@ module.exports = {
       strong("Posts that mention you"),
       " from ",
       strong("anyone"),
-      " sorted by recency. Sometimes people may forget to @mention you, and those posts won't show up here."
+      " sorted by recency. Sometimes people may forget to @mention you, and those posts won't show up here.",
     ],
     private: "Private",
     privateDescription: [
       "The latest comment from ",
       strong("private threads that include you"),
-      ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread."
+      ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread.",
     ],
     search: "Search",
     settings: "Settings",
@@ -73,12 +74,12 @@ module.exports = {
     publishCustomDescription: [
       "Publish a custom message by entering ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
-      " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted."
+      " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted.",
     ],
     commentWarning: [
       " Comments cannot be edited or deleted. To respond to an individual message, select ",
       strong("reply"),
-      " instead."
+      " instead.",
     ],
     commentPublic: "public",
     commentPrivate: "private",
@@ -87,28 +88,28 @@ module.exports = {
       strong(`${publicOrPrivate} comment`),
       " on this thread with ",
       a({ href: markdownUrl }, "Markdown"),
-      "."
+      ".",
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
       "Write a new public post in ",
       a(
         {
           href: markdownUrl,
-          target: linkTarget
+          target: linkTarget,
         },
         "Markdown"
       ),
-      ". Posts cannot be edited or deleted."
+      ". Posts cannot be edited or deleted.",
     ],
     publishCustomInfo: ({ href }) => [
       "If you're an advanced user, you can also ",
       a({ href }, "publish a custom message"),
-      "."
+      ".",
     ],
     publishBasicInfo: ({ href }) => [
       "If you're not an advanced user, you should ",
       a({ href }, "publish a post"),
-      "."
+      ".",
     ],
     publishCustom: "Publish custom",
 
@@ -119,17 +120,17 @@ module.exports = {
       a({ href: markdownUrl }, "Markdown"),
       ". Messages cannot be edited or deleted. To respond to an entire thread, select ",
       strong("comment"),
-      " instead."
+      " instead.",
     ],
     // settings
     settingsIntro: ({ readmeUrl, version }) => [
       `You're using Oasis ${version}. Check out `,
       a({ href: readmeUrl }, "the readme"),
-      ", configure your theme, or view debugging information below."
+      ", configure your theme, or view debugging information below.",
     ],
     theme: "Theme",
     themeIntro:
-      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light.",
+      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light. You can also set your theme in the default configuration file.",
     setTheme: "Set theme",
     language: "Language",
     languageDescription:
@@ -155,12 +156,12 @@ module.exports = {
     searchLabel: "Add word(s) to look for in downloaded messages.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "commented on ",
-      a({ href: parentUrl }, " thread")
+      " commented on ",
+      a({ href: parentUrl }, " thread"),
     ],
     replyDescription: ({ parentUrl }) => [
-      "replied to ",
-      a({ href: parentUrl }, " message")
+      " replied to ",
+      a({ href: parentUrl }, " message"),
     ],
     mysteryDescription: "posted a mysterious message",
     // misc
@@ -169,11 +170,11 @@ module.exports = {
     editProfile: "Edit profile",
     editProfileDescription:
       "Edit your profile with Markdown. Old versions of your profile information still exist and can't be deleted, but most SSB apps don't show them.",
-    profileName: "Profile name (text)",
+    profileName: "Profile name (plain text)",
     profileImage: "Profile image",
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
-      "Posts from people in your network that reference this hashtag, sorted by recency."
+      "Posts from people in your network that reference this hashtag, sorted by recency.",
   },
   /* spell-checker: disable */
   es: {
@@ -186,7 +187,7 @@ module.exports = {
     extendedDescription: [
       "Publicaciones de ",
       strong("personas que no seguís"),
-      ", ordenadas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que esta siga y esos mensajes aparecen aquí."
+      ", ordenadas por las más recientes. Quando seguís una persona poderás descargar publicaciones de otras personas que esta siga y esos mensajes aparecen aquí.",
     ],
     popular: "Populares",
     popularDescription: [
@@ -194,32 +195,32 @@ module.exports = {
       strong("Me Gusta"),
       " en determinados periodos. Se cuentan los Me Gusta de ",
       em("todos"),
-      ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto."
+      ", incluindo aquellos que no seguís. Esta es una lista de publicaciones más populares de tu red de contacto.",
     ],
     latestDescription:
       "Publicaciones que aquellos que seguís, ordenadas por las más recientes.",
     topics: "Topicos",
     topicsDescription: [
       strong("Topicos"),
-      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo.",
     ],
     summaries: "Resumen",
     summariesDescription: [
       strong("Topicos y algunos comentarios"),
-      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo."
+      " de las personas que seguís, ordenadas por las más recientes. Seleccioná la hora de una publicación para leer el hilo completo.",
     ],
     manualMode: "Modo manual",
     mentions: "Menciones",
     mentionsDescription: [
       strong("Publicaciones de "),
       strong("cualquier persona"),
-      " que te mencionan, ordenadas por las más recientes. Solo figuran menciones en el formato @mención."
+      " que te mencionan, ordenadas por las más recientes. Solo figuran menciones en el formato @mención.",
     ],
     private: "Privado",
     privateDescription: [
       "Los comentarios más recientes de ",
       strong("hilos privados que te incluyen"),
-      ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo."
+      ". Las publicaciones privadas están encriptadas para tu llave privada, y contienen el máximo de 7 destinatarios. No se podrán adicionar nuevos destinarios después que empieze el hilo. Seleccioná la hora de una publicación para leer el hilo completo.",
     ],
     // post actions
     comment: "Comentar",
@@ -243,12 +244,12 @@ module.exports = {
     publishCustomDescription: [
       "Compone un mensaje custom usando ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
-      ". Esto puede ser util para prototipar o componer tipos de mensaje que Oasis aún no soporta. Este mensaje no podrá ser editado o borrado."
+      ". Esto puede ser util para prototipar o componer tipos de mensaje que Oasis aún no soporta. Este mensaje no podrá ser editado o borrado.",
     ],
     commentWarning: [
       " Los mensajes no podrán ser editados o borrados. Para responde a mensajes, seleccione ",
       strong("Responder"),
-      "."
+      ".",
     ],
     commentPublic: "publico",
     commentPrivate: "privado",
@@ -257,28 +258,28 @@ module.exports = {
       strong(`${publicOrPrivate} comentário`),
       " con ",
       a({ href: markdownUrl }, "Markdown"),
-      " en este hilo."
+      " en este hilo.",
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
       "Escribí mensaje publico con ",
       a(
         {
           href: markdownUrl,
-          target: linkTarget
+          target: linkTarget,
         },
         "Markdown"
       ),
-      ". Los mensajes no podrán ser editados o borrados."
+      ". Los mensajes no podrán ser editados o borrados.",
     ],
     publishCustomInfo: ({ href }) => [
       "Si sos un usário avanzado, podrás ",
       a({ href }, "publicar un mensaje custom"),
-      "."
+      ".",
     ],
     publishBasicInfo: ({ href }) => [
       "Si no sos un usuário avanzado, podés ",
       a({ href }, "publicar un mensaje basico."),
-      "."
+      ".",
     ],
     publishCustom: "Publicar custom",
 
@@ -289,13 +290,13 @@ module.exports = {
       a({ href: markdownUrl }, "Markdown"),
       ". Los mensajes no podrán ser editados o borrados. Para responder a todo un hilo, seleccioná ",
       strong("comentário"),
-      "."
+      ".",
     ],
     // settings
     settingsIntro: ({ readmeUrl, version }) => [
       `Estás usando Oasis ${version}. Leé `,
       a({ href: readmeUrl }, "el Readme"),
-      ", configura un tema, o consultá información de debug abajo."
+      ", configura un tema, o consultá información de debug abajo.",
     ],
     theme: "Tema",
     themeIntro:
@@ -326,12 +327,12 @@ module.exports = {
       "Buscá las siguientes palabras por los mensajes que tenés descargados.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "comentado en el hilo ",
-      a({ href: parentUrl }, "")
+      " comentado en el hilo ",
+      a({ href: parentUrl }, ""),
     ],
     replyDescription: ({ parentUrl }) => [
-      "respondido al mensaje ",
-      a({ href: parentUrl }, "")
+      " respondido al mensaje ",
+      a({ href: parentUrl }, ""),
     ],
     mysteryDescription: "publicó un mensaje misterioso",
     // misc
@@ -344,14 +345,14 @@ module.exports = {
     profileImage: "Imagen de perfil",
     profileDescription: "Descripción de perfil (Markdown)",
     hashtagDescription:
-      "Publicaciones de personas en tu red que mencionan este hashtag, ordenadas por las más recientes."
+      "Publicaciones de personas en tu red que mencionan este hashtag, ordenadas por las más recientes.",
   },
   de: {
     extended: "Erweitert",
     extendedDescription: [
       "Beiträge von ",
       strong("Leuten denen du nicht folgst"),
-      ", sortiert nach Aktualität. Wenn du jemandem folgst lädst du eventuell auch Beiträge von Leuten herunter denen diese Person folgt, hier erscheinen diese Beiträge."
+      ", sortiert nach Aktualität. Wenn du jemandem folgst lädst du eventuell auch Beiträge von Leuten herunter denen diese Person folgt, hier erscheinen diese Beiträge.",
     ],
     popular: "Beliebt",
     popularDescription: [
@@ -359,7 +360,7 @@ module.exports = {
       strong("Herzen"),
       " in der angegebenen Periode. Herzen werden von ",
       em("jedem"),
-      " gezählt, auch von Personen denen du nicht folgst. D.h. hier werden Beiträge von deinen Freund*innen angezeigt die in deinem erweiterten Netzwerk populär sind."
+      " gezählt, auch von Personen denen du nicht folgst. D.h. hier werden Beiträge von deinen Freund*innen angezeigt die in deinem erweiterten Netzwerk populär sind.",
     ],
     latest: "Aktuell",
     latestDescription:
@@ -367,12 +368,12 @@ module.exports = {
     topics: "Themen",
     topicsDescription: [
       strong("Themen"),
-      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen."
+      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen.",
     ],
     summaries: "Übersicht",
     summariesDescription: [
       strong("Themen und einige Kommentare"),
-      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen."
+      " von Leuten denen du folgst, sortiert nach Aktualität. Klicke auf den Zeitstempel eines Beitrages um den Rest des Threads zu sehen.",
     ],
     profile: "Profil",
     manualMode: "Manueller Modus",
@@ -381,13 +382,13 @@ module.exports = {
       strong("Beiträge in denen du erwähnt wirst"),
       " von ",
       strong("allen"),
-      ", sortiert nach Aktualität. Manchmal vergessen Leute dich zu @erwähnen, diese Beiträge werden hier nicht erscheinen."
+      ", sortiert nach Aktualität. Manchmal vergessen Leute dich zu @erwähnen, diese Beiträge werden hier nicht erscheinen.",
     ],
     private: "Privat",
     privateDescription: [
       "Die letzten Kommentare aus ",
       strong("privaten Threads die dich beinhalten"),
-      ", sortiert nach Aktualität. Private Beiträge werden mit deinem öffentlichen Schlüssel verschlüsselt und haben maximal 7 Empfänger*innen. Empfänger*innen können nicht hinzugefügt werden nachdem ein Thread gestartet wurde. Klicke auf den Zeitstämpel um einen komplette Thread anzuzeigen."
+      ", sortiert nach Aktualität. Private Beiträge werden mit deinem öffentlichen Schlüssel verschlüsselt und haben maximal 7 Empfänger*innen. Empfänger*innen können nicht hinzugefügt werden nachdem ein Thread gestartet wurde. Klicke auf den Zeitstämpel um einen komplette Thread anzuzeigen.",
     ],
     search: "Suche",
     settings: "Einstellungen",
@@ -413,12 +414,12 @@ module.exports = {
     publishCustomDescription: [
       "Veröffentliche eine benutzerdefinierte Nachricht durch das Eingeben von ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
-      " unten. Dies kann zum Prototyping oder dem veröffentlichen von Nachrichten die Oasis nicht unterstützt nützlich sein. Diese Nachricht kann nicht bearbeitet oder gelöscht werden."
+      " unten. Dies kann zum Prototyping oder dem veröffentlichen von Nachrichten die Oasis nicht unterstützt nützlich sein. Diese Nachricht kann nicht bearbeitet oder gelöscht werden.",
     ],
     commentWarning: [
       " Nachrichten können nicht bearbeitet oder gelöscht werden. Um auf eine einzelne Nachricht zu antworten, wähle ",
       strong("antworten"),
-      " stattdessen."
+      " stattdessen.",
     ],
     commentPublic: "öffentlichen",
     commentPrivate: "privaten",
@@ -427,28 +428,28 @@ module.exports = {
       strong(`${publicOrPrivate} Kommentar`),
       " in diesem Thread mit ",
       a({ href: markdownUrl }, "Markdown"),
-      "."
+      ".",
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
       "Verfasse einen neuen öffentlichen Beitrag in ",
       a(
         {
           href: markdownUrl,
-          target: linkTarget
+          target: linkTarget,
         },
         "Markdown"
       ),
-      ". Beiträge können nicht bearbeitet oder gelöscht werden."
+      ". Beiträge können nicht bearbeitet oder gelöscht werden.",
     ],
     publishCustomInfo: ({ href }) => [
       "Wenn du ein erfahrener Benutzer bist kannst du auch ",
       a({ href }, "eine benutzerdefinierte Nachricht veröffentlichen"),
-      "."
+      ".",
     ],
     publishBasicInfo: ({ href }) => [
       "Wenn du kein erfahrener Benutzer bist, solltest du ",
       a({ href }, "einen einfachen Beitrag veröffentlichen"),
-      "."
+      ".",
     ],
     publishCustom: "Benutzerdefinierte Veröffentlichung",
     replyLabel: ({ markdownUrl }) => [
@@ -458,13 +459,13 @@ module.exports = {
       a({ href: markdownUrl }, "Markdown"),
       ". Nachrichten können nicht bearbeitet oder gelöscht werden. Um auf einen kompletten Thread zu antworten, klicke auf ",
       strong("kommentieren"),
-      " stattdessen."
+      " stattdessen.",
     ],
     // settings
     settingsIntro: ({ readmeUrl, version }) => [
       `Du verwendest Oasis ${version}. Lese `,
       a({ href: readmeUrl }, "die Readme"),
-      ", konfiguriere dein Theme oder schaue dir Debugging-Informationen weiter unten an."
+      ", konfiguriere dein Theme oder schaue dir Debugging-Informationen weiter unten an.",
     ],
     theme: "Theme",
     themeIntro:
@@ -494,12 +495,12 @@ module.exports = {
       "Füge Wörte hinzu nach denen in heruntergeladenen Nachrichten gesucht werden soll.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "kommentierte auf ",
-      a({ href: parentUrl }, " Thread")
+      " kommentierte auf ",
+      a({ href: parentUrl }, " Thread"),
     ],
     replyDescription: ({ parentUrl }) => [
-      "antwortete auf ",
-      a({ href: parentUrl }, " Nachricht")
+      " antwortete auf ",
+      a({ href: parentUrl }, " Nachricht"),
     ],
     mysteryDescription: "veröffentlichte eine mysteriöse Nachricht",
     // misc
@@ -511,6 +512,6 @@ module.exports = {
     profileName: "Profilname (Text)",
     profileDescription: "Profilbeschreibung (Markdown)",
     hashtagDescription:
-      "Beiträge von Leuten in deinem Netzwerk die dieses Hashtag referenzieren, sortiert nach Aktualität."
-  }
+      "Beiträge von Leuten in deinem Netzwerk die dieses Hashtag referenzieren, sortiert nach Aktualität.",
+  },
 };

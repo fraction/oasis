@@ -18,7 +18,7 @@ const remote = `unix:${socketPath}~noauth:${publicInteger}`;
 
 // This is unnecessary when https://github.com/ssbc/ssb-config/pull/72 is merged
 ssbConfig.connections.incoming.unix = [
-  { scope: "device", transform: "noauth" }
+  { scope: "device", transform: "noauth" },
 ];
 
 const server = flotilla(ssbConfig);
@@ -33,7 +33,7 @@ const log = (...args) => {
 const rawConnect = () =>
   new Promise((resolve, reject) => {
     ssbClient(null, { remote })
-      .then(api => {
+      .then((api) => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
           // compatibility. This code automatically injects SSB-Tangle into our
@@ -53,14 +53,14 @@ const rawConnect = () =>
 
 let handle;
 
-const createConnection = config => {
-  handle = new Promise(resolve => {
+const createConnection = (config) => {
+  handle = new Promise((resolve) => {
     rawConnect()
-      .then(ssb => {
+      .then((ssb) => {
         log("Using pre-existing Scuttlebutt server instead of starting one");
         resolve(ssb);
       })
-      .catch(e => {
+      .catch((e) => {
         if (e.message !== "could not connect to sbot") {
           throw e;
         }
@@ -69,11 +69,11 @@ const createConnection = config => {
         server(config);
         const connectOrRetry = () => {
           rawConnect()
-            .then(ssb => {
+            .then((ssb) => {
               log("Retrying connection to own server");
               resolve(ssb);
             })
-            .catch(e => {
+            .catch((e) => {
               if (e.message !== "could not connect to sbot") {
                 log(e);
               }
@@ -98,8 +98,8 @@ module.exports = ({ offline }) => {
 
   const config = {
     conn: {
-      autostart: !offline
-    }
+      autostart: !offline,
+    },
   };
 
   createConnection(config);
@@ -117,14 +117,14 @@ module.exports = ({ offline }) => {
       // If the connection is closed, we need to restart it. It's important to
       // note that if we're depending on an external service (like Patchwork) and
       // that app is closed, then Oasis will seamlessly start its own SSB service.
-      return new Promise(resolve => {
-        handle.then(ssb => {
+      return new Promise((resolve) => {
+        handle.then((ssb) => {
           if (ssb.closed) {
             createConnection();
           }
           resolve(handle);
         });
       });
-    }
+    },
   };
 };

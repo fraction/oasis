@@ -13,7 +13,7 @@ module.exports = ({ host, port, middleware }) => {
   const app = new Koa();
   module.exports = app;
 
-  app.on("error", err => {
+  app.on("error", (err) => {
     // Output full error objects
     err.message = err.stack;
     console.error(err);
@@ -32,7 +32,7 @@ module.exports = ({ host, port, middleware }) => {
       "img-src 'self'",
       "form-action 'self'",
       "media-src 'self'",
-      "style-src 'self' 'unsafe-inline'"
+      "style-src 'self' 'unsafe-inline'",
     ].join("; ");
 
     // Disallow scripts.
@@ -69,6 +69,6 @@ module.exports = ({ host, port, middleware }) => {
     }
   });
 
-  middleware.forEach(m => app.use(m));
+  middleware.forEach((m) => app.use(m));
   app.listen({ host, port });
 };
