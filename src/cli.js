@@ -45,7 +45,7 @@ module.exports = (presets, defaultConfigFile) =>
     })
     .options("theme", {
       describe: "The theme to use, if a theme hasn't been set in the cookies",
-      default: _.get(presets, "theme", "atelier-sulphurPool-light"),
+      default: _.get(presets, "theme", "atelier-sulphurpool-light"),
       type: "string",
     })
     .epilog(`The defaults can be configured in ${defaultConfigFile}.`).argv;
