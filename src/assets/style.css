@@ -196,13 +196,14 @@ textarea:focus {
   border-color: var(--blue);
 }
 
+/* Prevent button styles being applied to heart button */
 button:focus,
 button:hover {
   background-color: var(--fg-light);
 }
 
-section > footer > form > button:hover,
-section > footer > form > button:focus {
+section > div > footer > form > button:hover,
+section > div > footer > form > button:focus {
   background-color: transparent;
 }
 
@@ -293,10 +294,6 @@ section audio {
   width: 100%;
 }
 
-.content > :last-child {
-  margin-bottom: 0;
-}
-
 @media screen {
   html {
     min-height: 100%;
@@ -339,10 +336,10 @@ section > header {
   background: var(--bg);
   color: var(--fg-status);
   height: var(--line);
-  margin-bottom: -10px;
-  margin-top: -10px;
-  padding-bottom: 10px;
-  padding-top: 10px;
+  margin-bottom: calc(-1 * var(--milli));
+  margin-top: calc(-1 * var(--milli));
+  padding-bottom: var(--milli);
+  padding-top: var(--milli);
   position: sticky;
   top: 0;
 }
@@ -393,7 +390,6 @@ section > .centered-footer {
 }
 
 section > footer {
-  margin-top: var(--whole);
   color: var(--fg-status);
 }
 
@@ -449,12 +445,17 @@ progress {
   border-color: var(--blue);
 }
 
-/* content warning! */
 summary {
   padding: var(--milli);
   margin-top: var(--whole);
   cursor: pointer;
-  border: var(--pico) solid var(--bg-selection);
+  background: var(--bg);
+  border-radius: var(--common-radius);
+  list-style-type: "+ ";
+}
+
+details[open] > summary {
+  list-style-type: "− ";
 }
 
 .md-mention {
@@ -532,12 +533,63 @@ hr {
  * be wise to nest these recursively on the thread view, which would make it so
  * that we don't need any inline CSS anymore.
  */
-.indent > section {
-  margin-left: 2rem;
+.indent {
+  padding-left: 1rem;
+  border-left: var(--milli) solid var(--bg-selection);
 }
 
-.fork {
-  padding-left: 1rem;
-  margin-right: -1rem;
-  border-left: var(--nano) solid var(--violet);
+.theme-preview {
+  width: calc(100% / 15);
+  height: var(--whole);
+  margin-top: var(--whole);
+  display: inline-block;
+}
+
+.theme-preview-00 {
+  background-color: var(--base00);
+}
+.theme-preview-01 {
+  background-color: var(--base01);
+}
+.theme-preview-02 {
+  background-color: var(--base02);
+}
+.theme-preview-03 {
+  background-color: var(--base03);
+}
+.theme-preview-04 {
+  background-color: var(--base04);
+}
+.theme-preview-05 {
+  background-color: var(--base05);
+}
+.theme-preview-06 {
+  background-color: var(--base06);
+}
+.theme-preview-07 {
+  background-color: var(--base07);
+}
+.theme-preview-08 {
+  background-color: var(--base08);
+}
+.theme-preview-09 {
+  background-color: var(--base09);
+}
+.theme-preview-0A {
+  background-color: var(--base0A);
+}
+.theme-preview-0B {
+  background-color: var(--base0B);
+}
+.theme-preview-0C {
+  background-color: var(--base0C);
+}
+.theme-preview-0D {
+  background-color: var(--base0D);
+}
+.theme-preview-0E {
+  background-color: var(--base0E);
+}
+.theme-preview-0F {
+  background-color: var(--base0F);
 }
