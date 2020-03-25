@@ -257,6 +257,32 @@ const postInAside = msg => {
 };
 
 const thread = messages => {
+  // this first loop is preprocessing to enable auto-expansion of forks when a
+  // message in the fork is linked to
+
+  let lookingForTarget = true;
+  let shallowest = Infinity;
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    const depth = lodash.get(msg, "value.meta.thread.depth", 0);
+
+    if (lookingForTarget) {
+      const isThreadTarget = Boolean(
+        lodash.get(msg, "value.meta.thread.target", false)
+      );
+
+      if (isThreadTarget) {
+        lookingForTarget = false;
+      }
+    } else {
+      if (depth < shallowest) {
+        lodash.set(msg, "value.meta.thread.ancestorOfTarget", true);
+        shallowest = depth;
+      }
+    }
+  }
+
   const msgList = [];
   for (let i = 0; i < messages.length; i++) {
     const j = i + 1;
@@ -274,7 +300,10 @@ const thread = messages => {
     msgList.push(post({ msg: currentMsg }).outerHTML);
 
     if (depth(currentMsg) < depth(nextMsg)) {
-      msgList.push('<details class="fork">');
+      const isAncestor = Boolean(
+        lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
+      );
+      msgList.push(`<details class="fork" ${isAncestor ? "open" : ""}>`);
 
       const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
       const nextSnippet = postSnippet(
