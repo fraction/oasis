@@ -789,14 +789,16 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     stopButton,
   ]);
 
-  const peerList = (peers || []).map(([, data]) => {
-    return li(
-      a(
-        { href: `/author/${encodeURIComponent(data.key)}` },
-        data.name || data.host || data.key
-      )
-    );
-  });
+  const peerList = (peers || [])
+    .filter(([, data]) => data.state === "connected")
+    .map(([, data]) => {
+      return li(
+        a(
+          { href: `/author/${encodeURIComponent(data.key)}` },
+          data.name || data.host || data.key
+        )
+      );
+    });
 
   const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme;
