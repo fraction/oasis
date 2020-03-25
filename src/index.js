@@ -163,7 +163,7 @@ const {
   settingsView,
   topicsView,
   summaryView,
-  threadsView
+  threadsView,
 } = require("./views");
 
 let sharp;

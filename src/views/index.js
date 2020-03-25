@@ -123,7 +123,7 @@ const template = (...elements) => {
           navLink({
             href: "/public/latest/threads",
             emoji: "🧵",
-            text: i18n.threads
+            text: i18n.threads,
           }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
@@ -972,7 +972,7 @@ exports.threadsView = ({ messages }) => {
     messages,
     viewTitle: i18n.threads,
     viewDescription: i18n.threadsDescription,
-    aside: true
+    aside: true,
   });
 };
 

@@ -33,7 +33,7 @@ module.exports = {
     threads: "Threads",
     threadsDescription: [
       strong("Posts that have comments"),
-      " from people you follow and your extended network, sorted by recency. Select the timestamp of any post to see the rest of the thread."
+      " from people you follow and your extended network, sorted by recency. Select the timestamp of any post to see the rest of the thread.",
     ],
     profile: "Profile",
     manualMode: "Manual Mode",

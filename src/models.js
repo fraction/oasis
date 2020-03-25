@@ -905,7 +905,7 @@ module.exports = ({ cooler, isPublic }) => {
 
       const options = configure({
         type: "post",
-        private: false
+        private: false,
       });
 
       const source = ssb.messagesByType(options);
@@ -914,7 +914,7 @@ module.exports = ({ cooler, isPublic }) => {
         pull(
           source,
           pull.filter(
-            message =>
+            (message) =>
               typeof message.value.content !== "string" &&
               message.value.content.root == null
           ),
@@ -929,7 +929,7 @@ module.exports = ({ cooler, isPublic }) => {
             );
             cb(null, message);
           }),
-          pull.filter(message => message.value.meta.thread.length > 1),
+          pull.filter((message) => message.value.meta.thread.length > 1),
           pull.collect((err, collectedMessages) => {
             if (err) {
               reject(err);
