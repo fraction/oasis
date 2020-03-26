@@ -631,21 +631,22 @@ exports.authorView = ({
     relationship.following === true &&
     relationship.blocking === false;
 
-  const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
+  const contactFormType = areFollowing ? 'unfollow' : 'follow';
+  const contactFormTypeLabel = areFollowing ? i18n.unfollow : i18n.follow;
 
   const contactForm =
     relationship === null
       ? null // We're on our own profile!
       : form(
           {
-            action: `/follow/${encodeURIComponent(feedId)}`,
+            action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
             method: "post",
           },
           button(
             {
               type: "submit",
             },
-            contactFormType
+            contactFormTypeLabel
           )
         );
 
