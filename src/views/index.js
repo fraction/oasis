@@ -638,7 +638,7 @@ exports.authorView = ({
       ? null // We're on our own profile!
       : form(
           {
-            action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
+            action: `/follow/${encodeURIComponent(feedId)}`,
             method: "post",
           },
           button(
