@@ -535,7 +535,7 @@ hr {
  */
 .indent {
   padding-left: 1rem;
-  border-left: var(--milli) solid var(--bg-selection);
+  border-left: var(--micro) solid var(--bg-selection);
 }
 
 .theme-preview {
