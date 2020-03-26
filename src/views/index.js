@@ -631,8 +631,8 @@ exports.authorView = ({
     relationship.following === true &&
     relationship.blocking === false;
 
-  const contactFormType = areFollowing ? 'unfollow' : 'follow';
-  const contactFormTypeLabel = areFollowing ? i18n.unfollow : i18n.follow;
+  const contactFormType = areFollowing ? "unfollow" : "follow";
+  const contactFormTypeLabel = i18n[contactFormType];
 
   const contactForm =
     relationship === null
