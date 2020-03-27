@@ -576,14 +576,16 @@ module.exports = {
     relationshipYou: "Sei tu",
     relationshipBlocking: "Stai bloccando",
     relationshipNone: "Non stai né seguendo né bloccando",
-    relationshipConflict: "In qualche modo non meglio precisato stai seguendo e bloccando allo stesso tempo",
+    relationshipConflict:
+      "In qualche modo non meglio precisato stai seguendo e bloccando allo stesso tempo",
     // author view
     viewLikes: "Guarda like",
     // likes view
     likedBy: "Like di ", // here the subject of the sentence should be put at the end (as if it were "liked by X" instead of "X's likes"
     // composer
     publish: "Pubblica",
-    contentWarningPlaceholder: "Avviso su possibili contenuti per adulti nel post, opzionale",
+    contentWarningPlaceholder:
+      "Avviso su possibili contenuti per adulti nel post, opzionale",
     publishCustomDescription: [
       "Pubblica un messaggio su misura inserendo dati ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),

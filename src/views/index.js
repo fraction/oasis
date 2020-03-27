@@ -956,11 +956,12 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       form(
         { action: "/language", method: "post" },
         select({ name: "language" }, [
+          /* cspell:disable */
           languageOption("en", "English"),
           languageOption("es", "Español"),
           languageOption("it", "Italiano"),
-          /* cspell:disable-next-line */
           languageOption("de", "Deutsch"),
+          /* cspell:enable */
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
