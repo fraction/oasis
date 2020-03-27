@@ -1065,7 +1065,7 @@ module.exports = ({ cooler, isPublic }) => {
                   if (err) {
                     reject(err);
                   } else {
-                    resolve(transform(ssb, collectedMessages, myFeedId));
+                    resolve(collectedMessages);
                   }
                 })
               );
