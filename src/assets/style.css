@@ -356,7 +356,7 @@ section header a > .avatar {
   margin-right: var(--micro);
 }
 
-section header .author {
+section header span {
   display: inline-flex;
 }
 section header .author > a:first-child {
