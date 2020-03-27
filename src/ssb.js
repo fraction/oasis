@@ -23,6 +23,10 @@ ssbConfig.connections.incoming.unix = [
   { scope: "device", transform: "noauth" },
 ];
 
+/**
+ * @param formatter {string} input
+ * @param args {any[]} input
+ */
 const log = (formatter, ...args) => {
   const isDebugEnabled = debug.enabled;
   debug.enabled = true;

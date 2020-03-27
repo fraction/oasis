@@ -69,6 +69,9 @@ const toAttributes = (obj) =>
 // non-breaking space
 const nbsp = "\xa0";
 
+/**
+ * @param {{href: string, emoji: string, text: string }} input
+ */
 const navLink = ({ href, emoji, text }) =>
   li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
 
@@ -846,6 +849,9 @@ exports.publishView = () => {
   );
 };
 
+/**
+ * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
+ */
 exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const max = status.sync.since;
 
@@ -969,6 +975,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   );
 };
 
+/** @param {{ viewTitle: string, viewDescription: string }} input */
 const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
   if (!viewTitle && !viewDescription) {
     return null;
@@ -989,6 +996,8 @@ exports.likesView = async ({ messages, feed, name }) => {
   return template(
     viewInfoBox({
       viewTitle: span(authorLink, i18n.likedBy),
+      // TODO: i18n
+      viewDescription: "List of messages liked by this author.",
     }),
     messages.map((msg) => post({ msg }))
   );
@@ -1144,6 +1153,7 @@ exports.hashtagView = ({ messages, hashtag }) => {
   );
 };
 
+/** @param {{percent: number}} input */
 exports.indexingView = ({ percent }) => {
   // TODO: i18n
   const message = `Oasis has only processed ${percent}% of the messages and needs to catch up. This page will refresh every 10 seconds. Thanks for your patience! ❤`;

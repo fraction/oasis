@@ -530,7 +530,7 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version,
+        version: config.version.toString(),
       });
     };
     ctx.body = await getMeta({ theme });

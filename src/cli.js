@@ -3,6 +3,10 @@
 const yargs = require("yargs");
 const _ = require("lodash");
 
+/**
+ * @param {object} presets
+ * @param {string} defaultConfigFile
+ */
 module.exports = (presets, defaultConfigFile) =>
   yargs
     .scriptName("oasis")
