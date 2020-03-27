@@ -427,11 +427,6 @@ router
     }
 
     // This prevents an auto-download when visiting the URL.
-    //
-    // Using @ts-ignore to circumvent a bug:
-    // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/43357
-    //
-    // @ts-ignore
     ctx.attachment(blobId, { type: "inline" });
 
     // If we don't do this explicitly the browser downloads the SVG and thinks
