@@ -534,8 +534,10 @@ hr {
  * that we don't need any inline CSS anymore.
  */
 .indent {
-  padding-left: 1rem;
+  padding-left: var(--whole);
   border-left: var(--micro) solid var(--bg-selection);
+  margin-right: 0;
+  margin-left: var(--whole);
 }
 
 .theme-preview {

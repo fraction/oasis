@@ -8,6 +8,7 @@ const MarkdownIt = require("markdown-it");
 const {
   a,
   article,
+  blockquote,
   br,
   body,
   button,
@@ -422,7 +423,7 @@ const postAside = ({ key, value }) => {
     fragments.push(section(continueThreadComponent(thread, isComment)));
   }
 
-  return div({ class: "indent" }, fragments);
+  return blockquote({ class: "indent" }, fragments);
 };
 
 const post = ({ msg, aside = false }) => {
