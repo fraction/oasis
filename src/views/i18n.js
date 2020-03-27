@@ -331,8 +331,8 @@ module.exports = {
       a({ href: parentUrl }, ""),
     ],
     replyDescription: ({ parentUrl }) => [
-      " respondido al mensaje ",
-      a({ href: parentUrl }, ""),
+      " respondido al ",
+      a({ href: parentUrl }, "mensaje "),
     ],
     mysteryDescription: "publicó un mensaje misterioso",
     // misc
@@ -513,5 +513,180 @@ module.exports = {
     profileDescription: "Profilbeschreibung (Markdown)",
     hashtagDescription:
       "Beiträge von Leuten in deinem Netzwerk die dieses Hashtag referenzieren, sortiert nach Aktualität.",
+  },
+  it: {
+    // navbar items
+    extended: "Rete estesa",
+    extendedDescription: [
+      "Post scritti da  ",
+      strong("persone che non segui"),
+      ", ordinati in ordine cronologico. Quando segui qualcuno potresti scaricare post pubblicati da persone che seguono loro, e questi messaggi compariranno qui.",
+    ],
+    popular: "In evidenza",
+    popularDescription: [
+      "Posts dalle persone nel tuo network, ordinati per ",
+      strong("like"),
+      " in un dato periodo. I like vengono contati tra i post di ",
+      em("chiunque"),
+      ", incluse le persone che non segui, quindi qui vedrai i post dei tuoi amici che sono più popolari nella tua rete estesa.",
+    ],
+    latest: "Novit&agrave;",
+    latestDescription:
+      "Post scritti da te e dalle persone che segui, ordinati cronologicamente.",
+    topics: "Argomenti",
+    topicsDescription: [
+      strong("Argomenti"),
+      " scritti da te e dalle persone che segui, ordinati cronologicamente. Seleziona il timestamp di un post per visualizzarne il thread.",
+    ],
+    summaries: "Riassunti",
+    summariesDescription: [
+      strong("Argomenti e qualche commento"),
+      " scritto da te e dalle persone che segui, in ordine cronologico. Clicca il timestamp di un post per visualizzarne il thread.",
+    ],
+    threads: "Thread",
+    threadsDescription: [
+      strong("Posts che hanno commenti"),
+      " scritti da persone che segui e dalla tua rete estesa, ordinati cronologicamente. from people you follow and your extended network, sorted by recency. Clicca il timestamp di un post per visualizzarne il thread.",
+    ],
+    profile: "Profilo",
+    manualMode: "Modalit&agrave; manuale",
+    mentions: "Menzioni",
+    mentionsDescription: [
+      strong("Post che ti menzionano,"),
+      " scritti da ",
+      strong("chiunque"),
+      ", ordinati cronologicamente. A volte le persone dimenticano di @menzionarti, in quel caso i loro post non verranno mostrati qui.",
+    ],
+    private: "Privato",
+    privateDescription: [
+      "Gli ultimi commenti su ",
+      strong("thread privati di cui fai parte"),
+      ", ordinati cronologicamente. I post privati sono crittati con la tua chiave pubblica, e possono avere un massimo di 7 destinatari. Non è possibile aggiungere destinatari una volta che il thread è iniziato. Clicca il timestamp di un post per visualizzarne il thread.",
+    ],
+    search: "Cerca",
+    settings: "Impostazioni",
+    // post actions
+    comment: "Commenta",
+    reply: "Rispondi",
+    json: "JSON",
+    // relationships
+    unfollow: "Non seguire più",
+    follow: "Segui",
+    relationshipFollowing: "Stai seguendo",
+    relationshipYou: "Sei tu",
+    relationshipBlocking: "Stai bloccando",
+    relationshipNone: "Non stai né seguendo né bloccando",
+    relationshipConflict: "In qualche modo non meglio precisato stai seguendo e bloccando allo stesso tempo",
+    // author view
+    viewLikes: "Guarda like",
+    // likes view
+    likedBy: "Like di ", // here the subject of the sentence should be put at the end (as if it were "liked by X" instead of "X's likes"
+    // composer
+    publish: "Pubblica",
+    contentWarningPlaceholder: "Avviso su possibili contenuti per adulti nel post, opzionale",
+    publishCustomDescription: [
+      "Pubblica un messaggio su misura inserendo dati ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " qui sotto. Torna utile per realizzare prototipi o per pubblicare post ancora non supportati da Oasis.  Questo messaggio non potrà essere modificato o rimosso.",
+    ],
+    commentWarning: [
+      " I commenti non possono essere modificati o rimossi. Per rispondere ad un messaggio, seleziona ",
+      strong("rispondi"),
+      " invece.",
+    ],
+    commentPublic: "pubblico",
+    commentPrivate: "privato",
+    commentLabel: ({ publicOrPrivate, markdownUrl }) => [
+      "Scrivi un ",
+      strong(`${publicOrPrivate} commento`),
+      " su questo thread con ",
+      a({ href: markdownUrl }, "Markdown"),
+      ".",
+    ],
+    publishLabel: ({ markdownUrl, linkTarget }) => [
+      "Scrivi un post pubblico in ",
+      a(
+        {
+          href: markdownUrl,
+          target: linkTarget,
+        },
+        "Markdown"
+      ),
+      ". I post non possono essere modificati o rimossi.",
+    ],
+    publishCustomInfo: ({ href }) => [
+      "Se sei uno smanettone puoi anche ",
+      a({ href }, "pubblicare un messaggio su misura"),
+      ".",
+    ],
+    publishBasicInfo: ({ href }) => [
+      "Se non sei uno smanettone ti consigliamo di ",
+      a({ href }, "pubblicare un post"),
+      ".",
+    ],
+    publishCustom: "Pubblica su misuram",
+
+    replyLabel: ({ markdownUrl }) => [
+      "Scrivi una ",
+      strong("risposta pubblica"),
+      " a questo messaggio con ",
+      a({ href: markdownUrl }, "Markdown"),
+      ". I messaggi non possono essere modificati o rimossi. Per rispondere ad un intero thread seleziona ",
+      strong("commenta"),
+      " invece.",
+    ],
+    // settings
+    settingsIntro: ({ readmeUrl, version }) => [
+      `Stai usando Oasis ${version}. Dai un'occhiata al `,
+      a({ href: readmeUrl }, "file readme"),
+      ", configura il tuo tema o leggi i log di debugging qui sotto.",
+    ],
+    theme: "Tema",
+    themeIntro:
+      "Scegli il tema che più ti piace. Il tema predefinito si chiama Atelier-SulphurPool-Light. Puoi anche selezionare il tuo tema nel file di configurazione.",
+    setTheme: "Set theme",
+    language: "Lingua",
+    languageDescription:
+      "Se vuoi utilizzare Oasis in un'altra lingua, puoi sceglierla qui sotto. Attenzione, è una nuova funzionalità e la traduzione potrebbe non essere perfetta. Se parli una lingua straniera ci piacerebbe che ci aiutassi a tradurre Oasis in altre lingue.",
+    setLanguage: "Seleziona lingua",
+
+    status: "Stato attuale",
+    peerConnections: "Connectioni coi peer 💻⚡️💻",
+    connectionsIntro:
+      "Il tuo computer sincronizza i dati con questi computer e si connetterà a qualsiasi pub o utente scuttlebutt con cui riesce ad entrare in contatto. Dato che preleva dati dalla tua cerchia di amici, potresti vedere dati scritti da utenti che non conosci.",
+    noConnections: "Nessun peer connesso.",
+    connectionActionIntro:
+      "Puoi decidere se vuoi che il tuo computer possa entrare in contatto con peer sul tuo network. Puoi far partire, fermare o far ripartire questo tipo di connessioni quando vuoi.",
+    startNetworking: "Inizia networking",
+    stopNetworking: "Ferma networking",
+    restartNetworking: "Ricarica networking",
+    indexes: "Indici",
+    invites: "Inviti",
+    invitesDescription:
+      "Utilizza un invito che hai ricevuto incollandolo qui sotto. Se viene accettato ne seguirai il feed e ne riceverai il follow.",
+    acceptInvite: "Accetta invito",
+    // search page
+    searchLabel: "Cerca tra i messaggi che hai scaricato.",
+    // posts and comments
+    commentDescription: ({ parentUrl }) => [
+      " ha commentato il ",
+      a({ href: parentUrl }, " thread"),
+    ],
+    replyDescription: ({ parentUrl }) => [
+      " ha risposto al  ",
+      a({ href: parentUrl }, " messaggio "),
+    ],
+    mysteryDescription: "ha postato un messaggio misterioso",
+    // misc
+    oasisDescription: "Interfaccia per scuttlebutt facile da usare",
+    submit: "Vai",
+    editProfile: "Modifica profilo",
+    editProfileDescription:
+      "Modifica il tuo profilo usando Markdown. Le versioni precedenti del tuo profilo continueranno ad esistere e non possono essere eliminate, ma la maggior parte dei client per SSB non le mostreranno.",
+    profileName: "Nome profilo (testo non formattato)",
+    profileImage: "Immagine di profilo",
+    profileDescription: "Descrizione del profilo (Markdown)",
+    hashtagDescription:
+      "Post da persone nella tua rete che menzionano questo hashtag, ordinati cronologicamente.",
   },
 };

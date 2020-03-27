@@ -958,6 +958,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         select({ name: "language" }, [
           languageOption("en", "English"),
           languageOption("es", "Español"),
+          languageOption("it", "Italiano"),
           /* cspell:disable-next-line */
           languageOption("de", "Deutsch"),
         ]),
