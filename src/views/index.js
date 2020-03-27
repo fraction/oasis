@@ -316,7 +316,7 @@ const thread = (messages) => {
       const isAncestor = Boolean(
         lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
       );
-      msgList.push(`<details class="fork" ${isAncestor ? "open" : ""}>`);
+      msgList.push(`<div class="indent"><details ${isAncestor ? "open" : ""}>`);
 
       const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
       const nextSnippet = postSnippet(
@@ -331,7 +331,7 @@ const thread = (messages) => {
       const shallowList = [];
       for (let d = 0; d < diffDepth; d++) {
         // on the way up it might go several depths at once
-        shallowList.push("</details>");
+        shallowList.push("</details></div>");
       }
 
       msgList.push(shallowList);
@@ -419,7 +419,7 @@ const postAside = ({ key, value }) => {
   const fragments = postsToShow.map(postInAside);
 
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
-    fragments.push(section(footer(continueThreadComponent(thread, isComment))));
+    fragments.push(section(continueThreadComponent(thread, isComment)));
   }
 
   return div({ class: "indent" }, fragments);
@@ -917,13 +917,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
 
   const base16Elements = base16.map((base) =>
     div({
-      style: {
-        "background-color": `var(--base${base})`,
-        width: `${(1 / base16.length) * 100}%`,
-        height: "1em",
-        "margin-top": "1em",
-        display: "inline-block",
-      },
+      class: `theme-preview theme-preview-${base}`,
     })
   );
 
