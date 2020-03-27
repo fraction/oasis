@@ -33,7 +33,7 @@ const http = ({ host, port, middleware }) => {
       "img-src 'self'",
       "form-action 'self'",
       "media-src 'self'",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self'",
     ].join("; ");
 
     // Disallow scripts.

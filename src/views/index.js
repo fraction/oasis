@@ -8,6 +8,7 @@ const MarkdownIt = require("markdown-it");
 const {
   a,
   article,
+  br,
   body,
   button,
   details,
@@ -119,6 +120,11 @@ const template = (...elements) => {
             emoji: "🗒️",
             text: i18n.summaries,
           }),
+          navLink({
+            href: "/public/latest/threads",
+            emoji: "🧵",
+            text: i18n.threads,
+          }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
@@ -220,40 +226,137 @@ const postInAside = (msg) => {
       class: messageClasses.join(" "),
     },
     header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          msg.value.meta.author.name
+      div(
+        span(
+          { class: "author" },
+          a(
+            { href: url.author },
+            img({ class: "avatar", src: url.avatar, alt: "" }),
+            msg.value.meta.author.name
+          ),
+          postOptions[msg.value.meta.postType]
         ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
+        span(
+          { class: "time" },
+          isPrivate ? "🔒" : null,
+          a({ href: url.link }, nbsp, timeAgo)
+        )
       )
     ),
     articleContent,
     footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class,
-          },
-          `❤ ${likeCount}`
-        )
+      div(
+        form(
+          { action: url.likeForm, method: "post" },
+          button(
+            {
+              name: "voteValue",
+              type: "submit",
+              value: likeButton.value,
+              class: likeButton.class,
+            },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.comment }, i18n.comment),
+        isPrivate || isRoot || isFork
+          ? null
+          : a({ href: url.reply }, nbsp, i18n.reply),
+        a({ href: url.json }, nbsp, i18n.json)
       ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
+      br()
     )
   );
+};
+
+const thread = (messages) => {
+  // this first loop is preprocessing to enable auto-expansion of forks when a
+  // message in the fork is linked to
+
+  let lookingForTarget = true;
+  let shallowest = Infinity;
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    const depth = lodash.get(msg, "value.meta.thread.depth", 0);
+
+    if (lookingForTarget) {
+      const isThreadTarget = Boolean(
+        lodash.get(msg, "value.meta.thread.target", false)
+      );
+
+      if (isThreadTarget) {
+        lookingForTarget = false;
+      }
+    } else {
+      if (depth < shallowest) {
+        lodash.set(msg, "value.meta.thread.ancestorOfTarget", true);
+        shallowest = depth;
+      }
+    }
+  }
+
+  const msgList = [];
+  for (let i = 0; i < messages.length; i++) {
+    const j = i + 1;
+
+    const currentMsg = messages[i];
+    const nextMsg = messages[j];
+
+    const depth = (msg) => {
+      // will be undefined when checking depth(nextMsg) when currentMsg is the
+      // last message in the thread
+      if (msg === undefined) return 0;
+      return lodash.get(msg, "value.meta.thread.depth", 0);
+    };
+
+    msgList.push(post({ msg: currentMsg }).outerHTML);
+
+    if (depth(currentMsg) < depth(nextMsg)) {
+      const isAncestor = Boolean(
+        lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
+      );
+      msgList.push(`<div class="indent"><details ${isAncestor ? "open" : ""}>`);
+
+      const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
+      const nextSnippet = postSnippet(
+        lodash.get(nextMsg, "value.content.text")
+      );
+
+      msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
+    } else if (depth(currentMsg) > depth(nextMsg)) {
+      // getting more shallow
+      const diffDepth = depth(currentMsg) - depth(nextMsg);
+
+      const shallowList = [];
+      for (let d = 0; d < diffDepth; d++) {
+        // on the way up it might go several depths at once
+        shallowList.push("</details></div>");
+      }
+
+      msgList.push(shallowList);
+    }
+  }
+
+  const htmlStrings = lodash.flatten(msgList);
+  return div({}, { innerHTML: htmlStrings.join("") });
+};
+
+const postSnippet = (text) => {
+  const max = 40;
+
+  text = text.trim().split("\n", 3).join("\n");
+  // this is taken directly from patchwork. i'm not entirely sure what this
+  // regex is doing
+  text = text.replace(/_|`|\*|#|^\[@.*?]|\[|]|\(\S*?\)/g, "").trim();
+  text = text.replace(/:$/, "");
+  text = text.trim().split("\n", 1)[0].trim();
+
+  if (text.length > max) {
+    text = text.substring(0, max - 1) + "…";
+  }
+
+  return text;
 };
 
 /**
@@ -316,7 +419,7 @@ const postAside = ({ key, value }) => {
   const fragments = postsToShow.map(postInAside);
 
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
-    fragments.push(section(footer(continueThreadComponent(thread, isComment))));
+    fragments.push(section(continueThreadComponent(thread, isComment)));
   }
 
   return div({ class: "indent" }, fragments);
@@ -351,8 +454,6 @@ const post = ({ msg, aside = false }) => {
 
   const { name } = msg.value.meta.author;
   const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
-
-  const depth = lodash.get(msg, "value.meta.thread.depth", 0);
 
   const markdownContent = markdown(
     msg.value.content.text,
@@ -415,22 +516,23 @@ const post = ({ msg, aside = false }) => {
     {
       id: msg.key,
       class: messageClasses.join(" "),
-      style: `margin-left: ${depth}rem;`,
     },
     header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          name
+      div(
+        span(
+          { class: "author" },
+          a(
+            { href: url.author },
+            img({ class: "avatar", src: url.avatar, alt: "" }),
+            name
+          ),
+          postOptions[msg.value.meta.postType]
         ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
+        span(
+          { class: "time" },
+          isPrivate ? "🔒" : null,
+          a({ href: url.link }, nbsp, timeAgo)
+        )
       )
     ),
     articleContent,
@@ -447,21 +549,26 @@ const post = ({ msg, aside = false }) => {
     div({ id: `centered-footer-${encoded.key}`, class: "centered-footer" }),
 
     footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class,
-          },
-          `❤ ${likeCount}`
-        )
+      div(
+        form(
+          { action: url.likeForm, method: "post" },
+          button(
+            {
+              name: "voteValue",
+              type: "submit",
+              value: likeButton.value,
+              class: likeButton.class,
+            },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.comment }, i18n.comment),
+        isPrivate || isRoot || isFork
+          ? null
+          : a({ href: url.reply }, nbsp, i18n.reply),
+        a({ href: url.json }, nbsp, i18n.json)
       ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
+      br()
     )
   );
 
@@ -524,7 +631,8 @@ exports.authorView = ({
     relationship.following === true &&
     relationship.blocking === false;
 
-  const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
+  const contactFormType = areFollowing ? "unfollow" : "follow";
+  const contactFormTypeLabel = i18n[contactFormType];
 
   const contactForm =
     relationship === null
@@ -538,7 +646,7 @@ exports.authorView = ({
             {
               type: "submit",
             },
-            contactFormType
+            contactFormTypeLabel
           )
         );
 
@@ -572,7 +680,7 @@ exports.authorView = ({
 
   const prefix = section(
     { class: "message" },
-    header(
+    div(
       { class: "profile" },
       img({ class: "avatar", src: avatarUrl }),
       h1(name)
@@ -583,12 +691,15 @@ exports.authorView = ({
     }),
     description !== "" ? article({ innerHTML: markdown(description) }) : null,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
-      span(relationshipText),
-      contactForm,
-      relationship === null
-        ? a({ href: `/profile/edit` }, i18n.editProfile)
-        : null
+      div(
+        a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
+        span(nbsp, relationshipText),
+        contactForm,
+        relationship === null
+          ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
+          : null
+      ),
+      br()
     )
   );
 
@@ -699,8 +810,7 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.threadView = ({ messages }) =>
-  template(messages.map((msg) => post({ msg })));
+exports.threadView = ({ messages }) => template(thread(messages));
 
 exports.markdownView = ({ text }) => {
   const rawHtml = md.render(text);
@@ -766,14 +876,16 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     stopButton,
   ]);
 
-  const peerList = (peers || []).map(([, data]) => {
-    return li(
-      a(
-        { href: `/author/${encodeURIComponent(data.key)}` },
-        data.name || data.host || data.key
-      )
-    );
-  });
+  const peerList = (peers || [])
+    .filter(([, data]) => data.state === "connected")
+    .map(([, data]) => {
+      return li(
+        a(
+          { href: `/author/${encodeURIComponent(data.key)}` },
+          data.name || data.host || data.key
+        )
+      );
+    });
 
   const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme;
@@ -805,13 +917,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
 
   const base16Elements = base16.map((base) =>
     div({
-      style: {
-        "background-color": `var(--base${base})`,
-        width: `${(1 / base16.length) * 100}%`,
-        height: "1em",
-        "margin-top": "1em",
-        display: "inline-block",
-      },
+      class: `theme-preview theme-preview-${base}`,
     })
   );
 
@@ -940,6 +1046,15 @@ exports.summaryView = ({ messages }) => {
     messages,
     viewTitle: i18n.summaries,
     viewDescription: i18n.summariesDescription,
+    aside: true,
+  });
+};
+
+exports.threadsView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.threads,
+    viewDescription: i18n.threadsDescription,
     aside: true,
   });
 };

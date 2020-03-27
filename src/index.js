@@ -165,6 +165,7 @@ const {
   settingsView,
   topicsView,
   summaryView,
+  threadsView,
 } = require("./views");
 
 let sharp;
@@ -174,8 +175,6 @@ try {
 } catch (e) {
   // Optional dependency
 }
-
-const defaultTheme = "atelier-sulphurPool-light".toLowerCase();
 
 const readmePath = path.join(__dirname, "..", "README.md");
 const packagePath = path.join(__dirname, "..", "package.json");
@@ -263,6 +262,10 @@ router
     const messages = await post.latestSummaries();
     ctx.body = await summaryView({ messages });
   })
+  .get("/public/latest/threads", async (ctx) => {
+    const messages = await post.latestThreads();
+    ctx.body = await threadsView({ messages });
+  })
   .get("/author/:feed", async (ctx) => {
     const { feed } = ctx.params;
     const author = async (feedId) => {
@@ -326,7 +329,7 @@ router
     ctx.body = await hashtagView({ hashtag, messages });
   })
   .get("/theme.css", (ctx) => {
-    const theme = ctx.cookies.get("theme") || defaultTheme;
+    const theme = ctx.cookies.get("theme") || config.theme;
 
     const packageName = "@fraction/base16-css";
     const filePath = `${packageName}/src/base16-${theme}.css`;
@@ -511,7 +514,7 @@ router
     ctx.body = await image({ blobId, imageSize: Number(imageSize) });
   })
   .get("/settings/", async (ctx) => {
-    const theme = ctx.cookies.get("theme") || defaultTheme;
+    const theme = ctx.cookies.get("theme") || config.theme;
     const getMeta = async ({ theme }) => {
       const status = await meta.status();
       const peers = await meta.peers();

@@ -30,6 +30,11 @@ const i18n = {
       strong("Topics and some comments"),
       " from yourself and people you follow, sorted by recency. Select the timestamp of any post to see the rest of the thread.",
     ],
+    threads: "Threads",
+    threadsDescription: [
+      strong("Posts that have comments"),
+      " from people you follow and your extended network, sorted by recency. Select the timestamp of any post to see the rest of the thread.",
+    ],
     profile: "Profile",
     manualMode: "Manual Mode",
     mentions: "Mentions",
@@ -125,7 +130,7 @@ const i18n = {
     ],
     theme: "Theme",
     themeIntro:
-      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light.",
+      "Choose from any theme you'd like. The default theme is Atelier-SulphurPool-Light. You can also set your theme in the default configuration file.",
     setTheme: "Set theme",
     language: "Language",
     languageDescription:
@@ -151,11 +156,11 @@ const i18n = {
     searchLabel: "Add word(s) to look for in downloaded messages.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "commented on ",
+      " commented on ",
       a({ href: parentUrl }, " thread"),
     ],
     replyDescription: ({ parentUrl }) => [
-      "replied to ",
+      " replied to ",
       a({ href: parentUrl }, " message"),
     ],
     mysteryDescription: "posted a mysterious message",
@@ -322,11 +327,11 @@ const i18n = {
       "Buscá las siguientes palabras por los mensajes que tenés descargados.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "comentado en el hilo ",
+      " comentado en el hilo ",
       a({ href: parentUrl }, ""),
     ],
     replyDescription: ({ parentUrl }) => [
-      "respondido al mensaje ",
+      " respondido al mensaje ",
       a({ href: parentUrl }, ""),
     ],
     mysteryDescription: "publicó un mensaje misterioso",
@@ -490,11 +495,11 @@ const i18n = {
       "Füge Wörte hinzu nach denen in heruntergeladenen Nachrichten gesucht werden soll.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
-      "kommentierte auf ",
+      " kommentierte auf ",
       a({ href: parentUrl }, " Thread"),
     ],
     replyDescription: ({ parentUrl }) => [
-      "antwortete auf ",
+      " antwortete auf ",
       a({ href: parentUrl }, " Nachricht"),
     ],
     mysteryDescription: "veröffentlichte eine mysteriöse Nachricht",

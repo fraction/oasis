@@ -109,6 +109,7 @@ h6 {
 ul,
 ol {
   padding-left: var(--whole);
+  margin-left: var(--nano);
 }
 
 a {
@@ -124,13 +125,22 @@ button {
   border-radius: var(--common-radius);
 }
 
-section > footer > a,
-section > footer > form > button {
+section header a {
+  display: flex;
+  color: var(--fg-status);
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: var(--micro);
+  margin-left: var(--micro);
+}
+
+section > footer > div > a,
+section > footer > div > form > button {
   color: var(--fg-status);
   font-weight: bold;
 }
 
-section > footer > form > button {
+section > footer > div > form > button {
   display: inline-block;
   border: 0;
   background: transparent;
@@ -186,13 +196,14 @@ textarea:focus {
   border-color: var(--blue);
 }
 
+/* Prevent button styles being applied to heart button */
 button:focus,
 button:hover {
   background-color: var(--fg-light);
 }
 
-section > footer > form > button:hover,
-section > footer > form > button:focus {
+section > div > footer > form > button:hover,
+section > div > footer > form > button:focus {
   background-color: transparent;
 }
 
@@ -240,6 +251,11 @@ section video {
   box-sizing: border-box;
 }
 
+section > h1 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .profile > img,
 .profile > h1 {
   display: inline-block;
@@ -278,15 +294,6 @@ section audio {
   width: 100%;
 }
 
-section > :first-child {
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.content > :last-child {
-  margin-bottom: 0;
-}
-
 @media screen {
   html {
     min-height: 100%;
@@ -303,15 +310,6 @@ section > :first-child {
 
 nav {
   margin: var(--whole) 0;
-}
-
-section header a {
-  display: flex;
-  color: var(--fg-status);
-  text-decoration: none;
-  font-weight: bold;
-  margin-right: var(--micro);
-  margin-left: var(--micro);
 }
 
 nav > ul > li > a {
@@ -335,11 +333,20 @@ section {
 }
 
 section > header {
-  height: var(--line);
-  display: flex;
-  margin-bottom: var(--whole);
-  justify-content: space-between;
+  background: var(--bg);
   color: var(--fg-status);
+  height: var(--line);
+  margin-bottom: calc(-1 * var(--milli));
+  margin-top: calc(-1 * var(--milli));
+  padding-bottom: var(--milli);
+  padding-top: var(--milli);
+  position: sticky;
+  top: 0;
+}
+
+section > header > div {
+  display: flex;
+  justify-content: space-between;
 }
 
 section header a > .avatar {
@@ -350,9 +357,8 @@ section header a > .avatar {
 }
 
 section header span {
-  display: flex;
+  display: inline-flex;
 }
-
 section header .author > a:first-child {
   margin-left: 0;
   color: var(--fg-light);
@@ -384,17 +390,23 @@ section > .centered-footer {
 }
 
 section > footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: var(--whole);
   color: var(--fg-status);
 }
 
-section > footer > * {
+section > footer br {
+  display: none;
+}
+
+section > footer > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+section > footer > div > * {
   text-decoration: none;
 }
 
-section > footer > form > button.liked {
+section > footer > div > form > button.liked {
   color: var(--red);
 }
 
@@ -417,7 +429,6 @@ nav > ul > li {
 }
 
 .profile {
-  margin-top: var(--whole);
   display: flex;
   margin-bottom: var(--whole);
 }
@@ -434,12 +445,17 @@ progress {
   border-color: var(--blue);
 }
 
-/* content warning! */
 summary {
   padding: var(--milli);
-  margin: 0;
+  margin-top: var(--whole);
   cursor: pointer;
-  border: var(--pico) solid var(--bg-selection);
+  background: var(--bg);
+  border-radius: var(--common-radius);
+  list-style-type: "+ ";
+}
+
+details[open] > summary {
+  list-style-type: "− ";
 }
 
 .md-mention {
@@ -517,6 +533,63 @@ hr {
  * be wise to nest these recursively on the thread view, which would make it so
  * that we don't need any inline CSS anymore.
  */
-.indent > section {
-  margin-left: 2rem;
+.indent {
+  padding-left: 1rem;
+  border-left: var(--micro) solid var(--bg-selection);
+}
+
+.theme-preview {
+  width: calc(100% / 15);
+  height: var(--whole);
+  margin-top: var(--whole);
+  display: inline-block;
+}
+
+.theme-preview-00 {
+  background-color: var(--base00);
+}
+.theme-preview-01 {
+  background-color: var(--base01);
+}
+.theme-preview-02 {
+  background-color: var(--base02);
+}
+.theme-preview-03 {
+  background-color: var(--base03);
+}
+.theme-preview-04 {
+  background-color: var(--base04);
+}
+.theme-preview-05 {
+  background-color: var(--base05);
+}
+.theme-preview-06 {
+  background-color: var(--base06);
+}
+.theme-preview-07 {
+  background-color: var(--base07);
+}
+.theme-preview-08 {
+  background-color: var(--base08);
+}
+.theme-preview-09 {
+  background-color: var(--base09);
+}
+.theme-preview-0A {
+  background-color: var(--base0A);
+}
+.theme-preview-0B {
+  background-color: var(--base0B);
+}
+.theme-preview-0C {
+  background-color: var(--base0C);
+}
+.theme-preview-0D {
+  background-color: var(--base0D);
+}
+.theme-preview-0E {
+  background-color: var(--base0E);
+}
+.theme-preview-0F {
+  background-color: var(--base0F);
 }
