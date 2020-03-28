@@ -618,6 +618,9 @@ exports.editProfileView = ({ name, description }) =>
     )
   );
 
+/**
+ * @param {{avatarUrl: string, description: string, feedId: string, messages: any[], name: string, relationship: object}} input
+ */
 exports.authorView = ({
   avatarUrl,
   description,
@@ -647,7 +650,7 @@ exports.authorView = ({
       )
     );
 
-  if (relationship !== null) {
+  if (relationship.me === false) {
     if (relationship.following) {
       addForm({ action: "unfollow" });
     } else if (relationship.blocking) {
@@ -659,7 +662,7 @@ exports.authorView = ({
   }
 
   const relationshipText = (() => {
-    if (relationship === null) {
+    if (relationship.me === true) {
       return i18n.relationshipYou;
     } else if (
       relationship.following === true &&
@@ -703,7 +706,7 @@ exports.authorView = ({
         a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
         span(nbsp, relationshipText),
         ...contactForms,
-        relationship === null
+        relationship.me
           ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
           : null
       ),

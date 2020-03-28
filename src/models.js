@@ -203,12 +203,16 @@ module.exports = ({ cooler, isPublic }) => {
         blocking: false,
         following: false,
       }),
+    /**
+     * @param feedId {string}
+     * @returns {Promise<{me: boolean, following: boolean, blocking: boolean }>}
+     */
     getRelationship: async (feedId) => {
       const ssb = await cooler.open();
       const { id } = ssb;
 
       if (feedId === id) {
-        return null;
+        return { me: true, following: false, blocking: false };
       }
 
       const isFollowing = await ssb.friends.isFollowing({
@@ -222,6 +226,7 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       return {
+        me: false,
         following: isFollowing,
         blocking: isBlocking,
       };

@@ -353,7 +353,7 @@ router
       name,
       description,
       avatarUrl,
-      relationship: null,
+      relationship: { me: true },
     });
   })
   .get("/profile/edit", async (ctx) => {
