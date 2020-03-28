@@ -353,7 +353,7 @@ router
       name,
       description,
       avatarUrl,
-      relationship: null,
+      relationship: { me: true },
     });
   })
   .get("/profile/edit", async (ctx) => {
@@ -679,6 +679,18 @@ router
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.unfollow(feed);
+    ctx.redirect(referer.href);
+  })
+  .post("/block/:feed", koaBody(), async (ctx) => {
+    const { feed } = ctx.params;
+    const referer = new URL(ctx.request.header.referer);
+    ctx.body = await friend.block(feed);
+    ctx.redirect(referer.href);
+  })
+  .post("/unblock/:feed", koaBody(), async (ctx) => {
+    const { feed } = ctx.params;
+    const referer = new URL(ctx.request.header.referer);
+    ctx.body = await friend.unblock(feed);
     ctx.redirect(referer.href);
   })
   .post("/like/:message", koaBody(), async (ctx) => {

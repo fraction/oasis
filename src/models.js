@@ -153,45 +153,66 @@ module.exports = ({ cooler, isPublic }) => {
   };
 
   models.friend = {
-    isFollowing: async (feedId) => {
-      const ssb = await cooler.open();
-      const { id } = ssb;
+    /** @param {{ feedId: string, following: boolean, blocking: boolean }} input */
+    setRelationship: async ({ feedId, following, blocking }) => {
+      if (following && blocking) {
+        throw new Error("Cannot follow and block at the same time");
+      }
 
-      const isFollowing = await ssb.friends.isFollowing({
-        source: id,
-        dest: feedId,
-      });
-      return isFollowing;
-    },
-    setFollowing: async ({ feedId, following }) => {
+      const current = await models.friend.getRelationship(feedId);
+      const alreadySet =
+        current.following === following && current.blocking === blocking;
+
+      if (alreadySet) {
+        // The following state is already set, don't re-set it.
+        return;
+      }
+
       const ssb = await cooler.open();
 
       const content = {
         type: "contact",
         contact: feedId,
         following,
+        blocking,
       };
 
       return ssb.publish(content);
     },
-    follow: async (feedId) => {
-      const isFollowing = await models.friend.isFollowing(feedId);
-      if (!isFollowing) {
-        await models.friend.setFollowing({ feedId, following: true });
-      }
-    },
-    unfollow: async (feedId) => {
-      const isFollowing = await models.friend.isFollowing(feedId);
-      if (isFollowing) {
-        await models.friend.setFollowing({ feedId, following: false });
-      }
-    },
+    follow: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        following: true,
+        blocking: false,
+      }),
+    unfollow: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        following: false,
+        blocking: false,
+      }),
+    block: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        blocking: true,
+        following: false,
+      }),
+    unblock: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        blocking: false,
+        following: false,
+      }),
+    /**
+     * @param feedId {string}
+     * @returns {Promise<{me: boolean, following: boolean, blocking: boolean }>}
+     */
     getRelationship: async (feedId) => {
       const ssb = await cooler.open();
       const { id } = ssb;
 
       if (feedId === id) {
-        return null;
+        return { me: true, following: false, blocking: false };
       }
 
       const isFollowing = await ssb.friends.isFollowing({
@@ -205,6 +226,7 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       return {
+        me: false,
         following: isFollowing,
         blocking: isBlocking,
       };
@@ -537,6 +559,16 @@ module.exports = ({ cooler, isPublic }) => {
       const myFeedId = ssb.id;
 
       const options = configure({ id: feedId }, customOptions);
+
+      const { blocking } = await models.friend.getRelationship(feedId);
+
+      // Avoid streaming any messages from this feed. If we used the social
+      // filter here it would continue streaming all messages from this author
+      // until it consumed the entire feed.
+      if (blocking) {
+        return [];
+      }
+
       const source = ssb.createUserStream(options);
 
       const messages = await new Promise((resolve, reject) => {
