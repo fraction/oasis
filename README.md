@@ -73,11 +73,12 @@ Details: SSB apps have two parts: a "server" that manages the database (on your 
 
 ## Resources
 
-- [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
 - [Architecture](https://github.com/fraction/oasis/blob/master/docs/architecture.md)
+- [Chat room](https://matrix.to/#/!YQpqIZlvBVPYRwrkXp:matrix.org?via=matrix.org)
+- [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
 - [Help](https://github.com/fraction/oasis/issues/new)
-- [Security Policy](https://github.com/fraction/oasis/blob/master/docs/security.md)
-- [Source Code](https://github.com/fraction/oasis.git)
+- [Security policy](https://github.com/fraction/oasis/blob/master/docs/security.md)
+- [Source code](https://github.com/fraction/oasis.git)
 
 ## See Also
 
