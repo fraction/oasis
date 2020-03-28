@@ -59,6 +59,8 @@ const i18n = {
     // relationships
     unfollow: "Unfollow",
     follow: "Follow",
+    block: "Block",
+    unblock: "Unblock",
     relationshipFollowing: "You are following",
     relationshipYou: "This is you",
     relationshipBlocking: "You are blocking",

@@ -629,29 +629,34 @@ exports.authorView = ({
   const mention = `[@${name}](${feedId})`;
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
-  const areFollowing =
-    relationship !== null &&
-    relationship.following === true &&
-    relationship.blocking === false;
+  const contactForms = [];
 
-  const contactFormType = areFollowing ? "unfollow" : "follow";
-  const contactFormTypeLabel = i18n[contactFormType];
-
-  const contactForm =
-    relationship === null
-      ? null // We're on our own profile!
-      : form(
+  const addForm = ({ action }) =>
+    contactForms.push(
+      form(
+        {
+          action: `/${action}/${encodeURIComponent(feedId)}`,
+          method: "post",
+        },
+        button(
           {
-            action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
-            method: "post",
+            type: "submit",
           },
-          button(
-            {
-              type: "submit",
-            },
-            contactFormTypeLabel
-          )
-        );
+          i18n[action]
+        )
+      )
+    );
+
+  if (relationship !== null) {
+    if (relationship.following) {
+      addForm({ action: "unfollow" });
+    } else if (relationship.blocking) {
+      addForm({ action: "unblock" });
+    } else {
+      addForm({ action: "follow" });
+      addForm({ action: "block" });
+    }
+  }
 
   const relationshipText = (() => {
     if (relationship === null) {
@@ -697,7 +702,7 @@ exports.authorView = ({
       div(
         a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
         span(nbsp, relationshipText),
-        contactForm,
+        ...contactForms,
         relationship === null
           ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
           : null
