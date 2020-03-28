@@ -11,6 +11,8 @@ const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
 const path = require("path");
+const pull = require("pull-stream");
+const lodash = require("lodash");
 
 const socketPath = path.join(ssbConfig.path, "socket");
 const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
@@ -20,8 +22,6 @@ const remote = `unix:${socketPath}~noauth:${publicInteger}`;
 ssbConfig.connections.incoming.unix = [
   { scope: "device", transform: "noauth" },
 ];
-
-const server = flotilla(ssbConfig);
 
 const log = (...args) => {
   const isDebugEnabled = debug.enabled;
@@ -66,11 +66,58 @@ const createConnection = (config) => {
         }
         log("Initial connection attempt failed");
         log("Starting Scuttlebutt server");
+
+        const server = flotilla(ssbConfig);
         server(config);
+
+        const inProgress = {};
+        const maxHops = lodash.get(
+          config,
+          "friends.hops",
+          lodash.get(ssbConfig, "friends.hops", 0)
+        );
+
+        const add = address => {
+          inProgress[address] = true;
+          return () => {
+            inProgress[address] = false;
+          };
+        };
+
         const connectOrRetry = () => {
           rawConnect()
             .then((ssb) => {
               log("Retrying connection to own server");
+              ssb.friends.hops().then(hops => {
+                pull(
+                  ssb.conn.stagedPeers(),
+                  pull.drain(x => {
+                    x.filter(([address, data]) => {
+                      const notInProgress = inProgress[address] !== true;
+
+                      const key = data.key;
+                      const haveHops = typeof hops[key] === "number";
+                      const hopValue = haveHops ? hops[key] : Infinity;
+                      // Negative hops means blocked
+                      const isNotBlocked = hopValue >= 0;
+                      const withinHops = isNotBlocked && hopValue <= maxHops;
+
+                      return notInProgress && withinHops;
+                    }).forEach(([address, data]) => {
+                      const done = add(address);
+                      debug(
+                        `Connecting to staged peer at ${
+                          hops[data.key]
+                        }/${maxHops} hops: ${address}`
+                      );
+                      ssb.conn
+                        .connect(address, data)
+                        .then(done)
+                        .catch(done);
+                    });
+                  })
+                );
+              });
               resolve(ssb);
             })
             .catch((e) => {
