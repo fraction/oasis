@@ -26,3 +26,10 @@ npm ci && npm test && npm start
 ```
 
 No need to add their fork as a remote.
+
+Or for ultimate convenience (and github lock-in), use the [github cli tool](https://cli.github.com):
+
+```sh
+gh pr list
+gh pr checkout 42
+```

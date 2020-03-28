@@ -1,6 +1,6 @@
 # Contributing
 
-If you want to dive into the details, please see the [contract](./contract)
+If you want to dive into the details, please see the [contract](./contract.md)
 that defines the contributor role in this project. If you're comfortable with
 a top-level summary, you can start here first.
 
