@@ -23,10 +23,14 @@ ssbConfig.connections.incoming.unix = [
   { scope: "device", transform: "noauth" },
 ];
 
-const log = (...args) => {
+/**
+ * @param formatter {string} input
+ * @param args {any[]} input
+ */
+const log = (formatter, ...args) => {
   const isDebugEnabled = debug.enabled;
   debug.enabled = true;
-  debug(...args);
+  debug(formatter, ...args);
   debug.enabled = isDebugEnabled;
 };
 
@@ -77,7 +81,7 @@ const createConnection = (config) => {
           lodash.get(ssbConfig, "friends.hops", 0)
         );
 
-        const add = address => {
+        const add = (address) => {
           inProgress[address] = true;
           return () => {
             inProgress[address] = false;
@@ -88,10 +92,10 @@ const createConnection = (config) => {
           rawConnect()
             .then((ssb) => {
               log("Retrying connection to own server");
-              ssb.friends.hops().then(hops => {
+              ssb.friends.hops().then((hops) => {
                 pull(
                   ssb.conn.stagedPeers(),
-                  pull.drain(x => {
+                  pull.drain((x) => {
                     x.filter(([address, data]) => {
                       const notInProgress = inProgress[address] !== true;
 
@@ -110,10 +114,7 @@ const createConnection = (config) => {
                           hops[data.key]
                         }/${maxHops} hops: ${address}`
                       );
-                      ssb.conn
-                        .connect(address, data)
-                        .then(done)
-                        .catch(done);
+                      ssb.conn.connect(address, data).then(done).catch(done);
                     });
                   })
                 );

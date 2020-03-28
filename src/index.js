@@ -38,10 +38,10 @@ if (config.debug) {
 const nodeHttp = require("http");
 const debug = require("debug")("oasis");
 
-const log = (...args) => {
+const log = (formatter, ...args) => {
   const isDebugEnabled = debug.enabled;
   debug.enabled = true;
-  debug(...args);
+  debug(formatter, ...args);
   debug.enabled = isDebugEnabled;
 };
 
@@ -123,7 +123,7 @@ const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
 const pull = require("pull-stream");
 const requireStyle = require("require-style");
-const router = require("@koa/router")();
+const koaRouter = require("@koa/router");
 const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
 const isSvg = require("is-svg");
@@ -131,6 +131,8 @@ const { themeNames } = require("@fraction/base16-css");
 const { isFeed, isMsg, isBlob } = require("ssb-ref");
 
 const ssb = require("./ssb");
+
+const router = new koaRouter();
 
 // Create "cooler"-style interface from SSB connection.
 // This handle is passed to the models for their convenience.
@@ -191,7 +193,11 @@ router
     const isInteger = size % 1 === 0;
     const overMinSize = size > 2;
     const underMaxSize = size <= 256;
-    ctx.assert(isInteger && overMinSize && underMaxSize, "Invalid image size");
+    ctx.assert(
+      isInteger && overMinSize && underMaxSize,
+      400,
+      "Invalid image size"
+    );
     return next();
   })
   .param("blobId", (blobId, ctx, next) => {
@@ -519,7 +525,7 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version,
+        version: config.version.toString(),
       });
     };
     ctx.body = await getMeta({ theme });
@@ -667,13 +673,13 @@ router
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.follow(feed);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/unfollow/:feed", koaBody(), async (ctx) => {
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.unfollow(feed);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/like/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
@@ -713,19 +719,19 @@ router
       return vote.publish({ messageKey, value, recps: recipients });
     };
     ctx.body = await like({ messageKey, voteValue });
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/theme.css", koaBody(), async (ctx) => {
     const theme = String(ctx.request.body.theme);
     ctx.cookies.set("theme", theme);
     const referer = new URL(ctx.request.header.referer);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/language", koaBody(), async (ctx) => {
     const language = String(ctx.request.body.language);
     ctx.cookies.set("language", language);
     const referer = new URL(ctx.request.header.referer);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/settings/conn/start", koaBody(), async (ctx) => {
     await meta.connStart();

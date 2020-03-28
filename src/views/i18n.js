@@ -1,6 +1,6 @@
 const { a, em, strong } = require("hyperaxe");
 
-module.exports = {
+const i18n = {
   en: {
     // navbar items
     extended: "Extended",
@@ -515,3 +515,5 @@ module.exports = {
       "Beiträge von Leuten in deinem Netzwerk die dieses Hashtag referenzieren, sortiert nach Aktualität.",
   },
 };
+
+module.exports = i18n;
