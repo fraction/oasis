@@ -467,18 +467,23 @@ const post = ({ msg, aside = false }) => {
     typeof msg.value.content.contentWarning === "string";
 
   const likeButton = msg.value.meta.voted
-    ? { value: 0, class: "like liked" }
-    : { value: 1, class: "like" };
+    ? { value: 0, class: "liked" }
+    : { value: 1, class: null };
 
   const likeCount = msg.value.meta.votes.length;
 
   const maxLikedNameLength = 16;
-  const maxLikedNames = 20;
+  const maxLikedNames = 16;
 
-  const likedBy = msg.value.meta.votes
+  let likedBy = msg.value.meta.votes
     .slice(0, maxLikedNames)
     .map((name) => name.slice(0, maxLikedNameLength))
     .join(", ");
+
+  if (likeCount > maxLikedNames) {
+    const extraLikes = likeCount - maxLikedNames;
+    likedBy += ` +${extraLikes} more`;
+  }
 
   const messageClasses = ["post"];
 
@@ -569,14 +574,9 @@ const post = ({ msg, aside = false }) => {
               type: "submit",
               value: likeButton.value,
               class: likeButton.class,
+              title: `Liked by ${likedBy}`,
             },
-            `❤ ${likeCount}`,
-            span(
-              {
-                class: "liked-by",
-              },
-              `Liked by ${likedBy}`
-            )
+            `❤ ${likeCount}`
           )
         ),
         a({ href: url.comment }, i18n.comment),
