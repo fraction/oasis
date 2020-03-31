@@ -474,7 +474,7 @@ const post = ({ msg, aside = false }) => {
 
   const maxLikedNameLength = 16;
   const maxLikedNames = 20;
-  
+
   const likedBy = msg.value.meta.votes
     .slice(0, maxLikedNames)
     .map((name) => name.slice(0, maxLikedNameLength))
@@ -571,11 +571,13 @@ const post = ({ msg, aside = false }) => {
               class: likeButton.class,
             },
             `❤ ${likeCount}`,
-            span({
-              class: "liked-by",
-            },
-            `Liked by ${likedBy}`)
-          ),
+            span(
+              {
+                class: "liked-by",
+              },
+              `Liked by ${likedBy}`
+            )
+          )
         ),
         a({ href: url.comment }, i18n.comment),
         isPrivate || isRoot || isFork

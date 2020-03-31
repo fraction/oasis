@@ -411,7 +411,7 @@ section > footer > div > form > button.liked {
 }
 
 section > footer > div > form > button.like > span.liked-by {
-  display: none
+  display: none;
 }
 
 section > footer > div > form > button.like:hover {
