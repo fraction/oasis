@@ -411,6 +411,25 @@ section > footer > div > form > button.liked {
   color: var(--red);
 }
 
+section > footer > div > form > button.like > span.liked-by {
+  display: none;
+}
+
+section > footer > div > form > button.like:hover {
+  background-color: inherit;
+}
+
+section > footer > div > form > button.like:hover > span.liked-by {
+  display: block;
+  position: absolute;
+  max-width: 300px;
+  padding: 15px;
+  background-color: var(--base07);
+  color: var(--base00);
+  border-radius: var(--common-radius);
+  z-index: 5;
+}
+
 label {
   display: block;
   margin: 0;
