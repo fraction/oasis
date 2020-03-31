@@ -467,10 +467,18 @@ const post = ({ msg, aside = false }) => {
     typeof msg.value.content.contentWarning === "string";
 
   const likeButton = msg.value.meta.voted
-    ? { value: 0, class: "liked" }
-    : { value: 1, class: null };
+    ? { value: 0, class: "like liked" }
+    : { value: 1, class: "like" };
 
   const likeCount = msg.value.meta.votes.length;
+
+  const maxLikedNameLength = 16;
+  const maxLikedNames = 20;
+  
+  const likedBy = msg.value.meta.votes
+    .slice(0, maxLikedNames)
+    .map((name) => name.slice(0, maxLikedNameLength))
+    .join(", ");
 
   const messageClasses = ["post"];
 
@@ -562,8 +570,12 @@ const post = ({ msg, aside = false }) => {
               value: likeButton.value,
               class: likeButton.class,
             },
-            `❤ ${likeCount}`
-          )
+            `❤ ${likeCount}`,
+            span({
+              class: "liked-by",
+            },
+            `Liked by ${likedBy}`)
+          ),
         ),
         a({ href: url.comment }, i18n.comment),
         isPrivate || isRoot || isFork

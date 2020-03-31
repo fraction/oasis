@@ -468,6 +468,10 @@ module.exports = ({ cooler, isPublic }) => {
           .filter(([, value]) => value === 1)
           .map(([key]) => key);
 
+        // get an array of voter names, for display on hover
+        const pendingVoterNames = voters.map((author) => models.about.name(author));
+        const voterNames = await Promise.all(pendingVoterNames);
+
         const pendingName = models.about.name(msg.value.author);
         const pendingAvatarMsg = models.about.image(msg.value.author);
 
@@ -545,7 +549,7 @@ module.exports = ({ cooler, isPublic }) => {
           lodash.set(msg, "value.meta.postType", "mystery");
         }
 
-        lodash.set(msg, "value.meta.votes", voters);
+        lodash.set(msg, "value.meta.votes", voterNames);
         lodash.set(msg, "value.meta.voted", voters.includes(myFeedId));
 
         return msg;
@@ -1052,9 +1056,13 @@ module.exports = ({ cooler, isPublic }) => {
 
               const adjustedObj = Object.entries(obj).reduce(
                 (acc, [author, values]) => {
+                  // If the author liked their own content, ignore the vote
                   if (author === myFeedId) {
                     return acc;
                   }
+
+                  // The value of a users vote is 1 / (1 + total votes), the 
+                  // more a user votes, the less weight is given to each vote. 
 
                   const entries = Object.entries(values);
                   const total = 1 + Math.log(entries.length);
