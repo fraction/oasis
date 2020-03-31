@@ -342,6 +342,7 @@ section > header {
   padding-top: var(--milli);
   position: sticky;
   top: 0;
+  z-index: 1;
 }
 
 section > header > div {
