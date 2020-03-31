@@ -518,9 +518,9 @@ module.exports = {
     // navbar items
     extended: "Rete estesa",
     extendedDescription: [
-      "Post scritti da  ",
+      "Cronologia dei post scritti da  ",
       strong("persone che non segui"),
-      ", ordinati in ordine cronologico. Quando segui qualcuno potresti scaricare post pubblicati da persone che seguono loro, e questi messaggi compariranno qui.",
+      ". Quando segui qualcuno potresti scaricare post pubblicati da persone a te estranee ma seguite da loro, e questi messaggi compariranno qui.",
     ],
     popular: "In evidenza",
     popularDescription: [
@@ -530,13 +530,13 @@ module.exports = {
       em("chiunque"),
       ", incluse le persone che non segui, quindi qui vedrai i post dei tuoi amici che sono più popolari nella tua rete estesa.",
     ],
-    latest: "Novit&agrave;",
+    latest: "Novità",
     latestDescription:
-      "Post scritti da te e dalle persone che segui, ordinati cronologicamente.",
+      "Post scritti da te e dalle persone che segui, ordinati per data.",
     topics: "Argomenti",
     topicsDescription: [
       strong("Argomenti"),
-      " scritti da te e dalle persone che segui, ordinati cronologicamente. Seleziona il timestamp di un post per visualizzarne il thread.",
+      " scritti da te e dalle persone che segui, ordinati per data. Seleziona il timestamp di un post per visualizzarne il thread.",
     ],
     summaries: "Riassunti",
     summariesDescription: [
@@ -549,7 +549,7 @@ module.exports = {
       " scritti da persone che segui e dalla tua rete estesa, ordinati cronologicamente. from people you follow and your extended network, sorted by recency. Clicca il timestamp di un post per visualizzarne il thread.",
     ],
     profile: "Profilo",
-    manualMode: "Modalit&agrave; manuale",
+    manualMode: "Modalità manuale",
     mentions: "Menzioni",
     mentionsDescription: [
       strong("Post che ti menzionano,"),
@@ -579,7 +579,7 @@ module.exports = {
     relationshipConflict:
       "In qualche modo non meglio precisato stai seguendo e bloccando allo stesso tempo",
     // author view
-    viewLikes: "Guarda like",
+    viewLikes: "Visualizza like",
     // likes view
     likedBy: "Like di ", // here the subject of the sentence should be put at the end (as if it were "liked by X" instead of "X's likes"
     // composer
@@ -589,10 +589,10 @@ module.exports = {
     publishCustomDescription: [
       "Pubblica un messaggio su misura inserendo dati ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
-      " qui sotto. Torna utile per realizzare prototipi o per pubblicare post ancora non supportati da Oasis.  Questo messaggio non potrà essere modificato o rimosso.",
+      " qui sotto. Torna utile per realizzare prototipi o per pubblicare post ancora non supportati da Oasis.  Questo messaggio non potrà essere modificato né rimosso.",
     ],
     commentWarning: [
-      " I commenti non possono essere modificati o rimossi. Per rispondere ad un messaggio, seleziona ",
+      " I commenti non possono essere modificati né rimossi. Per rispondere ad un messaggio, seleziona ",
       strong("rispondi"),
       " invece.",
     ],
@@ -614,7 +614,7 @@ module.exports = {
         },
         "Markdown"
       ),
-      ". I post non possono essere modificati o rimossi.",
+      ". I post non possono essere modificati né rimossi.",
     ],
     publishCustomInfo: ({ href }) => [
       "Se sei uno smanettone puoi anche ",
@@ -633,7 +633,7 @@ module.exports = {
       strong("risposta pubblica"),
       " a questo messaggio con ",
       a({ href: markdownUrl }, "Markdown"),
-      ". I messaggi non possono essere modificati o rimossi. Per rispondere ad un intero thread seleziona ",
+      ". I messaggi non possono essere modificati né rimossi. Per rispondere ad un intero thread seleziona ",
       strong("commenta"),
       " invece.",
     ],
@@ -653,20 +653,20 @@ module.exports = {
     setLanguage: "Seleziona lingua",
 
     status: "Stato attuale",
-    peerConnections: "Connectioni coi peer 💻⚡️💻",
+    peerConnections: "Connessioni coi peer 💻⚡️💻",
     connectionsIntro:
       "Il tuo computer sincronizza i dati con questi computer e si connetterà a qualsiasi pub o utente scuttlebutt con cui riesce ad entrare in contatto. Dato che preleva dati dalla tua cerchia di amici, potresti vedere dati scritti da utenti che non conosci.",
     noConnections: "Nessun peer connesso.",
     connectionActionIntro:
-      "Puoi decidere se vuoi che il tuo computer possa entrare in contatto con peer sul tuo network. Puoi far partire, fermare o far ripartire questo tipo di connessioni quando vuoi.",
-    startNetworking: "Inizia networking",
-    stopNetworking: "Ferma networking",
-    restartNetworking: "Ricarica networking",
+      "Puoi decidere se vuoi che il tuo computer entri in contatto con peer connessi alla stessa intranet in cui ti trovi ora. Puoi far partire, fermare o far ripartire questo tipo di connessioni quando vuoi.",
+    startNetworking: "Inizia networking locale",
+    stopNetworking: "Ferma networking locale",
+    restartNetworking: "Ricarica networking locale",
     indexes: "Indici",
     invites: "Inviti",
     invitesDescription:
       "Utilizza un invito che hai ricevuto incollandolo qui sotto. Se viene accettato ne seguirai il feed e ne riceverai il follow.",
-    acceptInvite: "Accetta invito",
+    acceptInvite: "Accetta l'invito",
     // search page
     searchLabel: "Cerca tra i messaggi che hai scaricato.",
     // posts and comments
