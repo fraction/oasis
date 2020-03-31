@@ -475,15 +475,16 @@ const post = ({ msg, aside = false }) => {
   const maxLikedNameLength = 16;
   const maxLikedNames = 16;
 
-  let likedBy = msg.value.meta.votes
+  const likedByNames = msg.value.meta.votes
     .slice(0, maxLikedNames)
     .map((name) => name.slice(0, maxLikedNameLength))
     .join(", ");
 
-  if (likeCount > maxLikedNames) {
-    const extraLikes = likeCount - maxLikedNames;
-    likedBy += ` +${extraLikes} more`;
-  }
+  const additionalLikesMessage =
+    likeCount > maxLikedNames ? `+${likeCount - maxLikedNames} more` : ``;
+
+  const likedByMessage =
+    likeCount > 0 ? `Liked by ${likedByNames} ${additionalLikesMessage}` : null;
 
   const messageClasses = ["post"];
 
@@ -574,7 +575,7 @@ const post = ({ msg, aside = false }) => {
               type: "submit",
               value: likeButton.value,
               class: likeButton.class,
-              title: `Liked by ${likedBy}`,
+              title: likedByMessage,
             },
             `❤ ${likeCount}`
           )
