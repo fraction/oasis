@@ -936,12 +936,22 @@ module.exports = ({ cooler, isPublic }) => {
 
       const myFeedId = ssb.id;
 
-      const options = configure({
-        type: "post",
-        private: false,
-      });
-
-      const source = ssb.messagesByType(options);
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $lte: Date.now() },
+                  content: {
+                    type: "post",
+                  },
+                },
+              },
+            },
+          ],
+        })
+      );
 
       const messages = await new Promise((resolve, reject) => {
         pull(
