@@ -48,8 +48,8 @@ const markdown = require("./markdown");
 const md = new MarkdownIt();
 
 const i18nBase = require("./i18n");
-let i18n = null;
-let selectedLanguage = null;
+let selectedLanguage = "en";
+let i18n = i18nBase[selectedLanguage];
 
 exports.setLanguage = (language) => {
   selectedLanguage = language;
@@ -69,6 +69,9 @@ const toAttributes = (obj) =>
 // non-breaking space
 const nbsp = "\xa0";
 
+/**
+ * @param {{href: string, emoji: string, text: string }} input
+ */
 const navLink = ({ href, emoji, text }) =>
   li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
 
@@ -119,6 +122,11 @@ const template = (...elements) => {
             href: "/public/latest/summaries",
             emoji: "🗒️",
             text: i18n.summaries,
+          }),
+          navLink({
+            href: "/public/latest/threads",
+            emoji: "🧵",
+            text: i18n.threads,
           }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
@@ -264,6 +272,96 @@ const postInAside = (msg) => {
   );
 };
 
+const thread = (messages) => {
+  // this first loop is preprocessing to enable auto-expansion of forks when a
+  // message in the fork is linked to
+
+  let lookingForTarget = true;
+  let shallowest = Infinity;
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    const depth = lodash.get(msg, "value.meta.thread.depth", 0);
+
+    if (lookingForTarget) {
+      const isThreadTarget = Boolean(
+        lodash.get(msg, "value.meta.thread.target", false)
+      );
+
+      if (isThreadTarget) {
+        lookingForTarget = false;
+      }
+    } else {
+      if (depth < shallowest) {
+        lodash.set(msg, "value.meta.thread.ancestorOfTarget", true);
+        shallowest = depth;
+      }
+    }
+  }
+
+  const msgList = [];
+  for (let i = 0; i < messages.length; i++) {
+    const j = i + 1;
+
+    const currentMsg = messages[i];
+    const nextMsg = messages[j];
+
+    const depth = (msg) => {
+      // will be undefined when checking depth(nextMsg) when currentMsg is the
+      // last message in the thread
+      if (msg === undefined) return 0;
+      return lodash.get(msg, "value.meta.thread.depth", 0);
+    };
+
+    msgList.push(post({ msg: currentMsg }).outerHTML);
+
+    if (depth(currentMsg) < depth(nextMsg)) {
+      const isAncestor = Boolean(
+        lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
+      );
+      msgList.push(`<div class="indent"><details ${isAncestor ? "open" : ""}>`);
+
+      const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
+      const nextSnippet = postSnippet(
+        lodash.get(nextMsg, "value.content.text")
+      );
+
+      msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
+    } else if (depth(currentMsg) > depth(nextMsg)) {
+      // getting more shallow
+      const diffDepth = depth(currentMsg) - depth(nextMsg);
+
+      const shallowList = [];
+      for (let d = 0; d < diffDepth; d++) {
+        // on the way up it might go several depths at once
+        shallowList.push("</details></div>");
+      }
+
+      msgList.push(shallowList);
+    }
+  }
+
+  const htmlStrings = lodash.flatten(msgList);
+  return div({}, { innerHTML: htmlStrings.join("") });
+};
+
+const postSnippet = (text) => {
+  const max = 40;
+
+  text = text.trim().split("\n", 3).join("\n");
+  // this is taken directly from patchwork. i'm not entirely sure what this
+  // regex is doing
+  text = text.replace(/_|`|\*|#|^\[@.*?]|\[|]|\(\S*?\)/g, "").trim();
+  text = text.replace(/:$/, "");
+  text = text.trim().split("\n", 1)[0].trim();
+
+  if (text.length > max) {
+    text = text.substring(0, max - 1) + "…";
+  }
+
+  return text;
+};
+
 /**
  * Render a section containing a link that takes users to the context for a
  * thread preview.
@@ -324,7 +422,7 @@ const postAside = ({ key, value }) => {
   const fragments = postsToShow.map(postInAside);
 
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
-    fragments.push(section(footer(continueThreadComponent(thread, isComment))));
+    fragments.push(section(continueThreadComponent(thread, isComment)));
   }
 
   return div({ class: "indent" }, fragments);
@@ -360,8 +458,6 @@ const post = ({ msg, aside = false }) => {
   const { name } = msg.value.meta.author;
   const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
 
-  const depth = lodash.get(msg, "value.meta.thread.depth", 0);
-
   const markdownContent = markdown(
     msg.value.content.text,
     msg.value.content.mentions
@@ -375,6 +471,20 @@ const post = ({ msg, aside = false }) => {
     : { value: 1, class: null };
 
   const likeCount = msg.value.meta.votes.length;
+
+  const maxLikedNameLength = 16;
+  const maxLikedNames = 16;
+
+  const likedByNames = msg.value.meta.votes
+    .slice(0, maxLikedNames)
+    .map((name) => name.slice(0, maxLikedNameLength))
+    .join(", ");
+
+  const additionalLikesMessage =
+    likeCount > maxLikedNames ? `+${likeCount - maxLikedNames} more` : ``;
+
+  const likedByMessage =
+    likeCount > 0 ? `Liked by ${likedByNames} ${additionalLikesMessage}` : null;
 
   const messageClasses = ["post"];
 
@@ -423,7 +533,6 @@ const post = ({ msg, aside = false }) => {
     {
       id: msg.key,
       class: messageClasses.join(" "),
-      style: `margin-left: ${depth}rem;`,
     },
     header(
       div(
@@ -466,6 +575,7 @@ const post = ({ msg, aside = false }) => {
               type: "submit",
               value: likeButton.value,
               class: likeButton.class,
+              title: likedByMessage,
             },
             `❤ ${likeCount}`
           )
@@ -523,6 +633,9 @@ exports.editProfileView = ({ name, description }) =>
     )
   );
 
+/**
+ * @param {{avatarUrl: string, description: string, feedId: string, messages: any[], name: string, relationship: object}} input
+ */
 exports.authorView = ({
   avatarUrl,
   description,
@@ -534,31 +647,37 @@ exports.authorView = ({
   const mention = `[@${name}](${feedId})`;
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
-  const areFollowing =
-    relationship !== null &&
-    relationship.following === true &&
-    relationship.blocking === false;
+  const contactForms = [];
 
-  const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
-
-  const contactForm =
-    relationship === null
-      ? null // We're on our own profile!
-      : form(
+  const addForm = ({ action }) =>
+    contactForms.push(
+      form(
+        {
+          action: `/${action}/${encodeURIComponent(feedId)}`,
+          method: "post",
+        },
+        button(
           {
-            action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
-            method: "post",
+            type: "submit",
           },
-          button(
-            {
-              type: "submit",
-            },
-            contactFormType
-          )
-        );
+          i18n[action]
+        )
+      )
+    );
+
+  if (relationship.me === false) {
+    if (relationship.following) {
+      addForm({ action: "unfollow" });
+    } else if (relationship.blocking) {
+      addForm({ action: "unblock" });
+    } else {
+      addForm({ action: "follow" });
+      addForm({ action: "block" });
+    }
+  }
 
   const relationshipText = (() => {
-    if (relationship === null) {
+    if (relationship.me === true) {
       return i18n.relationshipYou;
     } else if (
       relationship.following === true &&
@@ -601,8 +720,8 @@ exports.authorView = ({
       div(
         a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
         span(nbsp, relationshipText),
-        contactForm,
-        relationship === null
+        ...contactForms,
+        relationship.me
           ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
           : null
       ),
@@ -717,8 +836,7 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.threadView = ({ messages }) =>
-  template(messages.map((msg) => post({ msg })));
+exports.threadView = ({ messages }) => template(thread(messages));
 
 exports.markdownView = ({ text }) => {
   const rawHtml = md.render(text);
@@ -754,6 +872,9 @@ exports.publishView = () => {
   );
 };
 
+/**
+ * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
+ */
 exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const max = status.sync.since;
 
@@ -784,14 +905,16 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     stopButton,
   ]);
 
-  const peerList = (peers || []).map(([, data]) => {
-    return li(
-      a(
-        { href: `/author/${encodeURIComponent(data.key)}` },
-        data.name || data.host || data.key
-      )
-    );
-  });
+  const peerList = (peers || [])
+    .filter(([, data]) => data.state === "connected")
+    .map(([, data]) => {
+      return li(
+        a(
+          { href: `/author/${encodeURIComponent(data.key)}` },
+          data.name || data.host || data.key
+        )
+      );
+    });
 
   const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme;
@@ -823,13 +946,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
 
   const base16Elements = base16.map((base) =>
     div({
-      style: {
-        "background-color": `var(--base${base})`,
-        width: `${(1 / base16.length) * 100}%`,
-        height: "1em",
-        "margin-top": "1em",
-        display: "inline-block",
-      },
+      class: `theme-preview theme-preview-${base}`,
     })
   );
 
@@ -868,10 +985,12 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       form(
         { action: "/language", method: "post" },
         select({ name: "language" }, [
+          /* cspell:disable */
           languageOption("en", "English"),
           languageOption("es", "Español"),
-          /* cspell:disable-next-line */
+          languageOption("it", "Italiano"),
           languageOption("de", "Deutsch"),
+          /* cspell:enable */
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
@@ -881,6 +1000,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   );
 };
 
+/** @param {{ viewTitle: string, viewDescription: string }} input */
 const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
   if (!viewTitle && !viewDescription) {
     return null;
@@ -901,6 +1021,8 @@ exports.likesView = async ({ messages, feed, name }) => {
   return template(
     viewInfoBox({
       viewTitle: span(authorLink, i18n.likedBy),
+      // TODO: i18n
+      viewDescription: "List of messages liked by this author.",
     }),
     messages.map((msg) => post({ msg }))
   );
@@ -958,6 +1080,15 @@ exports.summaryView = ({ messages }) => {
     messages,
     viewTitle: i18n.summaries,
     viewDescription: i18n.summariesDescription,
+    aside: true,
+  });
+};
+
+exports.threadsView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.threads,
+    viewDescription: i18n.threadsDescription,
     aside: true,
   });
 };
@@ -1047,6 +1178,7 @@ exports.hashtagView = ({ messages, hashtag }) => {
   );
 };
 
+/** @param {{percent: number}} input */
 exports.indexingView = ({ percent }) => {
   // TODO: i18n
   const message = `Oasis has only processed ${percent}% of the messages and needs to catch up. This page will refresh every 10 seconds. Thanks for your patience! ❤`;

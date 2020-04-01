@@ -153,45 +153,66 @@ module.exports = ({ cooler, isPublic }) => {
   };
 
   models.friend = {
-    isFollowing: async (feedId) => {
-      const ssb = await cooler.open();
-      const { id } = ssb;
+    /** @param {{ feedId: string, following: boolean, blocking: boolean }} input */
+    setRelationship: async ({ feedId, following, blocking }) => {
+      if (following && blocking) {
+        throw new Error("Cannot follow and block at the same time");
+      }
 
-      const isFollowing = await ssb.friends.isFollowing({
-        source: id,
-        dest: feedId,
-      });
-      return isFollowing;
-    },
-    setFollowing: async ({ feedId, following }) => {
+      const current = await models.friend.getRelationship(feedId);
+      const alreadySet =
+        current.following === following && current.blocking === blocking;
+
+      if (alreadySet) {
+        // The following state is already set, don't re-set it.
+        return;
+      }
+
       const ssb = await cooler.open();
 
       const content = {
         type: "contact",
         contact: feedId,
         following,
+        blocking,
       };
 
       return ssb.publish(content);
     },
-    follow: async (feedId) => {
-      const isFollowing = await models.friend.isFollowing(feedId);
-      if (!isFollowing) {
-        await models.friend.setFollowing({ feedId, following: true });
-      }
-    },
-    unfollow: async (feedId) => {
-      const isFollowing = await models.friend.isFollowing(feedId);
-      if (isFollowing) {
-        await models.friend.setFollowing({ feedId, following: false });
-      }
-    },
+    follow: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        following: true,
+        blocking: false,
+      }),
+    unfollow: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        following: false,
+        blocking: false,
+      }),
+    block: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        blocking: true,
+        following: false,
+      }),
+    unblock: (feedId) =>
+      models.friend.setRelationship({
+        feedId,
+        blocking: false,
+        following: false,
+      }),
+    /**
+     * @param feedId {string}
+     * @returns {Promise<{me: boolean, following: boolean, blocking: boolean }>}
+     */
     getRelationship: async (feedId) => {
       const ssb = await cooler.open();
       const { id } = ssb;
 
       if (feedId === id) {
-        return null;
+        return { me: true, following: false, blocking: false };
       }
 
       const isFollowing = await ssb.friends.isFollowing({
@@ -205,6 +226,7 @@ module.exports = ({ cooler, isPublic }) => {
       });
 
       return {
+        me: false,
         following: isFollowing,
         blocking: isBlocking,
       };
@@ -446,6 +468,12 @@ module.exports = ({ cooler, isPublic }) => {
           .filter(([, value]) => value === 1)
           .map(([key]) => key);
 
+        // get an array of voter names, for display on hover
+        const pendingVoterNames = voters.map((author) =>
+          models.about.name(author)
+        );
+        const voterNames = await Promise.all(pendingVoterNames);
+
         const pendingName = models.about.name(msg.value.author);
         const pendingAvatarMsg = models.about.image(msg.value.author);
 
@@ -469,10 +497,17 @@ module.exports = ({ cooler, isPublic }) => {
           }
         }
 
+        const isPost =
+          lodash.get(msg, "value.content.type") === "post" &&
+          lodash.get(msg, "value.content.text", false) !== false;
+        const hasRoot = lodash.get(msg, "value.content.root", false) !== false;
+        const hasFork = lodash.get(msg, "value.content.fork", false) !== false;
+
         const channel = lodash.get(msg, "value.content.channel");
         const hasChannel = typeof channel === "string" && channel.length > 2;
+        const isRoot = hasRoot === false;
 
-        if (hasChannel) {
+        if (hasChannel && isRoot) {
           msg.value.content.text += `\n\n#${channel}`;
         }
 
@@ -506,12 +541,6 @@ module.exports = ({ cooler, isPublic }) => {
           url: avatarUrl,
         });
 
-        const isPost =
-          lodash.get(msg, "value.content.type") === "post" &&
-          lodash.get(msg, "value.content.text") != null;
-        const hasRoot = lodash.get(msg, "value.content.root") != null;
-        const hasFork = lodash.get(msg, "value.content.fork") != null;
-
         if (isPost && hasRoot === false && hasFork === false) {
           lodash.set(msg, "value.meta.postType", "post");
         } else if (isPost && hasRoot && hasFork === false) {
@@ -522,7 +551,7 @@ module.exports = ({ cooler, isPublic }) => {
           lodash.set(msg, "value.meta.postType", "mystery");
         }
 
-        lodash.set(msg, "value.meta.votes", voters);
+        lodash.set(msg, "value.meta.votes", voterNames);
         lodash.set(msg, "value.meta.voted", voters.includes(myFeedId));
 
         return msg;
@@ -536,6 +565,16 @@ module.exports = ({ cooler, isPublic }) => {
       const myFeedId = ssb.id;
 
       const options = configure({ id: feedId }, customOptions);
+
+      const { blocking } = await models.friend.getRelationship(feedId);
+
+      // Avoid streaming any messages from this feed. If we used the social
+      // filter here it would continue streaming all messages from this author
+      // until it consumed the entire feed.
+      if (blocking) {
+        return [];
+      }
+
       const source = ssb.createUserStream(options);
 
       const messages = await new Promise((resolve, reject) => {
@@ -898,6 +937,60 @@ module.exports = ({ cooler, isPublic }) => {
 
       return messages;
     },
+    latestThreads: async () => {
+      const ssb = await cooler.open();
+
+      const myFeedId = ssb.id;
+
+      const source = ssb.query.read(
+        configure({
+          query: [
+            {
+              $filter: {
+                value: {
+                  timestamp: { $lte: Date.now() },
+                  content: {
+                    type: "post",
+                  },
+                },
+              },
+            },
+          ],
+        })
+      );
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.filter(
+            (message) =>
+              typeof message.value.content !== "string" &&
+              message.value.content.root == null
+          ),
+          pull.take(maxMessages),
+          pullParallelMap(async (message, cb) => {
+            // Retrieve a preview of this post's comments / thread
+            const thread = await post.fromThread(message.key);
+            lodash.set(
+              message,
+              "value.meta.thread",
+              await transform(ssb, thread, myFeedId)
+            );
+            cb(null, message);
+          }),
+          pull.filter((message) => message.value.meta.thread.length > 1),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, myFeedId));
+            }
+          })
+        );
+      });
+
+      return messages;
+    },
 
     popular: async ({ period }) => {
       const ssb = await cooler.open();
@@ -979,6 +1072,9 @@ module.exports = ({ cooler, isPublic }) => {
                     return acc;
                   }
 
+                  // The value of a users vote is 1 / (1 + total votes), the
+                  // more a user votes, the less weight is given to each vote.
+
                   const entries = Object.entries(values);
                   const total = 1 + Math.log(entries.length);
 
@@ -1021,7 +1117,7 @@ module.exports = ({ cooler, isPublic }) => {
                   if (err) {
                     reject(err);
                   } else {
-                    resolve(transform(ssb, collectedMessages, myFeedId));
+                    resolve(collectedMessages);
                   }
                 })
               );
