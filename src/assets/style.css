@@ -202,8 +202,8 @@ button:hover {
   background-color: var(--fg-light);
 }
 
-section > div > footer > form > button:hover,
-section > div > footer > form > button:focus {
+section > footer > div > form > button:hover,
+section > footer > div > form > button:focus {
   background-color: transparent;
 }
 
