@@ -149,6 +149,7 @@ const i18n = {
     startNetworking: "Start networking",
     stopNetworking: "Stop networking",
     restartNetworking: "Restart networking",
+    sync: "Connect and Sync",
     indexes: "Indexes",
     invites: "Invites",
     invitesDescription:

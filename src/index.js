@@ -755,6 +755,10 @@ router
     await meta.connStop();
     ctx.redirect("/settings");
   })
+  .post("/settings/conn/sync", koaBody(), async (ctx) => {
+    await meta.sync();
+    ctx.redirect("/settings");
+  })
   .post("/settings/conn/restart", koaBody(), async (ctx) => {
     await meta.connRestart();
     ctx.redirect("/settings");

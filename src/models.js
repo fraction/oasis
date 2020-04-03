@@ -315,6 +315,99 @@ module.exports = ({ cooler, isPublic }) => {
       await models.meta.connStop();
       await models.meta.connStart();
     },
+    sync: async () => {
+      const ssb = await cooler.open();
+      await ssb.conn.start();
+
+      const getPeersConnected = async () => {
+        const peersSource = await ssb.conn.peers();
+        const peers = new Promise((resolve, reject) => {
+          pull(
+            peersSource,
+            pull.take(1),
+            pull.collect((err, val) => {
+              if (err) return reject(err);
+              resolve(val[0]);
+            })
+          );
+        });
+
+        const peersList = await peers;
+        var peersConnected = new Array();
+
+        if (peersList !== undefined) {
+          peersList.forEach(([address, data]) => {
+            // debug(address, data.state);
+            if (data.state === "connected") {
+              peersConnected.push(address);
+            }
+          });
+        }
+        return peersConnected;
+      };
+
+      const waitForPeers = async () => {
+        const peers = await getPeersConnected();
+        if (peers && peers.length) {
+          debug("Connected to %s", peers);
+        } else {
+          await new Promise((r) => setTimeout(r, 500));
+          await waitForPeers();
+        }
+      };
+
+      debug("Waiting for peers to connect...");
+      await waitForPeers();
+
+      const getProgress = async () => {
+        const progress = await ssb.progress();
+        const needed = progress.indexes.target - progress.indexes.current;
+        if (needed == 0) {
+          debug("Nothing more to sync");
+        } else {
+          debug("Getting %s more items", needed);
+          await new Promise((r) => setTimeout(r, 500));
+          await getProgress();
+        }
+      };
+
+      debug("Syncing with peers...");
+      await getProgress();
+
+      // I could get blobs maybe but they're
+      // annoying. Anyway, there's this
+      // @URL: https://gist.github.com/nickwynja/26431e1c3a69164c6fe3cbd37339e5c1
+
+      const disconnect = async () => {
+        await models.meta.connStop();
+        const peersStaged = await ssb.conn.stagedPeers();
+        const staged = new Promise((resolve, reject) => {
+          pull(
+            peersStaged,
+            // https://github.com/staltz/ssb-conn/issues/9
+            pull.take(1),
+            pull.collect((err, val) => {
+              if (err) return reject(err);
+              resolve(val[0]);
+            })
+          );
+        });
+
+        const stagedPeers = await staged;
+        stagedPeers.forEach(([address]) => {
+          // debug("Unstaging %s", address);
+          ssb.conn.unstage(address);
+        });
+
+        const peersToDisconnect = await models.meta.peers();
+        peersToDisconnect.forEach(([address]) => {
+          debug("Disconnecting %s", address);
+          ssb.conn.disconnect(address);
+        });
+      };
+
+      await disconnect();
+    },
     acceptInvite: async (invite) => {
       const ssb = await cooler.open();
       return await ssb.invite.accept(invite);
