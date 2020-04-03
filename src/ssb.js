@@ -57,7 +57,7 @@ const rawConnect = (options) =>
 
 let handle;
 
-const createConnection = (config) => {
+const createConnection = (customConfig) => {
   handle = new Promise((resolve) => {
     rawConnect({ remote })
       .then((ssb) => {
@@ -80,11 +80,15 @@ const createConnection = (config) => {
 
             log("Connection attempts to existing Scuttlebutt services failed");
             log("Starting Scuttlebutt service");
-            const server = flotilla(config);
-            server(config);
+
+            // Start with the default SSB-Config object.
+            const server = flotilla(ssbConfig);
+            // Adjust with `customConfig`, which declares further preferences.
+            server(customConfig);
+
             const inProgress = {};
             const maxHops = lodash.get(
-              config,
+              ssbConfig,
               "friends.hops",
               lodash.get(ssbConfig, "friends.hops", 0)
             );
