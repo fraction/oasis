@@ -34,9 +34,9 @@ const log = (formatter, ...args) => {
   debug.enabled = isDebugEnabled;
 };
 
-const rawConnect = () =>
+const rawConnect = (options) =>
   new Promise((resolve, reject) => {
-    ssbClient(null, { remote })
+    ssbClient(null, options)
       .then((api) => {
         if (api.tangle === undefined) {
           // HACK: SSB-Tangle isn't available in Patchwork, but we want that
@@ -57,79 +57,95 @@ const rawConnect = () =>
 
 let handle;
 
-const createConnection = (config) => {
+const createConnection = (customConfig) => {
   handle = new Promise((resolve) => {
-    rawConnect()
+    rawConnect({ remote })
       .then((ssb) => {
-        log("Using pre-existing Scuttlebutt server instead of starting one");
+        log("Connected to existing Scuttlebutt service over Unix socket");
         resolve(ssb);
       })
       .catch((e) => {
         if (e.message !== "could not connect to sbot") {
           throw e;
         }
-        log("Initial connection attempt failed");
-        log("Starting Scuttlebutt server");
+        rawConnect()
+          .then((ssb) => {
+            log("Connected to existing Scuttlebutt service over TCP socket");
+            resolve(ssb);
+          })
+          .catch((e) => {
+            if (e.message !== "could not connect to sbot") {
+              throw e;
+            }
 
-        const server = flotilla(ssbConfig);
-        server(config);
+            log("Connection attempts to existing Scuttlebutt services failed");
+            log("Starting Scuttlebutt service");
 
-        const inProgress = {};
-        const maxHops = lodash.get(
-          config,
-          "friends.hops",
-          lodash.get(ssbConfig, "friends.hops", 0)
-        );
+            // Start with the default SSB-Config object.
+            const server = flotilla(ssbConfig);
+            // Adjust with `customConfig`, which declares further preferences.
+            server(customConfig);
 
-        const add = (address) => {
-          inProgress[address] = true;
-          return () => {
-            inProgress[address] = false;
-          };
-        };
+            const inProgress = {};
+            const maxHops = lodash.get(
+              ssbConfig,
+              "friends.hops",
+              lodash.get(ssbConfig, "friends.hops", 0)
+            );
 
-        const connectOrRetry = () => {
-          rawConnect()
-            .then((ssb) => {
-              log("Retrying connection to own server");
-              ssb.friends.hops().then((hops) => {
-                pull(
-                  ssb.conn.stagedPeers(),
-                  pull.drain((x) => {
-                    x.filter(([address, data]) => {
-                      const notInProgress = inProgress[address] !== true;
+            const add = (address) => {
+              inProgress[address] = true;
+              return () => {
+                inProgress[address] = false;
+              };
+            };
+            const connectOrRetry = () => {
+              rawConnect()
+                .then((ssb) => {
+                  log("Connected to new Scuttlebutt service");
+                  ssb.friends.hops().then((hops) => {
+                    pull(
+                      ssb.conn.stagedPeers(),
+                      pull.drain((x) => {
+                        x.filter(([address, data]) => {
+                          const notInProgress = inProgress[address] !== true;
 
-                      const key = data.key;
-                      const haveHops = typeof hops[key] === "number";
-                      const hopValue = haveHops ? hops[key] : Infinity;
-                      // Negative hops means blocked
-                      const isNotBlocked = hopValue >= 0;
-                      const withinHops = isNotBlocked && hopValue <= maxHops;
+                          const key = data.key;
+                          const haveHops = typeof hops[key] === "number";
+                          const hopValue = haveHops ? hops[key] : Infinity;
+                          // Negative hops means blocked
+                          const isNotBlocked = hopValue >= 0;
+                          const withinHops =
+                            isNotBlocked && hopValue <= maxHops;
 
-                      return notInProgress && withinHops;
-                    }).forEach(([address, data]) => {
-                      const done = add(address);
-                      debug(
-                        `Connecting to staged peer at ${
-                          hops[data.key]
-                        }/${maxHops} hops: ${address}`
-                      );
-                      ssb.conn.connect(address, data).then(done).catch(done);
-                    });
-                  })
-                );
-              });
-              resolve(ssb);
-            })
-            .catch((e) => {
-              if (e.message !== "could not connect to sbot") {
-                log(e);
-              }
-              connectOrRetry();
-            });
-        };
+                          return notInProgress && withinHops;
+                        }).forEach(([address, data]) => {
+                          const done = add(address);
+                          debug(
+                            `Connecting to staged peer at ${
+                              hops[data.key]
+                            }/${maxHops} hops: ${address}`
+                          );
+                          ssb.conn
+                            .connect(address, data)
+                            .then(done)
+                            .catch(done);
+                        });
+                      })
+                    );
+                  });
+                  resolve(ssb);
+                })
+                .catch((e) => {
+                  if (e.message !== "could not connect to sbot") {
+                    log(e);
+                  }
+                  connectOrRetry();
+                });
+            };
 
-        connectOrRetry();
+            connectOrRetry();
+          });
       });
   });
 
