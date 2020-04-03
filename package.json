@@ -16,7 +16,7 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "common-good fix",
     "start": "node src/index.js",
-    "test": "common-good check --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
+    "test": "tap && common-good check --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
     "preversion": "npm test",
     "version": "mv docs/CHANGELOG.md ./ && changelog-version && mv CHANGELOG.md docs/ && git add CHANGELOG.md"
   },
@@ -65,12 +65,15 @@
     "@types/nodemon": "^1.19.0",
     "@types/pull-stream": "^3.6.0",
     "@types/sharp": "^0.23.1",
+    "@types/supertest": "^2.0.8",
     "@types/yargs": "^15.0.4",
     "changelog-version": "^1.0.1",
     "common-good": "^2.0.3",
     "mkdirp": "^1.0.0",
     "nodemon": "^2.0.2",
-    "stylelint-config-recommended": "^3.0.0"
+    "stylelint-config-recommended": "^3.0.0",
+    "supertest": "^4.0.2",
+    "tap": "^14.10.7"
   },
   "optionalDependencies": {
     "sharp": "^0.23.0"
@@ -80,7 +83,8 @@
   },
   "homepage": "https://github.com/fraction/oasis#readme",
   "directories": {
-    "doc": "docs"
+    "doc": "docs",
+    "test": "test"
   },
   "keywords": [],
   "engines": {

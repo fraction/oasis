@@ -179,13 +179,8 @@ try {
 const readmePath = path.join(__dirname, "..", "README.md");
 const packagePath = path.join(__dirname, "..", "package.json");
 
-fs.promises.readFile(readmePath, "utf8").then((text) => {
-  config.readme = text;
-});
-
-fs.promises.readFile(packagePath, "utf8").then((text) => {
-  config.version = JSON.parse(text).version;
-});
+const readme = fs.readFileSync(readmePath, "utf8");
+const version = JSON.parse(fs.readFileSync(packagePath, "utf8")).version;
 
 router
   .param("imageSize", (imageSize, ctx, next) => {
@@ -525,7 +520,7 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version.toString(),
+        version: version.toString(),
       });
     };
     ctx.body = await getMeta({ theme });
@@ -547,7 +542,7 @@ router
     const status = async (text) => {
       return markdownView({ text });
     };
-    ctx.body = await status(config.readme);
+    ctx.body = await status(readme);
   })
   .get("/mentions/", async (ctx) => {
     const mentions = async () => {
@@ -805,7 +800,12 @@ const middleware = [
   routes,
 ];
 
-http({ host, port, middleware });
+const app = http({ host, port, middleware });
+app.on("close", () => {
+  cooler.close();
+});
+
+module.exports = app;
 
 log(`Listening on ${url}`);
 

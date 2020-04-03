@@ -174,5 +174,15 @@ module.exports = ({ offline }) => {
         });
       });
     },
+    close() {
+      return new Promise((resolve) => {
+        handle.then((ssb) => {
+          if (ssb.closed === false) {
+            ssb.close();
+          }
+          resolve();
+        });
+      });
+    },
   };
 };
