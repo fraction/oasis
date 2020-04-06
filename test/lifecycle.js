@@ -6,11 +6,12 @@ process.argv.push("--no-open", "--offline");
 const app = require("../src");
 const tap = require("tap");
 
-tap.plan(1);
+tap.test("lifecycle", (t) => {
+  t.plan(1);
+  t.ok(app, "app exists");
+});
 
-tap.ok(app, "app exists");
-
-setImmediate(() => {
+tap.teardown(() => {
   app.close();
   app._close();
 });
