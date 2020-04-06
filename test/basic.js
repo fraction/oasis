@@ -1,5 +1,5 @@
 // HACK: Prevent Oasis from opening the web browser.
-process.argv.push("--no-open");
+process.argv.push("--no-open", "--offline");
 
 const app = require("../src");
 const supertest = require("supertest");
@@ -26,11 +26,30 @@ const paths = [
   "/settings/readme",
 ];
 
-tap.plan(paths.length);
+tap.setTimeout(0);
 
-paths.map((path) => {
-  tap.comment(path);
-  supertest(app).get(path).expect(200).end(tap.error);
+//	console.log('starting test')
+//  tap.test(path, (t) => {
+//	  console.log('soon')
+// });
+paths.forEach((path) => {
+  tap.test(path, (t) => {
+    t.plan(1);
+    supertest(app)
+      .get(path)
+      .expect(200)
+      .end((err) => {
+        console.log(`got ${path}`);
+        t.error(err);
+      });
+  });
 });
 
-tap.teardown(() => app.close());
+console.log("end");
+
+// HACK: This closes the database.
+tap.teardown(() => {
+  console.log("Tearing down.");
+  app.close();
+  app._close();
+});

@@ -66,6 +66,8 @@ these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
 
+let isClosingAfterTest = false;
+
 process.on("uncaughtException", function (err) {
   // This isn't `err.code` because TypeScript doesn't like that.
   if (err["code"] === "EADDRINUSE") {
@@ -103,7 +105,13 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
         }
       });
     });
+  } else if (
+    isClosingAfterTest &&
+    err["message"] === "TypeError: Cannot read property 'set' of null"
+  ) {
+    // We're closing during a test. Ignore.
   } else {
+    console.log(err);
     throw err;
   }
 });
@@ -801,9 +809,15 @@ const middleware = [
 ];
 
 const app = http({ host, port, middleware });
-app.on("close", () => {
+
+// HACK: This lets us close the database once tests finish.
+// If we close the database after each test it throws lots of really fun "parent
+// stream closing" errors everywhere and breaks the tests. :/
+app._close = () => {
+  console.log("closing");
+  isClosingAfterTest = true;
   cooler.close();
-});
+};
 
 module.exports = app;
 
