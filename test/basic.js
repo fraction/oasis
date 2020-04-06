@@ -28,10 +28,6 @@ const paths = [
 
 tap.setTimeout(0);
 
-//	console.log('starting test')
-//  tap.test(path, (t) => {
-//	  console.log('soon')
-// });
 paths.forEach((path) => {
   tap.test(path, (t) => {
     t.plan(1);
@@ -39,17 +35,14 @@ paths.forEach((path) => {
       .get(path)
       .expect(200)
       .end((err) => {
-        console.log(`got ${path}`);
+        console.log(path);
         t.error(err);
       });
   });
 });
 
-console.log("end");
-
 // HACK: This closes the database.
 tap.teardown(() => {
-  console.log("Tearing down.");
   app.close();
   app._close();
 });

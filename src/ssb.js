@@ -71,12 +71,12 @@ const attemptConnection = () =>
   new Promise((resolve, reject) => {
     connect({ remote })
       .then((ssb) => {
-        log("Connected to existing Scuttlebutt service over Unix socket");
+        debug("Connected to existing Scuttlebutt service over Unix socket");
         resolve(ssb);
       })
       .catch((e) => {
         if (closing) return;
-        log("Unix socket failed");
+        debug("Unix socket failed");
         if (e.message !== "could not connect to sbot") {
           throw e;
         }
@@ -87,7 +87,7 @@ const attemptConnection = () =>
           })
           .catch((e) => {
             if (closing) return;
-            log("TCP socket failed");
+            debug("TCP socket failed");
             if (e.message !== "could not connect to sbot") {
               throw e;
             }
@@ -98,13 +98,12 @@ const attemptConnection = () =>
 
 const ensureConnection = (customConfig) =>
   new Promise((resolve) => {
-    console.log("ensureConnection()");
     attemptConnection()
       .then((ssb) => {
         resolve(ssb);
       })
       .catch(() => {
-        log("Connection attempts to existing Scuttlebutt services failed");
+        debug("Connection attempts to existing Scuttlebutt services failed");
         log("Starting Scuttlebutt service");
 
         // Start with the default SSB-Config object.
@@ -120,10 +119,7 @@ const ensureConnection = (customConfig) =>
               resolve(ssb);
             })
             .catch((e) => {
-              console.log(e);
-              throw new Error(
-                "Started SSB service but couldn't establish connection"
-              );
+              throw new Error(e);
             });
         }, 100);
       });
@@ -229,13 +225,11 @@ module.exports = ({ offline }) => {
       });
     },
     close() {
-      console.log("ssb.close()");
       closing = true;
       if (clientHandle && clientHandle.closed === false) {
         clientHandle.close();
       }
       if (serverHandle) {
-        console.log("closing server");
         serverHandle.close();
       }
     },

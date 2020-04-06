@@ -111,7 +111,6 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
   ) {
     // We're closing during a test. Ignore.
   } else {
-    console.log(err);
     throw err;
   }
 });
@@ -814,7 +813,6 @@ const app = http({ host, port, middleware });
 // If we close the database after each test it throws lots of really fun "parent
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
-  console.log("closing");
   isClosingAfterTest = true;
   cooler.close();
 };
