@@ -6,6 +6,8 @@ process.argv.push("--no-open", "--offline");
 const app = require("../src");
 const tap = require("tap");
 
+tap.setTimeout(0);
+
 tap.test("lifecycle", (t) => {
   t.plan(1);
   t.ok(app, "app exists");
