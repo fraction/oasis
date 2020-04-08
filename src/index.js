@@ -66,6 +66,8 @@ these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
 
+let isClosingAfterTest = false;
+
 process.on("uncaughtException", function (err) {
   // This isn't `err.code` because TypeScript doesn't like that.
   if (err["code"] === "EADDRINUSE") {
@@ -103,6 +105,11 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
         }
       });
     });
+  } else if (
+    isClosingAfterTest &&
+    err["message"] === "TypeError: Cannot read property 'set' of null"
+  ) {
+    // We're closing during a test. Ignore.
   } else {
     throw err;
   }
@@ -179,13 +186,8 @@ try {
 const readmePath = path.join(__dirname, "..", "README.md");
 const packagePath = path.join(__dirname, "..", "package.json");
 
-fs.promises.readFile(readmePath, "utf8").then((text) => {
-  config.readme = text;
-});
-
-fs.promises.readFile(packagePath, "utf8").then((text) => {
-  config.version = JSON.parse(text).version;
-});
+const readme = fs.readFileSync(readmePath, "utf8");
+const version = JSON.parse(fs.readFileSync(packagePath, "utf8")).version;
 
 router
   .param("imageSize", (imageSize, ctx, next) => {
@@ -525,7 +527,7 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version.toString(),
+        version: version.toString(),
       });
     };
     ctx.body = await getMeta({ theme });
@@ -547,7 +549,7 @@ router
     const status = async (text) => {
       return markdownView({ text });
     };
-    ctx.body = await status(config.readme);
+    ctx.body = await status(readme);
   })
   .get("/mentions/", async (ctx) => {
     const mentions = async () => {
@@ -805,7 +807,17 @@ const middleware = [
   routes,
 ];
 
-http({ host, port, middleware });
+const app = http({ host, port, middleware });
+
+// HACK: This lets us close the database once tests finish.
+// If we close the database after each test it throws lots of really fun "parent
+// stream closing" errors everywhere and breaks the tests. :/
+app._close = () => {
+  isClosingAfterTest = true;
+  cooler.close();
+};
+
+module.exports = app;
 
 log(`Listening on ${url}`);
 

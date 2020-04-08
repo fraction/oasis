@@ -34,122 +34,149 @@ const log = (formatter, ...args) => {
   debug.enabled = isDebugEnabled;
 };
 
-const rawConnect = (options) =>
+/**
+ * @param [options] {object} - options to pass to SSB-Client
+ * @returns Promise
+ */
+const connect = (options) =>
   new Promise((resolve, reject) => {
-    ssbClient(null, options)
-      .then((api) => {
-        if (api.tangle === undefined) {
-          // HACK: SSB-Tangle isn't available in Patchwork, but we want that
-          // compatibility. This code automatically injects SSB-Tangle into our
-          // stack so that we don't get weird errors when using Patchwork.
-          //
-          // See: https://github.com/fraction/oasis/issues/21
-          api.tangle = ssbTangle.init(api);
+    const onSuccess = (api) => {
+      if (api.tangle === undefined) {
+        // HACK: SSB-Tangle isn't available in Patchwork, but we want that
+        // compatibility. This code automatically injects SSB-Tangle into our
+        // stack so that we don't get weird errors when using Patchwork.
+        //
+        // See: https://github.com/fraction/oasis/issues/21
+        api.tangle = ssbTangle.init(api);
 
-          // MuxRPC supports promises but the raw plugin does not.
-          api.tangle.branch = promisify(api.tangle.branch);
-        }
+        // MuxRPC supports promises but the raw plugin does not.
+        api.tangle.branch = promisify(api.tangle.branch);
+      }
 
-        resolve(api);
-      })
-      .catch(reject);
+      resolve(api);
+    };
+
+    ssbClient(null, options).then(onSuccess).catch(reject);
   });
 
-let handle;
+let closing = false;
+let serverHandle;
 
-const createConnection = (customConfig) => {
-  handle = new Promise((resolve) => {
-    rawConnect({ remote })
+/**
+ * Attempts connection over Unix socket, falling back to TCP socket if that
+ * fails. If the TCP socket fails, the promise is rejected.
+ * @returns Promise
+ */
+const attemptConnection = () =>
+  new Promise((resolve, reject) => {
+    connect({ remote })
       .then((ssb) => {
-        log("Connected to existing Scuttlebutt service over Unix socket");
+        debug("Connected to existing Scuttlebutt service over Unix socket");
         resolve(ssb);
       })
       .catch((e) => {
+        if (closing) return;
+        debug("Unix socket failed");
         if (e.message !== "could not connect to sbot") {
           throw e;
         }
-        rawConnect()
+        connect()
           .then((ssb) => {
             log("Connected to existing Scuttlebutt service over TCP socket");
             resolve(ssb);
           })
           .catch((e) => {
+            if (closing) return;
+            debug("TCP socket failed");
             if (e.message !== "could not connect to sbot") {
               throw e;
             }
-
-            log("Connection attempts to existing Scuttlebutt services failed");
-            log("Starting Scuttlebutt service");
-
-            // Start with the default SSB-Config object.
-            const server = flotilla(ssbConfig);
-            // Adjust with `customConfig`, which declares further preferences.
-            server(customConfig);
-
-            const inProgress = {};
-            const maxHops = lodash.get(
-              ssbConfig,
-              "friends.hops",
-              lodash.get(ssbConfig, "friends.hops", 0)
-            );
-
-            const add = (address) => {
-              inProgress[address] = true;
-              return () => {
-                inProgress[address] = false;
-              };
-            };
-            const connectOrRetry = () => {
-              rawConnect()
-                .then((ssb) => {
-                  log("Connected to new Scuttlebutt service");
-                  ssb.friends.hops().then((hops) => {
-                    pull(
-                      ssb.conn.stagedPeers(),
-                      pull.drain((x) => {
-                        x.filter(([address, data]) => {
-                          const notInProgress = inProgress[address] !== true;
-
-                          const key = data.key;
-                          const haveHops = typeof hops[key] === "number";
-                          const hopValue = haveHops ? hops[key] : Infinity;
-                          // Negative hops means blocked
-                          const isNotBlocked = hopValue >= 0;
-                          const withinHops =
-                            isNotBlocked && hopValue <= maxHops;
-
-                          return notInProgress && withinHops;
-                        }).forEach(([address, data]) => {
-                          const done = add(address);
-                          debug(
-                            `Connecting to staged peer at ${
-                              hops[data.key]
-                            }/${maxHops} hops: ${address}`
-                          );
-                          ssb.conn
-                            .connect(address, data)
-                            .then(done)
-                            .catch(done);
-                        });
-                      })
-                    );
-                  });
-                  resolve(ssb);
-                })
-                .catch((e) => {
-                  if (e.message !== "could not connect to sbot") {
-                    log(e);
-                  }
-                  connectOrRetry();
-                });
-            };
-
-            connectOrRetry();
+            reject(new Error("Both connection options failed"));
           });
       });
   });
 
-  return handle;
+const ensureConnection = (customConfig) =>
+  new Promise((resolve) => {
+    attemptConnection()
+      .then((ssb) => {
+        resolve(ssb);
+      })
+      .catch(() => {
+        debug("Connection attempts to existing Scuttlebutt services failed");
+        log("Starting Scuttlebutt service");
+
+        // Start with the default SSB-Config object.
+        const server = flotilla(ssbConfig);
+        // Adjust with `customConfig`, which declares further preferences.
+        serverHandle = server(customConfig);
+
+        // Give the server a moment to start. This is a race condition. :/
+        setTimeout(() => {
+          attemptConnection()
+            .then((ssb) => {
+              autoStagePeers({ ssb, config: customConfig });
+              resolve(ssb);
+            })
+            .catch((e) => {
+              throw new Error(e);
+            });
+        }, 100);
+      });
+  });
+
+const autoStagePeers = ({ ssb, config }) => {
+  // TODO: This does not start when Oasis is started in --offline mode, which
+  // is great, but if you start Oasis in --offline mode and select 'Start
+  // networking' then this doesn't come into play.
+  //
+  // The right place to fix this is in the scheduler, and this entire function
+  // should be replaced by: https://github.com/staltz/ssb-conn/pull/17
+  if (config.conn.autostart !== true) {
+    return;
+  }
+
+  const inProgress = {};
+  const maxHops = lodash.get(
+    ssbConfig,
+    "friends.hops",
+    lodash.get(ssbConfig, "friends.hops", 0)
+  );
+
+  const add = (address) => {
+    inProgress[address] = true;
+    return () => {
+      inProgress[address] = false;
+    };
+  };
+
+  ssb.friends.hops().then((hops) => {
+    pull(
+      ssb.conn.stagedPeers(),
+      pull.drain((x) => {
+        x.filter(([address, data]) => {
+          const notInProgress = inProgress[address] !== true;
+
+          const key = data.key;
+          const haveHops = typeof hops[key] === "number";
+          const hopValue = haveHops ? hops[key] : Infinity;
+          // Negative hops means blocked
+          const isNotBlocked = hopValue >= 0;
+          const withinHops = isNotBlocked && hopValue <= maxHops;
+
+          return notInProgress && withinHops;
+        }).forEach(([address, data]) => {
+          const done = add(address);
+          debug(
+            `Connecting to staged peer at ${
+              hops[data.key]
+            }/${maxHops} hops: ${address}`
+          );
+          ssb.conn.connect(address, data).then(done).catch(done);
+        });
+      })
+    );
+  });
 };
 
 module.exports = ({ offline }) => {
@@ -160,13 +187,13 @@ module.exports = ({ offline }) => {
     );
   }
 
-  const config = {
+  const customConfig = {
     conn: {
       autostart: !offline,
     },
   };
 
-  createConnection(config);
+  let clientHandle;
 
   /**
    * This is "cooler", a tiny interface for opening or reusing an instance of
@@ -176,19 +203,35 @@ module.exports = ({ offline }) => {
     open() {
       // This has interesting behavior that may be unexpected.
       //
-      // If `handle` is already an active [non-closed] connection, return that.
+      // If `clientHandle` is already an active [non-closed] connection, return that.
       //
       // If the connection is closed, we need to restart it. It's important to
       // note that if we're depending on an external service (like Patchwork) and
       // that app is closed, then Oasis will seamlessly start its own SSB service.
-      return new Promise((resolve) => {
-        handle.then((ssb) => {
-          if (ssb.closed) {
-            createConnection();
-          }
-          resolve(handle);
-        });
+      return new Promise((resolve, reject) => {
+        if (clientHandle && clientHandle.closed === false) {
+          resolve(clientHandle);
+        } else {
+          ensureConnection(customConfig).then((ssb) => {
+            clientHandle = ssb;
+            if (closing) {
+              ssb.close();
+              reject(new Error("Closing Oasis"));
+            } else {
+              resolve(ssb);
+            }
+          });
+        }
       });
+    },
+    close() {
+      closing = true;
+      if (clientHandle && clientHandle.closed === false) {
+        clientHandle.close();
+      }
+      if (serverHandle) {
+        serverHandle.close();
+      }
     },
   };
 };
