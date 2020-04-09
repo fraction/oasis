@@ -10,6 +10,29 @@ const pullSort = require("pull-sort");
 const ssbRef = require("ssb-ref");
 const crypto = require("crypto");
 
+const isEncrypted = (message) => typeof message.value.content === "string";
+const isNotEncrypted = (message) => isEncrypted(message) === false;
+
+const isDecrypted = (message) =>
+  lodash.get(message, "value.meta.private", false);
+
+const isPrivate = (message) => isEncrypted(message) || isDecrypted(message);
+
+const isNotPrivate = (message) => isPrivate(message) === false;
+
+const hasRoot = (message) =>
+  ssbRef.isMsg(lodash.get(message, "value.content.root", null));
+
+const hasFork = (message) =>
+  ssbRef.isMsg(lodash.get(message, "value.content.fork", null));
+
+const hasNoRoot = (message) => hasRoot(message) === false;
+const hasNoFork = (message) => hasFork(message) === false;
+
+const isPost = (message) =>
+  lodash.get(message, "value.content.type") === "post" &&
+  typeof lodash.get(message, "value.content.text") === "string";
+
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
 
@@ -21,9 +44,7 @@ const defaultOptions = {
   meta: true,
 };
 
-const publicOnlyFilter = pull.filter(
-  (message) => lodash.get(message, "value.meta.private", false) === false
-);
+const publicOnlyFilter = pull.filter(isNotPrivate);
 
 /** @param {object[]} customOptions */
 const configure = (...customOptions) =>
@@ -300,36 +321,24 @@ module.exports = ({ cooler, isPublic }) => {
     },
   };
 
-  const isPost = (message) =>
-    lodash.get(message, "value.content.type") === "post" &&
-    lodash.get(message, "value.content.text") != null;
-
   const isLooseRoot = (message) => {
     const conditions = [
       isPost(message),
-      lodash.get(message, "value.content.root") == null,
-      lodash.get(message, "value.content.fork") == null,
+      hasNoRoot(message),
+      hasNoFork(message),
     ];
 
     return conditions.every((x) => x);
   };
 
   const isLooseReply = (message) => {
-    const conditions = [
-      isPost(message),
-      lodash.get(message, "value.content.root") != null,
-      lodash.get(message, "value.content.fork") != null,
-    ];
+    const conditions = [isPost(message), hasRoot(message), hasFork(message)];
 
     return conditions.every((x) => x);
   };
 
   const isLooseComment = (message) => {
-    const conditions = [
-      isPost(message),
-      lodash.get(message, "value.content.root") != null,
-      lodash.get(message, "value.content.fork") == null,
-    ];
+    const conditions = [isPost(message), hasRoot(message), hasNoFork(message)];
 
     return conditions.every((x) => x === true);
   };
@@ -354,8 +363,8 @@ module.exports = ({ cooler, isPublic }) => {
         basicSocialFilter,
         pull.filter(
           (msg) =>
-            typeof msg.value.content !== "string" &&
-            msg.value.content.type === "post" &&
+            isNotPrivate(msg) &&
+            isPost(msg) &&
             (filter == null || filter(msg) === true)
         ),
         pull.take(maxMessages),
@@ -437,7 +446,7 @@ module.exports = ({ cooler, isPublic }) => {
             referenceStream,
             pull.filter(
               (ref) =>
-                typeof ref.value.content !== "string" &&
+                isNotEncrypted(ref) &&
                 ref.value.content.type === "vote" &&
                 ref.value.content.vote &&
                 typeof ref.value.content.vote.value === "number" &&
@@ -497,17 +506,10 @@ module.exports = ({ cooler, isPublic }) => {
           }
         }
 
-        const isPost =
-          lodash.get(msg, "value.content.type") === "post" &&
-          lodash.get(msg, "value.content.text", false) !== false;
-        const hasRoot = lodash.get(msg, "value.content.root", false) !== false;
-        const hasFork = lodash.get(msg, "value.content.fork", false) !== false;
-
         const channel = lodash.get(msg, "value.content.channel");
         const hasChannel = typeof channel === "string" && channel.length > 2;
-        const isRoot = hasRoot === false;
 
-        if (hasChannel && isRoot) {
+        if (hasChannel && hasNoRoot(msg)) {
           msg.value.content.text += `\n\n#${channel}`;
         }
 
@@ -541,11 +543,11 @@ module.exports = ({ cooler, isPublic }) => {
           url: avatarUrl,
         });
 
-        if (isPost && hasRoot === false && hasFork === false) {
+        if (isPost(msg) && hasNoRoot(msg) && hasNoFork(msg)) {
           lodash.set(msg, "value.meta.postType", "post");
-        } else if (isPost && hasRoot && hasFork === false) {
+        } else if (isPost(msg) && hasRoot(msg) && hasNoFork(msg)) {
           lodash.set(msg, "value.meta.postType", "comment");
-        } else if (isPost && hasRoot && hasFork) {
+        } else if (isPost(msg) && hasRoot(msg) && hasFork(msg)) {
           lodash.set(msg, "value.meta.postType", "reply");
         } else {
           lodash.set(msg, "value.meta.postType", "mystery");
@@ -580,11 +582,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(
-            (msg) =>
-              lodash.get(msg, "value.meta.private", false) === false &&
-              msg.value.content.type === "post"
-          ),
+          pull.filter((msg) => isDecrypted(msg) === false && isPost(msg)),
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -663,8 +661,7 @@ module.exports = ({ cooler, isPublic }) => {
         customOptions,
         ssb,
         query,
-        filter: (msg) =>
-          msg.value.content.root === rootId && msg.value.content.fork == null,
+        filter: (msg) => msg.value.content.root === rootId && hasNoFork(msg),
       });
 
       return messages;
@@ -701,7 +698,7 @@ module.exports = ({ cooler, isPublic }) => {
           source,
           pull.filter((msg) => {
             return (
-              typeof msg.value.content === "object" &&
+              isNotEncrypted(msg) &&
               msg.value.author === feed &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string"
@@ -740,11 +737,7 @@ module.exports = ({ cooler, isPublic }) => {
         pull(
           source,
           basicSocialFilter,
-          pull.filter(
-            (
-              message // avoid private messages (!)
-            ) => typeof message.value.content !== "string"
-          ),
+          pull.filter(isNotPrivate),
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -874,7 +867,7 @@ module.exports = ({ cooler, isPublic }) => {
         pull(
           source,
           publicOnlyFilter,
-          pull.filter((message) => message.value.content.root == null),
+          pull.filter(hasNoRoot),
           extendedFilter,
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
@@ -908,11 +901,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(
-            (message) =>
-              typeof message.value.content !== "string" &&
-              message.value.content.root == null
-          ),
+          pull.filter((message) => isNotPrivate(message) && hasNoRoot(message)),
           extendedFilter,
           pull.take(maxMessages),
           pullParallelMap(async (message, cb) => {
@@ -962,11 +951,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter(
-            (message) =>
-              typeof message.value.content !== "string" &&
-              message.value.content.root == null
-          ),
+          pull.filter((message) => isNotPrivate(message) && hasNoRoot(message)),
           pull.take(maxMessages),
           pullParallelMap(async (message, cb) => {
             // Retrieve a preview of this post's comments / thread
@@ -1035,7 +1020,7 @@ module.exports = ({ cooler, isPublic }) => {
           publicOnlyFilter,
           pull.filter((msg) => {
             return (
-              typeof msg.value.content === "object" &&
+              isNotEncrypted(msg) &&
               typeof msg.value.content.vote === "object" &&
               typeof msg.value.content.vote.link === "string" &&
               typeof msg.value.content.vote.value === "number"
@@ -1109,13 +1094,13 @@ module.exports = ({ cooler, isPublic }) => {
                 pull.filter(
                   (message) =>
                     message &&
-                    typeof message.value.content !== "string" &&
+                    isNotPrivate(message) &&
                     message.value.content.type === "post"
                 ),
                 basicSocialFilter,
-                pull.collect((err, collectedMessages) => {
-                  if (err) {
-                    reject(err);
+                pull.collect((collectErr, collectedMessages) => {
+                  if (collectErr) {
+                    reject(collectErr);
                   } else {
                     resolve(collectedMessages);
                   }
@@ -1150,7 +1135,7 @@ module.exports = ({ cooler, isPublic }) => {
               } else {
                 debug("getting root ancestor of %s", msg.key);
 
-                if (typeof msg.value.content === "string") {
+                if (isEncrypted(msg)) {
                   // Private message we can't decrypt, stop looking for parents.
                   debug("private message");
                   if (parents.length > 0) {
@@ -1235,9 +1220,7 @@ module.exports = ({ cooler, isPublic }) => {
               pull(
                 referenceStream,
                 pull.filter((msg) => {
-                  const isPost =
-                    lodash.get(msg, "value.content.type") === "post";
-                  if (isPost === false) {
+                  if (isPost(msg) === false) {
                     return false;
                   }
 
@@ -1432,9 +1415,7 @@ module.exports = ({ cooler, isPublic }) => {
       const parentFork = lodash.get(parent, "value.content.fork");
       const parentRoot = lodash.get(parent, "value.content.root", parentKey);
 
-      const isPrivate = lodash.get(parent, "value.meta.private", false);
-
-      if (isPrivate) {
+      if (isDecrypted(parent)) {
         message.recps = lodash
           .get(parent, "value.content.recps", [])
           .map((recipient) => {
@@ -1496,8 +1477,7 @@ module.exports = ({ cooler, isPublic }) => {
           // Make sure we're only getting private messages that are posts.
           pull.filter(
             (message) =>
-              typeof message.value.content !== "string" &&
-              lodash.get(message, "value.meta.private") &&
+              isDecrypted(message) &&
               lodash.get(message, "value.content.type") === "post"
           ),
           pull.unique((message) => {
