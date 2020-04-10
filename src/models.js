@@ -363,7 +363,7 @@ module.exports = ({ cooler, isPublic }) => {
         basicSocialFilter,
         pull.filter(
           (msg) =>
-            isNotPrivate(msg) &&
+            isNotEncrypted(msg) &&
             isPost(msg) &&
             (filter == null || filter(msg) === true)
         ),
