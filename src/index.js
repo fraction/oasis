@@ -38,10 +38,10 @@ if (config.debug) {
 const nodeHttp = require("http");
 const debug = require("debug")("oasis");
 
-const log = (...args) => {
+const log = (formatter, ...args) => {
   const isDebugEnabled = debug.enabled;
   debug.enabled = true;
-  debug(...args);
+  debug(formatter, ...args);
   debug.enabled = isDebugEnabled;
 };
 
@@ -65,6 +65,8 @@ debug(`You can save the above to ${defaultConfigFile} to make \
 these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
+
+let isClosingAfterTest = false;
 
 process.on("uncaughtException", function (err) {
   // This isn't `err.code` because TypeScript doesn't like that.
@@ -103,6 +105,11 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
         }
       });
     });
+  } else if (
+    isClosingAfterTest &&
+    err["message"] === "TypeError: Cannot read property 'set' of null"
+  ) {
+    // We're closing during a test. Ignore.
   } else {
     throw err;
   }
@@ -123,7 +130,7 @@ const { nav, ul, li, a } = require("hyperaxe");
 const open = require("open");
 const pull = require("pull-stream");
 const requireStyle = require("require-style");
-const router = require("@koa/router")();
+const koaRouter = require("@koa/router");
 const ssbMentions = require("ssb-mentions");
 const ssbRef = require("ssb-ref");
 const isSvg = require("is-svg");
@@ -131,6 +138,8 @@ const { themeNames } = require("@fraction/base16-css");
 const { isFeed, isMsg, isBlob } = require("ssb-ref");
 
 const ssb = require("./ssb");
+
+const router = new koaRouter();
 
 // Create "cooler"-style interface from SSB connection.
 // This handle is passed to the models for their convenience.
@@ -177,13 +186,8 @@ try {
 const readmePath = path.join(__dirname, "..", "README.md");
 const packagePath = path.join(__dirname, "..", "package.json");
 
-fs.promises.readFile(readmePath, "utf8").then((text) => {
-  config.readme = text;
-});
-
-fs.promises.readFile(packagePath, "utf8").then((text) => {
-  config.version = JSON.parse(text).version;
-});
+const readme = fs.readFileSync(readmePath, "utf8");
+const version = JSON.parse(fs.readFileSync(packagePath, "utf8")).version;
 
 router
   .param("imageSize", (imageSize, ctx, next) => {
@@ -191,7 +195,11 @@ router
     const isInteger = size % 1 === 0;
     const overMinSize = size > 2;
     const underMaxSize = size <= 256;
-    ctx.assert(isInteger && overMinSize && underMaxSize, "Invalid image size");
+    ctx.assert(
+      isInteger && overMinSize && underMaxSize,
+      400,
+      "Invalid image size"
+    );
     return next();
   })
   .param("blobId", (blobId, ctx, next) => {
@@ -347,7 +355,7 @@ router
       name,
       description,
       avatarUrl,
-      relationship: null,
+      relationship: { me: true },
     });
   })
   .get("/profile/edit", async (ctx) => {
@@ -519,7 +527,7 @@ router
         peers: peersWithNames,
         theme,
         themeNames,
-        version: config.version,
+        version: version.toString(),
       });
     };
     ctx.body = await getMeta({ theme });
@@ -541,7 +549,7 @@ router
     const status = async (text) => {
       return markdownView({ text });
     };
-    ctx.body = await status(config.readme);
+    ctx.body = await status(readme);
   })
   .get("/mentions/", async (ctx) => {
     const mentions = async () => {
@@ -667,13 +675,25 @@ router
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.follow(feed);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/unfollow/:feed", koaBody(), async (ctx) => {
     const { feed } = ctx.params;
     const referer = new URL(ctx.request.header.referer);
     ctx.body = await friend.unfollow(feed);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
+  })
+  .post("/block/:feed", koaBody(), async (ctx) => {
+    const { feed } = ctx.params;
+    const referer = new URL(ctx.request.header.referer);
+    ctx.body = await friend.block(feed);
+    ctx.redirect(referer.href);
+  })
+  .post("/unblock/:feed", koaBody(), async (ctx) => {
+    const { feed } = ctx.params;
+    const referer = new URL(ctx.request.header.referer);
+    ctx.body = await friend.unblock(feed);
+    ctx.redirect(referer.href);
   })
   .post("/like/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
@@ -713,19 +733,19 @@ router
       return vote.publish({ messageKey, value, recps: recipients });
     };
     ctx.body = await like({ messageKey, voteValue });
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/theme.css", koaBody(), async (ctx) => {
     const theme = String(ctx.request.body.theme);
     ctx.cookies.set("theme", theme);
     const referer = new URL(ctx.request.header.referer);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/language", koaBody(), async (ctx) => {
     const language = String(ctx.request.body.language);
     ctx.cookies.set("language", language);
     const referer = new URL(ctx.request.header.referer);
-    ctx.redirect(referer);
+    ctx.redirect(referer.href);
   })
   .post("/settings/conn/start", koaBody(), async (ctx) => {
     await meta.connStart();
@@ -787,7 +807,17 @@ const middleware = [
   routes,
 ];
 
-http({ host, port, middleware });
+const app = http({ host, port, middleware });
+
+// HACK: This lets us close the database once tests finish.
+// If we close the database after each test it throws lots of really fun "parent
+// stream closing" errors everywhere and breaks the tests. :/
+app._close = () => {
+  isClosingAfterTest = true;
+  cooler.close();
+};
+
+module.exports = app;
 
 log(`Listening on ${url}`);
 

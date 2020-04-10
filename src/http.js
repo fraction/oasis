@@ -4,8 +4,10 @@ const path = require("path");
 const mount = require("koa-mount");
 
 /**
+ * @type function
  * @param {{ host: string, port: number, middleware: any[] }} input
- }*/
+ * @return function
+ */
 module.exports = ({ host, port, middleware }) => {
   const assets = new Koa();
   assets.use(koaStatic(path.join(__dirname, "assets")));
@@ -75,7 +77,7 @@ module.exports = ({ host, port, middleware }) => {
       "img-src 'self'",
       "form-action 'self'",
       "media-src 'self'",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self'",
     ].join("; ");
 
     // Disallow scripts.
@@ -100,10 +102,11 @@ module.exports = ({ host, port, middleware }) => {
     // Disallow extra browser features except audio output.
     ctx.set("Feature-Policy", "speaker 'self'");
 
-    const validHostsString = validHosts.join(" / ");
+    const validHostsString = validHosts.join(" or ");
 
     ctx.assert(
       isValidRequest(ctx.request),
+      400,
       `Request must be addressed to ${validHostsString} and non-GET requests must contain non-blob referer.`
     );
 
@@ -111,13 +114,24 @@ module.exports = ({ host, port, middleware }) => {
   });
 
   middleware.forEach((m) => app.use(m));
+
   const server = app.listen({ host, port });
 
   // `server.address()` returns null unless you wait until the next tick.
   setImmediate(() => {
-    validHosts.push(server.address().address);
+    const address = server.address();
+
+    if (typeof address === "string") {
+      // This shouldn't happen, but TypeScript was complaining about it.
+      throw new Error("HTTP server should never bind to Unix socket");
+    }
+
+    validHosts.push(address.address);
+
     if (validHosts.includes(host) === false) {
       validHosts.push(host);
     }
   });
+
+  return server;
 };
