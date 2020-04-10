@@ -28,11 +28,35 @@ const paths = [
 
 tap.setTimeout(0);
 
+tap.test("DNS rebind attack fails", (t) => {
+  t.plan(1);
+  supertest(app)
+    .get("/inbox")
+    .set("Host", "example.com")
+    .expect(400)
+    .end(t.error);
+});
+
+tap.test("CSRF attack should fail with no referer", (t) => {
+  t.plan(1);
+  supertest(app).post("/conn/settings/stop").expect(400).end(t.error);
+});
+
+tap.test("CSRF attack should fail with wrong referer", (t) => {
+  t.plan(1);
+  supertest(app)
+    .post("/conn/settings/stop")
+    .set("Host", "example.com")
+    .expect(400)
+    .end(t.error);
+});
+
 paths.forEach((path) => {
   tap.test(path, (t) => {
     t.plan(1);
     supertest(app)
       .get(path)
+      .set("Host", "localhost")
       .expect(200)
       .end((err) => {
         console.log(path);
