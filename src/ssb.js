@@ -193,6 +193,11 @@ module.exports = ({ offline }) => {
     },
   };
 
+  // Important: This ensures that we have an SSB connection as soon as Oasis
+  // starts. If we don't do this, then we don't even attempt an SSB connection
+  // until we receive our first HTTP request.
+  ensureConnection(customConfig);
+
   let clientHandle;
 
   /**
