@@ -31,6 +31,12 @@ module.exports = (presets, defaultConfigFile) =>
       default: _.get(presets, "host", "localhost"),
       type: "string",
     })
+    .options("allow-host", {
+      describe:
+        "Extra hostname to be whitelisted (useful when running behind a proxy)",
+      default: _.get(presets, "host", null),
+      type: "string",
+    })
     .options("port", {
       describe: "Port for web app to listen on",
       default: _.get(presets, "port", 3000),

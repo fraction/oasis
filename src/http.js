@@ -5,10 +5,10 @@ const mount = require("koa-mount");
 
 /**
  * @type function
- * @param {{ host: string, port: number, middleware: any[] }} input
+ * @param {{ host: string, port: number, middleware: any[], allowHost: string | null }} input
  * @return function
  */
-module.exports = ({ host, port, middleware }) => {
+module.exports = ({ host, port, middleware, allowHost }) => {
   const assets = new Koa();
   assets.use(koaStatic(path.join(__dirname, "assets")));
 
@@ -124,6 +124,10 @@ module.exports = ({ host, port, middleware }) => {
     if (typeof address === "string") {
       // This shouldn't happen, but TypeScript was complaining about it.
       throw new Error("HTTP server should never bind to Unix socket");
+    }
+
+    if (allowHost !== null) {
+      validHosts.push(allowHost);
     }
 
     validHosts.push(address.address);
