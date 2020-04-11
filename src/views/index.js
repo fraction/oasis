@@ -144,134 +144,6 @@ const template = (...elements) => {
   return result;
 };
 
-const postInAside = (msg) => {
-  const encoded = {
-    key: encodeURIComponent(msg.key),
-    author: encodeURIComponent(msg.value.author),
-    parent: encodeURIComponent(msg.value.content.root),
-  };
-
-  const url = {
-    author: `/author/${encoded.author}`,
-    likeForm: `/like/${encoded.key}`,
-    link: `/thread/${encoded.parent}#${encoded.key}`,
-    parent: `/thread/${encoded.parent}#${encoded.parent}`,
-    avatar: msg.value.meta.author.avatar.url,
-    json: `/json/${encoded.key}`,
-    reply: `/reply/${encoded.key}`,
-    comment: `/comment/${encoded.key}`,
-  };
-
-  const isPrivate = Boolean(msg.value.meta.private);
-  const isRoot = msg.value.content.root == null;
-  const isFork = msg.value.meta.postType === "reply";
-  const hasContentWarning =
-    typeof msg.value.content.contentWarning === "string";
-  const isThreadTarget = Boolean(
-    lodash.get(msg, "value.meta.thread.target", false)
-  );
-
-  // TODO: I think this is actually true for both replies and comments.
-  const isReply = Boolean(lodash.get(msg, "value.meta.thread.reply", false));
-
-  const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
-
-  const markdownContent = markdown(
-    msg.value.content.text,
-    msg.value.content.mentions
-  );
-
-  const likeButton = msg.value.meta.voted
-    ? { value: 0, class: "liked" }
-    : { value: 1, class: null };
-
-  const likeCount = msg.value.meta.votes.length;
-
-  const messageClasses = [];
-
-  if (isPrivate) {
-    messageClasses.push("private");
-  }
-
-  if (isThreadTarget) {
-    messageClasses.push("thread-target");
-  }
-
-  if (isReply) {
-    // True for comments too, I think
-    messageClasses.push("reply");
-  }
-
-  const postOptions = {
-    post: null,
-    comment: i18n.commentDescription({ parentUrl: url.parent }),
-    reply: i18n.replyDescription({ parentUrl: url.parent }),
-    mystery: i18n.mysteryDescription,
-  };
-
-  const isMarkdownEmpty = (md) => md === "<p>undefined</p>\n";
-  const articleElement = isMarkdownEmpty(markdownContent)
-    ? article(
-        { class: "content" },
-        pre({
-          innerHTML: highlightJs.highlight("json", JSON.stringify(msg, null, 2))
-            .value,
-        })
-      )
-    : article({ class: "content", innerHTML: markdownContent });
-
-  const articleContent = hasContentWarning
-    ? details(summary(msg.value.content.contentWarning), articleElement)
-    : articleElement;
-
-  return section(
-    {
-      class: messageClasses.join(" "),
-    },
-    header(
-      div(
-        span(
-          { class: "author" },
-          a(
-            { href: url.author },
-            img({ class: "avatar", src: url.avatar, alt: "" }),
-            msg.value.meta.author.name
-          ),
-          postOptions[msg.value.meta.postType]
-        ),
-        span(
-          { class: "time" },
-          isPrivate ? "🔒" : null,
-          a({ href: url.link }, nbsp, timeAgo)
-        )
-      )
-    ),
-    articleContent,
-    footer(
-      div(
-        form(
-          { action: url.likeForm, method: "post" },
-          button(
-            {
-              name: "voteValue",
-              type: "submit",
-              value: likeButton.value,
-              class: likeButton.class,
-            },
-            `❤ ${likeCount}`
-          )
-        ),
-        a({ href: url.comment }, i18n.comment),
-        isPrivate || isRoot || isFork
-          ? null
-          : a({ href: url.reply }, nbsp, i18n.reply),
-        a({ href: url.json }, nbsp, i18n.json)
-      ),
-      br()
-    )
-  );
-};
-
 const thread = (messages) => {
   // this first loop is preprocessing to enable auto-expansion of forks when a
   // message in the fork is linked to
@@ -419,7 +291,7 @@ const postAside = ({ key, value }) => {
     );
   }
 
-  const fragments = postsToShow.map(postInAside);
+  const fragments = postsToShow.map((p) => post({ msg: p }));
 
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
     fragments.push(section(continueThreadComponent(thread, isComment)));
@@ -448,6 +320,9 @@ const post = ({ msg, aside = false }) => {
 
   const isPrivate = Boolean(msg.value.meta.private);
   const isRoot = msg.value.content.root == null;
+  const isFork = msg.value.meta.postType === "reply";
+  const hasContentWarning =
+    typeof msg.value.content.contentWarning === "string";
   const isThreadTarget = Boolean(
     lodash.get(msg, "value.meta.thread.target", false)
   );
@@ -462,9 +337,6 @@ const post = ({ msg, aside = false }) => {
     msg.value.content.text,
     msg.value.content.mentions
   );
-
-  const hasContentWarning =
-    typeof msg.value.content.contentWarning === "string";
 
   const likeButton = msg.value.meta.voted
     ? { value: 0, class: "liked" }
@@ -500,8 +372,6 @@ const post = ({ msg, aside = false }) => {
     // True for comments too, I think
     messageClasses.push("reply");
   }
-
-  const isFork = msg.value.meta.postType === "reply";
 
   // TODO: Refactor to stop using strings and use constants/symbols.
   const postOptions = {
