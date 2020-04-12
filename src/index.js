@@ -807,7 +807,8 @@ const middleware = [
   routes,
 ];
 
-const app = http({ host, port, middleware });
+const { allowHost } = config;
+const app = http({ host, port, middleware, allowHost });
 
 // HACK: This lets us close the database once tests finish.
 // If we close the database after each test it throws lots of really fun "parent
