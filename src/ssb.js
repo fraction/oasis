@@ -194,7 +194,7 @@ module.exports = ({ offline }) => {
   if (offline) {
     log("Offline mode activated - not connecting to scuttlebutt peers or pubs");
     log(
-      "WARNING: offline mode cannot control the behavior of pre-existing servers"
+      "WARNING: Oasis can connect to the internet through your other SSB apps if they're running."
     );
   }
 
