@@ -1,12 +1,14 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-const ssbMarkdown = require("ssb-markdown");
 const highlightJs = require("highlight.js");
+
+const MarkdownIt = require("markdown-it");
 
 const {
   a,
   article,
+  br,
   body,
   button,
   details,
@@ -16,7 +18,6 @@ const {
   form,
   h1,
   h2,
-  h3,
   head,
   header,
   html,
@@ -38,17 +39,19 @@ const {
   summary,
   textarea,
   title,
-  ul
+  ul,
 } = require("hyperaxe");
 
 const lodash = require("lodash");
 const markdown = require("./markdown");
 
-const i18nBase = require("./i18n");
-let i18n = null;
-let selectedLanguage = null;
+const md = new MarkdownIt();
 
-exports.setLanguage = language => {
+const i18nBase = require("./i18n");
+let selectedLanguage = "en";
+let i18n = i18nBase[selectedLanguage];
+
+exports.setLanguage = (language) => {
   selectedLanguage = language;
   i18n = Object.assign({}, i18nBase.en, i18nBase[language]);
 };
@@ -58,7 +61,7 @@ const doctypeString = "<!DOCTYPE html>";
 
 const THREAD_PREVIEW_LENGTH = 3;
 
-const toAttributes = obj =>
+const toAttributes = (obj) =>
   Object.entries(obj)
     .map(([key, val]) => `${key}=${val}`)
     .join(", ");
@@ -66,6 +69,9 @@ const toAttributes = obj =>
 // non-breaking space
 const nbsp = "\xa0";
 
+/**
+ * @param {{href: string, emoji: string, text: string }} input
+ */
 const navLink = ({ href, emoji, text }) =>
   li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
 
@@ -81,11 +87,11 @@ const template = (...elements) => {
       meta({ charset: "utf-8" }),
       meta({
         name: "description",
-        content: i18n.oasisDescription
+        content: i18n.oasisDescription,
       }),
       meta({
         name: "viewport",
-        content: toAttributes({ width: "device-width", "initial-scale": 1 })
+        content: toAttributes({ width: "device-width", "initial-scale": 1 }),
       })
     ),
     body(
@@ -94,24 +100,33 @@ const template = (...elements) => {
           navLink({
             href: "/publish",
             emoji: "📝",
-            text: i18n.publish
+            text: i18n.publish,
           }),
           navLink({
             href: "/public/latest/extended",
             emoji: "🗺️",
-            text: i18n.extended
+            text: i18n.extended,
           }),
-          navLink({ href: "/", emoji: "📣", text: i18n.popular }),
+          navLink({
+            href: "/public/popular/day",
+            emoji: "📣",
+            text: i18n.popular,
+          }),
           navLink({ href: "/public/latest", emoji: "🐇", text: i18n.latest }),
           navLink({
             href: "/public/latest/topics",
             emoji: "📖",
-            text: i18n.topics
+            text: i18n.topics,
           }),
           navLink({
             href: "/public/latest/summaries",
             emoji: "🗒️",
-            text: i18n.summaries
+            text: i18n.summaries,
+          }),
+          navLink({
+            href: "/public/latest/threads",
+            emoji: "🧵",
+            text: i18n.threads,
           }),
           navLink({ href: "/profile", emoji: "🐱", text: i18n.profile }),
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
@@ -129,125 +144,94 @@ const template = (...elements) => {
   return result;
 };
 
-const postInAside = msg => {
-  const encoded = {
-    key: encodeURIComponent(msg.key),
-    author: encodeURIComponent(msg.value.author),
-    parent: encodeURIComponent(msg.value.content.root)
-  };
+const thread = (messages) => {
+  // this first loop is preprocessing to enable auto-expansion of forks when a
+  // message in the fork is linked to
 
-  const url = {
-    author: `/author/${encoded.author}`,
-    likeForm: `/like/${encoded.key}`,
-    link: `/thread/${encoded.parent}#${encoded.key}`,
-    parent: `/thread/${encoded.parent}#${encoded.parent}`,
-    avatar: msg.value.meta.author.avatar.url,
-    json: `/json/${encoded.key}`,
-    reply: `/reply/${encoded.key}`,
-    comment: `/comment/${encoded.key}`
-  };
+  let lookingForTarget = true;
+  let shallowest = Infinity;
 
-  const isPrivate = Boolean(msg.value.meta.private);
-  const isRoot = msg.value.content.root == null;
-  const isFork = msg.value.meta.postType === "reply";
-  const hasContentWarning =
-    typeof msg.value.content.contentWarning === "string";
-  const isThreadTarget = Boolean(
-    lodash.get(msg, "value.meta.thread.target", false)
-  );
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    const depth = lodash.get(msg, "value.meta.thread.depth", 0);
 
-  // TODO: I think this is actually true for both replies and comments.
-  const isReply = Boolean(lodash.get(msg, "value.meta.thread.reply", false));
+    if (lookingForTarget) {
+      const isThreadTarget = Boolean(
+        lodash.get(msg, "value.meta.thread.target", false)
+      );
 
-  const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
-
-  const markdownContent = markdown(
-    msg.value.content.text,
-    msg.value.content.mentions
-  );
-
-  const likeButton = msg.value.meta.voted
-    ? { value: 0, class: "liked" }
-    : { value: 1, class: null };
-
-  const likeCount = msg.value.meta.votes.length;
-
-  const messageClasses = [];
-
-  if (isPrivate) {
-    messageClasses.push("private");
+      if (isThreadTarget) {
+        lookingForTarget = false;
+      }
+    } else {
+      if (depth < shallowest) {
+        lodash.set(msg, "value.meta.thread.ancestorOfTarget", true);
+        shallowest = depth;
+      }
+    }
   }
 
-  if (isThreadTarget) {
-    messageClasses.push("thread-target");
+  const msgList = [];
+  for (let i = 0; i < messages.length; i++) {
+    const j = i + 1;
+
+    const currentMsg = messages[i];
+    const nextMsg = messages[j];
+
+    const depth = (msg) => {
+      // will be undefined when checking depth(nextMsg) when currentMsg is the
+      // last message in the thread
+      if (msg === undefined) return 0;
+      return lodash.get(msg, "value.meta.thread.depth", 0);
+    };
+
+    msgList.push(post({ msg: currentMsg }).outerHTML);
+
+    if (depth(currentMsg) < depth(nextMsg)) {
+      const isAncestor = Boolean(
+        lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
+      );
+      msgList.push(`<div class="indent"><details ${isAncestor ? "open" : ""}>`);
+
+      const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
+      const nextSnippet = postSnippet(
+        lodash.get(nextMsg, "value.content.text")
+      );
+
+      msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
+    } else if (depth(currentMsg) > depth(nextMsg)) {
+      // getting more shallow
+      const diffDepth = depth(currentMsg) - depth(nextMsg);
+
+      const shallowList = [];
+      for (let d = 0; d < diffDepth; d++) {
+        // on the way up it might go several depths at once
+        shallowList.push("</details></div>");
+      }
+
+      msgList.push(shallowList);
+    }
   }
 
-  if (isReply) {
-    // True for comments too, I think
-    messageClasses.push("reply");
+  const htmlStrings = lodash.flatten(msgList);
+  return div({}, { innerHTML: htmlStrings.join("") });
+};
+
+const postSnippet = (text) => {
+  const max = 40;
+
+  text = text.trim().split("\n", 3).join("\n");
+  // this is taken directly from patchwork. i'm not entirely sure what this
+  // regex is doing
+  text = text.replace(/_|`|\*|#|^\[@.*?]|\[|]|\(\S*?\)/g, "").trim();
+  text = text.replace(/:$/, "");
+  text = text.trim().split("\n", 1)[0].trim();
+
+  if (text.length > max) {
+    text = text.substring(0, max - 1) + "…";
   }
 
-  const postOptions = {
-    post: null,
-    comment: i18n.commentDescription({ parentUrl: url.parent }),
-    reply: i18n.replyDescription({ parentUrl: url.parent }),
-    mystery: i18n.mysteryDescription
-  };
-
-  const isMarkdownEmpty = md => md === "<p>undefined</p>\n";
-  const articleElement = isMarkdownEmpty(markdownContent)
-    ? article(
-        { class: "content" },
-        pre({
-          innerHTML: highlightJs.highlight("json", JSON.stringify(msg, null, 2))
-            .value
-        })
-      )
-    : article({ class: "content", innerHTML: markdownContent });
-
-  const articleContent = hasContentWarning
-    ? details(summary(msg.value.content.contentWarning), articleElement)
-    : articleElement;
-
-  return section(
-    {
-      class: messageClasses.join(" ")
-    },
-    header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          msg.value.meta.author.name
-        ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
-      )
-    ),
-    articleContent,
-    footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class
-          },
-          `❤ ${likeCount}`
-        )
-      ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
-    )
-  );
+  return text;
 };
 
 /**
@@ -261,7 +245,7 @@ const postInAside = msg => {
 const continueThreadComponent = (thread, isComment) => {
   const encoded = {
     next: encodeURIComponent(thread[THREAD_PREVIEW_LENGTH + 1].key),
-    parent: encodeURIComponent(thread[0].key)
+    parent: encodeURIComponent(thread[0].key),
   };
   const left = thread.length - (THREAD_PREVIEW_LENGTH + 1);
   let continueLink;
@@ -295,7 +279,7 @@ const postAside = ({ key, value }) => {
 
   let postsToShow;
   if (isComment) {
-    const commentPosition = thread.findIndex(msg => msg.key === key);
+    const commentPosition = thread.findIndex((msg) => msg.key === key);
     postsToShow = thread.slice(
       commentPosition + 1,
       Math.min(commentPosition + (THREAD_PREVIEW_LENGTH + 1), thread.length)
@@ -307,10 +291,10 @@ const postAside = ({ key, value }) => {
     );
   }
 
-  const fragments = postsToShow.map(postInAside);
+  const fragments = postsToShow.map((p) => post({ msg: p }));
 
   if (thread.length > THREAD_PREVIEW_LENGTH + 1) {
-    fragments.push(section(footer(continueThreadComponent(thread, isComment))));
+    fragments.push(section(continueThreadComponent(thread, isComment)));
   }
 
   return div({ class: "indent" }, fragments);
@@ -320,7 +304,7 @@ const post = ({ msg, aside = false }) => {
   const encoded = {
     key: encodeURIComponent(msg.key),
     author: encodeURIComponent(msg.value.author),
-    parent: encodeURIComponent(msg.value.content.root)
+    parent: encodeURIComponent(msg.value.content.root),
   };
 
   const url = {
@@ -331,11 +315,14 @@ const post = ({ msg, aside = false }) => {
     avatar: msg.value.meta.author.avatar.url,
     json: `/json/${encoded.key}`,
     reply: `/reply/${encoded.key}`,
-    comment: `/comment/${encoded.key}`
+    comment: `/comment/${encoded.key}`,
   };
 
   const isPrivate = Boolean(msg.value.meta.private);
   const isRoot = msg.value.content.root == null;
+  const isFork = msg.value.meta.postType === "reply";
+  const hasContentWarning =
+    typeof msg.value.content.contentWarning === "string";
   const isThreadTarget = Boolean(
     lodash.get(msg, "value.meta.thread.target", false)
   );
@@ -346,21 +333,30 @@ const post = ({ msg, aside = false }) => {
   const { name } = msg.value.meta.author;
   const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
 
-  const depth = lodash.get(msg, "value.meta.thread.depth", 0);
-
   const markdownContent = markdown(
     msg.value.content.text,
     msg.value.content.mentions
   );
-
-  const hasContentWarning =
-    typeof msg.value.content.contentWarning === "string";
 
   const likeButton = msg.value.meta.voted
     ? { value: 0, class: "liked" }
     : { value: 1, class: null };
 
   const likeCount = msg.value.meta.votes.length;
+
+  const maxLikedNameLength = 16;
+  const maxLikedNames = 16;
+
+  const likedByNames = msg.value.meta.votes
+    .slice(0, maxLikedNames)
+    .map((name) => name.slice(0, maxLikedNameLength))
+    .join(", ");
+
+  const additionalLikesMessage =
+    likeCount > maxLikedNames ? `+${likeCount - maxLikedNames} more` : ``;
+
+  const likedByMessage =
+    likeCount > 0 ? `Liked by ${likedByNames} ${additionalLikesMessage}` : null;
 
   const messageClasses = ["post"];
 
@@ -377,14 +373,12 @@ const post = ({ msg, aside = false }) => {
     messageClasses.push("reply");
   }
 
-  const isFork = msg.value.meta.postType === "reply";
-
   // TODO: Refactor to stop using strings and use constants/symbols.
   const postOptions = {
     post: null,
     comment: i18n.commentDescription({ parentUrl: url.parent }),
     reply: i18n.replyDescription({ parentUrl: url.parent }),
-    mystery: i18n.mysteryDescription
+    mystery: i18n.mysteryDescription,
   };
 
   const emptyContent = "<p>undefined</p>\n";
@@ -396,7 +390,7 @@ const post = ({ msg, aside = false }) => {
             innerHTML: highlightJs.highlight(
               "json",
               JSON.stringify(msg, null, 2)
-            ).value
+            ).value,
           })
         )
       : article({ class: "content", innerHTML: markdownContent });
@@ -409,22 +403,23 @@ const post = ({ msg, aside = false }) => {
     {
       id: msg.key,
       class: messageClasses.join(" "),
-      style: `margin-left: ${depth}rem;`
     },
     header(
-      span(
-        { class: "author" },
-        a(
-          { href: url.author },
-          img({ class: "avatar", src: url.avatar, alt: "" }),
-          name
+      div(
+        span(
+          { class: "author" },
+          a(
+            { href: url.author },
+            img({ class: "avatar", src: url.avatar, alt: "" }),
+            name
+          ),
+          postOptions[msg.value.meta.postType]
         ),
-        postOptions[msg.value.meta.postType]
-      ),
-      span(
-        { class: "time" },
-        isPrivate ? "🔒" : null,
-        a({ href: url.link }, timeAgo)
+        span(
+          { class: "time" },
+          isPrivate ? "🔒" : null,
+          a({ href: url.link }, nbsp, timeAgo)
+        )
       )
     ),
     articleContent,
@@ -441,21 +436,27 @@ const post = ({ msg, aside = false }) => {
     div({ id: `centered-footer-${encoded.key}`, class: "centered-footer" }),
 
     footer(
-      form(
-        { action: url.likeForm, method: "post" },
-        button(
-          {
-            name: "voteValue",
-            type: "submit",
-            value: likeButton.value,
-            class: likeButton.class
-          },
-          `❤ ${likeCount}`
-        )
+      div(
+        form(
+          { action: url.likeForm, method: "post" },
+          button(
+            {
+              name: "voteValue",
+              type: "submit",
+              value: likeButton.value,
+              class: likeButton.class,
+              title: likedByMessage,
+            },
+            `❤ ${likeCount}`
+          )
+        ),
+        a({ href: url.comment }, i18n.comment),
+        isPrivate || isRoot || isFork
+          ? null
+          : a({ href: url.reply }, nbsp, i18n.reply),
+        a({ href: url.json }, nbsp, i18n.json)
       ),
-      a({ href: url.comment }, i18n.comment),
-      isPrivate || isRoot || isFork ? null : a({ href: url.reply }, i18n.reply),
-      a({ href: url.json }, i18n.json)
+      br()
     )
   );
 
@@ -466,42 +467,87 @@ const post = ({ msg, aside = false }) => {
   }
 };
 
+exports.editProfileView = ({ name, description }) =>
+  template(
+    section(
+      h1(i18n.editProfile),
+      p(i18n.editProfileDescription),
+      form(
+        {
+          action: "/profile/edit",
+          method: "POST",
+          enctype: "multipart/form-data",
+        },
+        label(
+          i18n.profileImage,
+          input({ type: "file", name: "image", accept: "image/*" })
+        ),
+        label(i18n.profileName, input({ name: "name", value: name })),
+        label(
+          i18n.profileDescription,
+          textarea(
+            {
+              autofocus: true,
+              name: "description",
+            },
+            description
+          )
+        ),
+        button(
+          {
+            type: "submit",
+          },
+          i18n.submit
+        )
+      )
+    )
+  );
+
+/**
+ * @param {{avatarUrl: string, description: string, feedId: string, messages: any[], name: string, relationship: object}} input
+ */
 exports.authorView = ({
   avatarUrl,
   description,
   feedId,
   messages,
   name,
-  relationship
+  relationship,
 }) => {
   const mention = `[@${name}](${feedId})`;
   const markdownMention = highlightJs.highlight("markdown", mention).value;
 
-  const areFollowing =
-    relationship !== null &&
-    relationship.following === true &&
-    relationship.blocking === false;
+  const contactForms = [];
 
-  const contactFormType = areFollowing ? i18n.unfollow : i18n.follow;
-
-  const contactForm =
-    relationship === null
-      ? null // We're on our own profile!
-      : form(
+  const addForm = ({ action }) =>
+    contactForms.push(
+      form(
+        {
+          action: `/${action}/${encodeURIComponent(feedId)}`,
+          method: "post",
+        },
+        button(
           {
-            action: `/${contactFormType}/${encodeURIComponent(feedId)}`,
-            method: "post"
+            type: "submit",
           },
-          button(
-            {
-              type: "submit"
-            },
-            contactFormType
-          )
-        );
+          i18n[action]
+        )
+      )
+    );
+
+  if (relationship.me === false) {
+    if (relationship.following) {
+      addForm({ action: "unfollow" });
+    } else if (relationship.blocking) {
+      addForm({ action: "unblock" });
+    } else {
+      addForm({ action: "follow" });
+      addForm({ action: "block" });
+    }
+  }
 
   const relationshipText = (() => {
-    if (relationship === null) {
+    if (relationship.me === true) {
       return i18n.relationshipYou;
     } else if (
       relationship.following === true &&
@@ -530,26 +576,32 @@ exports.authorView = ({
 
   const prefix = section(
     { class: "message" },
-    header(
+    div(
       { class: "profile" },
       img({ class: "avatar", src: avatarUrl }),
       h1(name)
     ),
     pre({
       class: "md-mention",
-      innerHTML: markdownMention
+      innerHTML: markdownMention,
     }),
     description !== "" ? article({ innerHTML: markdown(description) }) : null,
     footer(
-      a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
-      span(relationshipText),
-      contactForm
+      div(
+        a({ href: `/likes/${encodeURIComponent(feedId)}` }, i18n.viewLikes),
+        span(nbsp, relationshipText),
+        ...contactForms,
+        relationship.me
+          ? a({ href: `/profile/edit` }, nbsp, i18n.editProfile)
+          : null
+      ),
+      br()
     )
   );
 
   return template(
     prefix,
-    messages.map(msg => post({ msg }))
+    messages.map((msg) => post({ msg }))
   );
 };
 
@@ -557,7 +609,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
   let markdownMention;
 
   const messageElements = await Promise.all(
-    messages.reverse().map(message => {
+    messages.reverse().map((message) => {
       debug("%O", message);
       const authorName = message.value.meta.author.name;
       const authorFeedId = message.value.author;
@@ -576,7 +628,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
 
   const isPrivate = parentMessage.value.meta.private;
 
-  const publicOrPrivate = isPrivate ? "private" : "public";
+  const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
@@ -591,13 +643,13 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
         {
           autofocus: true,
           required: true,
-          name: "text"
+          name: "text",
         },
         isPrivate ? null : markdownMention
       ),
       button(
         {
-          type: "submit"
+          type: "submit",
         },
         i18n.comment
       )
@@ -609,7 +661,7 @@ exports.mentionsView = ({ messages }) => {
   return messageListView({
     messages,
     viewTitle: i18n.mentions,
-    viewDescription: i18n.mentionsDescription
+    viewDescription: i18n.mentionsDescription,
   });
 };
 
@@ -617,7 +669,7 @@ exports.privateView = ({ messages }) => {
   return messageListView({
     messages,
     viewTitle: i18n.private,
-    viewDescription: i18n.privateDescription
+    viewDescription: i18n.privateDescription,
   });
 };
 
@@ -635,7 +687,7 @@ exports.publishCustomView = async () => {
           {
             autofocus: true,
             required: true,
-            name: "text"
+            name: "text",
           },
           "{\n",
           '  "type": "test",\n',
@@ -644,7 +696,7 @@ exports.publishCustomView = async () => {
         ),
         button(
           {
-            type: "submit"
+            type: "submit",
           },
           i18n.submit
         )
@@ -654,11 +706,10 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.listView = ({ messages }) =>
-  template(messages.map(msg => post({ msg })));
+exports.threadView = ({ messages }) => template(thread(messages));
 
 exports.markdownView = ({ text }) => {
-  const rawHtml = ssbMarkdown.block(text);
+  const rawHtml = md.render(text);
 
   return template(section({ class: "message" }, { innerHTML: rawHtml }));
 };
@@ -672,17 +723,18 @@ exports.publishView = () => {
       form(
         { action: publishForm, method: "post" },
         label(
-          { for: "text" },
-          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" })
+          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
+          textarea({ required: true, name: "text" })
         ),
-        textarea({ required: true, name: "text" }),
-        label({ for: "contentWarning" }, i18n.contentWarningLabel),
-        input({
-          name: "contentWarning",
-          type: "text",
-          class: "contentWarning",
-          placeholder: "Optional warning for the post"
-        }),
+        label(
+          i18n.contentWarningLabel,
+          input({
+            name: "contentWarning",
+            type: "text",
+            class: "contentWarning",
+            placeholder: i18n.contentWarningPlaceholder,
+          })
+        ),
         button({ type: "submit" }, i18n.submit)
       )
     ),
@@ -690,13 +742,16 @@ exports.publishView = () => {
   );
 };
 
+/**
+ * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
+ */
 exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const max = status.sync.since;
 
-  const progressElements = Object.entries(status.sync.plugins).map(e => {
+  const progressElements = Object.entries(status.sync.plugins).map((e) => {
     const [key, val] = e;
     const id = `progress-${key}`;
-    return div(label({ for: id }, key), progress({ id, value: val, max }, val));
+    return div(label(key, progress({ id, value: val, max }, val)));
   });
 
   const startButton = form(
@@ -717,19 +772,21 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
   const connButtons = div({ class: "form-button-group" }, [
     startButton,
     restartButton,
-    stopButton
+    stopButton,
   ]);
 
-  const peerList = (peers || []).map(([, data]) => {
-    return li(
-      a(
-        { href: `/author/${encodeURIComponent(data.key)}` },
-        data.name || data.host || data.key
-      )
-    );
-  });
+  const peerList = (peers || [])
+    .filter(([, data]) => data.state === "connected")
+    .map(([, data]) => {
+      return li(
+        a(
+          { href: `/author/${encodeURIComponent(data.key)}` },
+          data.name || data.host || data.key
+        )
+      );
+    });
 
-  const themeElements = themeNames.map(cur => {
+  const themeElements = themeNames.map((cur) => {
     const isCurrentTheme = cur === theme;
     if (isCurrentTheme) {
       return option({ value: cur, selected: true }, cur);
@@ -754,22 +811,16 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     "0C",
     "0D",
     "0E",
-    "0F"
+    "0F",
   ];
 
-  const base16Elements = base16.map(base =>
+  const base16Elements = base16.map((base) =>
     div({
-      style: {
-        "background-color": `var(--base${base})`,
-        width: `${(1 / base16.length) * 100}%`,
-        height: "1em",
-        "margin-top": "1em",
-        display: "inline-block"
-      }
+      class: `theme-preview theme-preview-${base}`,
     })
   );
 
-  const languageOption = (shortName, longName) =>
+  const languageOption = (longName, shortName) =>
     shortName === selectedLanguage
       ? option({ value: shortName, selected: true }, longName)
       : option({ value: shortName }, longName);
@@ -779,6 +830,18 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       { class: "message" },
       h1(i18n.settings),
       p(i18n.settingsIntro({ readmeUrl: "/settings/readme", version })),
+      h2(i18n.peerConnections),
+      p(i18n.connectionsIntro),
+      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
+      p(i18n.connectionActionIntro),
+      connButtons,
+      h2(i18n.invites),
+      p(i18n.invitesDescription),
+      form(
+        { action: "/settings/invite/accept", method: "post" },
+        input({ name: "invite", type: "text" }),
+        button({ type: "submit" }, i18n.acceptInvite)
+      ),
       h2(i18n.theme),
       p(i18n.themeIntro),
       form(
@@ -792,30 +855,24 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       form(
         { action: "/language", method: "post" },
         select({ name: "language" }, [
-          languageOption("en", "English"),
-          languageOption("es", "Español")
+          // Languages are sorted alphabetically by their 'long name'.
+          /* cspell:disable */
+          languageOption("Deutsch", "de"),
+          languageOption("English", "en"),
+          languageOption("Español", "es"),
+          languageOption("Français", "fr"),
+          languageOption("Italiano", "it"),
+          /* cspell:enable */
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),
-      h2(i18n.status),
-      h3(i18n.peerConnections),
-      p(i18n.connectionsIntro),
-      peerList.length > 0 ? ul(peerList) : i18n.noConnections,
-      p(i18n.connectionActionIntro),
-      connButtons,
-      h3(i18n.invites),
-      p(i18n.invitesDescription),
-      form(
-        { action: "/settings/invite/accept", method: "post" },
-        input({ name: "invite", type: "text" }),
-        button({ type: "submit" }, i18n.acceptInvite)
-      ),
-      h3(i18n.indexes),
+      h2(i18n.indexes),
       progressElements
     )
   );
 };
 
+/** @param {{ viewTitle: string, viewDescription: string }} input */
 const viewInfoBox = ({ viewTitle = null, viewDescription = null }) => {
   if (!viewTitle && !viewDescription) {
     return null;
@@ -835,9 +892,11 @@ exports.likesView = async ({ messages, feed, name }) => {
 
   return template(
     viewInfoBox({
-      viewTitle: span(authorLink, i18n.likedBy)
+      viewTitle: span(authorLink, i18n.likedBy),
+      // TODO: i18n
+      viewDescription: "List of messages liked by this author.",
     }),
-    messages.map(msg => post({ msg }))
+    messages.map((msg) => post({ msg }))
   );
 };
 
@@ -847,11 +906,11 @@ const messageListView = ({
   viewDescription = null,
   viewElements = null,
   // If `aside = true`, it will show a few comments in the thread.
-  aside = null
+  aside = null,
 }) => {
   return template(
     section(h1(viewTitle), p(viewDescription), viewElements),
-    messages.map(msg => post({ msg, aside }))
+    messages.map((msg) => post({ msg, aside }))
   );
 };
 
@@ -860,7 +919,7 @@ exports.popularView = ({ messages, prefix }) => {
     messages,
     viewElements: prefix,
     viewTitle: i18n.popular,
-    viewDescription: i18n.popularDescription
+    viewDescription: i18n.popularDescription,
   });
 };
 
@@ -868,7 +927,7 @@ exports.extendedView = ({ messages }) => {
   return messageListView({
     messages,
     viewTitle: i18n.extended,
-    viewDescription: i18n.extendedDescription
+    viewDescription: i18n.extendedDescription,
   });
 };
 
@@ -876,7 +935,7 @@ exports.latestView = ({ messages }) => {
   return messageListView({
     messages,
     viewTitle: i18n.latest,
-    viewDescription: i18n.latestDescription
+    viewDescription: i18n.latestDescription,
   });
 };
 
@@ -884,7 +943,7 @@ exports.topicsView = ({ messages }) => {
   return messageListView({
     messages,
     viewTitle: i18n.topics,
-    viewDescription: i18n.topicsDescription
+    viewDescription: i18n.topicsDescription,
   });
 };
 
@@ -893,7 +952,16 @@ exports.summaryView = ({ messages }) => {
     messages,
     viewTitle: i18n.summaries,
     viewDescription: i18n.summariesDescription,
-    aside: true
+    aside: true,
+  });
+};
+
+exports.threadsView = ({ messages }) => {
+  return messageListView({
+    messages,
+    viewTitle: i18n.threads,
+    viewDescription: i18n.threadsDescription,
+    aside: true,
   });
 };
 
@@ -905,7 +973,7 @@ exports.replyView = async ({ messages, myFeedId }) => {
   let markdownMention;
 
   const messageElements = await Promise.all(
-    messages.reverse().map(message => {
+    messages.reverse().map((message) => {
       debug("%O", message);
       const authorName = message.value.meta.author.name;
       const authorFeedId = message.value.author;
@@ -928,13 +996,13 @@ exports.replyView = async ({ messages, myFeedId }) => {
         {
           autofocus: true,
           required: true,
-          name: "text"
+          name: "text",
         },
         markdownMention
       ),
       button(
         {
-          type: "submit"
+          type: "submit",
         },
         i18n.reply
       )
@@ -947,7 +1015,7 @@ exports.searchView = ({ messages, query }) => {
     name: "query",
     required: false,
     type: "search",
-    value: query
+    value: query,
   });
 
   // - Minimum length of 3 because otherwise SSB-Search hangs forever. :)
@@ -962,16 +1030,57 @@ exports.searchView = ({ messages, query }) => {
       h1(i18n.search),
       form(
         { action: "/search", method: "get" },
-        label({ for: "query" }, i18n.searchLabel),
-        searchInput,
+        label(i18n.searchLabel, searchInput),
         button(
           {
-            type: "submit"
+            type: "submit",
           },
           i18n.submit
         )
       )
     ),
-    messages.map(msg => post({ msg }))
+    messages.map((msg) => post({ msg }))
   );
+};
+
+exports.hashtagView = ({ messages, hashtag }) => {
+  return template(
+    section(h1(`#${hashtag}`), p(i18n.hashtagDescription)),
+    messages.map((msg) => post({ msg }))
+  );
+};
+
+/** @param {{percent: number}} input */
+exports.indexingView = ({ percent }) => {
+  // TODO: i18n
+  const message = `Oasis has only processed ${percent}% of the messages and needs to catch up. This page will refresh every 10 seconds. Thanks for your patience! ❤`;
+
+  const nodes = html(
+    { lang: "en" },
+    head(
+      title("Oasis"),
+      link({ rel: "icon", type: "image/svg+xml", href: "/assets/favicon.svg" }),
+      meta({ charset: "utf-8" }),
+      meta({
+        name: "description",
+        content: i18n.oasisDescription,
+      }),
+      meta({
+        name: "viewport",
+        content: toAttributes({ width: "device-width", "initial-scale": 1 }),
+      }),
+      meta({ "http-equiv": "refresh", content: 10 })
+    ),
+    body(
+      main(
+        { id: "content" },
+        p(message),
+        progress({ value: percent, max: 100 })
+      )
+    )
+  );
+
+  const result = doctypeString + nodes.outerHTML;
+
+  return result;
 };

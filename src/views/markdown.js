@@ -6,7 +6,7 @@ const ssbRef = require("ssb-ref");
 const { span } = require("hyperaxe");
 
 /** @param {{ link: string}[]} mentions */
-const toUrl = mentions => {
+const toUrl = (mentions) => {
   /** @type {{name: string, link: string}[]} */
   const mentionNames = [];
 
@@ -21,7 +21,7 @@ const toUrl = mentions => {
   ssbMessages.links(mentions, "feed").forEach(handleLink);
 
   /** @param {string} ref */
-  const urlHandler = ref => {
+  const urlHandler = (ref) => {
     // @mentions
     const found = mentionNames.find(({ name }) => name === ref);
     if (found !== undefined) {
@@ -53,5 +53,6 @@ const toUrl = mentions => {
 module.exports = (input, mentions = []) =>
   md.block(input, {
     toUrl: toUrl(mentions),
-    emoji: character => span({ class: "emoji" }, character).outerHTML
+    /** @param character {string} */
+    emoji: (character) => span({ class: "emoji" }, character).outerHTML,
   });

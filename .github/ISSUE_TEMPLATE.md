@@ -1,3 +1,3 @@
-**What's the problem you want solved?**
+## What's the problem you want solved?
 
-**Is there a solution you'd like to recommend?**
+## Is there a solution you'd like to recommend?

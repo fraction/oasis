@@ -54,7 +54,7 @@ require("./foobar/index.js"); // excessive specificity
 **Note:** I want to make _very_ clear that this is an experiment, not a claim
 that this is Objectively Better.
 
-### Any my [hyper]axe
+### And my [hyper]axe
 
 Converting JSON data to HTML templates is hard work. I started with Swig but
 when I realized it wasn't maintained I rewrote everything in EJS. I liked it a
