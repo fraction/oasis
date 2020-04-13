@@ -193,18 +193,13 @@ module.exports = ({ offline }) => {
     },
   };
 
-  // Important: This ensures that we have an SSB connection as soon as Oasis
-  // starts. If we don't do this, then we don't even attempt an SSB connection
-  // until we receive our first HTTP request.
-  ensureConnection(customConfig);
-
   let clientHandle;
 
   /**
    * This is "cooler", a tiny interface for opening or reusing an instance of
    * SSB-Client.
    */
-  return {
+  const cooler = {
     open() {
       // This has interesting behavior that may be unexpected.
       //
@@ -239,4 +234,11 @@ module.exports = ({ offline }) => {
       }
     },
   };
+
+  // Important: This ensures that we have an SSB connection as soon as Oasis
+  // starts. If we don't do this, then we don't even attempt an SSB connection
+  // until we receive our first HTTP request.
+  cooler.open();
+
+  return cooler;
 };
