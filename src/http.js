@@ -117,8 +117,7 @@ module.exports = ({ host, port, middleware, allowHost }) => {
 
   const server = app.listen({ host, port });
 
-  // `server.address()` returns null unless you wait until the next tick.
-  setImmediate(() => {
+  server.on("listening", () => {
     const address = server.address();
 
     if (typeof address === "string") {
