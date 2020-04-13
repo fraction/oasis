@@ -215,7 +215,7 @@ module.exports = ({ offline }) => {
           ensureConnection(customConfig).then((ssb) => {
             clientHandle = ssb;
             if (closing) {
-              ssb.close();
+              cooler.close();
               reject(new Error("Closing Oasis"));
             } else {
               resolve(ssb);
