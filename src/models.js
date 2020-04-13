@@ -272,11 +272,10 @@ module.exports = ({ cooler, isPublic }) => {
       const ssb = await cooler.open();
       return ssb.status();
     },
-    peers: async () => {
+    connectedPeers: async () => {
       const ssb = await cooler.open();
       const peersSource = await ssb.conn.peers();
-
-      return new Promise((resolve, reject) => {
+      const peers = new Promise((resolve, reject) => {
         pull(
           peersSource,
           // https://github.com/staltz/ssb-conn/issues/9
@@ -287,6 +286,18 @@ module.exports = ({ cooler, isPublic }) => {
           })
         );
       });
+      const peersList = await peers;
+      var peersConnected = new Array();
+
+      if (peersList !== undefined) {
+        peersList.forEach(([address, data]) => {
+          // debug(address, data.state);
+          if (data.state === "connected") {
+            peersConnected.push([address, data]);
+          }
+        });
+      }
+      return peersConnected;
     },
     connStop: async () => {
       const ssb = await cooler.open();
@@ -318,66 +329,72 @@ module.exports = ({ cooler, isPublic }) => {
     sync: async () => {
       const ssb = await cooler.open();
       await ssb.conn.start();
+      // Let's wait a second for things to be ready
+      // before we check in on the current state
+      await new Promise((r) => setTimeout(r, 1000));
+      const originalProgress = await ssb.progress();
 
-      const getPeersConnected = async () => {
-        const peersSource = await ssb.conn.peers();
-        const peers = new Promise((resolve, reject) => {
-          pull(
-            peersSource,
-            pull.take(1),
-            pull.collect((err, val) => {
-              if (err) return reject(err);
-              resolve(val[0]);
-            })
-          );
-        });
-
-        const peersList = await peers;
-        var peersConnected = new Array();
-
-        if (peersList !== undefined) {
-          peersList.forEach(([address, data]) => {
-            // debug(address, data.state);
-            if (data.state === "connected") {
-              peersConnected.push(address);
-            }
-          });
-        }
-        return peersConnected;
-      };
 
       const waitForPeers = async () => {
-        const peers = await getPeersConnected();
+        const peers = await models.meta.connectedPeers();
         if (peers && peers.length) {
-          debug("Connected to %s", peers);
+          debug("Connected to: ", peers);
         } else {
           await new Promise((r) => setTimeout(r, 500));
           await waitForPeers();
         }
       };
 
+      // By checking for peers being connected first
+      // we can be more confident about whether there
+      // is no available people to sync with or nothing
+      // to sync at all
       debug("Waiting for peers to connect...");
       await waitForPeers();
 
-      const getProgress = async () => {
-        const progress = await ssb.progress();
-        const needed = progress.indexes.target - progress.indexes.current;
-        if (needed == 0) {
-          debug("Nothing more to sync");
+      const getProgress = async (originalProgress, lastCheckProgress) => {
+        await new Promise((r) => setTimeout(r, 1000));
+        const inProgress = await ssb.progress();
+
+        if (!lastCheckProgress) {
+          debug("Haven't checked yet");
+          debug("When we started we had %s", originalProgress.indexes);
+          await new Promise((r) => setTimeout(r, 5000));
+          debug("checking again...");
+          await getProgress(originalProgress, inProgress);
         } else {
-          debug("Getting %s more items", needed);
-          await new Promise((r) => setTimeout(r, 500));
-          await getProgress();
+          debug("last time we checked:", lastCheckProgress.indexes);
+          debug("right now there are:", inProgress.indexes);
+
+          if (inProgress.indexes.target > lastCheckProgress.indexes.current) {
+            debug("New stuff, let's check again...");
+            await new Promise((r) => setTimeout(r, 5000));
+            await getProgress(originalProgress, inProgress);
+          }
+
+          if (inProgress.indexes.target - inProgress.indexes.current !== 0) {
+            debug("Still downloading...");
+            debug(inProgress.indexes);
+            await new Promise((r) => setTimeout(r, 5000));
+            await getProgress(originalProgress, inProgress);
+          }
+
+          if (inProgress.indexes.target === lastCheckProgress.indexes.target) {
+            let total = inProgress.indexes.target - originalProgress.indexes.target;
+            debug("Nothing more. We out.");
+            debug("Downloaded %s objects", total);
+          }
         }
       };
 
-      debug("Syncing with peers...");
-      await getProgress();
+      await getProgress(originalProgress, false);
 
       // I could get blobs maybe but they're
       // annoying. Anyway, there's this
       // @URL: https://gist.github.com/nickwynja/26431e1c3a69164c6fe3cbd37339e5c1
 
+      // conn.stop() doesn't seem to be enough to get back to
+      // an empty list of peers, so let's do this with a hammer
       const disconnect = async () => {
         await models.meta.connStop();
         const peersStaged = await ssb.conn.stagedPeers();
@@ -395,11 +412,11 @@ module.exports = ({ cooler, isPublic }) => {
 
         const stagedPeers = await staged;
         stagedPeers.forEach(([address]) => {
-          // debug("Unstaging %s", address);
+          debug("Unstage %s", address);
           ssb.conn.unstage(address);
         });
 
-        const peersToDisconnect = await models.meta.peers();
+        const peersToDisconnect = await models.meta.connectedPeers();
         peersToDisconnect.forEach(([address]) => {
           debug("Disconnecting %s", address);
           ssb.conn.disconnect(address);

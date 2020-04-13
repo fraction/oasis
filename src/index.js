@@ -514,7 +514,7 @@ router
     const theme = ctx.cookies.get("theme") || config.theme;
     const getMeta = async ({ theme }) => {
       const status = await meta.status();
-      const peers = await meta.peers();
+      const peers = await meta.connectedPeers();
       const peersWithNames = await Promise.all(
         peers.map(async ([key, value]) => {
           value.name = await about.name(value.key);
