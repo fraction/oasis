@@ -36,7 +36,7 @@ is giving you any trouble.
 
 <!-- spell-checker:enable -->
 
-If this word is a tpo, please fix the typo. If this error is a mistake, and
+If this word is a typo, please fix the typo. If this error is a mistake, and
 you're sure that this is a word, please add the word to `.cspell.json`.
 
 ### Code style issues found
