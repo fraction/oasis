@@ -693,7 +693,7 @@ const i18n = {
     hashtagDescription:
       "Post da persone nella tua rete che menzionano questo hashtag, ordinati cronologicamente.",
   },
-    fr: {
+  fr: {
     // navbar items
     extended: "Étendue",
     extendedDescription: [
@@ -757,14 +757,16 @@ const i18n = {
     relationshipYou: "C'est vous",
     relationshipBlocking: "Vous bloquez",
     relationshipNone: "Vous ne suivez ni ne bloquez",
-    relationshipConflict: "D'une certaine manière, vous suivez et bloquez à la fois",
+    relationshipConflict:
+      "D'une certaine manière, vous suivez et bloquez à la fois",
     // author view
     viewLikes: "Voir les votes",
     // likes view
     likedBy: "a voté",
     // composer
     publish: "Publier",
-    contentWarningPlaceholder: "Avertissement de contenu facultatif pour ce poste",
+    contentWarningPlaceholder:
+      "Avertissement de contenu facultatif pour ce poste",
     publishCustomDescription: [
       "Publier un message personnalisé en entrant ",
       a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
@@ -847,7 +849,8 @@ const i18n = {
       "Utilisez une invitation en la collant ci-dessous. Si cela fonctionne, vous suivrez le flux et ils vous suivront en retour.",
     acceptInvite: "Accepter l'invitation",
     // search page
-    searchLabel: "Ajouter un ou plusieurs mots à rechercher dans les messages téléchargés.",
+    searchLabel:
+      "Ajouter un ou plusieurs mots à rechercher dans les messages téléchargés.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
       " a commenté ",
@@ -870,7 +873,6 @@ const i18n = {
     hashtagDescription:
       "Les messages des personnes de votre réseau qui font référence à ce hashtag, triés par ordre de récence.",
   },
-
 };
 
 module.exports = i18n;
