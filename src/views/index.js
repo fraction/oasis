@@ -820,7 +820,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     })
   );
 
-  const languageOption = (shortName, longName) =>
+  const languageOption = (longName, shortName) =>
     shortName === selectedLanguage
       ? option({ value: shortName, selected: true }, longName)
       : option({ value: shortName }, longName);
@@ -855,11 +855,13 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       form(
         { action: "/language", method: "post" },
         select({ name: "language" }, [
+          // Languages are sorted alphabetically by their 'long name'.
           /* cspell:disable */
-          languageOption("en", "English"),
-          languageOption("es", "Español"),
-          languageOption("it", "Italiano"),
-          languageOption("de", "Deutsch"),
+          languageOption("Deutsch", "de"),
+          languageOption("English", "en"),
+          languageOption("Español", "es"),
+          languageOption("Français", "fr"),
+          languageOption("Italiano", "it"),
           /* cspell:enable */
         ]),
         button({ type: "submit" }, i18n.setLanguage)
