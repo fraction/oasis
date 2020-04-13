@@ -334,7 +334,6 @@ module.exports = ({ cooler, isPublic }) => {
       await new Promise((r) => setTimeout(r, 1000));
       const originalProgress = await ssb.progress();
 
-
       const waitForPeers = async () => {
         const peers = await models.meta.connectedPeers();
         if (peers && peers.length) {
@@ -380,7 +379,8 @@ module.exports = ({ cooler, isPublic }) => {
           }
 
           if (inProgress.indexes.target === lastCheckProgress.indexes.target) {
-            let total = inProgress.indexes.target - originalProgress.indexes.target;
+            let total =
+              inProgress.indexes.target - originalProgress.indexes.target;
             debug("Nothing more. We out.");
             debug("Downloaded %s objects", total);
           }
