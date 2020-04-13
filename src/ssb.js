@@ -61,6 +61,7 @@ const connect = (options) =>
 
 let closing = false;
 let serverHandle;
+let clientHandle;
 
 /**
  * Attempts connection over Unix socket, falling back to TCP socket if that
@@ -96,34 +97,44 @@ const attemptConnection = () =>
       });
   });
 
-const ensureConnection = (customConfig) =>
-  new Promise((resolve) => {
-    attemptConnection()
-      .then((ssb) => {
-        resolve(ssb);
-      })
-      .catch(() => {
-        debug("Connection attempts to existing Scuttlebutt services failed");
-        log("Starting Scuttlebutt service");
+let pendingConnection = null;
 
-        // Start with the default SSB-Config object.
-        const server = flotilla(ssbConfig);
-        // Adjust with `customConfig`, which declares further preferences.
-        serverHandle = server(customConfig);
+const ensureConnection = (customConfig) => {
+  if (pendingConnection === null) {
+    pendingConnection = new Promise((resolve) => {
+      attemptConnection()
+        .then((ssb) => {
+          resolve(ssb);
+        })
+        .catch(() => {
+          debug("Connection attempts to existing Scuttlebutt services failed");
+          log("Starting Scuttlebutt service");
 
-        // Give the server a moment to start. This is a race condition. :/
-        setTimeout(() => {
-          attemptConnection()
-            .then((ssb) => {
-              autoStagePeers({ ssb, config: customConfig });
-              resolve(ssb);
-            })
-            .catch((e) => {
-              throw new Error(e);
-            });
-        }, 100);
-      });
-  });
+          // Start with the default SSB-Config object.
+          const server = flotilla(ssbConfig);
+          // Adjust with `customConfig`, which declares further preferences.
+          serverHandle = server(customConfig);
+
+          // Give the server a moment to start. This is a race condition. :/
+          setTimeout(() => {
+            attemptConnection()
+              .then((ssb) => {
+                autoStagePeers({ ssb, config: customConfig });
+                resolve(ssb);
+              })
+              .catch((e) => {
+                throw new Error(e);
+              });
+          }, 100);
+        });
+    });
+
+    const cancel = () => (pendingConnection = null);
+    pendingConnection.then(cancel, cancel);
+  }
+
+  return pendingConnection;
+};
 
 const autoStagePeers = ({ ssb, config }) => {
   // TODO: This does not start when Oasis is started in --offline mode, which
@@ -193,13 +204,11 @@ module.exports = ({ offline }) => {
     },
   };
 
-  let clientHandle;
-
   /**
    * This is "cooler", a tiny interface for opening or reusing an instance of
    * SSB-Client.
    */
-  return {
+  const cooler = {
     open() {
       // This has interesting behavior that may be unexpected.
       //
@@ -215,7 +224,7 @@ module.exports = ({ offline }) => {
           ensureConnection(customConfig).then((ssb) => {
             clientHandle = ssb;
             if (closing) {
-              ssb.close();
+              cooler.close();
               reject(new Error("Closing Oasis"));
             } else {
               resolve(ssb);
@@ -234,4 +243,11 @@ module.exports = ({ offline }) => {
       }
     },
   };
+
+  // Important: This ensures that we have an SSB connection as soon as Oasis
+  // starts. If we don't do this, then we don't even attempt an SSB connection
+  // until we receive our first HTTP request.
+  cooler.open();
+
+  return cooler;
 };
