@@ -693,6 +693,186 @@ const i18n = {
     hashtagDescription:
       "Post da persone nella tua rete che menzionano questo hashtag, ordinati cronologicamente.",
   },
+  fr: {
+    // navbar items
+    extended: "Étendue",
+    extendedDescription: [
+      "Messages de ",
+      strong("quelqu'un que vous ne suivez pas"),
+      ", triées ancienneté. Lorsque vous suivez quelqu'un, vous pouvez télécharger les messages des personnes qu'il suit, et ces messages apparaissent ici.",
+    ],
+    popular: "Populaire",
+    popularDescription: [
+      "Messages des personnes de votre réseau, triés par ",
+      strong("votes"),
+      " dans une période donnée. Les votes sont comptés à partir de ",
+      em("tous"),
+      ", y compris les personnes que vous ne suivez pas, donc cela montre les messages de vos amis qui sont populaires dans votre réseau étendu.",
+    ],
+    latest: "Dernières nouvelles",
+    latestDescription:
+      "Les messages de vous-même et des personnes que vous suivez, triés par ancienneté.",
+    topics: "Sujets",
+    topicsDescription: [
+      strong("Sujets"),
+      " de vous-même et des personnes que vous suivez, classés par ancienneté. Sélectionnez l'horodatage de n'importe quel message pour voir le reste du fil de discussion.",
+    ],
+    summaries: "Résumés",
+    summariesDescription: [
+      strong("Sujets et commentaires"),
+      " de vous-même et des personnes que vous suivez, classés par ancienneté. Sélectionnez l'horodatage de n'importe quel message pour voir le reste du fil de discussion.",
+    ],
+    threads: "Fils de discussion",
+    threadsDescription: [
+      strong("Messages avec commentaires"),
+      " des personnes que vous suivez et de votre réseau étendu, classés par ancienneté. Sélectionnez l'horodatage de n'importe quel message pour voir le reste du fil de discussion.",
+    ],
+    profile: "Profil",
+    manualMode: "Mode Manuel",
+    mentions: "Mentions",
+    mentionsDescription: [
+      strong("Postes qui vous mentionnent"),
+      " from ",
+      strong("n'importe qui"),
+      " triées par ancienneté. Parfois, les gens peuvent oublier de vous @mentionner, et ces messages n'apparaîtront pas ici.",
+    ],
+    private: "Privé",
+    privateDescription: [
+      "Le dernier commentaire de ",
+      strong("des fils de discussion privés qui vous incluent"),
+      ", triées par ancienneté. Les messages privés sont cryptés par clé publique, et ont un maximum de 7 destinataires. Les destinataires ne peuvent pas être ajoutés après le démarrage du fil de discussion. Sélectionnez l'horodatage pour voir le fil de discussion complet.",
+    ],
+    search: "Rechercher",
+    settings: "Paramètres",
+    // post actions
+    comment: "Commentaire",
+    reply: "Réponse",
+    json: "JSON",
+    // relationships
+    unfollow: "Ne plus suivre",
+    follow: "Suivre",
+    block: "Bloquer",
+    unblock: "Débloquer",
+    relationshipFollowing: "Vous suivez",
+    relationshipYou: "C'est vous",
+    relationshipBlocking: "Vous bloquez",
+    relationshipNone: "Vous ne suivez ni ne bloquez",
+    relationshipConflict:
+      "D'une certaine manière, vous suivez et bloquez à la fois",
+    // author view
+    viewLikes: "Voir les votes",
+    // likes view
+    likedBy: "a voté",
+    // composer
+    publish: "Publier",
+    contentWarningPlaceholder:
+      "Avertissement de contenu facultatif pour ce poste",
+    publishCustomDescription: [
+      "Publier un message personnalisé en entrant ",
+      a({ href: "https://en.wikipedia.org/wiki/JSON" }, "JSON"),
+      " ci-dessous. Cela peut être utile pour le prototypage ou la publication de messages qu'Oasis ne prend pas en charge. Ce message ne peut pas être modifié ou supprimé.",
+    ],
+    commentWarning: [
+      " Les commentaires ne peuvent être ni modifiés ni supprimés. Pour répondre à un message individuel, sélectionnez ",
+      strong("répondre"),
+      " à la place.",
+    ],
+    commentPublic: "public",
+    commentPrivate: "privé",
+    commentLabel: ({ publicOrPrivate, markdownUrl }) => [
+      "Ecrire un ",
+      strong(`${publicOrPrivate} commentaire`),
+      " sur ce fil avec ",
+      a({ href: markdownUrl }, "Markdown"),
+      ".",
+    ],
+    publishLabel: ({ markdownUrl, linkTarget }) => [
+      "Rédiger un nouveau poste public dans ",
+      a(
+        {
+          href: markdownUrl,
+          target: linkTarget,
+        },
+        "Markdown"
+      ),
+      ". Les messages ne peuvent être ni modifiés ni supprimés.",
+    ],
+    publishCustomInfo: ({ href }) => [
+      "Si vous êtes un utilisateur avancé, vous pouvez également ",
+      a({ href }, "publier un message personnalisé"),
+      ".",
+    ],
+    publishBasicInfo: ({ href }) => [
+      "Si vous n'êtes pas un utilisateur avancé, vous devez ",
+      a({ href }, "publier un message"),
+      ".",
+    ],
+    publishCustom: "Publier un type particulier",
+
+    replyLabel: ({ markdownUrl }) => [
+      "Ecrire un ",
+      strong("réponse publique"),
+      " à ce message avec ",
+      a({ href: markdownUrl }, "Markdown"),
+      ". Les messages ne peuvent être ni modifiés ni supprimés. Pour répondre à un fil de discussion entier, sélectionnez ",
+      strong("commentaire"),
+      " en remplacement.",
+    ],
+    // settings
+    settingsIntro: ({ readmeUrl, version }) => [
+      `Vous utilisez Oasis ${version}. Consultez `,
+      a({ href: readmeUrl }, "le lisez-moi"),
+      ", configurez votre thème, ou consultez les informations de débogage ci-dessous.",
+    ],
+    theme: "Thème",
+    themeIntro:
+      "Choisissez le thème que vous souhaitez. Le thème par défaut est Atelier-SulphurPool-Light. Vous pouvez également définir votre thème dans le fichier de configuration par défaut.",
+    setTheme: "Choisir thème",
+    language: "Langue",
+    languageDescription:
+      "Si vous souhaitez utiliser Oasis dans une autre langue, choisissez l'une des langues ci-dessous. Sachez qu'il s'agit d'une langue très nouvelle et très basique. Nous aimerions que vous nous aidiez à traduire Oasis dans d'autres langues et d'autres lieux.",
+    setLanguage: "Choisir la langue",
+
+    status: "Status",
+    peerConnections: "Connexions pair à pair 💻⚡️💻",
+    connectionsIntro:
+      "Votre ordinateur synchronise les données avec ces autres ordinateurs. Il se connecte à n'importe quel pub de ragots et peer-to-peer qu'il peut trouver, même si vous n'avez pas de relation avec eux, en cherchant des données de vos amis.",
+    noConnections: "Aucun pair n'est connecté.",
+    connectionActionIntro:
+      "Vous pouvez décider quand vous voulez que votre ordinateur soit en réseau avec vos pairs. Vous pouvez démarrer, arrêter ou redémarrer votre réseau quand vous le souhaitez.",
+    startNetworking: "Activer le réseau",
+    stopNetworking: "Désactiver le réseau",
+    restartNetworking: "Redémarrer le réseau",
+    indexes: "Index",
+    invites: "Invitations",
+    invitesDescription:
+      "Utilisez une invitation en la collant ci-dessous. Si cela fonctionne, vous suivrez le flux et ils vous suivront en retour.",
+    acceptInvite: "Accepter l'invitation",
+    // search page
+    searchLabel:
+      "Ajouter un ou plusieurs mots à rechercher dans les messages téléchargés.",
+    // posts and comments
+    commentDescription: ({ parentUrl }) => [
+      " a commenté ",
+      a({ href: parentUrl }, " fil de discussion"),
+    ],
+    replyDescription: ({ parentUrl }) => [
+      " a répondu à ",
+      a({ href: parentUrl }, " message"),
+    ],
+    mysteryDescription: "a posté un message mystérieux",
+    // misc
+    oasisDescription: "Une interface conviviale pour des bavardages entre amis",
+    submit: "Soumettre",
+    editProfile: "Modifier le profil",
+    editProfileDescription:
+      "Modifiez votre profil en Markdown. Les anciennes versions des informations de votre profil existent toujours et ne peuvent pas être supprimées, mais la plupart des applications SSB ne les affichent pas.",
+    profileName: "Nom du profil (texte en clair)",
+    profileImage: "Image du profil",
+    profileDescription: "Description du profil (Markdown)",
+    hashtagDescription:
+      "Les messages des personnes de votre réseau qui font référence à ce hashtag, triés par ordre de récence.",
+  },
 };
 
 module.exports = i18n;
