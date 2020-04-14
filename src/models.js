@@ -296,13 +296,6 @@ module.exports = ({ cooler, isPublic }) => {
         }
       });
     },
-    disconnect: async () => {
-      const ssb = await cooler.open();
-      const peers = await models.meta.peers();
-      peers.forEach(([address]) => {
-        ssb.conn.disconnect(address);
-      });
-    },
     connStop: async () => {
       const ssb = await cooler.open();
 
@@ -332,62 +325,50 @@ module.exports = ({ cooler, isPublic }) => {
     },
     sync: async () => {
       const ssb = await cooler.open();
+
+      const progress = await ssb.progress();
+      let previousTarget = progress.indexes.target;
+
+      // Automatically timeout after 5 minutes.
+      let keepGoing = true;
+      const timeoutInterval = setTimeout(() => {
+        keepGoing = false;
+      }, 5 * 60 * 1000);
+
       await ssb.conn.start();
 
-      let syncDelay = 5000; //ms
-      const delay = (ms) => {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      };
+      // Promise that resolves the number of new messages after 5 seconds.
+      const diff = async () =>
+        new Promise((resolve) => {
+          setTimeout(async () => {
+            const currentProgress = await ssb.progress();
+            const currentTarget = currentProgress.indexes.target;
+            const difference = currentTarget - previousTarget;
+            previousTarget = currentTarget;
+            debug(`Difference: ${difference} bytes`);
+            resolve(difference);
+          }, 5000);
+        });
 
-      // Let's wait a second for things to be ready
-      await delay(1000);
-      const originalProgress = await ssb.progress();
-      const originalTarget = originalProgress.indexes.target;
+      debug("Starting sync, waiting for new messages...");
 
-      const waitForPeers = async () => {
-        const peers = await models.meta.connectedPeers();
-        if (peers && peers.length) {
-          debug("Connected to: ", peers);
-        } else {
-          await delay(500);
-          await waitForPeers();
-        }
-      };
+      // Wait until we **start** receiving messages.
+      while (keepGoing && (await diff()) === 0) {
+        debug("Received no new messages.");
+      }
 
-      debug("Waiting for peers to connect...");
-      await waitForPeers();
+      debug("Finished waiting for first new message.");
 
-      const getProgress = async (originalTarget, lastCheckTarget) => {
-        await delay(1000);
-        const progress = await ssb.progress();
-        const currentTarget = progress.indexes.target;
+      // Wait until we **stop** receiving messages.
+      while (keepGoing && (await diff()) > 0) {
+        debug(`Still receiving new messages...`);
+      }
 
-        if (!lastCheckTarget) {
-          debug("Started with %s bytes", originalTarget);
-          await delay(syncDelay);
-          await getProgress(originalTarget, currentTarget);
-        } else {
-          debug(
-            "Last check was %s bytes and now we have %s bytes",
-            lastCheckTarget,
-            currentTarget
-          );
-          if (currentTarget > lastCheckTarget) {
-            await delay(syncDelay);
-            await getProgress(originalTarget, currentTarget);
-          }
+      debug("Finished waiting for last new message.");
 
-          if (currentTarget === lastCheckTarget) {
-            debug("Downloaded %s bytes", currentTarget - originalTarget);
-          }
-        }
-      };
+      clearInterval(timeoutInterval);
 
-      await getProgress(originalTarget, false);
-
-      // conn.stop stops the scheduler but can leave connecting peers in limbo
-      await models.meta.disconnect();
-      await models.meta.connStop();
+      await ssb.conn.stop();
     },
     acceptInvite: async (invite) => {
       const ssb = await cooler.open();
