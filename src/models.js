@@ -291,9 +291,9 @@ module.exports = ({ cooler, isPublic }) => {
       const peers = await models.meta.peers();
       return peers.filter(([address, data]) => {
         if (data.state === "connected") {
-          return [address, data]
+          return [address, data];
         }
-      })
+      });
     },
     disconnect: async () => {
       const ssb = await cooler.open();
@@ -335,8 +335,8 @@ module.exports = ({ cooler, isPublic }) => {
 
       let syncDelay = 5000; //ms
       const delay = (ms) => {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      };
 
       // Let's wait a second for things to be ready
       // before we check in on the current state
