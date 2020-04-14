@@ -29,22 +29,19 @@
   --fg-light: var(--base06);
   --bg-light: var(--base07);
 
-  /* line */
-
-  --peta: 32rem;
-  --tera: 16rem;
-  --giga: 8rem;
-  --mega: 4rem;
-  --kilo: 2rem;
-  --whole: 1rem;
-  --milli: 0.5rem;
-  --micro: 0.25rem;
-  --nano: 0.125rem;
-  --pico: 0.0625rem;
+  /* size (2^n) */
+  --size-3: 8rem;
+  --size-2: 4rem;
+  --size-1: 2rem;
+  --size-0: 1rem;
+  --size--1: 0.5rem;
+  --size--2: 0.25rem;
+  --size--3: 0.125rem;
+  --size--4: 0.0625rem;
 
   /* size */
-  --common-radius: var(--micro);
-  --measure: calc(var(--peta) + var(--mega));
+  --common-radius: var(--size--2);
+  --measure: 36rem;
   --line: 1.5rem;
   --code-size: 85%;
 }
@@ -73,7 +70,7 @@ html {
 
 main {
   margin: 0;
-  margin-bottom: var(--whole);
+  margin-bottom: var(--size-0);
 }
 
 /* https://www.desmos.com/calculator/3elcf5cwhn */
@@ -103,13 +100,13 @@ h4,
 h5,
 h6 {
   color: var(--bg-light);
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
 }
 
 ul,
 ol {
-  padding-left: var(--whole);
-  margin-left: var(--nano);
+  padding-left: var(--size-0);
+  margin-left: var(--size--3);
 }
 
 a {
@@ -120,8 +117,8 @@ button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
-  border: var(--pico) solid var(--fg);
-  padding: var(--milli) var(--whole);
+  border: var(--size--4) solid var(--fg);
+  padding: var(--size--1) var(--size-0);
   border-radius: var(--common-radius);
 }
 
@@ -130,8 +127,8 @@ section header a {
   color: var(--fg-status);
   text-decoration: none;
   font-weight: bold;
-  margin-right: var(--micro);
-  margin-left: var(--micro);
+  margin-right: var(--size--2);
+  margin-left: var(--size--2);
 }
 
 section > footer > div > a,
@@ -152,9 +149,9 @@ select,
 input {
   background: var(--bg);
   color: var(--fg);
-  border: var(--pico) solid var(--bg-selection);
-  padding: var(--milli);
-  margin: var(--whole) 0;
+  border: var(--size--4) solid var(--bg-selection);
+  padding: var(--size--1);
+  margin: var(--size-0) 0;
   -moz-appearance: none;
   appearance: none;
   border-radius: var(--common-radius);
@@ -165,11 +162,11 @@ input {
   background-color: var(--bg);
   box-sizing: border-box;
   display: block;
-  font-size: var(--whole);
-  padding: var(--whole);
+  font-size: var(--size-0);
+  padding: var(--size-0);
   width: 100%;
-  margin: var(--whole) 0;
-  border: var(--pico) solid var(--bg-selection);
+  margin: var(--size-0) 0;
+  border: var(--size--4) solid var(--bg-selection);
   border-radius: var(--common-radius);
   color: var(--fg);
 }
@@ -178,13 +175,13 @@ textarea {
   background-color: var(--bg);
   box-sizing: border-box;
   display: block;
-  font-size: var(--whole);
-  padding: var(--whole);
+  font-size: var(--size-0);
+  padding: var(--size-0);
   resize: vertical;
   width: 100%;
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
   height: 12rem;
-  border: var(--pico) solid var(--bg-selection);
+  border: var(--size--4) solid var(--bg-selection);
   border-radius: var(--common-radius);
   color: var(--fg);
 }
@@ -210,10 +207,10 @@ section > footer > div > form > button:focus {
 pre {
   overflow-x: auto;
   background-color: var(--bg);
-  padding: var(--milli);
+  padding: var(--size--1);
   font-size: 92%;
   border-radius: var(--common-radius);
-  border: var(--pico) solid var(--bg-status);
+  border: var(--size--4) solid var(--bg-status);
 }
 
 section code {
@@ -224,7 +221,7 @@ section code {
   font-size: var(--code-size);
   background-color: var(--bg);
   border-radius: var(--common-radius);
-  border: var(--pico) solid var(--bg-status);
+  border: var(--size--4) solid var(--bg-status);
 }
 
 section pre code {
@@ -239,8 +236,8 @@ section pre code {
 
 section blockquote {
   margin-left: 0;
-  border-left: var(--milli) solid var(--bg-status);
-  padding-left: var(--whole);
+  border-left: var(--size--1) solid var(--bg-status);
+  padding-left: var(--size-0);
 }
 
 section img,
@@ -269,25 +266,25 @@ section > header.profile {
 .profile > img {
   width: 4rem;
   height: 4rem;
-  margin-right: var(--whole);
+  margin-right: var(--size-0);
   border-radius: var(--common-radius);
 }
 
 .private {
-  border-left: var(--milli) solid var(--violet);
+  border-left: var(--size--1) solid var(--violet);
   border-color: var(--violet);
 }
 
 section.thread-target {
-  border: var(--pico) solid var(--blue);
-  box-shadow: 0 0 var(--micro) var(--blue);
+  border: var(--size--4) solid var(--blue);
+  box-shadow: 0 0 var(--size--2) var(--blue);
 }
 
 section.thread-target.private {
-  border: var(--pico) solid var(--violet);
-  border-left: var(--milli) solid var(--violet);
+  border: var(--size--4) solid var(--violet);
+  border-left: var(--size--1) solid var(--violet);
   border-color: var(--violet);
-  box-shadow: 0 0 var(--micro) var(--violet);
+  box-shadow: 0 0 var(--size--2) var(--violet);
 }
 
 section audio {
@@ -309,7 +306,7 @@ section audio {
 }
 
 nav {
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
 }
 
 nav > ul > li > a {
@@ -323,9 +320,9 @@ nav > ul > li > a.current {
 }
 
 section {
-  padding: var(--whole);
+  padding: var(--size-0);
   border-radius: var(--common-radius);
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
   word-wrap: break-word;
   background: var(--bg);
   width: 100%;
@@ -336,10 +333,10 @@ section > header {
   background: var(--bg);
   color: var(--fg-status);
   height: var(--line);
-  margin-bottom: calc(-1 * var(--milli));
-  margin-top: calc(-1 * var(--milli));
-  padding-bottom: var(--milli);
-  padding-top: var(--milli);
+  margin-bottom: calc(-1 * var(--size--1));
+  margin-top: calc(-1 * var(--size--1));
+  padding-bottom: var(--size--1);
+  padding-top: var(--size--1);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -354,7 +351,7 @@ section header a > .avatar {
   width: var(--line);
   height: var(--line);
   border-radius: var(--common-radius);
-  margin-right: var(--micro);
+  margin-right: var(--size--2);
 }
 
 section header span {
@@ -426,12 +423,12 @@ nav > ul {
 
 nav > ul > li {
   list-style: none;
-  margin-right: var(--milli);
+  margin-right: var(--size--1);
 }
 
 .profile {
   display: flex;
-  margin-bottom: var(--whole);
+  margin-bottom: var(--size-0);
 }
 
 progress {
@@ -447,8 +444,8 @@ progress {
 }
 
 summary {
-  padding: var(--milli);
-  margin-top: var(--whole);
+  padding: var(--size--1);
+  margin-top: var(--size-0);
   cursor: pointer;
   background: var(--bg);
   border-radius: var(--common-radius);
@@ -465,7 +462,7 @@ details[open] > summary {
   -webkit-user-select: all;
   user-select: all;
   background: none;
-  font-size: 50%;
+  overflow: hidden;
 }
 
 table {
@@ -475,8 +472,8 @@ table {
 
 td,
 th {
-  padding: var(--milli);
-  outline: var(--pico) solid var(--bg-status);
+  padding: var(--size--1);
+  outline: var(--size--4) solid var(--bg-status);
 }
 
 th {
@@ -486,17 +483,17 @@ th {
 
 input[type="search"] {
   width: 100%;
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
 }
 
 hr {
-  border: var(--pico) solid var(--fg-alt);
+  border: var(--size--4) solid var(--fg-alt);
 }
 
 .form-button-group {
   display: flex;
   justify-content: space-between;
-  margin: var(--whole) 0;
+  margin: var(--size-0) 0;
 }
 
 /* sidebar only appears on big screens */
@@ -504,12 +501,12 @@ hr {
   body > nav > ul {
     justify-content: right;
     flex-direction: column;
-    margin-right: var(--kilo);
+    margin-right: var(--size-1);
     position: sticky;
-    top: var(--whole);
+    top: var(--size-0);
   }
   body > nav > ul > li {
-    margin-bottom: var(--whole);
+    margin-bottom: var(--size-0);
   }
   main {
     width: 100%;
@@ -536,13 +533,13 @@ hr {
  */
 .indent {
   padding-left: 1rem;
-  border-left: var(--micro) solid var(--bg-selection);
+  border-left: var(--size--2) solid var(--bg-selection);
 }
 
 .theme-preview {
   width: calc(100% / 15);
-  height: var(--whole);
-  margin-top: var(--whole);
+  height: var(--size-0);
+  margin-top: var(--size-0);
   display: inline-block;
 }
 
