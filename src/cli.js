@@ -34,7 +34,7 @@ module.exports = (presets, defaultConfigFile) =>
     .options("allow-host", {
       describe:
         "Extra hostname to be whitelisted (useful when running behind a proxy)",
-      default: _.get(presets, "host", null),
+      default: _.get(presets, "allow-host", null),
       type: "string",
     })
     .options("port", {
