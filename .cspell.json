@@ -52,7 +52,6 @@
     "systemctl",
     "systemd",
     "unfollow",
-    "unstage",
     "unikitty",
     "zeromq"
   ]

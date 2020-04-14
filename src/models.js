@@ -275,6 +275,7 @@ module.exports = ({ cooler, isPublic }) => {
     peers: async () => {
       const ssb = await cooler.open();
       const peersSource = await ssb.conn.peers();
+
       return new Promise((resolve, reject) => {
         pull(
           peersSource,
@@ -339,7 +340,6 @@ module.exports = ({ cooler, isPublic }) => {
       };
 
       // Let's wait a second for things to be ready
-      // before we check in on the current state
       await delay(1000);
       const originalProgress = await ssb.progress();
 
@@ -353,10 +353,6 @@ module.exports = ({ cooler, isPublic }) => {
         }
       };
 
-      // By checking for peers being connected first
-      // we can be more confident about whether there
-      // is no available people to sync with or nothing
-      // to sync at all
       debug("Waiting for peers to connect...");
       await waitForPeers();
 
@@ -398,8 +394,7 @@ module.exports = ({ cooler, isPublic }) => {
 
       await getProgress(originalProgress, false);
 
-      // conn.stop stops the sceduler but can leave some connecting
-      // peers in limbo so we'll disconnect manuallly first
+      // conn.stop stops the scheduler but can leave connecting peers in limbo
       await models.meta.disconnect();
       await models.meta.connStop();
     },
