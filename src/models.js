@@ -327,43 +327,44 @@ module.exports = ({ cooler, isPublic }) => {
       const ssb = await cooler.open();
 
       const progress = await ssb.progress();
-      let previousTarget = progress.indexes.target
+      let previousTarget = progress.indexes.target;
 
       // Automatically timeout after 5 minutes.
       let keepGoing = true;
       const timeoutInterval = setTimeout(() => {
         keepGoing = false;
-      }, 5 * 60 * 1000)
+      }, 5 * 60 * 1000);
 
       await ssb.conn.start();
 
       // Promise that resolves the number of new messages after 5 seconds.
-      const diff = async () => new Promise((resolve) => {
-        setTimeout(async () => {
-          const currentProgress = await ssb.progress();
-          const currentTarget = currentProgress.indexes.target
-          const difference = currentTarget - previousTarget;
-          previousTarget = currentTarget;
-          debug(`Difference: ${difference} bytes`);
-          resolve(difference)
-        }, 5000);
-      })
+      const diff = async () =>
+        new Promise((resolve) => {
+          setTimeout(async () => {
+            const currentProgress = await ssb.progress();
+            const currentTarget = currentProgress.indexes.target;
+            const difference = currentTarget - previousTarget;
+            previousTarget = currentTarget;
+            debug(`Difference: ${difference} bytes`);
+            resolve(difference);
+          }, 5000);
+        });
 
-      debug('Starting sync, waiting for new messages...')
+      debug("Starting sync, waiting for new messages...");
 
       // Wait until we **start** receiving messages.
-      while (keepGoing && await diff() === 0) {
-        debug('Received no new messages.')
+      while (keepGoing && (await diff()) === 0) {
+        debug("Received no new messages.");
       }
 
-      debug('Finished waiting for first new message.')
+      debug("Finished waiting for first new message.");
 
       // Wait until we **stop** receiving messages.
-      while (keepGoing && await diff() > 0) {
-        debug(`Still receiving new messages...`)
+      while (keepGoing && (await diff()) > 0) {
+        debug(`Still receiving new messages...`);
       }
 
-      debug('Finished waiting for last new message.')
+      debug("Finished waiting for last new message.");
 
       clearInterval(timeoutInterval);
 
