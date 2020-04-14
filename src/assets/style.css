@@ -448,11 +448,12 @@ progress {
 
 summary {
   padding: var(--milli);
-  margin-top: var(--whole);
+  margin: var(--whole) 0;
   cursor: pointer;
   background: var(--bg);
   border-radius: var(--common-radius);
   list-style-type: "+ ";
+  border: var(--pico) dashed var(--fg-status);
 }
 
 details[open] > summary {
