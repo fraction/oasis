@@ -272,10 +272,10 @@ module.exports = ({ cooler, isPublic }) => {
       const ssb = await cooler.open();
       return ssb.status();
     },
-    connectedPeers: async () => {
+    peers: async () => {
       const ssb = await cooler.open();
       const peersSource = await ssb.conn.peers();
-      const peers = new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         pull(
           peersSource,
           // https://github.com/staltz/ssb-conn/issues/9
@@ -286,18 +286,21 @@ module.exports = ({ cooler, isPublic }) => {
           })
         );
       });
-      const peersList = await peers;
-      var peersConnected = new Array();
-
-      if (peersList !== undefined) {
-        peersList.forEach(([address, data]) => {
-          // debug(address, data.state);
-          if (data.state === "connected") {
-            peersConnected.push([address, data]);
-          }
-        });
-      }
-      return peersConnected;
+    },
+    connectedPeers: async () => {
+      const peers = await models.meta.peers();
+      return peers.filter(([address, data]) => {
+        if (data.state === "connected") {
+          return [address, data]
+        }
+      })
+    },
+    disconnect: async () => {
+      const ssb = await cooler.open();
+      const peers = await models.meta.peers();
+      peers.forEach(([address]) => {
+        ssb.conn.disconnect(address);
+      });
     },
     connStop: async () => {
       const ssb = await cooler.open();
@@ -329,9 +332,15 @@ module.exports = ({ cooler, isPublic }) => {
     sync: async () => {
       const ssb = await cooler.open();
       await ssb.conn.start();
+
+      let syncDelay = 5000; //ms
+      const delay = (ms) => {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
       // Let's wait a second for things to be ready
       // before we check in on the current state
-      await new Promise((r) => setTimeout(r, 1000));
+      await delay(1000);
       const originalProgress = await ssb.progress();
 
       const waitForPeers = async () => {
@@ -339,7 +348,7 @@ module.exports = ({ cooler, isPublic }) => {
         if (peers && peers.length) {
           debug("Connected to: ", peers);
         } else {
-          await new Promise((r) => setTimeout(r, 500));
+          await delay(500);
           await waitForPeers();
         }
       };
@@ -352,13 +361,13 @@ module.exports = ({ cooler, isPublic }) => {
       await waitForPeers();
 
       const getProgress = async (originalProgress, lastCheckProgress) => {
-        await new Promise((r) => setTimeout(r, 1000));
+        await delay(1000);
         const inProgress = await ssb.progress();
 
         if (!lastCheckProgress) {
           debug("Haven't checked yet");
           debug("When we started we had %s", originalProgress.indexes);
-          await new Promise((r) => setTimeout(r, 5000));
+          await delay(syncDelay);
           debug("checking again...");
           await getProgress(originalProgress, inProgress);
         } else {
@@ -367,14 +376,14 @@ module.exports = ({ cooler, isPublic }) => {
 
           if (inProgress.indexes.target > lastCheckProgress.indexes.current) {
             debug("New stuff, let's check again...");
-            await new Promise((r) => setTimeout(r, 5000));
+            await delay(syncDelay);
             await getProgress(originalProgress, inProgress);
           }
 
           if (inProgress.indexes.target - inProgress.indexes.current !== 0) {
             debug("Still downloading...");
             debug(inProgress.indexes);
-            await new Promise((r) => setTimeout(r, 5000));
+            await delay(syncDelay);
             await getProgress(originalProgress, inProgress);
           }
 
@@ -389,41 +398,10 @@ module.exports = ({ cooler, isPublic }) => {
 
       await getProgress(originalProgress, false);
 
-      // I could get blobs maybe but they're
-      // annoying. Anyway, there's this
-      // @URL: https://gist.github.com/nickwynja/26431e1c3a69164c6fe3cbd37339e5c1
-
-      // conn.stop() doesn't seem to be enough to get back to
-      // an empty list of peers, so let's do this with a hammer
-      const disconnect = async () => {
-        await models.meta.connStop();
-        const peersStaged = await ssb.conn.stagedPeers();
-        const staged = new Promise((resolve, reject) => {
-          pull(
-            peersStaged,
-            // https://github.com/staltz/ssb-conn/issues/9
-            pull.take(1),
-            pull.collect((err, val) => {
-              if (err) return reject(err);
-              resolve(val[0]);
-            })
-          );
-        });
-
-        const stagedPeers = await staged;
-        stagedPeers.forEach(([address]) => {
-          debug("Unstage %s", address);
-          ssb.conn.unstage(address);
-        });
-
-        const peersToDisconnect = await models.meta.connectedPeers();
-        peersToDisconnect.forEach(([address]) => {
-          debug("Disconnecting %s", address);
-          ssb.conn.disconnect(address);
-        });
-      };
-
-      await disconnect();
+      // conn.stop stops the sceduler but can leave some connecting
+      // peers in limbo so we'll disconnect manuallly first
+      await models.meta.disconnect();
+      await models.meta.connStop();
     },
     acceptInvite: async (invite) => {
       const ssb = await cooler.open();
