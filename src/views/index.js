@@ -769,10 +769,16 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
     button({ type: "submit" }, i18n.stopNetworking)
   );
 
+  const syncButton = form(
+    { action: "/settings/conn/sync", method: "post" },
+    button({ type: "submit" }, i18n.sync)
+  );
+
   const connButtons = div({ class: "form-button-group" }, [
     startButton,
     restartButton,
     stopButton,
+    syncButton,
   ]);
 
   const peerList = (peers || [])

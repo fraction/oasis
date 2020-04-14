@@ -288,6 +288,21 @@ module.exports = ({ cooler, isPublic }) => {
         );
       });
     },
+    connectedPeers: async () => {
+      const peers = await models.meta.peers();
+      return peers.filter(([address, data]) => {
+        if (data.state === "connected") {
+          return [address, data];
+        }
+      });
+    },
+    disconnect: async () => {
+      const ssb = await cooler.open();
+      const peers = await models.meta.peers();
+      peers.forEach(([address]) => {
+        ssb.conn.disconnect(address);
+      });
+    },
     connStop: async () => {
       const ssb = await cooler.open();
 
@@ -314,6 +329,65 @@ module.exports = ({ cooler, isPublic }) => {
     connRestart: async () => {
       await models.meta.connStop();
       await models.meta.connStart();
+    },
+    sync: async () => {
+      const ssb = await cooler.open();
+      await ssb.conn.start();
+
+      let syncDelay = 5000; //ms
+      const delay = (ms) => {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      };
+
+      // Let's wait a second for things to be ready
+      await delay(1000);
+      const originalProgress = await ssb.progress();
+      const originalTarget = originalProgress.indexes.target;
+
+      const waitForPeers = async () => {
+        const peers = await models.meta.connectedPeers();
+        if (peers && peers.length) {
+          debug("Connected to: ", peers);
+        } else {
+          await delay(500);
+          await waitForPeers();
+        }
+      };
+
+      debug("Waiting for peers to connect...");
+      await waitForPeers();
+
+      const getProgress = async (originalTarget, lastCheckTarget) => {
+        await delay(1000);
+        const progress = await ssb.progress();
+        const currentTarget = progress.indexes.target;
+
+        if (!lastCheckTarget) {
+          debug("Started with %s bytes", originalTarget);
+          await delay(syncDelay);
+          await getProgress(originalTarget, currentTarget);
+        } else {
+          debug(
+            "Last check was %s bytes and now we have %s bytes",
+            lastCheckTarget,
+            currentTarget
+          );
+          if (currentTarget > lastCheckTarget) {
+            await delay(syncDelay);
+            await getProgress(originalTarget, currentTarget);
+          }
+
+          if (currentTarget === lastCheckTarget) {
+            debug("Downloaded %s bytes", currentTarget - originalTarget);
+          }
+        }
+      };
+
+      await getProgress(originalTarget, false);
+
+      // conn.stop stops the scheduler but can leave connecting peers in limbo
+      await models.meta.disconnect();
+      await models.meta.connStop();
     },
     acceptInvite: async (invite) => {
       const ssb = await cooler.open();
