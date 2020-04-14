@@ -342,6 +342,7 @@ module.exports = ({ cooler, isPublic }) => {
       // Let's wait a second for things to be ready
       await delay(1000);
       const originalProgress = await ssb.progress();
+      const originalTarget = originalProgress.indexes.target;
 
       const waitForPeers = async () => {
         const peers = await models.meta.connectedPeers();
@@ -356,43 +357,33 @@ module.exports = ({ cooler, isPublic }) => {
       debug("Waiting for peers to connect...");
       await waitForPeers();
 
-      const getProgress = async (originalProgress, lastCheckProgress) => {
+      const getProgress = async (originalTarget, lastCheckTarget) => {
         await delay(1000);
-        const inProgress = await ssb.progress();
+        const progress = await ssb.progress();
+        const currentTarget = progress.indexes.target;
 
-        if (!lastCheckProgress) {
-          debug("Haven't checked yet");
-          debug("When we started we had %s", originalProgress.indexes);
+        if (!lastCheckTarget) {
+          debug("Started with %s bytes", originalTarget);
           await delay(syncDelay);
-          debug("checking again...");
-          await getProgress(originalProgress, inProgress);
+          await getProgress(originalTarget, currentTarget);
         } else {
-          debug("last time we checked:", lastCheckProgress.indexes);
-          debug("right now there are:", inProgress.indexes);
-
-          if (inProgress.indexes.target > lastCheckProgress.indexes.current) {
-            debug("New stuff, let's check again...");
+          debug(
+            "Last check was %s bytes and now we have %s bytes",
+            lastCheckTarget,
+            currentTarget
+          );
+          if (currentTarget > lastCheckTarget) {
             await delay(syncDelay);
-            await getProgress(originalProgress, inProgress);
+            await getProgress(originalTarget, currentTarget);
           }
 
-          if (inProgress.indexes.target - inProgress.indexes.current !== 0) {
-            debug("Still downloading...");
-            debug(inProgress.indexes);
-            await delay(syncDelay);
-            await getProgress(originalProgress, inProgress);
-          }
-
-          if (inProgress.indexes.target === lastCheckProgress.indexes.target) {
-            let total =
-              inProgress.indexes.target - originalProgress.indexes.target;
-            debug("Nothing more. We out.");
-            debug("Downloaded %s objects", total);
+          if (currentTarget === lastCheckTarget) {
+            debug("Downloaded %s bytes", currentTarget - originalTarget);
           }
         }
       };
 
-      await getProgress(originalProgress, false);
+      await getProgress(originalTarget, false);
 
       // conn.stop stops the scheduler but can leave connecting peers in limbo
       await models.meta.disconnect();
