@@ -445,7 +445,7 @@ progress {
 
 summary {
   padding: var(--size--1);
-  margin-top: var(--size-0) 0;
+  margin: var(--size-0) 0;
   cursor: pointer;
   background: var(--bg);
   border-radius: var(--common-radius);
@@ -455,6 +455,10 @@ summary {
 
 details[open] > summary {
   list-style-type: "− ";
+}
+
+.indent > details > summary {
+  border: none;
 }
 
 .md-mention {
