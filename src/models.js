@@ -156,6 +156,14 @@ module.exports = ({ cooler, isPublic }) => {
         })) || "";
       return raw;
     },
+    sameAs: async (feedId) => {
+      const raw =
+        (await getAbout({
+          key: "sameAs",
+          feedId,
+        })) || [];
+      return raw;
+    },
   };
 
   models.blob = {
@@ -655,26 +663,34 @@ module.exports = ({ cooler, isPublic }) => {
       const ssb = await cooler.open();
 
       const myFeedId = ssb.id;
+      const mySameAs = await models.about.sameAs(myFeedId);
+      const myFeeds = [myFeedId, ...mySameAs];
 
-      const query = [
-        {
-          $filter: {
-            dest: myFeedId,
-          },
-        },
-      ];
+      const unsorted = await Promise.all(
+        myFeeds.map((feedId) =>
+          getMessages({
+            myFeedId,
+            customOptions,
+            ssb,
+            query: [
+              {
+                $filter: {
+                  dest: feedId,
+                },
+              },
+            ],
+            filter: (msg) =>
+              myFeeds.includes(msg.value.author) === false &&
+              lodash.get(msg, "value.meta.private") !== true,
+          })
+        )
+      );
 
-      const messages = await getMessages({
-        myFeedId,
-        customOptions,
-        ssb,
-        query,
-        filter: (msg) =>
-          msg.value.author !== myFeedId &&
-          lodash.get(msg, "value.meta.private") !== true,
-      });
-
-      return messages;
+      const unique = lodash.uniqBy(
+        [].concat(...unsorted),
+        (message) => message.key
+      );
+      return lodash.sortBy(unique, (message) => -message.value.timestamp);
     },
     fromHashtag: async (hashtag, customOptions = {}) => {
       const ssb = await cooler.open();
