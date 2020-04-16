@@ -314,21 +314,18 @@ const post = ({ msg, aside = false }) => {
     parent: `/thread/${encoded.parent}#${encoded.parent}`,
     avatar: msg.value.meta.author.avatar.url,
     json: `/json/${encoded.key}`,
-    reply: `/reply/${encoded.key}`,
+    subtopic: `/subtopic/${encoded.key}`,
     comment: `/comment/${encoded.key}`,
   };
 
   const isPrivate = Boolean(msg.value.meta.private);
   const isRoot = msg.value.content.root == null;
-  const isFork = msg.value.meta.postType === "reply";
+  const isFork = msg.value.meta.postType === "subtopic";
   const hasContentWarning =
     typeof msg.value.content.contentWarning === "string";
   const isThreadTarget = Boolean(
     lodash.get(msg, "value.meta.thread.target", false)
   );
-
-  // TODO: I think this is actually true for both replies and comments.
-  const isReply = Boolean(lodash.get(msg, "value.meta.thread.reply", false));
 
   const { name } = msg.value.meta.author;
   const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
@@ -368,16 +365,11 @@ const post = ({ msg, aside = false }) => {
     messageClasses.push("thread-target");
   }
 
-  if (isReply) {
-    // True for comments too, I think
-    messageClasses.push("reply");
-  }
-
   // TODO: Refactor to stop using strings and use constants/symbols.
   const postOptions = {
     post: null,
     comment: i18n.commentDescription({ parentUrl: url.parent }),
-    reply: i18n.replyDescription({ parentUrl: url.parent }),
+    subtopic: i18n.subtopicDescription({ parentUrl: url.parent }),
     mystery: i18n.mysteryDescription,
   };
 
@@ -453,7 +445,7 @@ const post = ({ msg, aside = false }) => {
         a({ href: url.comment }, i18n.comment),
         isPrivate || isRoot || isFork
           ? null
-          : a({ href: url.reply }, nbsp, i18n.reply),
+          : a({ href: url.subtopic }, nbsp, i18n.subtopic),
         a({ href: url.json }, nbsp, i18n.json)
       ),
       br()
@@ -629,13 +621,13 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
   const isPrivate = parentMessage.value.meta.private;
 
   const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
-  const maybeReplyText = isPrivate ? [null] : i18n.commentWarning;
+  const maybeSubtopicText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
     messageElements,
     p(
       ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
-      ...maybeReplyText
+      ...maybeSubtopicText
     ),
     form(
       { action, method },
@@ -971,8 +963,8 @@ exports.threadsView = ({ messages }) => {
   });
 };
 
-exports.replyView = async ({ messages, myFeedId }) => {
-  const replyForm = `/reply/${encodeURIComponent(
+exports.subtopicView = async ({ messages, myFeedId }) => {
+  const subtopicForm = `/subtopic/${encodeURIComponent(
     messages[messages.length - 1].key
   )}`;
 
@@ -995,9 +987,9 @@ exports.replyView = async ({ messages, myFeedId }) => {
 
   return template(
     messageElements,
-    p(i18n.replyLabel({ markdownUrl })),
+    p(i18n.subtopicLabel({ markdownUrl })),
     form(
-      { action: replyForm, method: "post" },
+      { action: subtopicForm, method: "post" },
       textarea(
         {
           autofocus: true,
@@ -1010,7 +1002,7 @@ exports.replyView = async ({ messages, myFeedId }) => {
         {
           type: "submit",
         },
-        i18n.reply
+        i18n.subtopic
       )
     )
   );

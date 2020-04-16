@@ -54,7 +54,7 @@ const i18n = {
     settings: "Settings",
     // post actions
     comment: "Comment",
-    reply: "Reply",
+    subtopic: "Subtopic",
     json: "JSON",
     // relationships
     unfollow: "Unfollow",
@@ -80,7 +80,7 @@ const i18n = {
     ],
     commentWarning: [
       " Comments cannot be edited or deleted. To respond to an individual message, select ",
-      strong("reply"),
+      strong("subtopic"),
       " instead.",
     ],
     commentPublic: "public",
@@ -115,10 +115,10 @@ const i18n = {
     ],
     publishCustom: "Publish custom",
 
-    replyLabel: ({ markdownUrl }) => [
-      "Write a ",
-      strong("public reply"),
-      " to this message with ",
+    subtopicLabel: ({ markdownUrl }) => [
+      "Create a ",
+      strong("public subtopic"),
+      " of this message with ",
       a({ href: markdownUrl }, "Markdown"),
       ". Messages cannot be edited or deleted. To respond to an entire thread, select ",
       strong("comment"),
@@ -162,9 +162,9 @@ const i18n = {
       " commented on ",
       a({ href: parentUrl }, " thread"),
     ],
-    replyDescription: ({ parentUrl }) => [
-      " replied to ",
-      a({ href: parentUrl }, " message"),
+    subtopicDescription: ({ parentUrl }) => [
+      " created a subtopic from ",
+      a({ href: parentUrl }, " a message"),
     ],
     mysteryDescription: "posted a mysterious message",
     // misc
