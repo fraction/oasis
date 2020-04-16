@@ -66,8 +66,6 @@ these settings the default. See the readme for details.`);
 
 const oasisCheckPath = "/.well-known/oasis";
 
-let isClosingAfterTest = false;
-
 process.on("uncaughtException", function (err) {
   // This isn't `err.code` because TypeScript doesn't like that.
   if (err["code"] === "EADDRINUSE") {
@@ -105,11 +103,6 @@ Alternatively, you can set the default port in ${defaultConfigFile} with:
         }
       });
     });
-  } else if (
-    isClosingAfterTest &&
-    err["message"] === "TypeError: Cannot read property 'set' of null"
-  ) {
-    // We're closing during a test. Ignore.
   } else {
     throw err;
   }
@@ -166,7 +159,7 @@ const {
   privateView,
   publishCustomView,
   publishView,
-  replyView,
+  subtopicView,
   searchView,
   setLanguage,
   settingsView,
@@ -570,18 +563,15 @@ router
 
     ctx.body = await thread(message);
   })
-  .get("/reply/:message", async (ctx) => {
+  .get("/subtopic/:message", async (ctx) => {
     const { message } = ctx.params;
-    const reply = async (parentId) => {
-      const rootMessage = await post.get(parentId);
-      const myFeedId = await meta.myFeedId();
+    const rootMessage = await post.get(message);
+    const myFeedId = await meta.myFeedId();
 
-      debug("%O", rootMessage);
-      const messages = [rootMessage];
+    debug("%O", rootMessage);
+    const messages = [rootMessage];
 
-      return replyView({ messages, myFeedId });
-    };
-    ctx.body = await reply(message);
+    ctx.body = await subtopicView({ messages, myFeedId });
   })
   .get("/publish", async (ctx) => {
     ctx.body = await publishView();
@@ -605,7 +595,7 @@ router
           : await post.get(parentMessage.value.content.root)
         : parentMessage;
 
-      const messages = await post.threadReplies(rootMessage.key);
+      const messages = await post.topicComments(rootMessage.key);
 
       messages.push(rootMessage);
 
@@ -613,20 +603,20 @@ router
     };
     ctx.body = await comment(message);
   })
-  .post("/reply/:message", koaBody(), async (ctx) => {
+  .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
-    const publishReply = async ({ message, text }) => {
+    const publishSubtopic = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
       const mentions = ssbMentions(text) || undefined;
 
       const parent = await post.get(message);
-      return post.reply({
+      return post.subtopic({
         parent,
         message: { text, mentions },
       });
     };
-    ctx.body = await publishReply({ message, text });
+    ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
   .post("/comment/:message", koaBody(), async (ctx) => {
@@ -818,7 +808,6 @@ const app = http({ host, port, middleware, allowHost });
 // If we close the database after each test it throws lots of really fun "parent
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
-  isClosingAfterTest = true;
   cooler.close();
 };
 

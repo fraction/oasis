@@ -1,7 +1,7 @@
 "use strict";
 
 const debug = require("debug")("oasis");
-const { isRoot, isReply } = require("ssb-thread-schema");
+const { isRoot, isReply: isComment } = require("ssb-thread-schema");
 const lodash = require("lodash");
 const prettyMs = require("pretty-ms");
 const pullParallelMap = require("pull-paramap");
@@ -34,7 +34,7 @@ const isPost = (message) =>
   typeof lodash.get(message, "value.content.text") === "string";
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
-const isNestedReply = require("ssb-thread-schema/post/nested-reply/validator");
+const isSubtopic = require("ssb-thread-schema/post/nested-reply/validator");
 
 const nullImage = `&${"0".repeat(43)}=.sha256`;
 
@@ -386,7 +386,7 @@ module.exports = ({ cooler, isPublic }) => {
     return conditions.every((x) => x);
   };
 
-  const isLooseReply = (message) => {
+  const isLooseSubtopic = (message) => {
     const conditions = [isPost(message), hasRoot(message), hasFork(message)];
 
     return conditions.every((x) => x);
@@ -603,7 +603,7 @@ module.exports = ({ cooler, isPublic }) => {
         } else if (isPost(msg) && hasRoot(msg) && hasNoFork(msg)) {
           lodash.set(msg, "value.meta.postType", "comment");
         } else if (isPost(msg) && hasRoot(msg) && hasFork(msg)) {
-          lodash.set(msg, "value.meta.postType", "reply");
+          lodash.set(msg, "value.meta.postType", "subtopic");
         } else {
           lodash.set(msg, "value.meta.postType", "mystery");
         }
@@ -698,7 +698,7 @@ module.exports = ({ cooler, isPublic }) => {
 
       return messages;
     },
-    threadReplies: async (rootId, customOptions = {}) => {
+    topicComments: async (rootId, customOptions = {}) => {
       const ssb = await cooler.open();
 
       const myFeedId = ssb.id;
@@ -1204,12 +1204,12 @@ module.exports = ({ cooler, isPublic }) => {
                   debug("not a post");
                   resolve(msg);
                 } else if (
-                  isLooseReply(msg) &&
+                  isLooseSubtopic(msg) &&
                   ssbRef.isMsg(msg.value.content.fork)
                 ) {
-                  debug("reply, get the parent");
+                  debug("subtopic, get the parent");
                   try {
-                    // It's a message reply, get the parent!
+                    // It's a subtopic, get the parent!
                     ssb
                       .get({
                         id: msg.value.content.fork,
@@ -1230,7 +1230,7 @@ module.exports = ({ cooler, isPublic }) => {
                 ) {
                   debug("comment: %s", msg.value.content.root);
                   try {
-                    // It's a thread reply, get the parent!
+                    // It's a thread subtopic, get the parent!
                     ssb
                       .get({
                         id: msg.value.content.root,
@@ -1260,7 +1260,7 @@ module.exports = ({ cooler, isPublic }) => {
               }
             });
 
-          const getReplies = (key) =>
+          const getDirectDescendants = (key) =>
             new Promise((resolve, reject) => {
               const filterQuery = {
                 $filter: {
@@ -1288,8 +1288,8 @@ module.exports = ({ cooler, isPublic }) => {
                   }
 
                   if (fork === key) {
-                    // not a reply to this post
-                    // it's a reply *to a reply* of this post
+                    // not a subtopic of this post
+                    // it's a subtopic **of a subtopic** of this post
                     return false;
                   }
 
@@ -1315,49 +1315,46 @@ module.exports = ({ cooler, isPublic }) => {
               []
             );
 
-          const getDeepReplies = (key) =>
+          const getDeepDescendants = (key) =>
             new Promise((resolve, reject) => {
-              const oneDeeper = async (replyKey, depth) => {
-                const replies = await getReplies(replyKey);
-                debug(
-                  "replies",
-                  replies.map((m) => m.key)
-                );
+              const oneDeeper = async (descendantKey, depth) => {
+                const descendants = await getDirectDescendants(descendantKey);
 
-                debug("found %s replies for %s", replies.length, replyKey);
-
-                if (replies.length === 0) {
-                  return replies;
+                if (descendants.length === 0) {
+                  return descendants;
                 }
+
                 return Promise.all(
-                  replies.map(async (reply) => {
-                    const deeperReplies = await oneDeeper(reply.key, depth + 1);
-                    lodash.set(reply, "value.meta.thread.depth", depth);
-                    lodash.set(reply, "value.meta.thread.reply", true);
-                    return [reply, deeperReplies];
+                  descendants.map(async (descendant) => {
+                    const deeperDescendants = await oneDeeper(
+                      descendant.key,
+                      depth + 1
+                    );
+                    lodash.set(descendant, "value.meta.thread.depth", depth);
+                    lodash.set(descendant, "value.meta.thread.subtopic", true);
+                    return [descendant, deeperDescendants];
                   })
                 );
               };
               oneDeeper(key, 0)
                 .then((nested) => {
-                  const nestedReplies = [...nested];
-                  const deepReplies = flattenDeep(nestedReplies);
-                  resolve(deepReplies);
+                  const nestedDescendants = [...nested];
+                  const deepDescendants = flattenDeep(nestedDescendants);
+                  resolve(deepDescendants);
                 })
                 .catch(reject);
             });
 
-          debug("about to get root ancestor");
           const rootAncestor = await getRootAncestor(rawMsg);
-          debug("got root ancestors");
-          const deepReplies = await getDeepReplies(rootAncestor.key);
-          debug("got deep replies");
+          const deepDescendants = await getDeepDescendants(rootAncestor.key);
 
-          const allMessages = [rootAncestor, ...deepReplies].map((message) => {
-            const isThreadTarget = message.key === msgId;
-            lodash.set(message, "value.meta.thread.target", isThreadTarget);
-            return message;
-          });
+          const allMessages = [rootAncestor, ...deepDescendants].map(
+            (message) => {
+              const isThreadTarget = message.key === msgId;
+              lodash.set(message, "value.meta.thread.target", isThreadTarget);
+              return message;
+            }
+          );
 
           return await transform(ssb, allMessages, myFeedId);
         })
@@ -1439,15 +1436,15 @@ module.exports = ({ cooler, isPublic }) => {
       debug("Published: %O", options);
       return ssb.publish(options);
     },
-    reply: async ({ parent, message }) => {
+    subtopic: async ({ parent, message }) => {
       message.root = parent.key;
       message.fork = lodash.get(parent, "value.content.root");
       message.branch = await post.branch({ root: parent.key });
       message.type = "post"; // redundant but used for validation
 
-      if (isNestedReply(message) !== true) {
+      if (isSubtopic(message) !== true) {
         const messageString = JSON.stringify(message, null, 2);
-        throw new Error(`message should be valid reply: ${messageString}`);
+        throw new Error(`message should be valid subtopic: ${messageString}`);
       }
 
       return post.publish(message);
@@ -1480,7 +1477,7 @@ module.exports = ({ cooler, isPublic }) => {
               recipient.link.length
             ) {
               // Some interfaces, like Patchbay, put `{ name, link }` objects in
-              // `recps`. The reply schema says this is invalid, so we want to
+              // `recps`. The comment schema says this is invalid, so we want to
               // fix the `recps` before publishing.
               return recipient.link;
             } else {
@@ -1499,7 +1496,7 @@ module.exports = ({ cooler, isPublic }) => {
       message.branch = await post.branch({ root: parent.key });
       message.type = "post"; // redundant but used for validation
 
-      if (isReply(message) !== true) {
+      if (isComment(message) !== true) {
         const messageString = JSON.stringify(message, null, 2);
         throw new Error(`message should be valid comment: ${messageString}`);
       }
