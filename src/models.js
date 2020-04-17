@@ -157,12 +157,37 @@ module.exports = ({ cooler, isPublic }) => {
       return raw;
     },
     sameAs: async (feedId) => {
-      const raw =
-        (await getAbout({
-          key: "sameAs",
-          feedId,
-        })) || [];
-      return raw;
+      const getSameAs = async (someFeedId) => {
+        const feedList = await getAbout({ key: "sameAs", feedId: someFeedId });
+        if (Array.isArray(feedList)) {
+          return feedList;
+        } else {
+          return [];
+        }
+      };
+
+      // Get list of assertions.
+      const asserted = await getSameAs(feedId);
+
+      // Check assertions from all fo those feeds and filter by whether they include us.
+      const results = await Promise.all(
+        asserted.map(async (target) => {
+          const targetSameAs = await getSameAs(target);
+
+          if (targetSameAs.includes(feedId)) {
+            return target;
+          } else {
+            return null;
+          }
+        })
+      );
+
+      // Remove feeds that didn't assert same-as for our feed ID.
+      const confirmed = results.filter((target) => target !== null);
+
+      debug({ asserted, confirmed });
+
+      return confirmed;
     },
   };
 
