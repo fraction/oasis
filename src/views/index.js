@@ -132,7 +132,11 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
-          navLink({ href: "/imageSearch", emoji: "🖼️", text: i18n.imageSearch }),
+          navLink({
+            href: "/imageSearch",
+            emoji: "🖼️",
+            text: i18n.imageSearch,
+          }),
           navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
@@ -1043,33 +1047,33 @@ exports.searchView = ({ messages, query }) => {
 };
 
 const imageResult = ({ id, infos }) => {
-  const encodedBlobId = encodeURIComponent(id)
+  const encodedBlobId = encodeURIComponent(id);
   // only rendering the first message result so far
   // todo: render links to the others as well
-  const info = infos[0]
-  const encodedMsgId = encodeURIComponent(info.msg)
+  const info = infos[0];
+  const encodedMsgId = encodeURIComponent(info.msg);
 
   return div(
     {
-      class: "image-result"
+      class: "image-result",
     },
     [
       a(
         {
-          href: `/blob/${encodedBlobId}`
+          href: `/blob/${encodedBlobId}`,
         },
-        img({ src: `/image/256/${encodedBlobId}` }),
+        img({ src: `/image/256/${encodedBlobId}` })
       ),
       a(
         {
           href: `/thread/${encodedMsgId}#${encodedMsgId}`,
-          class: "result-text"
+          class: "result-text",
         },
         info.name
-      ) 
+      ),
     ]
   );
-}
+};
 
 exports.imageSearchView = ({ blobs, query }) => {
   const searchInput = input({
@@ -1102,14 +1106,12 @@ exports.imageSearchView = ({ blobs, query }) => {
     ),
     div(
       {
-        class: "image-search-grid"
+        class: "image-search-grid",
       },
       Object.keys(blobs)
         // todo: add pagination
         .slice(0, 30)
-        .map((blobId) =>
-          imageResult({ id: blobId, infos: blobs[blobId] })
-        )
+        .map((blobId) => imageResult({ id: blobId, infos: blobs[blobId] }))
     )
   );
 };

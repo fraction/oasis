@@ -313,9 +313,7 @@ router
   .get("/imageSearch", async (ctx) => {
     const { query } = ctx.query;
 
-    const blobs = query
-      ? await blob.search({ query })
-      : {}
+    const blobs = query ? await blob.search({ query }) : {};
 
     ctx.body = await imageSearchView({ blobs, query });
   })

@@ -177,11 +177,11 @@ module.exports = ({ cooler, isPublic }) => {
 
       return new Promise((resolve, reject) => {
         ssb.meme.search(query, (err, blobs) => {
-          if (err) return reject(err)
+          if (err) return reject(err);
 
-          return resolve(blobs)
-        })
-      })
+          return resolve(blobs);
+        });
+      });
     },
   };
 
