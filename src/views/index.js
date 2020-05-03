@@ -132,6 +132,7 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
+          navLink({ href: "/imageSearch", emoji: "🖼️", text: "Image Search" }),
           navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
@@ -1092,7 +1093,7 @@ exports.imageSearchView = ({ blobs, query }) => {
       h1("Image Search"),
       form(
         { action: "/imageSearch", method: "get" },
-        label(i18n.searchLabel, searchInput),
+        label("Enter words to search for images labelled with them", searchInput),
         button(
           {
             type: "submit",
