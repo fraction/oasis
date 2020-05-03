@@ -51,6 +51,7 @@ const i18n = {
       ", sorted by recency. Private posts are encrypted for your public key, and have a maximum of 7 recipients. Recipients cannot be added after the thread has started. Select the timestamp to view the full thread.",
     ],
     search: "Search",
+    imageSearch: "Image Search",
     settings: "Settings",
     // post actions
     comment: "Comment",
@@ -157,6 +158,8 @@ const i18n = {
     acceptInvite: "Accept invite",
     // search page
     searchLabel: "Add word(s) to look for in downloaded messages.",
+    // image search page
+    imageSearchLabel: "Enter words to search for images labelled with them",
     // posts and comments
     commentDescription: ({ parentUrl }) => [
       " commented on ",

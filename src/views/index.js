@@ -132,7 +132,7 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
-          navLink({ href: "/imageSearch", emoji: "🖼️", text: "Image Search" }),
+          navLink({ href: "/imageSearch", emoji: "🖼️", text: i18n.imageSearch }),
           navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
@@ -1086,14 +1086,12 @@ exports.imageSearchView = ({ blobs, query }) => {
   //   https://github.com/hyperhype/hyperscript/issues/91
   searchInput.setAttribute("minlength", 3);
 
-  console.log('results:', blobs)
-
   return template(
     section(
-      h1("Image Search"),
+      h1(i18n.imageSearch),
       form(
         { action: "/imageSearch", method: "get" },
-        label("Enter words to search for images labelled with them", searchInput),
+        label(i18n.imageSearchLabel, searchInput),
         button(
           {
             type: "submit",
