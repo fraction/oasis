@@ -161,6 +161,7 @@ const {
   publishView,
   subtopicView,
   searchView,
+  imageSearchView,
   setLanguage,
   settingsView,
   topicsView,
@@ -308,6 +309,13 @@ router
     const messages = await post.search({ query });
 
     ctx.body = await searchView({ messages, query });
+  })
+  .get("/imageSearch/", async (ctx) => {
+    const { query } = ctx.query;
+
+    const blobs = await blob.search({ query });
+
+    ctx.body = await imageSearchView({ blobs, query });
   })
   .get("/inbox", async (ctx) => {
     const inbox = async () => {

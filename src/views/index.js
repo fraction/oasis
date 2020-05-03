@@ -1041,6 +1041,80 @@ exports.searchView = ({ messages, query }) => {
   );
 };
 
+const imageResult = ({ id, infos }) => {
+  const encodedBlobId = encodeURIComponent(id)
+  // only rendering the first message result so far
+  // todo: render links to the others as well
+  const info = infos[0]
+  const encodedMsgId = encodeURIComponent(info.msg)
+
+  return div(
+    {
+      class: "image-result"
+    },
+    [
+      a(
+        {
+          href: `/blob/${encodedBlobId}`
+        },
+        img({ src: `/image/256/${encodedBlobId}` }),
+      ),
+      a(
+        {
+          href: `/thread/${encodedMsgId}#${encodedMsgId}`,
+          class: "result-text"
+        },
+        info.name
+      ) 
+    ]
+  );
+}
+
+exports.imageSearchView = ({ blobs, query }) => {
+  const searchInput = input({
+    name: "query",
+    required: false,
+    type: "search",
+    value: query,
+  });
+
+  // - Minimum length of 3 because otherwise SSB-Search hangs forever. :)
+  //   https://github.com/ssbc/ssb-search/issues/8
+  // - Using `setAttribute()` because HyperScript (the HyperAxe dependency has
+  //   a bug where the `minlength` property is being ignored. No idea why.
+  //   https://github.com/hyperhype/hyperscript/issues/91
+  searchInput.setAttribute("minlength", 3);
+
+  console.log('results:', blobs)
+
+  return template(
+    section(
+      h1("Image Search"),
+      form(
+        { action: "/imageSearch", method: "get" },
+        label(i18n.searchLabel, searchInput),
+        button(
+          {
+            type: "submit",
+          },
+          i18n.submit
+        )
+      )
+    ),
+    div(
+      {
+        class: "image-search-grid"
+      },
+      Object.keys(blobs)
+        // todo: add pagination
+        .slice(0, 30)
+        .map((blobId) =>
+          imageResult({ id: blobId, infos: blobs[blobId] })
+        )
+    )
+  );
+};
+
 exports.hashtagView = ({ messages, hashtag }) => {
   return template(
     section(h1(`#${hashtag}`), p(i18n.hashtagDescription)),

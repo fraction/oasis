@@ -171,6 +171,18 @@ module.exports = ({ cooler, isPublic }) => {
       // This does not wait for the blob.
       ssb.blobs.want(blobId);
     },
+    search: async ({ query }) => {
+      debug("blob search: %s", query);
+      const ssb = await cooler.open();
+
+      return new Promise((resolve, reject) => {
+        ssb.meme.search(query, (err, blobs) => {
+          if (err) return reject(err)
+
+          return resolve(blobs)
+        })
+      })
+    },
   };
 
   models.friend = {
