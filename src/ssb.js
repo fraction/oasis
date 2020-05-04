@@ -11,17 +11,11 @@ const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
 const path = require("path");
-const pull = require("pull-stream");
 const lodash = require("lodash");
 
 const socketPath = path.join(ssbConfig.path, "socket");
 const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
 const remote = `unix:${socketPath}~noauth:${publicInteger}`;
-
-// This is unnecessary when https://github.com/ssbc/ssb-config/pull/72 is merged
-ssbConfig.connections.incoming.unix = [
-  { scope: "device", transform: "noauth" },
-];
 
 /**
  * @param formatter {string} input
@@ -110,18 +104,13 @@ const ensureConnection = (customConfig) => {
           debug("Connection attempts to existing Scuttlebutt services failed");
           log("Starting Scuttlebutt service");
 
-          // Start with the default SSB-Config object.
-          const server = flotilla(ssbConfig);
           // Adjust with `customConfig`, which declares further preferences.
-          serverHandle = server(customConfig);
+          serverHandle = flotilla(customConfig);
 
           // Give the server a moment to start. This is a race condition. :/
           setTimeout(() => {
             attemptConnection()
-              .then((ssb) => {
-                autoStagePeers({ ssb, config: customConfig });
-                resolve(ssb);
-              })
+              .then(resolve)
               .catch((e) => {
                 throw new Error(e);
               });
@@ -136,60 +125,6 @@ const ensureConnection = (customConfig) => {
   return pendingConnection;
 };
 
-const autoStagePeers = ({ ssb, config }) => {
-  // TODO: This does not start when Oasis is started in --offline mode, which
-  // is great, but if you start Oasis in --offline mode and select 'Start
-  // networking' then this doesn't come into play.
-  //
-  // The right place to fix this is in the scheduler, and this entire function
-  // should be replaced by: https://github.com/staltz/ssb-conn/pull/17
-  if (config.conn.autostart !== true) {
-    return;
-  }
-
-  const inProgress = {};
-  const maxHops = lodash.get(
-    ssbConfig,
-    "friends.hops",
-    lodash.get(ssbConfig, "friends.hops", 0)
-  );
-
-  const add = (address) => {
-    inProgress[address] = true;
-    return () => {
-      inProgress[address] = false;
-    };
-  };
-
-  ssb.friends.hops().then((hops) => {
-    pull(
-      ssb.conn.stagedPeers(),
-      pull.drain((x) => {
-        x.filter(([address, data]) => {
-          const notInProgress = inProgress[address] !== true;
-
-          const key = data.key;
-          const haveHops = typeof hops[key] === "number";
-          const hopValue = haveHops ? hops[key] : Infinity;
-          // Negative hops means blocked
-          const isNotBlocked = hopValue >= 0;
-          const withinHops = isNotBlocked && hopValue <= maxHops;
-
-          return notInProgress && withinHops;
-        }).forEach(([address, data]) => {
-          const done = add(address);
-          debug(
-            `Connecting to staged peer at ${
-              hops[data.key]
-            }/${maxHops} hops: ${address}`
-          );
-          ssb.conn.connect(address, data).then(done).catch(done);
-        });
-      })
-    );
-  });
-};
-
 module.exports = ({ offline }) => {
   if (offline) {
     log("Offline mode activated - not connecting to scuttlebutt peers or pubs");
@@ -198,11 +133,25 @@ module.exports = ({ offline }) => {
     );
   }
 
-  const customConfig = {
-    conn: {
-      autostart: !offline,
-    },
-  };
+  // Make a copy of `ssbConfig` to avoid mutating.
+  const customConfig = JSON.parse(JSON.stringify(ssbConfig));
+
+  // This is unnecessary when https://github.com/ssbc/ssb-config/pull/72 is merged
+  customConfig.connections.incoming.unix = [
+    { scope: "device", transform: "noauth" },
+  ];
+
+  // Only change the config if `--offline` is true.
+  if (offline === true) {
+    lodash.set(customConfig, "conn.autostart", false);
+  }
+
+  // Use `conn.hops`, or default to `friends.hops`, or default to `0`.
+  lodash.set(
+    customConfig,
+    "conn.hops",
+    lodash.get(ssbConfig, "conn.hops", lodash.get(ssbConfig.friends.hops, 0))
+  );
 
   /**
    * This is "cooler", a tiny interface for opening or reusing an instance of
