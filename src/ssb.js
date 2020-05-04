@@ -11,7 +11,6 @@ const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
 const path = require("path");
-const pull = require("pull-stream");
 const lodash = require("lodash");
 
 const socketPath = path.join(ssbConfig.path, "socket");
@@ -144,7 +143,7 @@ module.exports = ({ offline }) => {
 
   // Only change the config if `--offline` is true.
   if (offline === true) {
-    customConfig.conn.autostart = false;
+    lodash.set(customConfig, "conn.autostart", false);
   }
 
   // Use `conn.hops`, or default to `friends.hops`, or default to `0`.
