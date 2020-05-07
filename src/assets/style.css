@@ -491,6 +491,26 @@ input[type="search"] {
   margin: var(--size-0) 0;
 }
 
+.image-search-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: var(--size-0);
+}
+
+.image-search-grid .image-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--size--1) 0;
+  background: var(--bg);
+  border-radius: var(--common-radius);
+}
+
+.image-search-grid .image-result .result-text {
+  hyphens: auto;
+  text-align: center;
+}
+
 hr {
   border: var(--size--4) solid var(--fg-alt);
 }

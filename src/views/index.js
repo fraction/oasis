@@ -132,6 +132,11 @@ const template = (...elements) => {
           navLink({ href: "/mentions", emoji: "💬", text: i18n.mentions }),
           navLink({ href: "/inbox", emoji: "✉️", text: i18n.private }),
           navLink({ href: "/search", emoji: "🔍", text: i18n.search }),
+          navLink({
+            href: "/imageSearch",
+            emoji: "🖼️",
+            text: i18n.imageSearch,
+          }),
           navLink({ href: "/settings", emoji: "⚙", text: i18n.settings })
         )
       ),
@@ -1038,6 +1043,76 @@ exports.searchView = ({ messages, query }) => {
       )
     ),
     messages.map((msg) => post({ msg }))
+  );
+};
+
+const imageResult = ({ id, infos }) => {
+  const encodedBlobId = encodeURIComponent(id);
+  // only rendering the first message result so far
+  // todo: render links to the others as well
+  const info = infos[0];
+  const encodedMsgId = encodeURIComponent(info.msg);
+
+  return div(
+    {
+      class: "image-result",
+    },
+    [
+      a(
+        {
+          href: `/blob/${encodedBlobId}`,
+        },
+        img({ src: `/image/256/${encodedBlobId}` })
+      ),
+      a(
+        {
+          href: `/thread/${encodedMsgId}#${encodedMsgId}`,
+          class: "result-text",
+        },
+        info.name
+      ),
+    ]
+  );
+};
+
+exports.imageSearchView = ({ blobs, query }) => {
+  const searchInput = input({
+    name: "query",
+    required: false,
+    type: "search",
+    value: query,
+  });
+
+  // - Minimum length of 3 because otherwise SSB-Search hangs forever. :)
+  //   https://github.com/ssbc/ssb-search/issues/8
+  // - Using `setAttribute()` because HyperScript (the HyperAxe dependency has
+  //   a bug where the `minlength` property is being ignored. No idea why.
+  //   https://github.com/hyperhype/hyperscript/issues/91
+  searchInput.setAttribute("minlength", 3);
+
+  return template(
+    section(
+      h1(i18n.imageSearch),
+      form(
+        { action: "/imageSearch", method: "get" },
+        label(i18n.imageSearchLabel, searchInput),
+        button(
+          {
+            type: "submit",
+          },
+          i18n.submit
+        )
+      )
+    ),
+    div(
+      {
+        class: "image-search-grid",
+      },
+      Object.keys(blobs)
+        // todo: add pagination
+        .slice(0, 30)
+        .map((blobId) => imageResult({ id: blobId, infos: blobs[blobId] }))
+    )
   );
 };
 
