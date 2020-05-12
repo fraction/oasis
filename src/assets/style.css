@@ -332,7 +332,6 @@ section {
 section > header {
   background: var(--bg);
   color: var(--fg-status);
-  height: var(--line);
   margin-bottom: calc(-1 * var(--size--1));
   margin-top: calc(-1 * var(--size--1));
   padding-bottom: var(--size--1);
@@ -342,9 +341,14 @@ section > header {
   z-index: 1;
 }
 
+.author-action {
+  flex-grow: 1;
+}
+
 section > header > div {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 section header a > .avatar {
