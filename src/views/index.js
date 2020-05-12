@@ -1113,6 +1113,7 @@ exports.imageSearchView = ({ blobs, query }) => {
   searchInput.setAttribute("minlength", 3);
 
   return template(
+    i18n.imageSearch,
     section(
       h1(i18n.imageSearch),
       form(
