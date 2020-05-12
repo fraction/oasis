@@ -711,7 +711,7 @@ exports.threadView = ({ messages }) => {
   const rootMessage = messages[0];
   const rootAuthorName = rootMessage.value.meta.author.name;
   const rootSnippet = postSnippet(
-    lodash.get(rootMessage, "value.content.text")
+    lodash.get(rootMessage, "value.content.text", i18n.mysteryDescription)
   );
   return template([`@${rootAuthorName}: `, rootSnippet], thread(messages));
 };
