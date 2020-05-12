@@ -75,11 +75,11 @@ const nbsp = "\xa0";
 const navLink = ({ href, emoji, text }) =>
   li(a({ href }, span({ class: "emoji" }, emoji), nbsp, text));
 
-const template = (...elements) => {
+const template = (titlePrefix, ...elements) => {
   const nodes = html(
     { lang: "en" },
     head(
-      title("Oasis"),
+      title(titlePrefix, " - Oasis"),
       link({ rel: "stylesheet", href: "/theme.css" }),
       link({ rel: "stylesheet", href: "/assets/style.css" }),
       link({ rel: "stylesheet", href: "/assets/highlight.css" }),
@@ -597,6 +597,7 @@ exports.authorView = ({
   );
 
   return template(
+    i18n.profile,
     prefix,
     messages.map((msg) => post({ msg }))
   );
@@ -624,11 +625,13 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }) => {
   const method = "post";
 
   const isPrivate = parentMessage.value.meta.private;
+  const authorName = parentMessage.value.meta.author.name;
 
   const publicOrPrivate = isPrivate ? i18n.commentPrivate : i18n.commentPublic;
   const maybeSubtopicText = isPrivate ? [null] : i18n.commentWarning;
 
   return template(
+    i18n.commentTitle({ authorName }),
     messageElements,
     p(
       ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
@@ -675,6 +678,7 @@ exports.publishCustomView = async () => {
   const method = "post";
 
   return template(
+    i18n.publishCustom,
     section(
       h1(i18n.publishCustom),
       p(i18n.publishCustomDescription),
@@ -703,18 +707,29 @@ exports.publishCustomView = async () => {
   );
 };
 
-exports.threadView = ({ messages }) => template(thread(messages));
+exports.threadView = ({ messages }) => {
+  const rootMessage = messages[0];
+  const rootAuthorName = rootMessage.value.meta.author.name;
+  const rootSnippet = postSnippet(
+    lodash.get(rootMessage, "value.content.text", i18n.mysteryDescription)
+  );
+  return template([`@${rootAuthorName}: `, rootSnippet], thread(messages));
+};
 
 exports.markdownView = ({ text }) => {
   const rawHtml = md.render(text);
 
-  return template(section({ class: "message" }, { innerHTML: rawHtml }));
+  return template(
+    postSnippet(text),
+    section({ class: "message" }, { innerHTML: rawHtml })
+  );
 };
 
 exports.publishView = () => {
   const publishForm = "/publish/";
 
   return template(
+    i18n.publish,
     section(
       h1(i18n.publish),
       form(
@@ -829,6 +844,7 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       : option({ value: shortName }, longName);
 
   return template(
+    i18n.settings,
     section(
       { class: "message" },
       h1(i18n.settings),
@@ -894,6 +910,7 @@ exports.likesView = async ({ messages, feed, name }) => {
   );
 
   return template(
+    ["@", name, i18n.likedBy],
     viewInfoBox({
       viewTitle: span(authorLink, i18n.likedBy),
       // TODO: i18n
@@ -912,6 +929,7 @@ const messageListView = ({
   aside = null,
 }) => {
   return template(
+    viewTitle,
     section(h1(viewTitle), p(viewDescription), viewElements),
     messages.map((msg) => post({ msg, aside }))
   );
@@ -990,7 +1008,10 @@ exports.subtopicView = async ({ messages, myFeedId }) => {
     })
   );
 
+  const authorName = messages[messages.length - 1].value.meta.author.name;
+
   return template(
+    i18n.subtopicTitle({ authorName }),
     messageElements,
     p(i18n.subtopicLabel({ markdownUrl })),
     form(
@@ -1029,6 +1050,7 @@ exports.searchView = ({ messages, query }) => {
   searchInput.setAttribute("minlength", 3);
 
   return template(
+    i18n.search,
     section(
       h1(i18n.search),
       form(
@@ -1091,6 +1113,7 @@ exports.imageSearchView = ({ blobs, query }) => {
   searchInput.setAttribute("minlength", 3);
 
   return template(
+    i18n.imageSearch,
     section(
       h1(i18n.imageSearch),
       form(
@@ -1118,6 +1141,7 @@ exports.imageSearchView = ({ blobs, query }) => {
 
 exports.hashtagView = ({ messages, hashtag }) => {
   return template(
+    `#${hashtag}`,
     section(h1(`#${hashtag}`), p(i18n.hashtagDescription)),
     messages.map((msg) => post({ msg }))
   );

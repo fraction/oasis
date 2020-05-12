@@ -165,10 +165,12 @@ const i18n = {
       " commented on ",
       a({ href: parentUrl }, " thread"),
     ],
+    commentTitle: ({ authorName }) => [`Comment on @${authorName}'s message`],
     subtopicDescription: ({ parentUrl }) => [
       " created a subtopic from ",
       a({ href: parentUrl }, " a message"),
     ],
+    subtopicTitle: ({ authorName }) => [`Subtopic on @${authorName}'s message`],
     mysteryDescription: "posted a mysterious message",
     // misc
     oasisDescription: "Friendly neighborhood scuttlebutt interface",
