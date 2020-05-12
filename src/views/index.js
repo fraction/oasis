@@ -409,9 +409,9 @@ const post = ({ msg, aside = false }) => {
             { href: url.author },
             img({ class: "avatar", src: url.avatar, alt: "" }),
             name
-          ),
-          postOptions[msg.value.meta.postType]
+          )
         ),
+        span({ class: "author-action" }, postOptions[msg.value.meta.postType]),
         span(
           { class: "time" },
           isPrivate ? "🔒" : null,
