@@ -20,6 +20,7 @@ const {
   h2,
   head,
   header,
+  hr,
   html,
   img,
   input,
@@ -457,8 +458,10 @@ const post = ({ msg, aside = false }) => {
     )
   );
 
+  const threadSeparator = [div({ class: "text-browser" }, hr(), br())];
+
   if (aside) {
-    return [fragment, postAside(msg)];
+    return [fragment, postAside(msg), isRoot ? threadSeparator : null];
   } else {
     return fragment;
   }
