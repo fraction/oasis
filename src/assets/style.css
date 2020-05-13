@@ -131,6 +131,13 @@ section header a {
   margin-left: var(--size--2);
 }
 
+/* For use with elements specific for
+ * rendering in a text browser and intended
+ * to be hidden in a graphical browser. */
+.text-browser {
+  display: none;
+}
+
 section > footer > div > a,
 section > footer > div > form > button {
   color: var(--fg-status);
