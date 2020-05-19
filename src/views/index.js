@@ -469,6 +469,7 @@ const post = ({ msg, aside = false }) => {
 
 exports.editProfileView = ({ name, description }) =>
   template(
+    i18n.editProfile,
     section(
       h1(i18n.editProfile),
       p(i18n.editProfileDescription),
