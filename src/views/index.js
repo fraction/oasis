@@ -505,7 +505,7 @@ exports.editProfileView = ({ name, description }) =>
   );
 
 /**
- * @param {{avatarUrl: string, description: string, feedId: string, messages: any[], name: string, relationship: object}} input
+ * @param {{avatarUrl: string, description: string, feedId: string, messages: any[], name: string, relationship: object, firstPost: object, lastPost: object}} input
  */
 exports.authorView = ({
   avatarUrl,
@@ -602,18 +602,14 @@ exports.authorView = ({
     )
   );
 
-  const linkUrl = relationship.me ? '/profile/' : `/author/${encodeURIComponent(feedId)}/`;
+  const linkUrl = relationship.me
+    ? "/profile/"
+    : `/author/${encodeURIComponent(feedId)}/`;
 
   let items = messages.map((msg) => post({ msg }));
   if (items.length === 0) {
     if (lastPost === undefined) {
-      items.push(
-        section(
-          div(
-            span(i18n.feedEmpty)
-          )
-        )
-      );
+      items.push(section(div(span(i18n.feedEmpty))));
     } else {
       items.push(
         section(
@@ -626,33 +622,31 @@ exports.authorView = ({
     }
   } else {
     const highestSeqNum = messages[0].value.sequence;
-    const lowestSeqNum = messages[messages.length-1].value.sequence;
+    const lowestSeqNum = messages[messages.length - 1].value.sequence;
     let newerPostsLink;
     if (lastPost !== undefined && highestSeqNum < lastPost.value.sequence)
-      newerPostsLink = a({ href: `${linkUrl}?gt=${highestSeqNum}` }, i18n.newerPosts);
-    else
-      newerPostsLink = span(i18n.newerPosts, { title: i18n.noNewerPosts });
+      newerPostsLink = a(
+        { href: `${linkUrl}?gt=${highestSeqNum}` },
+        i18n.newerPosts
+      );
+    else newerPostsLink = span(i18n.newerPosts, { title: i18n.noNewerPosts });
     let olderPostsLink;
     if (lowestSeqNum > firstPost.value.sequence)
-      olderPostsLink = a({ href: `${linkUrl}?lt=${lowestSeqNum}` }, i18n.olderPosts);
+      olderPostsLink = a(
+        { href: `${linkUrl}?lt=${lowestSeqNum}` },
+        i18n.olderPosts
+      );
     else
       olderPostsLink = span(i18n.olderPosts, { title: i18n.beginningOfFeed });
     const pagination = section(
       { class: "message" },
-      footer(
-        div(newerPostsLink, olderPostsLink),
-        br()
-      )
+      footer(div(newerPostsLink, olderPostsLink), br())
     );
     items.unshift(pagination);
     items.push(pagination);
   }
 
-  return template(
-    i18n.profile,
-    prefix,
-    items
-  );
+  return template(i18n.profile, prefix, items);
 };
 
 exports.commentView = async ({ messages, myFeedId, parentMessage }) => {

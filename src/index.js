@@ -265,8 +265,8 @@ router
   .get("/author/:feed", async (ctx) => {
     const { feed } = ctx.params;
 
-    const gt = Number(ctx.request.query['gt'] || -1);
-    const lt = Number(ctx.request.query['lt'] || -1);
+    const gt = Number(ctx.request.query["gt"] || -1);
+    const lt = Number(ctx.request.query["lt"] || -1);
 
     if (lt > 0 && gt > 0 && gt >= lt)
       throw new Error("Given search range is empty");
@@ -353,8 +353,8 @@ router
   .get("/profile/", async (ctx) => {
     const myFeedId = await meta.myFeedId();
 
-    const gt = Number(ctx.request.query['gt'] || -1);
-    const lt = Number(ctx.request.query['lt'] || -1);
+    const gt = Number(ctx.request.query["gt"] || -1);
+    const lt = Number(ctx.request.query["lt"] || -1);
 
     if (lt > 0 && gt > 0 && gt >= lt)
       throw new Error("Given search range is empty");

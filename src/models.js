@@ -660,10 +660,8 @@ module.exports = ({ cooler, isPublic }) => {
       const myFeedId = ssb.id;
 
       let defaultOptions = { id: feedId };
-      if (lt >= 0)
-        defaultOptions.lt = lt;
-      if (gt >= 0)
-        defaultOptions.gt = gt;
+      if (lt >= 0) defaultOptions.lt = lt;
+      if (gt >= 0) defaultOptions.gt = gt;
       defaultOptions.reverse = !(gt >= 0 && lt < 0);
       const options = configure(defaultOptions, customOptions);
       const { blocking } = await models.friend.getRelationship(feedId);
@@ -692,10 +690,8 @@ module.exports = ({ cooler, isPublic }) => {
         );
       });
 
-      if (!defaultOptions.reverse)
-        return messages.reverse();
-      else
-        return messages;
+      if (!defaultOptions.reverse) return messages.reverse();
+      else return messages;
     },
     mentionsMe: async (customOptions = {}) => {
       const ssb = await cooler.open();

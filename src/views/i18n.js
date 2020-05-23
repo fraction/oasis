@@ -68,7 +68,7 @@ const i18n = {
     seeFullFeed: "full feed",
     feedEmpty: "The local client has never seen posts from this account.",
     beginningOfFeed: "This is the beginning of the feed",
-    noNewerPosts: "No newer posts have been reveived yet.",
+    noNewerPosts: "No newer posts have been received yet.",
     relationshipFollowing: "You are following",
     relationshipYou: "This is you",
     relationshipBlocking: "You are blocking",
