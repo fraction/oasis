@@ -627,14 +627,45 @@ module.exports = ({ cooler, isPublic }) => {
       })
     );
 
+  const getLimitPost = async (feedId, reverse) => {
+    const ssb = await cooler.open();
+    const source = ssb.createUserStream({ id: feedId, reverse: reverse });
+    const messages = await new Promise((resolve, reject) => {
+      pull(
+        source,
+        pull.filter((msg) => isDecrypted(msg) === false && isPost(msg)),
+        pull.take(1),
+        pull.collect((err, collectedMessages) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(transform(ssb, collectedMessages, feedId));
+          }
+        })
+      );
+    });
+    return messages.length ? messages[0] : undefined;
+  };
+
   const post = {
-    fromPublicFeed: async (feedId, customOptions = {}) => {
+    firstBy: async (feedId) => {
+      return getLimitPost(feedId, false);
+    },
+    latestBy: async (feedId) => {
+      return getLimitPost(feedId, true);
+    },
+    fromPublicFeed: async (feedId, gt = -1, lt = -1, customOptions = {}) => {
       const ssb = await cooler.open();
 
       const myFeedId = ssb.id;
 
-      const options = configure({ id: feedId }, customOptions);
-
+      let defaultOptions = { id: feedId };
+      if (lt >= 0)
+        defaultOptions.lt = lt;
+      if (gt >= 0)
+        defaultOptions.gt = gt;
+      defaultOptions.reverse = !(gt >= 0 && lt < 0);
+      const options = configure(defaultOptions, customOptions);
       const { blocking } = await models.friend.getRelationship(feedId);
 
       // Avoid streaming any messages from this feed. If we used the social
@@ -661,7 +692,10 @@ module.exports = ({ cooler, isPublic }) => {
         );
       });
 
-      return messages;
+      if (!defaultOptions.reverse)
+        return messages.reverse();
+      else
+        return messages;
     },
     mentionsMe: async (customOptions = {}) => {
       const ssb = await cooler.open();
