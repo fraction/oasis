@@ -421,27 +421,7 @@ router
   })
   .get("/blob/:blobId", async (ctx) => {
     const { blobId } = ctx.params;
-    const getBlob = async ({ blobId }) => {
-      const bufferSource = await blob.get({ blobId });
-
-      debug("got buffer source");
-      return new Promise((resolve) => {
-        pull(
-          bufferSource,
-          pull.collect(async (err, bufferArray) => {
-            if (err) {
-              await blob.want({ blobId });
-              resolve(Buffer.alloc(0));
-            } else {
-              const buffer = Buffer.concat(bufferArray);
-              resolve(buffer);
-            }
-          })
-        );
-      });
-    };
-
-    const buffer = await getBlob({ blobId });
+    const buffer = await blob.getResolved({ blobId });
     ctx.body = buffer;
 
     if (ctx.body.length === 0) {

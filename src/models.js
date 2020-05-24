@@ -33,6 +33,13 @@ const isPost = (message) =>
   lodash.get(message, "value.content.type") === "post" &&
   typeof lodash.get(message, "value.content.text") === "string";
 
+const isBlogPost = (message) =>
+  lodash.get(message, "value.content.type") === "blog" &&
+  typeof lodash.get(message, "value.content.title") === "string" &&
+  ssbRef.isBlob(lodash.get(message, "value.content.blog", null));
+
+const isTextLike = (message) => isPost(message) || isBlogPost(message);
+
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isSubtopic = require("ssb-thread-schema/post/nested-reply/validator");
 
@@ -163,6 +170,24 @@ module.exports = ({ cooler, isPublic }) => {
       debug("get blob: %s", blobId);
       const ssb = await cooler.open();
       return ssb.blobs.get(blobId);
+    },
+    getResolved: async ({ blobId }) => {
+      const bufferSource = await models.blob.get({ blobId });
+      debug("got buffer source");
+      return new Promise((resolve) => {
+        pull(
+          bufferSource,
+          pull.collect(async (err, bufferArray) => {
+            if (err) {
+              await models.blob.want({ blobId });
+              resolve(Buffer.alloc(0));
+            } else {
+              const buffer = Buffer.concat(bufferArray);
+              resolve(buffer);
+            }
+          })
+        );
+      });
     },
     want: async ({ blobId }) => {
       debug("want blob: %s", blobId);
@@ -508,6 +533,18 @@ module.exports = ({ cooler, isPublic }) => {
           meta: true,
         });
 
+        if (lodash.get(msg, "value.content.type") === "blog") {
+          const blogTitle = msg.value.content.title;
+          const blogSummary = lodash.get(msg, "value.content.summary", null);
+          const blobId = msg.value.content.blog;
+          const blogContent = await models.blob.getResolved({ blobId });
+          let textElements = [`# ${blogTitle}`, blogContent];
+          if (blogSummary) {
+            textElements.splice(1, 0, `**${blogSummary}**`);
+          }
+          lodash.set(msg, "value.content.text", textElements.join("\n\n"));
+        }
+
         const rawVotes = await new Promise((resolve, reject) => {
           pull(
             referenceStream,
@@ -610,11 +647,11 @@ module.exports = ({ cooler, isPublic }) => {
           url: avatarUrl,
         });
 
-        if (isPost(msg) && hasNoRoot(msg) && hasNoFork(msg)) {
+        if (isTextLike(msg) && hasNoRoot(msg) && hasNoFork(msg)) {
           lodash.set(msg, "value.meta.postType", "post");
-        } else if (isPost(msg) && hasRoot(msg) && hasNoFork(msg)) {
+        } else if (isTextLike(msg) && hasRoot(msg) && hasNoFork(msg)) {
           lodash.set(msg, "value.meta.postType", "comment");
-        } else if (isPost(msg) && hasRoot(msg) && hasFork(msg)) {
+        } else if (isTextLike(msg) && hasRoot(msg) && hasFork(msg)) {
           lodash.set(msg, "value.meta.postType", "subtopic");
         } else {
           lodash.set(msg, "value.meta.postType", "mystery");
@@ -678,7 +715,7 @@ module.exports = ({ cooler, isPublic }) => {
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
-          pull.filter((msg) => isDecrypted(msg) === false && isPost(msg)),
+          pull.filter((msg) => isDecrypted(msg) === false && isTextLike(msg)),
           pull.take(maxMessages),
           pull.collect((err, collectedMessages) => {
             if (err) {
@@ -861,7 +898,7 @@ module.exports = ({ cooler, isPublic }) => {
                 value: {
                   timestamp: { $lte: Date.now() },
                   content: {
-                    type: "post",
+                    type: { $in: ["post", "blog"] },
                   },
                 },
               },
@@ -902,7 +939,7 @@ module.exports = ({ cooler, isPublic }) => {
                 value: {
                   timestamp: { $lte: Date.now() },
                   content: {
-                    type: "post",
+                    type: { $in: ["post", "blog"] },
                   },
                 },
               },
@@ -947,7 +984,7 @@ module.exports = ({ cooler, isPublic }) => {
                 value: {
                   timestamp: { $lte: Date.now() },
                   content: {
-                    type: "post",
+                    type: { $in: ["post", "blog"] },
                   },
                 },
               },
@@ -1036,7 +1073,7 @@ module.exports = ({ cooler, isPublic }) => {
                 value: {
                   timestamp: { $lte: Date.now() },
                   content: {
-                    type: "post",
+                    type: { $in: ["post", "blog"] },
                   },
                 },
               },
@@ -1192,7 +1229,8 @@ module.exports = ({ cooler, isPublic }) => {
                   (message) =>
                     message &&
                     isNotPrivate(message) &&
-                    message.value.content.type === "post"
+                    (message.value.content.type === "post" ||
+                      message.value.content.type === "blog")
                 ),
                 basicSocialFilter,
                 pull.collect((collectErr, collectedMessages) => {
@@ -1317,7 +1355,7 @@ module.exports = ({ cooler, isPublic }) => {
               pull(
                 referenceStream,
                 pull.filter((msg) => {
-                  if (isPost(msg) === false) {
+                  if (isTextLike(msg) === false) {
                     return false;
                   }
 
@@ -1572,7 +1610,8 @@ module.exports = ({ cooler, isPublic }) => {
           pull.filter(
             (message) =>
               isDecrypted(message) &&
-              lodash.get(message, "value.content.type") === "post"
+              (lodash.get(message, "value.content.type") === "post" ||
+                lodash.get(message, "value.content.type") === "blog")
           ),
           pull.unique((message) => {
             const { root } = message.value.content;
