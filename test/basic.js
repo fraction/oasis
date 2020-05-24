@@ -10,6 +10,8 @@ const paths = [
   "/inbox",
   "/mentions",
   "/profile",
+  "/profile?gt=0",
+  "/profile?lt=100",
   "/profile/edit",
   "/public/latest",
   "/public/latest/extended",

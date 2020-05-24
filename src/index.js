@@ -264,11 +264,20 @@ router
   })
   .get("/author/:feed", async (ctx) => {
     const { feed } = ctx.params;
+
+    const gt = Number(ctx.request.query["gt"] || -1);
+    const lt = Number(ctx.request.query["lt"] || -1);
+
+    if (lt > 0 && gt > 0 && gt >= lt)
+      throw new Error("Given search range is empty");
+
     const author = async (feedId) => {
       const description = await about.description(feedId);
       const name = await about.name(feedId);
       const image = await about.image(feedId);
-      const messages = await post.fromPublicFeed(feedId);
+      const messages = await post.fromPublicFeed(feedId, gt, lt);
+      const firstPost = await post.firstBy(feedId);
+      const lastPost = await post.latestBy(feedId);
       const relationship = await friend.getRelationship(feedId);
 
       const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
@@ -276,6 +285,8 @@ router
       return authorView({
         feedId,
         messages,
+        firstPost,
+        lastPost,
         name,
         description,
         avatarUrl,
@@ -342,17 +353,27 @@ router
   .get("/profile/", async (ctx) => {
     const myFeedId = await meta.myFeedId();
 
+    const gt = Number(ctx.request.query["gt"] || -1);
+    const lt = Number(ctx.request.query["lt"] || -1);
+
+    if (lt > 0 && gt > 0 && gt >= lt)
+      throw new Error("Given search range is empty");
+
     const description = await about.description(myFeedId);
     const name = await about.name(myFeedId);
     const image = await about.image(myFeedId);
 
-    const messages = await post.fromPublicFeed(myFeedId);
+    const messages = await post.fromPublicFeed(myFeedId, gt, lt);
+    const firstPost = await post.firstBy(myFeedId);
+    const lastPost = await post.latestBy(myFeedId);
 
     const avatarUrl = `/image/256/${encodeURIComponent(image)}`;
 
     ctx.body = await authorView({
       feedId: myFeedId,
       messages,
+      firstPost,
+      lastPost,
       name,
       description,
       avatarUrl,
