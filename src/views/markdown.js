@@ -34,8 +34,12 @@ const toUrl = (mentions) => {
     if (ssbRef.isMsgId(ref)) {
       return `/thread/${encodeURIComponent(ref)}`;
     }
-    if (ssbRef.isBlobId(ref)) {
-      return `/blob/${encodeURIComponent(ref)}`;
+    const splitIndex = ref.indexOf("?");
+    const blobRef = splitIndex === -1 ? ref : ref.slice(0, splitIndex);
+    // const blobParams = splitIndex !== -1 ? ref.slice(splitIndex) : "";
+
+    if (ssbRef.isBlobId(blobRef)) {
+      return `/blob/${encodeURIComponent(blobRef)}`;
     }
     if (ref && ref[0] === "#") {
       return `/hashtag/${encodeURIComponent(ref.substr(1))}`;
