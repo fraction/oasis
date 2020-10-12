@@ -220,7 +220,7 @@ const thread = (messages) => {
   }
 
   const htmlStrings = lodash.flatten(msgList);
-  return div({}, { innerHTML: htmlStrings.join("") });
+  return div({}, { class: "thread-container", innerHTML: htmlStrings.join("") });
 };
 
 const postSnippet = (text) => {

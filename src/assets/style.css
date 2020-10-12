@@ -347,6 +347,16 @@ section {
   box-sizing: border-box;
 }
 
+.thread-container section {
+    margin: unset;
+    border-radius: unset;
+    border-bottom: var(--fg-alt) solid 1px;
+}
+
+.thread-container section:last-of-type {
+    border-bottom: unset;
+}
+
 section > header {
   background: var(--bg);
   color: var(--fg-status);
