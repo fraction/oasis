@@ -442,6 +442,10 @@ section > footer > div > * {
   text-decoration: none;
 }
 
+section > footer > div > form > button:first-of-type {
+    font-size: 100%;
+}
+
 section > footer > div > form > button.liked {
   color: var(--red);
 }
