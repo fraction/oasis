@@ -10,3 +10,6 @@ yarn.lock
 # Visual Studio Code
 launch.json
 *.code-workspace
+
+# Vim
+.*.sw[a-z]
