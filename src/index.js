@@ -156,6 +156,7 @@ const {
   markdownView,
   mentionsView,
   popularView,
+  previewView,
   privateView,
   publishCustomView,
   publishView,
@@ -643,6 +644,50 @@ router
     };
     ctx.body = await publishComment({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
+  })
+  .post("/publish/preview", koaBody({multipart: true }), async (ctx) => {
+    const text = String(ctx.request.body.text);
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+
+    const ssb = await cooler.open();
+    let authorMeta = {
+      id: ssb.id,
+      name: await about.name(ssb.id),
+      image: await about.image(ssb.id),
+    }
+
+    let blobId = false
+    const blobUpload= ctx.request.files.blob
+    if (typeof blobUpload !== "undefined") {
+
+      const blob = await fs.promises.readFile(blobUpload.path);
+      if (blob.length > 0) {
+        // 5 MiB check
+        const mebibyte = Math.pow(2, 20);
+        const maxSize = 5 * mebibyte;
+        if (blob.length > maxSize) {
+          throw new Error("Blob file is too big, maximum size is 5 mebibytes");
+        }
+        
+        const addBlob = new Promise((resolve, reject) => {
+          pull(
+            pull.values([blob]),
+            ssb.blobs.add((err, hashedBlobRef) => {
+              if (err) return reject(err);
+              console.log("added", hashedBlobRef)
+              resolve(hashedBlobRef)
+            })
+          )
+        })
+        blobId = await addBlob;
+      }
+    }
+        
+    // Only submit content warning if it's a string with non-zero length.
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
+    ctx.body = await previewView({authorMeta, text, contentWarning, blobId});
   })
   .post("/publish/", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);

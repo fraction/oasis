@@ -1478,29 +1478,23 @@ module.exports = ({ cooler, isPublic }) => {
         if (image.length > maxSize) {
           throw new Error("Image file is too big, maximum size is 5 mebibytes");
         }
-        const algorithm = "sha256";
-        const hash = crypto
-          .createHash(algorithm)
-          .update(image)
-          .digest("base64");
 
-        const blobId = `&${hash}.${algorithm}`;
         return new Promise((resolve, reject) => {
           pull(
             pull.values([image]),
-            ssb.blobs.add(blobId, (err) => {
+            ssb.blobs.add((err, blobId) => {
               if (err) {
                 reject(err);
               } else {
-                const body = {
+                const content = {
                   type: "about",
                   about: ssb.id,
                   name,
                   description,
                   image: blobId,
                 };
-                debug("Published: %O", body);
-                resolve(ssb.publish(body));
+                debug("Published: %O", content);
+                resolve(ssb.publish(content));
               }
             })
           );

@@ -768,7 +768,7 @@ exports.threadView = ({ messages }) => {
 };
 
 exports.markdownView = ({ text }) => {
-  const rawHtml = md.render(text);
+  const rawHtml = md.render(text); // todo: remove markdown it?!
 
   return template(
     postSnippet(text),
@@ -777,17 +777,24 @@ exports.markdownView = ({ text }) => {
 };
 
 exports.publishView = () => {
-  const publishForm = "/publish/";
-
+  // TODO: make one with preview
   return template(
     i18n.publish,
     section(
       h1(i18n.publish),
       form(
-        { action: publishForm, method: "post" },
+        { 
+          action: "/publish/preview",
+          method: "post",
+          enctype: "multipart/form-data",
+        },
         label(
           i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
           textarea({ required: true, name: "text" })
+        ),
+        label(
+          "add new blob", /* todo: localize */
+          input({ type: "file", name: "blob" })
         ),
         label(
           i18n.contentWarningLabel,
@@ -798,8 +805,103 @@ exports.publishView = () => {
             placeholder: i18n.contentWarningPlaceholder,
           })
         ),
-        button({ type: "submit" }, i18n.submit)
+        button({ type: "submit" }, i18n.preview)
       )
+    ),
+    p(i18n.publishCustomInfo({ href: "/publish/custom" }))
+  );
+};
+
+exports.previewView = ({authorMeta, text, contentWarning, blobId}) => {
+  if (typeof blobId !== "boolean") {
+    // TODO: filename?!
+    // TODO: mime type guessing for just link / !image /  / audio: ?
+    text += "\n![your new blob]("+blobId+")"
+  }
+
+  const rawHtml = markdown(text);
+
+  // craft message that looks like it came from the db
+  const msg = {
+    key: "%non-existant.preview",
+    value: {
+      author: authorMeta.id,
+      // sequence: -1,
+      content: {
+        type:"post",
+        text: text
+      },
+      timestamp: Date.now(),
+      meta: {
+        isPrivate: true,
+        author: {
+          name: authorMeta.name,
+          avatar: {
+            url: `/image/64/${encodeURIComponent(authorMeta.image)}`
+          }
+        },
+      }
+    }
+  }
+  const ts = new Date(msg.value.timestamp);
+  lodash.set(msg, "value.meta.timestamp.received.iso8601", ts.toISOString());
+  const ago = Date.now() - Number(ts);
+  const prettyAgo = prettyMs(ago, { compact: true });
+  lodash.set(msg, "value.meta.timestamp.received.since", prettyAgo);
+
+  return template(
+    i18n.preview,
+    section(
+      h1(i18n.preview),
+      
+      h2('todo:'),
+      ul(
+        li("[x] show full message not just content"),
+        li("[ ] butt the href's to thread, comment, JSON should not work, maybe?"),
+      ),
+      h2('just the content'),
+      section({ class: "message" }, { innerHTML: rawHtml }),
+      h2('like a post'),
+      post({msg}),
+      h2('continue editing...?'),
+      form(
+        { action: "/publish/preview", method: "post", enctype: "multipart/form-data" },
+        label(
+          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
+          textarea({ required: true, name: "text"}, text)
+        ),
+        label(
+          "add new blob", /* todo: localize */
+          input({ type: "file", name: "blob" })
+        ),
+        label(
+          i18n.contentWarningLabel,
+          input({
+            name: "contentWarning",
+            type: "text",
+            class: "contentWarning",
+            placeholder: i18n.contentWarningPlaceholder,
+            value: contentWarning,
+          })
+        ),
+        button({ type: "submit" }, i18n.preview),
+      ),
+
+      // doesn't need blobs, preview adds them to the text
+      form(
+        { action: "/publish", method: "post" },
+        input({
+          name: "contentWarning",
+          type: "hidden",
+          value: contentWarning,
+        }),  
+        input({
+            name: "text",
+            type: "hidden",
+            value: text,
+        }),
+        button({ type: "submit" }, i18n.publish),
+      ),
     ),
     p(i18n.publishCustomInfo({ href: "/publish/custom" }))
   );

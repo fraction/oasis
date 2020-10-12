@@ -79,6 +79,7 @@ const i18n = {
     // likes view
     likedBy: "'s likes",
     // composer
+    preview: "Preview",
     publish: "Publish",
     contentWarningPlaceholder: "Optional content warning for this post",
     publishCustomDescription: [
