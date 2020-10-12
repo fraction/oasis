@@ -334,7 +334,10 @@ const post = ({ msg, aside = false }) => {
   );
 
   const { name } = msg.value.meta.author;
-  const timeAgo = msg.value.meta.timestamp.received.since.replace("~", "");
+
+  const ts_received = msg.value.meta.timestamp.received;
+  const timeAgo = ts_received.since.replace("~", "");
+  const timeAbsolute = ts_received.iso8601.split(".")[0].replace("T", " ");
 
   const markdownContent = markdown(
     msg.value.content.text,
@@ -346,7 +349,6 @@ const post = ({ msg, aside = false }) => {
     : { value: 1, class: null };
 
   const likeCount = msg.value.meta.votes.length;
-
   const maxLikedNameLength = 16;
   const maxLikedNames = 16;
 
@@ -414,7 +416,10 @@ const post = ({ msg, aside = false }) => {
         ),
         span({ class: "author-action" }, postOptions[msg.value.meta.postType]),
         span(
-          { class: "time" },
+          {
+            class: "time",
+            title: timeAbsolute,
+          },
           isPrivate ? "🔒" : null,
           a({ href: url.link }, nbsp, timeAgo)
         )
