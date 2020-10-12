@@ -367,14 +367,12 @@ section {
   box-sizing: border-box;
 }
 
-.indent section,
 .thread-container section {
     margin: unset;
     border-radius: unset;
     border-bottom: var(--fg-alt) solid 1px;
 }
 
-.indent section:last-of-type,
 .thread-container section:last-of-type {
     border-bottom: unset;
 }
