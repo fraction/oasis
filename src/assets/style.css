@@ -113,13 +113,33 @@ a {
   color: var(--fg-light);
 }
 
-button {
+button, .file-button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
   border: var(--size--4) solid var(--fg);
   padding: var(--size--1) var(--size-0);
   border-radius: var(--common-radius);
+}
+
+.file-button {
+    width: 58px;
+    font-size: 8pt;
+    float: right;
+    margin: 0;
+    background: transparent;
+    color: var(--fg);
+}
+
+#blob {
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+section.post-preview > section > footer {
+    display: none;
 }
 
 section header a {
