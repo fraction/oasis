@@ -812,15 +812,7 @@ exports.publishView = () => {
   );
 };
 
-exports.previewView = ({authorMeta, text, contentWarning, blobId}) => {
-  if (typeof blobId !== "boolean") {
-    // TODO: filename?!
-    // TODO: mime type guessing for just link / !image /  / audio: ?
-    text += "\n![your new blob]("+blobId+")"
-  }
-
-  const rawHtml = markdown(text);
-
+const generatePreview = ({ authorMeta, text, contentWarning }) => {
   // craft message that looks like it came from the db
   const msg = {
     key: "%non-existant.preview",
@@ -848,6 +840,29 @@ exports.previewView = ({authorMeta, text, contentWarning, blobId}) => {
   const ago = Date.now() - Number(ts);
   const prettyAgo = prettyMs(ago, { compact: true });
   lodash.set(msg, "value.meta.timestamp.received.since", prettyAgo);
+  return section({ class: "post-preview" },
+      post({msg}),
+
+      // doesn't need blobs, preview adds them to the text
+      form(
+        { action: "/publish", method: "post" },
+        input({
+          name: "contentWarning",
+          type: "hidden",
+          value: contentWarning,
+        }),  
+        input({
+            name: "text",
+            type: "hidden",
+            value: text,
+        }),
+        button({ type: "submit" }, i18n.publish),
+      ),
+    )
+}
+
+exports.previewView = ({ authorMeta, text, contentWarning }) => {
+  const rawHtml = markdown(text);
 
   return template(
     i18n.preview,
@@ -885,24 +900,11 @@ exports.previewView = ({authorMeta, text, contentWarning, blobId}) => {
           })
         ),
         button({ type: "submit" }, i18n.preview),
-      ),
-
-      // doesn't need blobs, preview adds them to the text
-      form(
-        { action: "/publish", method: "post" },
-        input({
-          name: "contentWarning",
-          type: "hidden",
-          value: contentWarning,
-        }),  
-        input({
-            name: "text",
-            type: "hidden",
-            value: text,
-        }),
-        button({ type: "submit" }, i18n.publish),
-      ),
+        label({ class: "file-button", for: "blob"}, "Attach files"), 
+        input({ type: "file", id: "blob", name: "blob" })
+      )
     ),
+    generatePreview({ authorMeta, text, contentWarning }),
     p(i18n.publishCustomInfo({ href: "/publish/custom" }))
   );
 };
