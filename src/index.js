@@ -143,8 +143,35 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+const resolveCommentComponents = async function (ctx) {
+    const { message } = ctx.params;
+    const parentId = message
+      const parentMessage = await post.get(parentId);
+      const myFeedId = await meta.myFeedId();
+
+      const hasRoot =
+        typeof parentMessage.value.content.root === "string" &&
+        ssbRef.isMsg(parentMessage.value.content.root);
+      const hasFork =
+        typeof parentMessage.value.content.fork === "string" &&
+        ssbRef.isMsg(parentMessage.value.content.fork);
+
+      const rootMessage = hasRoot
+        ? hasFork
+          ? parentMessage
+          : await post.get(parentMessage.value.content.root)
+        : parentMessage;
+
+      const messages = await post.topicComments(rootMessage.key);
+
+      messages.push(rootMessage);
+      return { messages, myFeedId, parentMessage }
+}
+
+
 const {
   authorView,
+  previewCommentView,
   commentView,
   editProfileView,
   indexingView,
@@ -587,31 +614,8 @@ router
     ctx.body = await publishView();
   })
   .get("/comment/:message", async (ctx) => {
-    const { message } = ctx.params;
-    const comment = async (parentId) => {
-      const parentMessage = await post.get(parentId);
-      const myFeedId = await meta.myFeedId();
-
-      const hasRoot =
-        typeof parentMessage.value.content.root === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.root);
-      const hasFork =
-        typeof parentMessage.value.content.fork === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.fork);
-
-      const rootMessage = hasRoot
-        ? hasFork
-          ? parentMessage
-          : await post.get(parentMessage.value.content.root)
-        : parentMessage;
-
-      const messages = await post.topicComments(rootMessage.key);
-
-      messages.push(rootMessage);
-
-      return commentView({ messages, myFeedId, parentMessage });
-    };
-    ctx.body = await comment(message);
+    const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
+    ctx.body = await commentView({ messages, myFeedId, parentMessage })
   })
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
@@ -628,6 +632,19 @@ router
     };
     ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
+  })
+  .post("/comment/preview/:message", koaBody(), async (ctx) => {
+    const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
+    const text = String(ctx.request.body.text);
+
+    const ssb = await cooler.open();
+    const authorMeta = {
+      id: ssb.id,
+      name: await about.name(ssb.id),
+      image: await about.image(ssb.id),
+    }
+
+    ctx.body = await previewCommentView({ messages, myFeedId, parentMessage, authorMeta, text });
   })
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
