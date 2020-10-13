@@ -873,8 +873,6 @@ const generatePreview = ({ authorMeta, text, contentWarning, action }) => {
 }
 
 exports.previewView = ({ authorMeta, text, contentWarning }) => {
-  const rawHtml = markdown(text);
-
   return template(
     i18n.preview,
     section(
