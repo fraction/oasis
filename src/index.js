@@ -7,6 +7,7 @@ const path = require("path");
 const envPaths = require("env-paths");
 const cli = require("./cli");
 const fs = require("fs");
+const exif = require("piexifjs");
 
 const defaultConfig = {};
 const defaultConfigFile = path.join(
@@ -151,13 +152,38 @@ const handleBlobUpload = async function (ctx) {
   const ssb = await cooler.open();
   const blobUpload = ctx.request.files.blob;
   if (typeof blobUpload !== "undefined") {
-    const data = await fs.promises.readFile(blobUpload.path);
+    let data = await fs.promises.readFile(blobUpload.path);
     if (data.length > 0) {
       // 5 MiB check
       const mebibyte = Math.pow(2, 20);
       const maxSize = 5 * mebibyte;
       if (data.length > maxSize) {
         throw new Error("Blob file is too big, maximum size is 5 mebibytes");
+      }
+
+      try {
+        const dataString = data.toString("binary");
+        // implementation borrowed from ssb-blob-files
+        // (which operates on a slightly different data structure, sadly)
+        // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
+        data = Buffer.from(removeExif(dataString), "binary")
+
+        function removeExif (fileData) {
+          const exifOrientation = exif.load(fileData);
+          const orientation = exifOrientation['0th'][exif.ImageIFD.Orientation];
+          const clean = exif.remove(fileData); 
+          if (orientation !== undefined) { // preserve img orientation
+            const exifData = { '0th': {} }
+            exifData['0th'][exif.ImageIFD.Orientation] = orientation;
+            const exifStr = exif.dump(exifData);
+            return exif.insert(exifStr, clean);
+          } else {
+            return clean;
+          }
+        }
+      } catch (e) {
+        console.warn(e)
+        console.warn("blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload");
       }
 
       const addBlob = new Promise((resolve, reject) => {
