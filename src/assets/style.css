@@ -139,6 +139,7 @@ button, .file-button {
 }
 
 section.post-preview {
+  padding-top: 0;
   background: var(--bg-selection);
   border: var(--fg-alt) solid 1px;
 }
