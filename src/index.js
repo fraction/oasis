@@ -187,6 +187,7 @@ const {
   privateView,
   publishCustomView,
   publishView,
+  previewSubtopicView,
   subtopicView,
   searchView,
   imageSearchView,
@@ -616,6 +617,24 @@ router
   .get("/comment/:message", async (ctx) => {
     const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
     ctx.body = await commentView({ messages, myFeedId, parentMessage })
+  })
+  .post("/subtopic/preview/:message", koaBody(), async (ctx) => {
+    const { message } = ctx.params;
+    const rootMessage = await post.get(message);
+    const myFeedId = await meta.myFeedId();
+
+    const messages = [rootMessage];
+
+    const text = String(ctx.request.body.text);
+
+    const ssb = await cooler.open();
+    const authorMeta = {
+      id: ssb.id,
+      name: await about.name(ssb.id),
+      image: await about.image(ssb.id),
+    }
+
+    ctx.body = await previewSubtopicView({ messages, myFeedId, authorMeta, text });
   })
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;

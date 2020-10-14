@@ -1135,8 +1135,15 @@ exports.threadsView = ({ messages }) => {
   });
 };
 
-exports.subtopicView = async ({ messages, myFeedId }) => {
-  const subtopicForm = `/subtopic/${encodeURIComponent(
+exports.previewSubtopicView = async ({ authorMeta, text, messages, myFeedId }) => {
+  const publishAction = `/subtopic/${encodeURIComponent(messages[0].key)}`;
+
+  const preview = generatePreview({ authorMeta, text, contentWarning: undefined, action: publishAction })
+  return exports.subtopicView({ messages, myFeedId }, preview, text)
+};
+
+exports.subtopicView = async ({ messages, myFeedId }, preview, text) => {
+  const subtopicForm = `/subtopic/preview/${encodeURIComponent(
     messages[messages.length - 1].key
   )}`;
 
@@ -1162,6 +1169,7 @@ exports.subtopicView = async ({ messages, myFeedId }) => {
   return template(
     i18n.subtopicTitle({ authorName }),
     messageElements,
+    preview !== undefined ? preview : '',
     p(i18n.subtopicLabel({ markdownUrl })),
     form(
       { action: subtopicForm, method: "post" },
@@ -1171,13 +1179,13 @@ exports.subtopicView = async ({ messages, myFeedId }) => {
           required: true,
           name: "text",
         },
-        markdownMention
+        text ? text : markdownMention
       ),
       button(
         {
           type: "submit",
         },
-        i18n.subtopic
+        "Preview subtopic"
       )
     )
   );
