@@ -692,7 +692,9 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
 
   return template(
     i18n.commentTitle({ authorName }),
-    messageElements,
+    div({ class: "thread-container" }, 
+      messageElements,
+    ),
     preview !== undefined ? preview : '',
     p(
       ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
@@ -1156,7 +1158,9 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
 
   return template(
     i18n.subtopicTitle({ authorName }),
-    messageElements,
+    div({ class: "thread-container" }, 
+      messageElements,
+    ),
     preview !== undefined ? preview : '',
     p(i18n.subtopicLabel({ markdownUrl })),
     form(
