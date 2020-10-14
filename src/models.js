@@ -111,6 +111,62 @@ module.exports = ({ cooler, isPublic }) => {
     );
   };
 
+  // build a @mentions lookup cache
+  // ==============================
+  // one gotcha with ssb-query is: if we add `name: "myname"` to that query below,
+  // it can trigger a full-scan of the database instead of better query planing
+  // also doing multiple of those can be very slow (5 to 30s on my machine).
+  // gotcha two is: there is no way to express (where msg.author == msg.value.content.about) so we need to do it as a pull.filter()
+  // one drawback: is, it gives us all the abouts from forever, not just the latest
+  // TODO: an alternative would be using ssb.names if available and just loading this as a fallback
+  const all_the_names = {}
+  cooler.open().then((ssb) => {
+    pull(
+      ssb.query.read({
+        live: true,
+        query: [
+          {
+            $filter: {
+              value: {
+                content: {
+                  type: "about",
+                  name: { $is: "string" }
+                },
+              },
+            }
+          }
+        ]
+      }),
+      pull.filter((msg) => { // only pick messages about self
+        if (msg.sync && msg.sync === true) { return false } // live query blurp
+        return msg.value.author == msg.value.content.about
+      }),
+      pull.unique((msg) => { // ignore duplicates
+        return msg.value.author+":"+msg.value.content.name
+      }),
+      pull.drain((msg) => {
+        const name = msg.value.content.name
+        const feed = msg.value.author
+
+        getAbout({feedId: feed, key: "image"}).then((img) => {
+          if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
+            img = img.link
+          }
+          models.friend.getRelationship(feed).then((rel) => {
+            let feeds_named = all_the_names[name] || []
+            feeds_named.push({
+              feed: feed,
+              name: name,
+              img: img,
+              rel: rel,
+            })
+            all_the_names[name] = feeds_named
+          }).catch(console.warn)
+        }).catch(console.warn)
+      })
+    )
+  });
+
   models.about = {
     publicWebHosting: async (feedId) => {
       const result = await getAbout({
@@ -130,6 +186,9 @@ module.exports = ({ cooler, isPublic }) => {
           feedId,
         })) || feedId.slice(1, 1 + 8)
       ); // First 8 chars of public key
+    },
+    named: (name) => {
+      return all_the_names[name] || []
     },
     image: async (feedId) => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
@@ -190,10 +249,13 @@ module.exports = ({ cooler, isPublic }) => {
     },
     want: async ({ blobId }) => {
       debug("want blob: %s", blobId);
-      const ssb = await cooler.open();
+      cooler.open().then(ssb => {
 
-      // This does not wait for the blob.
-      ssb.blobs.want(blobId);
+        // This does not wait for the blob.
+        ssb.blobs.want(blobId);
+      }).catch(err => {
+        console.warn(`failed to want blob:${blobId}: ${err}`)
+      })
     },
     search: async ({ query }) => {
       debug("blob search: %s", query);
@@ -282,10 +344,16 @@ module.exports = ({ cooler, isPublic }) => {
         dest: feedId,
       });
 
+      const followsMe = await ssb.friends.isFollowing({
+        source: feedId,
+        dest: id,
+      });
+
       return {
         me: false,
         following: isFollowing,
         blocking: isBlocking,
+        followsMe: followsMe,
       };
     },
   };

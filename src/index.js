@@ -144,6 +144,45 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+const unlinkedRe = /@([a-zA-Z0-9-]+)[\s\.\,!\?$]{1}/g
+
+const preparePreview = async function(ctx) {
+  let text = String(ctx.request.body.text);
+
+  // find all the @mentions that are not inside a link already
+  // stores name:[matches...]
+  // TODO: sort by relationship
+  // TODO: filter duplicates 
+  const mentions = {}
+
+  const replacer = (match, name, offset, string) => {
+    let matches = about.named(name)
+    if (matches.length === 1) {
+      // format markdown link and put the correct sign back at the end
+      return `[@${name}](${matches[0].feed})`+match.substr(-1)
+    }
+    for (const feed of matches) {
+      let found = mentions[name] || []
+      found.push(feed) 
+      mentions[name] = found
+    }
+    return match
+  }
+  text = text.replace(unlinkedRe, replacer);
+
+  // add blob new blob to the end of the document.
+  text += await handleBlobUpload(ctx);
+
+  const ssb = await cooler.open();
+  const authorMeta = {
+    id: ssb.id,
+    name: await about.name(ssb.id),
+    image: await about.image(ssb.id),
+  }
+
+  return { authorMeta, text , mentions}
+}
+
 const handleBlobUpload = async function (ctx) {
   let blob = false;
   let text = "";
@@ -717,18 +756,9 @@ router
 
     const messages = [rootMessage];
 
-    let text = String(ctx.request.body.text);
+    const previewData = await preparePreview(ctx);
 
-    text += await handleBlobUpload(ctx);
-
-    const ssb = await cooler.open();
-    const authorMeta = {
-      id: ssb.id,
-      name: await about.name(ssb.id),
-      image: await about.image(ssb.id),
-    }
-
-    ctx.body = await previewSubtopicView({ messages, myFeedId, authorMeta, text, contentWarning });
+    ctx.body = await previewSubtopicView({ messages, myFeedId, previewData, contentWarning });
   })
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
@@ -753,18 +783,10 @@ router
   })
   .post("/comment/preview/:message", koaBody({ multipart: true }), async (ctx) => {
     const { messages, contentWarning, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
-    let text = String(ctx.request.body.text);
+    
+    const previewData = await preparePreview(ctx);
 
-    const ssb = await cooler.open();
-    const authorMeta = {
-      id: ssb.id,
-      name: await about.name(ssb.id),
-      image: await about.image(ssb.id),
-    }
-
-    text += await handleBlobUpload(ctx);
-
-    ctx.body = await previewCommentView({ messages, myFeedId, contentWarning, parentMessage, authorMeta, text });
+    ctx.body = await previewCommentView({ messages, myFeedId, contentWarning, parentMessage, previewData });
   })
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
@@ -788,23 +810,14 @@ router
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
   .post("/publish/preview", koaBody({ multipart: true }), async (ctx) => {
-    let text = String(ctx.request.body.text);
     const rawContentWarning = String(ctx.request.body.contentWarning).trim();
-
-    const ssb = await cooler.open();
-    let authorMeta = {
-      id: ssb.id,
-      name: await about.name(ssb.id),
-      image: await about.image(ssb.id),
-    }
-
-    text += await handleBlobUpload(ctx);
 
     // Only submit content warning if it's a string with non-zero length.
     const contentWarning =
       rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
-    ctx.body = await previewView({authorMeta, text, contentWarning});
+    const previewData = await preparePreview(ctx);
+    ctx.body = await previewView({previewData, contentWarning});
   })
   .post("/publish/", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
