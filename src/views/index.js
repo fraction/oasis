@@ -699,7 +699,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
       ...maybeSubtopicText
     ),
     form(
-      { action, method },
+      { action, method, enctype: "multipart/form-data" },
       textarea(
         {
           autofocus: true,
@@ -719,12 +719,9 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button(
-        {
-          type: "submit",
-        },
-        "Preview comment"
-      )
+      button( { type: "submit", }, "Preview comment" ),
+      label({ class: "file-button", for: "blob"}, "Attach files"), 
+      input({ type: "file", id: "blob", name: "blob" })
     )
   );
 };
@@ -1163,7 +1160,7 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
     preview !== undefined ? preview : '',
     p(i18n.subtopicLabel({ markdownUrl })),
     form(
-      { action: subtopicForm, method: "post" },
+      { action: subtopicForm, method: "post", enctype: "multipart/form-data" },
       textarea(
         {
           autofocus: true,
@@ -1182,12 +1179,9 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button(
-        {
-          type: "submit",
-        },
-        "Preview subtopic"
-      )
+      button({ type: "submit" }, "Preview subtopic"), 
+      label({ class: "file-button", for: "blob"}, "Attach files"), 
+      input({ type: "file", id: "blob", name: "blob" })
     )
   );
 };

@@ -143,6 +143,62 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+const handleBlobUpload = async function (ctx) {
+  let blob = false;
+  let text = "";
+  if (!ctx.request.files) return "";
+
+  const ssb = await cooler.open();
+  const blobUpload = ctx.request.files.blob;
+  if (typeof blobUpload !== "undefined") {
+    const data = await fs.promises.readFile(blobUpload.path);
+    if (data.length > 0) {
+      // 5 MiB check
+      const mebibyte = Math.pow(2, 20);
+      const maxSize = 5 * mebibyte;
+      if (data.length > maxSize) {
+        throw new Error("Blob file is too big, maximum size is 5 mebibytes");
+      }
+
+      const addBlob = new Promise((resolve, reject) => {
+        pull(
+          pull.values([data]),
+          ssb.blobs.add((err, hashedBlobRef) => {
+            if (err) return reject(err);
+            console.log("added", hashedBlobRef)
+            resolve(hashedBlobRef)
+          })
+        )
+      })
+      blob = {
+        id: await addBlob,
+        name: blobUpload.name
+      }
+      const FileType = require('file-type');
+      try {
+        let ftype = await FileType.fromBuffer(data)
+        blob.mime = ftype.mime
+      } catch (error) {
+        console.warn(error)
+        blob.mime = "application/octet-stream"
+      }
+    }
+  }
+  // append uploaded blob as markdown to the end of the input text
+  if (typeof blob !== "boolean") {
+    if (blob.mime.startsWith("image/")) {
+      text += `\n![${blob.name}](${blob.id})`
+    } else if (blob.mime.startsWith("audio/")) {
+      text += `\n![audio:${blob.name}](${blob.id})`
+    } else if (blob.mime.startsWith("video/")) {
+      text += `\n![video:${blob.name}](${blob.id})`
+    } else {
+      text += `\n[${blob.name}](${blob.id})`
+    }
+  }
+  return text
+}
+
 const resolveCommentComponents = async function (ctx) {
   const { message } = ctx.params;
   const parentId = message
@@ -624,7 +680,7 @@ router
     const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
     ctx.body = await commentView({ messages, myFeedId, parentMessage })
   })
-  .post("/subtopic/preview/:message", koaBody(), async (ctx) => {
+  .post("/subtopic/preview/:message", koaBody({ multipart: true }), async (ctx) => {
     const { message } = ctx.params;
     const rootMessage = await post.get(message);
     const myFeedId = await meta.myFeedId();
@@ -635,7 +691,9 @@ router
 
     const messages = [rootMessage];
 
-    const text = String(ctx.request.body.text);
+    let text = String(ctx.request.body.text);
+
+    text += await handleBlobUpload(ctx);
 
     const ssb = await cooler.open();
     const authorMeta = {
@@ -667,9 +725,9 @@ router
     ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
-  .post("/comment/preview/:message", koaBody(), async (ctx) => {
+  .post("/comment/preview/:message", koaBody({ multipart: true }), async (ctx) => {
     const { messages, contentWarning, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
-    const text = String(ctx.request.body.text);
+    let text = String(ctx.request.body.text);
 
     const ssb = await cooler.open();
     const authorMeta = {
@@ -677,6 +735,8 @@ router
       name: await about.name(ssb.id),
       image: await about.image(ssb.id),
     }
+
+    text += await handleBlobUpload(ctx);
 
     ctx.body = await previewCommentView({ messages, myFeedId, contentWarning, parentMessage, authorMeta, text });
   })
@@ -701,7 +761,7 @@ router
     ctx.body = await publishComment({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
-  .post("/publish/preview", koaBody({multipart: true }), async (ctx) => {
+  .post("/publish/preview", koaBody({ multipart: true }), async (ctx) => {
     let text = String(ctx.request.body.text);
     const rawContentWarning = String(ctx.request.body.contentWarning).trim();
 
@@ -712,56 +772,8 @@ router
       image: await about.image(ssb.id),
     }
 
-    let blob = false
-    const blobUpload= ctx.request.files.blob
-    if (typeof blobUpload !== "undefined") {
+    text += await handleBlobUpload(ctx);
 
-      const data = await fs.promises.readFile(blobUpload.path);
-      if (data.length > 0) {
-        // 5 MiB check
-        const mebibyte = Math.pow(2, 20);
-        const maxSize = 5 * mebibyte;
-        if (data.length > maxSize) {
-          throw new Error("Blob file is too big, maximum size is 5 mebibytes");
-        }
-        
-        const addBlob = new Promise((resolve, reject) => {
-          pull(
-            pull.values([data]),
-            ssb.blobs.add((err, hashedBlobRef) => {
-              if (err) return reject(err);
-              console.log("added", hashedBlobRef)
-              resolve(hashedBlobRef)
-            })
-          )
-        })
-        blob = {
-          id: await addBlob,
-          name: blobUpload.name
-        }
-        const FileType = require('file-type');
-        try {
-          let ftype = await FileType.fromBuffer(data)
-          blob.mime = ftype.mime
-        } catch (error) {
-          console.warn(error)
-          blob.mime = "application/octet-stream"
-        }
-      }
-    }
-    // append uploaded blob as markdown to the end of the input text
-    if (typeof blob !== "boolean") {
-      if (blob.mime.startsWith("image/")) {
-        text += `\n![${blob.name}](${blob.id})`
-      } else if (blob.mime.startsWith("audio/")) {
-        text += `\n![audio:${blob.name}](${blob.id})`
-      } else if (blob.mime.startsWith("video/")) {
-        text += `\n![video:${blob.name}](${blob.id})`
-      } else {
-        text += `\n[${blob.name}](${blob.id})`
-      }
-    }
-        
     // Only submit content warning if it's a string with non-zero length.
     const contentWarning =
       rawContentWarning.length > 0 ? rawContentWarning : undefined;
