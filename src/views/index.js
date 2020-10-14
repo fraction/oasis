@@ -788,7 +788,7 @@ exports.markdownView = ({ text }) => {
   );
 };
 
-exports.publishView = () => {
+exports.publishView = (preview, text) => {
   return template(
     i18n.publish,
     section(
@@ -801,7 +801,7 @@ exports.publishView = () => {
         },
         label(
           i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
-          textarea({ required: true, name: "text" })
+          textarea({ required: true, name: "text" }, text ? text : '')
         ),
         label(
           i18n.contentWarningLabel,
@@ -817,6 +817,7 @@ exports.publishView = () => {
         input({ type: "file", id: "blob", name: "blob" })
       )
     ),
+    preview ? preview : '',
     p(i18n.publishCustomInfo({ href: "/publish/custom" }))
   );
 };
@@ -846,6 +847,7 @@ const generatePreview = ({ authorMeta, text, contentWarning, action }) => {
       }
     }
   }
+  if (contentWarning) msg.value.content.contentWarning = contentWarning
   const ts = new Date(msg.value.timestamp);
   lodash.set(msg, "value.meta.timestamp.received.iso8601", ts.toISOString());
   const ago = Date.now() - Number(ts);
@@ -873,35 +875,11 @@ const generatePreview = ({ authorMeta, text, contentWarning, action }) => {
 }
 
 exports.previewView = ({ authorMeta, text, contentWarning }) => {
-  return template(
-    i18n.preview,
-    section(
-      h1(i18n.publish),
-      form(
-        { action: "/publish/preview", method: "post", enctype: "multipart/form-data" },
-        label(
-          i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
-          textarea({ required: true, name: "text"}, text)
-        ),
-        label(
-          i18n.contentWarningLabel,
-          input({
-            name: "contentWarning",
-            type: "text",
-            class: "contentWarning",
-            placeholder: i18n.contentWarningPlaceholder,
-            value: contentWarning,
-          })
-        ),
-        button({ type: "submit" }, i18n.preview),
-        label({ class: "file-button", for: "blob"}, "Attach files"), 
-        input({ type: "file", id: "blob", name: "blob" })
-      )
-    ),
-    generatePreview({ action: "/publish", authorMeta, text, contentWarning }),
-    p(i18n.publishCustomInfo({ href: "/publish/custom" }))
-  );
-};
+  const publishAction = "/publish";
+
+  const preview = generatePreview({ authorMeta, text, contentWarning, action: publishAction })
+  return exports.publishView(preview, text)
+}
 
 /**
  * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
