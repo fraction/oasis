@@ -144,28 +144,34 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
 });
 
 const resolveCommentComponents = async function (ctx) {
-    const { message } = ctx.params;
-    const parentId = message
-      const parentMessage = await post.get(parentId);
-      const myFeedId = await meta.myFeedId();
+  const { message } = ctx.params;
+  const parentId = message
+  const parentMessage = await post.get(parentId);
+  const myFeedId = await meta.myFeedId();
 
-      const hasRoot =
-        typeof parentMessage.value.content.root === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.root);
-      const hasFork =
-        typeof parentMessage.value.content.fork === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.fork);
+  const hasRoot =
+    typeof parentMessage.value.content.root === "string" &&
+    ssbRef.isMsg(parentMessage.value.content.root);
+  const hasFork =
+    typeof parentMessage.value.content.fork === "string" &&
+    ssbRef.isMsg(parentMessage.value.content.fork);
 
-      const rootMessage = hasRoot
-        ? hasFork
-          ? parentMessage
-          : await post.get(parentMessage.value.content.root)
-        : parentMessage;
+  const rootMessage = hasRoot
+    ? hasFork
+    ? parentMessage
+    : await post.get(parentMessage.value.content.root)
+    : parentMessage;
 
-      const messages = await post.topicComments(rootMessage.key);
+  const messages = await post.topicComments(rootMessage.key);
 
-      messages.push(rootMessage);
-      return { messages, myFeedId, parentMessage }
+  messages.push(rootMessage);
+  let contentWarning
+  if (ctx.request.body) {
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+    contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+  }
+  return { messages, myFeedId, parentMessage, contentWarning }
 }
 
 
@@ -623,6 +629,10 @@ router
     const rootMessage = await post.get(message);
     const myFeedId = await meta.myFeedId();
 
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
     const messages = [rootMessage];
 
     const text = String(ctx.request.body.text);
@@ -634,11 +644,16 @@ router
       image: await about.image(ssb.id),
     }
 
-    ctx.body = await previewSubtopicView({ messages, myFeedId, authorMeta, text });
+    ctx.body = await previewSubtopicView({ messages, myFeedId, authorMeta, text, contentWarning });
   })
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
+
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
     const publishSubtopic = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
       const mentions = ssbMentions(text) || undefined;
@@ -646,14 +661,14 @@ router
       const parent = await post.get(message);
       return post.subtopic({
         parent,
-        message: { text, mentions },
+        message: { text, mentions, contentWarning },
       });
     };
     ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
   .post("/comment/preview/:message", koaBody(), async (ctx) => {
-    const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
+    const { messages, contentWarning, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
     const text = String(ctx.request.body.text);
 
     const ssb = await cooler.open();
@@ -663,11 +678,16 @@ router
       image: await about.image(ssb.id),
     }
 
-    ctx.body = await previewCommentView({ messages, myFeedId, parentMessage, authorMeta, text });
+    ctx.body = await previewCommentView({ messages, myFeedId, contentWarning, parentMessage, authorMeta, text });
   })
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
+
+    const rawContentWarning = String(ctx.request.body.contentWarning);
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
     const publishComment = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
       const mentions = ssbMentions(text) || undefined;
@@ -675,7 +695,7 @@ router
 
       return post.comment({
         parent,
-        message: { text, mentions },
+        message: { text, mentions, contentWarning },
       });
     };
     ctx.body = await publishComment({ message, text });

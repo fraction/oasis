@@ -201,6 +201,8 @@ const thread = (messages) => {
 
       const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
       const nextSnippet = postSnippet(
+        lodash.has(nextMsg, "value.content.contentWarning") ? 
+        lodash.get(nextMsg, "value.content.contentWarning") :
         lodash.get(nextMsg, "value.content.text")
       );
 
@@ -654,14 +656,14 @@ exports.authorView = ({
   return template(i18n.profile, prefix, items);
 };
 
-exports.previewCommentView = async ({ authorMeta, text, messages, myFeedId, parentMessage }) => {
+exports.previewCommentView = async ({ authorMeta, text, messages, myFeedId, parentMessage, contentWarning }) => {
   const publishAction = `/comment/${encodeURIComponent(messages[0].key)}`;
 
-  const preview = generatePreview({ authorMeta, text, contentWarning: undefined, action: publishAction })
-  return exports.commentView({ messages, myFeedId, parentMessage }, preview, text)
+  const preview = generatePreview({ authorMeta, text, contentWarning, action: publishAction })
+  return exports.commentView({ messages, myFeedId, parentMessage }, preview, text, contentWarning)
 };
 
-exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, text) => {
+exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, text, contentWarning) => {
   let markdownMention;
 
   const messageElements = await Promise.all(
@@ -706,6 +708,16 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
         },
         text ? text : 
         isPrivate ? null : markdownMention
+      ),
+      label(
+        i18n.contentWarningLabel,
+        input({
+          name: "contentWarning",
+          type: "text",
+          class: "contentWarning",
+          value: contentWarning ? contentWarning : '',
+          placeholder: i18n.contentWarningPlaceholder,
+        })
       ),
       button(
         {
@@ -788,7 +800,7 @@ exports.markdownView = ({ text }) => {
   );
 };
 
-exports.publishView = (preview, text) => {
+exports.publishView = (preview, text, contentWarning) => {
   return template(
     i18n.publish,
     section(
@@ -809,6 +821,7 @@ exports.publishView = (preview, text) => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
+            value: contentWarning ? contentWarning : '',
             placeholder: i18n.contentWarningPlaceholder,
           })
         ),
@@ -878,7 +891,7 @@ exports.previewView = ({ authorMeta, text, contentWarning }) => {
   const publishAction = "/publish";
 
   const preview = generatePreview({ authorMeta, text, contentWarning, action: publishAction })
-  return exports.publishView(preview, text)
+  return exports.publishView(preview, text, contentWarning)
 }
 
 /**
@@ -1113,14 +1126,14 @@ exports.threadsView = ({ messages }) => {
   });
 };
 
-exports.previewSubtopicView = async ({ authorMeta, text, messages, myFeedId }) => {
+exports.previewSubtopicView = async ({ authorMeta, text, messages, myFeedId, contentWarning }) => {
   const publishAction = `/subtopic/${encodeURIComponent(messages[0].key)}`;
 
-  const preview = generatePreview({ authorMeta, text, contentWarning: undefined, action: publishAction })
-  return exports.subtopicView({ messages, myFeedId }, preview, text)
+  const preview = generatePreview({ authorMeta, text, contentWarning, action: publishAction })
+  return exports.subtopicView({ messages, myFeedId }, preview, text, contentWarning)
 };
 
-exports.subtopicView = async ({ messages, myFeedId }, preview, text) => {
+exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarning) => {
   const subtopicForm = `/subtopic/preview/${encodeURIComponent(
     messages[messages.length - 1].key
   )}`;
@@ -1158,6 +1171,16 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text) => {
           name: "text",
         },
         text ? text : markdownMention
+      ),
+      label(
+        i18n.contentWarningLabel,
+        input({
+          name: "contentWarning",
+          type: "text",
+          class: "contentWarning",
+          value: contentWarning ? contentWarning : '',
+          placeholder: i18n.contentWarningPlaceholder,
+        })
       ),
       button(
         {
