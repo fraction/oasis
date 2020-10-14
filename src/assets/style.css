@@ -138,8 +138,13 @@ button, .file-button {
     margin: 0;
 }
 
+section.post-preview {
+  background: var(--bg-selection);
+  border: var(--fg-alt) solid 1px;
+}
+
 section.post-preview > section > footer {
-    display: none;
+  display: none;
 }
 
 section header a {
@@ -151,7 +156,7 @@ section header a {
 }
 
 section header a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* For use with elements specific for
