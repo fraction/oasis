@@ -428,8 +428,8 @@ const i18n = {
     // likes view
     likedBy: "'s Likes",
     // composer
-    attachFiles: "ATTACH FILES",
-    preview: "PREVIEW",
+    attachFiles: "Datei Hinzufügen",
+    preview: "Vorschau",
     publish: "Veröffentlichen",
     contentWarningPlaceholder: "Optionale Inhaltswarnung für diesen Beitrag",
     publishCustomDescription: [
