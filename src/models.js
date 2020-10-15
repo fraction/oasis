@@ -160,7 +160,7 @@ module.exports = ({ cooler, isPublic }) => {
               img: img,
               rel: rel,
             })
-            all_the_names[name] = feeds_named
+            all_the_names[name.toLowerCase()] = feeds_named
           }).catch(console.warn)
         }).catch(console.warn)
       })
@@ -188,7 +188,14 @@ module.exports = ({ cooler, isPublic }) => {
       ); // First 8 chars of public key
     },
     named: (name) => {
-      return all_the_names[name] || []
+      let found = []
+      let matched = Object.keys(all_the_names).filter(n => {
+        return n.startsWith(name.toLowerCase())
+      })
+      for (const m of matched) {
+        found = found.concat(all_the_names[m])
+      }
+      return found
     },
     image: async (feedId) => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
