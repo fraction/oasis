@@ -144,8 +144,6 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
-const unlinkedRe = /@([a-zA-Z0-9-]+)[\s\.\,!\?$]{1}/g
-
 const preparePreview = async function(ctx) {
   let text = String(ctx.request.body.text);
 
@@ -155,20 +153,42 @@ const preparePreview = async function(ctx) {
   // TODO: filter duplicates 
   const mentions = {}
 
-  const replacer = (match, name, offset, string) => {
+  // re.exec is stateful => regex is consumed
+  const rex = /@([a-zA-Z0-9-]+)[\s\.\,!\?$]{1}/g
+  let m 
+  while ((m = rex.exec(text)) !== null) {
+    const [match, name] = m;
     let matches = about.named(name)
-    if (matches.length === 1) {
-      // format markdown link and put the correct sign back at the end
-      return `[@${name}](${matches[0].feed})`+match.substr(-1)
-    }
     for (const feed of matches) {
       let found = mentions[name] || []
       found.push(feed) 
       mentions[name] = found
     }
+  }
+
+  Object.keys(mentions).forEach(name => {
+    let matches = mentions[name]
+    // if we find mention matches for a name, and we follow them / they follow us,
+    // then use those matches as suggestions
+    const meaningfulMatches = matches.filter(m => {
+      return (m.rel.followsMe || m.rel.following) && m.rel.blocking === false;
+    })
+    const hasMeaningfulRelationship = meaningfulMatches.length > 0
+    if (hasMeaningfulRelationship) matches = meaningfulMatches
+    mentions[name] = matches
+  })
+
+  const replacer = (match, name, offset, string) => {
+    let matches = mentions[name]
+    if (matches && matches.length === 1) {
+      // we found an exact match, don't send it to frontend as a suggestion
+      delete mentions[name]
+      // format markdown link and put the correct sign back at the end
+      return `[@${matches[0].name}](${matches[0].feed})`+match.substr(-1)
+    }
     return match
   }
-  text = text.replace(unlinkedRe, replacer);
+  text = text.replace(rex, replacer);
 
   // add blob new blob to the end of the document.
   text += await handleBlobUpload(ctx);

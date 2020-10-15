@@ -872,25 +872,36 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
       h2("@mentions we found"),
       Object.keys(mentions).map((name) => {
         let matches = mentions[name]
+
         return div(
           p(`For '${name}' we found:`),
-          ul(
-            matches.map(m => {
-              return li(
-                span({ class: "author" },
-                  a(
-                    { href: `/author/${encodeURIComponent(m.feed)}` },
-                    img({ src: `/image/64/${encodeURIComponent(m.img)}`}),
-                    m.name
-                  )
-                ),
-                // TODO: show m.rel following info
-                pre(`[@${m.name}](${m.feed})`),
-                // label({}, m.name), // TODO: for=#inputID juggeling
-                // input({type: 'radio', name: "mention_"+name, value:m.feed})
-              )
-            })
-          )
+          matches.map(m => {
+            let relationship = ""
+            console.log(m)
+            if (m.rel.followsMe && m.rel.following) {
+              relationship = "mutuals"
+            } else if (m.rel.following) {
+              relationship = "following"
+            } else if (m.rel.followsMe) {
+              relationship = "follower"
+            } else {
+              relationship = "??"
+            }
+            console.log(m.name, relationship)
+            return div(
+              span({ class: "author" },
+                a(
+                  { href: `/author/${encodeURIComponent(m.feed)}` },
+                  img({ src: `/image/64/${encodeURIComponent(m.img)}`}),
+                  m.name
+                )
+              ),
+              span(" " + relationship),
+              // TODO: show m.rel following info
+              pre(`[@${m.name}](${m.feed})`),
+              div(JSON.stringify(m, null, 2))
+            )
+          })
         )
       })
     ),
