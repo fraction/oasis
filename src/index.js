@@ -144,6 +144,8 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+// enhance the users' input text by expanding @name to [@name](@feedPub.key)
+// and slurps up blob uploads and appends a markdown link for it to the text (see handleBlobUpload)
 const preparePreview = async function(ctx) {
   let text = String(ctx.request.body.text);
 
@@ -153,8 +155,13 @@ const preparePreview = async function(ctx) {
   // TODO: filter duplicates 
   const mentions = {}
 
-  // re.exec is stateful => regex is consumed
+
+  // This matches for @string followed by a space or other punctuations like ! , or .
+  // The idea here is to match a plain @name but not [@name](...)
+  // also: re.exec is stateful => regex is consumed and thus needs to be re-instantiated for each call
   const rex = /@([a-zA-Z0-9-]+)[\s\.\,!\?$]{1}/g
+
+  // find @mentions using rex and use about.named() to get the info for them
   let m 
   while ((m = rex.exec(text)) !== null) {
     const [match, name] = m;
@@ -166,6 +173,7 @@ const preparePreview = async function(ctx) {
     }
   }
 
+  // filter the matches depending on the follow relation
   Object.keys(mentions).forEach(name => {
     let matches = mentions[name]
     // if we find mention matches for a name, and we follow them / they follow us,
@@ -173,12 +181,14 @@ const preparePreview = async function(ctx) {
     const meaningfulMatches = matches.filter(m => {
       return (m.rel.followsMe || m.rel.following) && m.rel.blocking === false;
     })
-    const hasMeaningfulRelationship = meaningfulMatches.length > 0
-    if (hasMeaningfulRelationship) matches = meaningfulMatches
+    if (meaningfulMatches.length > 0) {
+      matches = meaningfulMatches
+    }
     mentions[name] = matches
   })
 
-  const replacer = (match, name, offset, string) => {
+  // replace the text with a markdown link if we have unambiguous match
+  const replacer = (match, name) => {
     let matches = mentions[name]
     if (matches && matches.length === 1) {
       // we found an exact match, don't send it to frontend as a suggestion
@@ -193,6 +203,7 @@ const preparePreview = async function(ctx) {
   // add blob new blob to the end of the document.
   text += await handleBlobUpload(ctx);
 
+  // author metadata for the preview-post
   const ssb = await cooler.open();
   const authorMeta = {
     id: ssb.id,
@@ -203,6 +214,10 @@ const preparePreview = async function(ctx) {
   return { authorMeta, text , mentions}
 }
 
+// handleBlobUpload ingests an uploaded form file.
+// it takes care of maximum blob size (5meg), exif stripping and mime detection.
+// finally it returns the correct markdown link for the blob depending on the mime-type.
+// it supports plain, image and also audio: and video: as understood by ssbMarkdown.
 const handleBlobUpload = async function (ctx) {
   let blob = false;
   let text = "";
