@@ -721,8 +721,8 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button( { type: "submit", }, "Preview comment" ),
-      label({ class: "file-button", for: "blob"}, "Attach files"), 
+      button({ type: "submit" }, i18n.preview), 
+      label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
       input({ type: "file", id: "blob", name: "blob" })
     )
   );
@@ -825,7 +825,7 @@ exports.publishView = (preview, text, contentWarning) => {
           })
         ),
         button({ type: "submit" }, i18n.preview),
-        label({ class: "file-button", for: "blob"}, "Attach files"), 
+        label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
         input({ type: "file", id: "blob", name: "blob" })
       )
     ),
@@ -1213,8 +1213,8 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button({ type: "submit" }, "Preview subtopic"), 
-      label({ class: "file-button", for: "blob"}, "Attach files"), 
+      button({ type: "submit" }, i18n.preview), 
+      label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
       input({ type: "file", id: "blob", name: "blob" })
     )
   );
