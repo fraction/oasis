@@ -69,6 +69,9 @@ const i18n = {
     feedEmpty: "The local client has never seen posts from this account.",
     beginningOfFeed: "This is the beginning of the feed",
     noNewerPosts: "No newer posts have been received yet.",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "You are following",
     relationshipYou: "This is you",
     relationshipBlocking: "You are blocking",
@@ -80,6 +83,7 @@ const i18n = {
     likedBy: "'s likes",
     // composer
     attachFiles: "Attach files",
+    mentionsMatching: "Matching Mentions",
     preview: "Preview",
     publish: "Publish",
     contentWarningPlaceholder: "Optional content warning for this post",
@@ -246,6 +250,9 @@ const i18n = {
     // relationships
     unfollow: "Dejar de seguir",
     follow: "Seguir",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Siguiendo",
     relationshipYou: "Vos",
     relationshipBlocking: "Bloqueado",
@@ -257,6 +264,7 @@ const i18n = {
     likedBy: "le gusta",
     // composer
     attachFiles: "Agregar archivos",
+    mentionsMatching: "Menciones coincidentes",
     preview: "Vista previa",
     publish: "Publicar",
     contentWarningPlaceholder: "Advertencia opcional para esta publicación",
@@ -418,6 +426,9 @@ const i18n = {
     // relationships
     unfollow: "Entfolgen",
     follow: "Folgen",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Du folgst",
     relationshipYou: "Das bist du",
     relationshipBlocking: "Du blockierst",
@@ -429,6 +440,7 @@ const i18n = {
     likedBy: "'s Likes",
     // composer
     attachFiles: "Datei Hinzufügen",
+    mentionsMatching: "Matching Mentions",
     preview: "Vorschau",
     publish: "Veröffentlichen",
     contentWarningPlaceholder: "Optionale Inhaltswarnung für diesen Beitrag",
@@ -593,6 +605,9 @@ const i18n = {
     // relationships
     unfollow: "Non seguire più",
     follow: "Segui",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Stai seguendo",
     relationshipYou: "Sei tu",
     relationshipBlocking: "Stai bloccando",
@@ -605,6 +620,7 @@ const i18n = {
     likedBy: "Like di ", // here the subject of the sentence should be put at the end (as if it were "liked by X" instead of "X's likes"
     // composer
     attachFiles: "Aggiungere i file",
+    mentionsMatching: "Menzioni corrispondenti",
     preview: "Visualizza l'anteprima",
     publish: "Pubblica",
     contentWarningPlaceholder:
@@ -774,6 +790,9 @@ const i18n = {
     follow: "Suivre",
     block: "Bloquer",
     unblock: "Débloquer",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "Il/elle te suivent",
+    relationshipMutuals: "Vous êtes des mutuellements",
     relationshipFollowing: "Vous suivez",
     relationshipYou: "C'est vous",
     relationshipBlocking: "Vous bloquez",
@@ -786,6 +805,7 @@ const i18n = {
     likedBy: "a voté",
     // composer
     attachFiles: "Ajouter des fichiers",
+    mentionsMatching: "Matching Mentions",
     preview: "Examiner",
     publish: "Publier",
     contentWarningPlaceholder:

@@ -870,7 +870,7 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
   return div(
     Object.keys(mentions).length === 0 ? "" :
     section({ class: "mention-suggestions"},
-      h2("Matching mentions"),
+      h2(i18n.mentionsMatching),
       Object.keys(mentions).map((name) => {
         let matches = mentions[name]
 
@@ -880,7 +880,7 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
             if (m.rel.followsMe && m.rel.following) {
               // mutuals get the handshake emoji
               relationship.emoji = "🤝"
-              relationship.desc = "you are mutuals"
+              relationship.desc = i18n.relationshipMutuals
             } else if (m.rel.following) {
               // if we're following that's an eyes emoji
               relationship.emoji = "👀"
@@ -888,11 +888,11 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
             } else if (m.rel.followsMe) {
               // follower has waving-hand emoji
               relationship.emoji = "👋"
-              relationship.desc = "they are following you"
+              relationship.desc = i18n.relationshipTheyFollow
             } else {
               // no relationship has question mark emoji
               relationship.emoji = "❓"
-              relationship.desc = "nobody is following the other"
+              relationship.desc = i18n.relationshipNotFollowing
             }
             return div({ class: "mentions-container" },
               a({ class: "mentions-image",
