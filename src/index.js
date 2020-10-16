@@ -159,7 +159,9 @@ const preparePreview = async function(ctx) {
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
   // also: re.exec is stateful => regex is consumed and thus needs to be re-instantiated for each call
-  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s\.,!?]{1}|$)/g
+  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s\.,!?)\]~]{1}|$)/g
+  //                                  ^ sentence ^
+  //                                   delimiters
 
   // find @mentions using rex and use about.named() to get the info for them
   let m 
@@ -188,15 +190,13 @@ const preparePreview = async function(ctx) {
   })
 
   // replace the text with a markdown link if we have unambiguous match
-  const replacer = (match, name) => {
+  const replacer = (match, name, sign) => {
     let matches = mentions[name]
     if (matches && matches.length === 1) {
       // we found an exact match, don't send it to frontend as a suggestion
       delete mentions[name]
-      // format markdown link and put the correct sign back at the end,
-      // if the sign was a typographical delimiter
-      const sign = "., !?".includes(match.substr(-1)) ? match.substring(-1) : ''
-      return `[@${matches[0].name}](${matches[0].feed}) ${sign}`
+      // format markdown link and put the correct sign back at the end
+      return `[@${matches[0].name}](${matches[0].feed})${sign ? sign : ''}`
     }
     return match
   }
