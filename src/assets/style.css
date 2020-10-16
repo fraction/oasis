@@ -389,6 +389,53 @@ section {
     border-bottom: unset;
 }
 
+.mentions-container {
+  display: grid;
+  grid-template-columns: 4rem auto;
+  grid-column-gap: 1rem;
+  margin-bottom: var(--size-0);
+}
+
+.mentions-image {
+  grid-row: 1 / span 2;
+}
+.mentions-image > img {
+  border: var(--fg) solid 1px;
+}
+
+.mentions-container .emoji {
+  font-size: 1.5rem;
+}
+
+.mentions-name {
+  font-size: 1.25rem;
+  text-decoration: unset;
+}
+
+.mentions-name:hover {
+  text-decoration: underline;
+}
+
+.emo-rel {
+  display: inline-grid;
+  align-items: center;
+  grid-template-columns: 2rem auto;
+  grid-column-gap: 0.25rem;
+}
+
+.mentions-listing {
+  display: inline;
+  background-color: var(--bg);
+  padding: var(--size--1);
+  font-size: 92%;
+  border-radius: var(--common-radius);
+  border: var(--size--4) solid var(--bg-status);
+  user-select: all;
+  font-size: var(--size--1);
+  overflow-x: auto;
+  width: 24rem;
+}
+
 section > header {
   background: var(--bg);
   color: var(--fg-status);

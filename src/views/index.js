@@ -868,38 +868,45 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
   const prettyAgo = prettyMs(ago, { compact: true });
   lodash.set(msg, "value.meta.timestamp.received.since", prettyAgo);
   return div(
+    Object.keys(mentions).length === 0 ? "" :
     section({ class: "mention-suggestions"},
-      h2("@mentions we found"),
+      h2("Matching mentions"),
       Object.keys(mentions).map((name) => {
         let matches = mentions[name]
 
         return div(
-          p(`For '${name}' we found:`),
           matches.map(m => {
-            let relationship = ""
-            console.log(m)
+            let relationship = { emoji: "", desc: "" }
             if (m.rel.followsMe && m.rel.following) {
-              relationship = "mutuals"
+              // mutuals get the handshake emoji
+              relationship.emoji = "🤝"
+              relationship.desc = "you are mutuals"
             } else if (m.rel.following) {
-              relationship = "following"
+              // if we're following that's an eyes emoji
+              relationship.emoji = "👀"
+              relationship.desc = i18n.relationshipFollowing
             } else if (m.rel.followsMe) {
-              relationship = "follower"
+              // follower has waving-hand emoji
+              relationship.emoji = "👋"
+              relationship.desc = "they are following you"
             } else {
-              relationship = "??"
+              // no relationship has question mark emoji
+              relationship.emoji = "❓"
+              relationship.desc = "nobody is following the other"
             }
-            console.log(m.name, relationship)
-            return div(
-              span({ class: "author" },
-                a(
-                  { href: `/author/${encodeURIComponent(m.feed)}` },
-                  img({ src: `/image/64/${encodeURIComponent(m.img)}`}),
-                  m.name
-                )
+            return div({ class: "mentions-container" },
+              a({ class: "mentions-image",
+                href: `/author/${encodeURIComponent(m.feed)}` },
+                img({ src: `/image/64/${encodeURIComponent(m.img)}`})
               ),
-              span(" " + relationship),
-              // TODO: show m.rel following info
-              pre(`[@${m.name}](${m.feed})`),
-              div(JSON.stringify(m, null, 2))
+              a(
+                { class: "mentions-name", href: `/author/${encodeURIComponent(m.feed)}` },
+                m.name
+              ),
+              div({ class: "emo-rel" }, 
+                span({ class: "emoji", title: relationship.desc }, relationship.emoji),
+                span({ class: "mentions-listing" }, `[@${m.name}](${m.feed})`)
+              )
             )
           })
         )
