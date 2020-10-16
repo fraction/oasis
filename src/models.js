@@ -119,14 +119,79 @@ module.exports = ({ cooler, isPublic }) => {
   // gotcha two is: there is no way to express (where msg.author == msg.value.content.about) so we need to do it as a pull.filter()
   // one drawback: is, it gives us all the abouts from forever, not just the latest
   // TODO: an alternative would be using ssb.names if available and just loading this as a fallback
-  const all_the_names = {}
+
+  // Two lookup tables to remove old and duplicate names
+  const feeds_to_name = {}
+  let all_the_names = {}
+
   cooler.open().then((ssb) => {
+
+    let dirty = false // just stop mindless work (nothing changed) could be smarter thou
+    let running = false // don't run twice
+
+    // this flips the lookup around (form feed->name to name->feed)
+    // and also enhances the entries with image and relationship info
+    const transposeLookupTable = () => {
+      if (!dirty) return
+      if (running) return
+      running = true
+
+      // invalidate old cache
+      // regenerate a new thing because we don't know which entries will be gone
+      all_the_names = {}
+
+      const allFeeds = Object.keys(feeds_to_name)
+      console.log(`updating ${allFeeds.length} feeds`)
+      console.time('transpose-name-index')
+
+      const lookups = []
+      for (const feed of allFeeds) {
+        const e = feeds_to_name[feed]
+        let pair = { feed, name: e.name }
+        lookups.push(enhanceFeedInfo(pair))
+      }
+
+      // wait for all image and follow lookups
+      Promise.all(lookups).then(() => {
+        dirty = false // all updated
+        running = false
+        console.timeEnd('transpose-name-index')
+      }).catch((err) => {
+        running = false
+        console.warn('lookup transposition failed:', err)
+      })
+    }
+
+    // this function adds the avater image and relationship to the all_the_names lookup table
+    const enhanceFeedInfo = ({feed, name}) => {
+      return new Promise((resolve, reject) => {
+        getAbout({feedId: feed, key: "image"}).then((img) => {
+          if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
+            img = img.link
+          } else if (img === null) {
+            img = nullImage // default empty image if we dont have one
+          }
+
+          models.friend.getRelationship(feed).then((rel) => {
+            // append and update lookup table
+            let feeds_named = all_the_names[name] || []
+            feeds_named.push({feed, name, rel, img })
+            all_the_names[name.toLowerCase()] = feeds_named
+            resolve()
+
+          // TODO: append if these fail!?
+          }).catch(reject)
+        }).catch(reject)
+      })
+    }
+
+    console.time('about-name-warmup') // benchmark the time it takes to stream all existing abouts
     pull(
       ssb.query.read({
-        live: true,
+        live: true, // keep streaming new messages as they arrive
         query: [
           {
-            $filter: {
+            $filter: { // all messages of type:about that have a name field that is typeof string
               value: {
                 content: {
                   type: "about",
@@ -137,8 +202,15 @@ module.exports = ({ cooler, isPublic }) => {
           }
         ]
       }),
-      pull.filter((msg) => { // only pick messages about self
-        if (msg.sync && msg.sync === true) { return false } // live query blurp
+      pull.filter((msg) => {
+        // backlog of data is done, only new values from now on
+        if (msg.sync && msg.sync === true) {
+          console.timeEnd('about-name-warmup')
+          transposeLookupTable() // fire once now
+          setInterval(transposeLookupTable, 1000*60) // and then every 60 seconds
+          return false
+        }
+        // only pick messages about self
         return msg.value.author == msg.value.content.about
       }),
       pull.unique((msg) => { // ignore duplicates
@@ -146,23 +218,18 @@ module.exports = ({ cooler, isPublic }) => {
       }),
       pull.drain((msg) => {
         const name = msg.value.content.name
+        const ts = msg.value.timestamp
         const feed = msg.value.author
 
-        getAbout({feedId: feed, key: "image"}).then((img) => {
-          if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
-            img = img.link
-          }
-          models.friend.getRelationship(feed).then((rel) => {
-            let feeds_named = all_the_names[name] || []
-            feeds_named.push({
-              feed: feed,
-              name: name,
-              img: img,
-              rel: rel,
-            })
-            all_the_names[name.toLowerCase()] = feeds_named
-          }).catch(console.warn)
-        }).catch(console.warn)
+        const newEntry = { name, ts }
+        const currentEntry = feeds_to_name[feed]
+        if (typeof currentEntry == 'undefined') {
+          dirty = true
+          feeds_to_name[feed] = newEntry
+        } else if (currentEntry.ts < ts) { // overwrite entry if it's newer
+          dirty = true
+          feeds_to_name[feed] = newEntry
+        }
       })
     )
   });
@@ -180,6 +247,7 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
+      // TODO: could possibly use all_the_names
       return (
         (await getAbout({
           key: "name",
