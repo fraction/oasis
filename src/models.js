@@ -124,66 +124,66 @@ module.exports = ({ cooler, isPublic }) => {
   const feeds_to_name = {}
   let all_the_names = {}
 
-  cooler.open().then((ssb) => {
+  let dirty = false // just stop mindless work (nothing changed) could be smarter thou
+  let running = false // don't run twice
 
-    let dirty = false // just stop mindless work (nothing changed) could be smarter thou
-    let running = false // don't run twice
+  // transposeLookupTable flips the lookup around (form feed->name to name->feed)
+  // and also enhances the entries with image and relationship info
+  const transposeLookupTable = () => {
+    if (!dirty) return
+    if (running) return
+    running = true
 
-    // this flips the lookup around (form feed->name to name->feed)
-    // and also enhances the entries with image and relationship info
-    const transposeLookupTable = () => {
-      if (!dirty) return
-      if (running) return
-      running = true
+    // invalidate old cache
+    // regenerate a new thing because we don't know which entries will be gone
+    all_the_names = {}
 
-      // invalidate old cache
-      // regenerate a new thing because we don't know which entries will be gone
-      all_the_names = {}
+    const allFeeds = Object.keys(feeds_to_name)
+    console.log(`updating ${allFeeds.length} feeds`)
+    console.time('transpose-name-index')
 
-      const allFeeds = Object.keys(feeds_to_name)
-      console.log(`updating ${allFeeds.length} feeds`)
-      console.time('transpose-name-index')
-
-      const lookups = []
-      for (const feed of allFeeds) {
-        const e = feeds_to_name[feed]
-        let pair = { feed, name: e.name }
-        lookups.push(enhanceFeedInfo(pair))
-      }
-
-      // wait for all image and follow lookups
-      Promise.all(lookups).then(() => {
-        dirty = false // all updated
-        running = false
-        console.timeEnd('transpose-name-index')
-      }).catch((err) => {
-        running = false
-        console.warn('lookup transposition failed:', err)
-      })
+    const lookups = []
+    for (const feed of allFeeds) {
+      const e = feeds_to_name[feed]
+      let pair = { feed, name: e.name }
+      lookups.push(enhanceFeedInfo(pair))
     }
 
-    // this function adds the avater image and relationship to the all_the_names lookup table
-    const enhanceFeedInfo = ({feed, name}) => {
-      return new Promise((resolve, reject) => {
-        getAbout({feedId: feed, key: "image"}).then((img) => {
-          if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
-            img = img.link
-          } else if (img === null) {
-            img = nullImage // default empty image if we dont have one
-          }
+    // wait for all image and follow lookups
+    Promise.all(lookups).then(() => {
+      dirty = false // all updated
+      running = false
+      console.timeEnd('transpose-name-index')
+    }).catch((err) => {
+      running = false
+      console.warn('lookup transposition failed:', err)
+    })
+  }
 
-          models.friend.getRelationship(feed).then((rel) => {
-            // append and update lookup table
-            let feeds_named = all_the_names[name] || []
-            feeds_named.push({feed, name, rel, img })
-            all_the_names[name.toLowerCase()] = feeds_named
-            resolve()
+  // this function adds the avater image and relationship to the all_the_names lookup table
+  const enhanceFeedInfo = ({feed, name}) => {
+    return new Promise((resolve, reject) => {
+      getAbout({feedId: feed, key: "image"}).then((img) => {
+        if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
+          img = img.link
+        } else if (img === null) {
+          img = nullImage // default empty image if we dont have one
+        }
 
-          // TODO: append if these fail!?
-          }).catch(reject)
+        models.friend.getRelationship(feed).then((rel) => {
+          // append and update lookup table
+          let feeds_named = all_the_names[name] || []
+          feeds_named.push({feed, name, rel, img })
+          all_the_names[name.toLowerCase()] = feeds_named
+          resolve()
+
+        // TODO: append if these fail!?
         }).catch(reject)
-      })
-    }
+      }).catch(reject)
+    })
+  }
+
+  cooler.open().then((ssb) => {
 
     console.time('about-name-warmup') // benchmark the time it takes to stream all existing abouts
     pull(
@@ -367,7 +367,7 @@ module.exports = ({ cooler, isPublic }) => {
         following,
         blocking,
       };
-
+      transposeLookupTable() // invalidate @mentions table
       return ssb.publish(content);
     },
     follow: (feedId) =>
