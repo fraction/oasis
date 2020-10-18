@@ -213,9 +213,6 @@ module.exports = ({ cooler, isPublic }) => {
         // only pick messages about self
         return msg.value.author == msg.value.content.about
       }),
-      pull.unique((msg) => { // ignore duplicates
-        return msg.value.author+":"+msg.value.content.name
-      }),
       pull.drain((msg) => {
         const name = msg.value.content.name
         const ts = msg.value.timestamp
