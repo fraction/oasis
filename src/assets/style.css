@@ -113,7 +113,8 @@ a {
   color: var(--fg-light);
 }
 
-button, .file-button {
+button,
+.file-button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
@@ -123,19 +124,19 @@ button, .file-button {
 }
 
 .file-button {
-    width: 58px;
-    font-size: 8pt;
-    float: right;
-    margin: 0;
-    background: transparent;
-    color: var(--fg);
+  width: 58px;
+  font-size: 8pt;
+  float: right;
+  margin: 0;
+  background: transparent;
+  color: var(--fg);
 }
 
 #blob {
-    visibility: hidden;
-    height: 0;
-    padding: 0;
-    margin: 0;
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
 }
 
 section.post-preview {
@@ -174,9 +175,8 @@ section > footer > div > form > button {
 
 section > footer > div > a:hover,
 section > footer > div > form > button:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
-
 
 section > footer > div > form > button {
   display: inline-block;
@@ -360,7 +360,7 @@ nav > ul > li > a:hover {
 }
 
 nav > ul > li > a.current {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 section {
@@ -375,9 +375,9 @@ section {
 
 .indent section,
 .thread-container section {
-    margin: unset;
-    border-radius: unset;
-    border-bottom: var(--fg-alt) solid 1px;
+  margin: unset;
+  border-radius: unset;
+  border-bottom: var(--fg-alt) solid 1px;
 }
 
 .indent details[open] {
@@ -386,7 +386,7 @@ section {
 
 .indent section:last-of-type,
 .thread-container section:last-of-type {
-    border-bottom: unset;
+  border-bottom: unset;
 }
 
 .mentions-container {
@@ -453,7 +453,7 @@ section > header {
 }
 
 .author-action > a {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 section > header > div {
@@ -522,7 +522,7 @@ section > footer > div > * {
 }
 
 section > footer > div > form > button:first-of-type {
-    font-size: 100%;
+  font-size: 100%;
 }
 
 section > footer > div > form > button.liked {

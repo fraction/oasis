@@ -146,60 +146,58 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
 
 // enhance the users' input text by expanding @name to [@name](@feedPub.key)
 // and slurps up blob uploads and appends a markdown link for it to the text (see handleBlobUpload)
-const preparePreview = async function(ctx) {
+const preparePreview = async function (ctx) {
   let text = String(ctx.request.body.text);
 
   // find all the @mentions that are not inside a link already
   // stores name:[matches...]
   // TODO: sort by relationship
-  // TODO: filter duplicates 
-  const mentions = {}
-
+  const mentions = {};
 
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
   // also: re.exec is stateful => regex is consumed and thus needs to be re-instantiated for each call
-  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s\.,!?)~]{1}|$)/g
+  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s\.,!?)~]{1}|$)/g;
   //                                  ^ sentence ^
   //                                   delimiters
 
   // find @mentions using rex and use about.named() to get the info for them
-  let m 
+  let m;
   while ((m = rex.exec(text)) !== null) {
-    const [match, name] = m;
-    let matches = about.named(name)
+    const name = m[1];
+    let matches = about.named(name);
     for (const feed of matches) {
-      let found = mentions[name] || []
-      found.push(feed) 
-      mentions[name] = found
+      let found = mentions[name] || [];
+      found.push(feed);
+      mentions[name] = found;
     }
   }
 
   // filter the matches depending on the follow relation
-  Object.keys(mentions).forEach(name => {
-    let matches = mentions[name]
+  Object.keys(mentions).forEach((name) => {
+    let matches = mentions[name];
     // if we find mention matches for a name, and we follow them / they follow us,
     // then use those matches as suggestions
-    const meaningfulMatches = matches.filter(m => {
+    const meaningfulMatches = matches.filter((m) => {
       return (m.rel.followsMe || m.rel.following) && m.rel.blocking === false;
-    })
+    });
     if (meaningfulMatches.length > 0) {
-      matches = meaningfulMatches
+      matches = meaningfulMatches;
     }
-    mentions[name] = matches
-  })
+    mentions[name] = matches;
+  });
 
   // replace the text with a markdown link if we have unambiguous match
   const replacer = (match, name, sign) => {
-    let matches = mentions[name]
+    let matches = mentions[name];
     if (matches && matches.length === 1) {
       // we found an exact match, don't send it to frontend as a suggestion
-      delete mentions[name]
+      delete mentions[name];
       // format markdown link and put the correct sign back at the end
-      return `[@${matches[0].name}](${matches[0].feed})${sign ? sign : ''}`
+      return `[@${matches[0].name}](${matches[0].feed})${sign ? sign : ""}`;
     }
-    return match
-  }
+    return match;
+  };
   text = text.replace(rex, replacer);
 
   // add blob new blob to the end of the document.
@@ -211,10 +209,10 @@ const preparePreview = async function(ctx) {
     id: ssb.id,
     name: await about.name(ssb.id),
     image: await about.image(ssb.id),
-  }
+  };
 
-  return { authorMeta, text , mentions}
-}
+  return { authorMeta, text, mentions };
+};
 
 // handleBlobUpload ingests an uploaded form file.
 // it takes care of maximum blob size (5meg), exif stripping and mime detection.
@@ -242,15 +240,16 @@ const handleBlobUpload = async function (ctx) {
         // implementation borrowed from ssb-blob-files
         // (which operates on a slightly different data structure, sadly)
         // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
-        data = Buffer.from(removeExif(dataString), "binary")
+        data = Buffer.from(removeExif(dataString), "binary");
 
-        function removeExif (fileData) {
+        function removeExif(fileData) {
           const exifOrientation = exif.load(fileData);
-          const orientation = exifOrientation['0th'][exif.ImageIFD.Orientation];
-          const clean = exif.remove(fileData); 
-          if (orientation !== undefined) { // preserve img orientation
-            const exifData = { '0th': {} }
-            exifData['0th'][exif.ImageIFD.Orientation] = orientation;
+          const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
+          const clean = exif.remove(fileData);
+          if (orientation !== undefined) {
+            // preserve img orientation
+            const exifData = { "0th": {} };
+            exifData["0th"][exif.ImageIFD.Orientation] = orientation;
             const exifStr = exif.dump(exifData);
             return exif.insert(exifStr, clean);
           } else {
@@ -258,8 +257,10 @@ const handleBlobUpload = async function (ctx) {
           }
         }
       } catch (e) {
-        console.warn(e)
-        console.warn("blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload");
+        console.warn(e);
+        console.warn(
+          "blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload"
+        );
       }
 
       const addBlob = new Promise((resolve, reject) => {
@@ -267,43 +268,42 @@ const handleBlobUpload = async function (ctx) {
           pull.values([data]),
           ssb.blobs.add((err, hashedBlobRef) => {
             if (err) return reject(err);
-            console.log("added", hashedBlobRef)
-            resolve(hashedBlobRef)
+            resolve(hashedBlobRef);
           })
-        )
-      })
+        );
+      });
       blob = {
         id: await addBlob,
-        name: blobUpload.name
-      }
-      const FileType = require('file-type');
+        name: blobUpload.name,
+      };
+      const FileType = require("file-type");
       try {
-        let ftype = await FileType.fromBuffer(data)
-        blob.mime = ftype.mime
+        let ftype = await FileType.fromBuffer(data);
+        blob.mime = ftype.mime;
       } catch (error) {
-        console.warn(error)
-        blob.mime = "application/octet-stream"
+        console.warn(error);
+        blob.mime = "application/octet-stream";
       }
     }
   }
   // append uploaded blob as markdown to the end of the input text
   if (typeof blob !== "boolean") {
     if (blob.mime.startsWith("image/")) {
-      text += `\n![${blob.name}](${blob.id})`
+      text += `\n![${blob.name}](${blob.id})`;
     } else if (blob.mime.startsWith("audio/")) {
-      text += `\n![audio:${blob.name}](${blob.id})`
+      text += `\n![audio:${blob.name}](${blob.id})`;
     } else if (blob.mime.startsWith("video/")) {
-      text += `\n![video:${blob.name}](${blob.id})`
+      text += `\n![video:${blob.name}](${blob.id})`;
     } else {
-      text += `\n[${blob.name}](${blob.id})`
+      text += `\n[${blob.name}](${blob.id})`;
     }
   }
-  return text
-}
+  return text;
+};
 
 const resolveCommentComponents = async function (ctx) {
   const { message } = ctx.params;
-  const parentId = message
+  const parentId = message;
   const parentMessage = await post.get(parentId);
   const myFeedId = await meta.myFeedId();
 
@@ -316,22 +316,21 @@ const resolveCommentComponents = async function (ctx) {
 
   const rootMessage = hasRoot
     ? hasFork
-    ? parentMessage
-    : await post.get(parentMessage.value.content.root)
+      ? parentMessage
+      : await post.get(parentMessage.value.content.root)
     : parentMessage;
 
   const messages = await post.topicComments(rootMessage.key);
 
   messages.push(rootMessage);
-  let contentWarning
+  let contentWarning;
   if (ctx.request.body) {
     const rawContentWarning = String(ctx.request.body.contentWarning).trim();
     contentWarning =
       rawContentWarning.length > 0 ? rawContentWarning : undefined;
   }
-  return { messages, myFeedId, parentMessage, contentWarning }
-}
-
+  return { messages, myFeedId, parentMessage, contentWarning };
+};
 
 const {
   authorView,
@@ -779,24 +778,37 @@ router
     ctx.body = await publishView();
   })
   .get("/comment/:message", async (ctx) => {
-    const { messages, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
-    ctx.body = await commentView({ messages, myFeedId, parentMessage })
+    const {
+      messages,
+      myFeedId,
+      parentMessage,
+    } = await resolveCommentComponents(ctx);
+    ctx.body = await commentView({ messages, myFeedId, parentMessage });
   })
-  .post("/subtopic/preview/:message", koaBody({ multipart: true }), async (ctx) => {
-    const { message } = ctx.params;
-    const rootMessage = await post.get(message);
-    const myFeedId = await meta.myFeedId();
+  .post(
+    "/subtopic/preview/:message",
+    koaBody({ multipart: true }),
+    async (ctx) => {
+      const { message } = ctx.params;
+      const rootMessage = await post.get(message);
+      const myFeedId = await meta.myFeedId();
 
-    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
-    const contentWarning =
-      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+      const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+      const contentWarning =
+        rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
-    const messages = [rootMessage];
+      const messages = [rootMessage];
 
-    const previewData = await preparePreview(ctx);
+      const previewData = await preparePreview(ctx);
 
-    ctx.body = await previewSubtopicView({ messages, myFeedId, previewData, contentWarning });
-  })
+      ctx.body = await previewSubtopicView({
+        messages,
+        myFeedId,
+        previewData,
+        contentWarning,
+      });
+    }
+  )
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
@@ -818,13 +830,28 @@ router
     ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
-  .post("/comment/preview/:message", koaBody({ multipart: true }), async (ctx) => {
-    const { messages, contentWarning, myFeedId, parentMessage } = await resolveCommentComponents(ctx)
-    
-    const previewData = await preparePreview(ctx);
+  .post(
+    "/comment/preview/:message",
+    koaBody({ multipart: true }),
+    async (ctx) => {
+      const {
+        messages,
+        contentWarning,
+        myFeedId,
+        parentMessage,
+      } = await resolveCommentComponents(ctx);
 
-    ctx.body = await previewCommentView({ messages, myFeedId, contentWarning, parentMessage, previewData });
-  })
+      const previewData = await preparePreview(ctx);
+
+      ctx.body = await previewCommentView({
+        messages,
+        myFeedId,
+        contentWarning,
+        parentMessage,
+        previewData,
+      });
+    }
+  )
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
@@ -854,7 +881,7 @@ router
       rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
     const previewData = await preparePreview(ctx);
-    ctx.body = await previewView({previewData, contentWarning});
+    ctx.body = await previewView({ previewData, contentWarning });
   })
   .post("/publish/", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);

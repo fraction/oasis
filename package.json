@@ -16,7 +16,7 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "common-good fix",
     "start": "node src/index.js",
-    "test": "tap --timeout 240 && common-good check --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
+    "test": "tap --timeout 240 && common-good test --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
     "preversion": "npm test",
     "version": "mv docs/CHANGELOG.md ./ && changelog-version && mv CHANGELOG.md docs/ && git add docs/CHANGELOG.md"
   },

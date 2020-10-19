@@ -74,8 +74,15 @@ const nbsp = "\xa0";
  * @param {{href: string, emoji: string, text: string }} input
  */
 const template = (titlePrefix, ...elements) => {
-  const navLink = ({ href, emoji, text }, prefix) =>
-      li(a({ href, class: titlePrefix === text ? "current" : "" }, span({ class: "emoji" }, emoji), nbsp, text));
+  const navLink = ({ href, emoji, text }) =>
+    li(
+      a(
+        { href, class: titlePrefix === text ? "current" : "" },
+        span({ class: "emoji" }, emoji),
+        nbsp,
+        text
+      )
+    );
 
   const nodes = html(
     { lang: "en" },
@@ -201,9 +208,9 @@ const thread = (messages) => {
 
       const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
       const nextSnippet = postSnippet(
-        lodash.has(nextMsg, "value.content.contentWarning") ? 
-        lodash.get(nextMsg, "value.content.contentWarning") :
-        lodash.get(nextMsg, "value.content.text")
+        lodash.has(nextMsg, "value.content.contentWarning")
+          ? lodash.get(nextMsg, "value.content.contentWarning")
+          : lodash.get(nextMsg, "value.content.text")
       );
 
       msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
@@ -222,7 +229,10 @@ const thread = (messages) => {
   }
 
   const htmlStrings = lodash.flatten(msgList);
-  return div({}, { class: "thread-container", innerHTML: htmlStrings.join("") });
+  return div(
+    {},
+    { class: "thread-container", innerHTML: htmlStrings.join("") }
+  );
 };
 
 const postSnippet = (text) => {
@@ -656,14 +666,34 @@ exports.authorView = ({
   return template(i18n.profile, prefix, items);
 };
 
-exports.previewCommentView = async ({ previewData, messages, myFeedId, parentMessage, contentWarning }) => {
+exports.previewCommentView = async ({
+  previewData,
+  messages,
+  myFeedId,
+  parentMessage,
+  contentWarning,
+}) => {
   const publishAction = `/comment/${encodeURIComponent(messages[0].key)}`;
 
-  const preview = generatePreview({ previewData, contentWarning, action: publishAction })
-  return exports.commentView({ messages, myFeedId, parentMessage }, preview, previewData.text, contentWarning)
+  const preview = generatePreview({
+    previewData,
+    contentWarning,
+    action: publishAction,
+  });
+  return exports.commentView(
+    { messages, myFeedId, parentMessage },
+    preview,
+    previewData.text,
+    contentWarning
+  );
 };
 
-exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, text, contentWarning) => {
+exports.commentView = async (
+  { messages, myFeedId, parentMessage },
+  preview,
+  text,
+  contentWarning
+) => {
   let markdownMention;
 
   const messageElements = await Promise.all(
@@ -692,10 +722,8 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
 
   return template(
     i18n.commentTitle({ authorName }),
-    div({ class: "thread-container" }, 
-      messageElements,
-    ),
-    preview !== undefined ? preview : '',
+    div({ class: "thread-container" }, messageElements),
+    preview !== undefined ? preview : "",
     p(
       ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
       ...maybeSubtopicText
@@ -708,8 +736,7 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
           required: true,
           name: "text",
         },
-        text ? text : 
-        isPrivate ? null : markdownMention
+        text ? text : isPrivate ? null : markdownMention
       ),
       label(
         i18n.contentWarningLabel,
@@ -717,12 +744,12 @@ exports.commentView = async ({ messages, myFeedId, parentMessage }, preview, tex
           name: "contentWarning",
           type: "text",
           class: "contentWarning",
-          value: contentWarning ? contentWarning : '',
+          value: contentWarning ? contentWarning : "",
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button({ type: "submit" }, i18n.preview), 
-      label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
+      button({ type: "submit" }, i18n.preview),
+      label({ class: "file-button", for: "blob" }, i18n.attachFiles),
       input({ type: "file", id: "blob", name: "blob" })
     )
   );
@@ -805,14 +832,14 @@ exports.publishView = (preview, text, contentWarning) => {
     section(
       h1(i18n.publish),
       form(
-        { 
+        {
           action: "/publish/preview",
           method: "post",
           enctype: "multipart/form-data",
         },
         label(
           i18n.publishLabel({ markdownUrl, linkTarget: "_blank" }),
-          textarea({ required: true, name: "text" }, text ? text : '')
+          textarea({ required: true, name: "text" }, text ? text : "")
         ),
         label(
           i18n.contentWarningLabel,
@@ -820,24 +847,24 @@ exports.publishView = (preview, text, contentWarning) => {
             name: "contentWarning",
             type: "text",
             class: "contentWarning",
-            value: contentWarning ? contentWarning : '',
+            value: contentWarning ? contentWarning : "",
             placeholder: i18n.contentWarningPlaceholder,
           })
         ),
         button({ type: "submit" }, i18n.preview),
-        label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
+        label({ class: "file-button", for: "blob" }, i18n.attachFiles),
         input({ type: "file", id: "blob", name: "blob" })
       )
     ),
-    preview ? preview : '',
+    preview ? preview : "",
     p(i18n.publishCustomInfo({ href: "/publish/custom" }))
   );
 };
 
 const generatePreview = ({ previewData, contentWarning, action }) => {
-  const { authorMeta, text, mentions } = previewData
+  const { authorMeta, text, mentions } = previewData;
 
-  // craft message that looks like it came from the db 
+  // craft message that looks like it came from the db
   // cb: this kinda fragile imo? this is for getting a proper post styling ya?
   const msg = {
     key: "%non-existant.preview",
@@ -845,8 +872,8 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
       author: authorMeta.id,
       // sequence: -1,
       content: {
-        type:"post",
-        text: text
+        type: "post",
+        text: text,
       },
       timestamp: Date.now(),
       meta: {
@@ -855,65 +882,82 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
         author: {
           name: authorMeta.name,
           avatar: {
-            url: `/image/64/${encodeURIComponent(authorMeta.image)}`
-          }
+            url: `/image/64/${encodeURIComponent(authorMeta.image)}`,
+          },
         },
-      }
-    }
-  }
-  if (contentWarning) msg.value.content.contentWarning = contentWarning
+      },
+    },
+  };
+  if (contentWarning) msg.value.content.contentWarning = contentWarning;
   const ts = new Date(msg.value.timestamp);
   lodash.set(msg, "value.meta.timestamp.received.iso8601", ts.toISOString());
   const ago = Date.now() - Number(ts);
   const prettyAgo = prettyMs(ago, { compact: true });
   lodash.set(msg, "value.meta.timestamp.received.since", prettyAgo);
   return div(
-    Object.keys(mentions).length === 0 ? "" :
-    section({ class: "mention-suggestions"},
-      h2(i18n.mentionsMatching),
-      Object.keys(mentions).map((name) => {
-        let matches = mentions[name]
+    Object.keys(mentions).length === 0
+      ? ""
+      : section(
+          { class: "mention-suggestions" },
+          h2(i18n.mentionsMatching),
+          Object.keys(mentions).map((name) => {
+            let matches = mentions[name];
 
-        return div(
-          matches.map(m => {
-            let relationship = { emoji: "", desc: "" }
-            if (m.rel.followsMe && m.rel.following) {
-              // mutuals get the handshake emoji
-              relationship.emoji = "🤝"
-              relationship.desc = i18n.relationshipMutuals
-            } else if (m.rel.following) {
-              // if we're following that's an eyes emoji
-              relationship.emoji = "👀"
-              relationship.desc = i18n.relationshipFollowing
-            } else if (m.rel.followsMe) {
-              // follower has waving-hand emoji
-              relationship.emoji = "👋"
-              relationship.desc = i18n.relationshipTheyFollow
-            } else {
-              // no relationship has question mark emoji
-              relationship.emoji = "❓"
-              relationship.desc = i18n.relationshipNotFollowing
-            }
-            return div({ class: "mentions-container" },
-              a({ class: "mentions-image",
-                href: `/author/${encodeURIComponent(m.feed)}` },
-                img({ src: `/image/64/${encodeURIComponent(m.img)}`})
-              ),
-              a(
-                { class: "mentions-name", href: `/author/${encodeURIComponent(m.feed)}` },
-                m.name
-              ),
-              div({ class: "emo-rel" }, 
-                span({ class: "emoji", title: relationship.desc }, relationship.emoji),
-                span({ class: "mentions-listing" }, `[@${m.name}](${m.feed})`)
-              )
-            )
+            return div(
+              matches.map((m) => {
+                let relationship = { emoji: "", desc: "" };
+                if (m.rel.followsMe && m.rel.following) {
+                  // mutuals get the handshake emoji
+                  relationship.emoji = "🤝";
+                  relationship.desc = i18n.relationshipMutuals;
+                } else if (m.rel.following) {
+                  // if we're following that's an eyes emoji
+                  relationship.emoji = "👀";
+                  relationship.desc = i18n.relationshipFollowing;
+                } else if (m.rel.followsMe) {
+                  // follower has waving-hand emoji
+                  relationship.emoji = "👋";
+                  relationship.desc = i18n.relationshipTheyFollow;
+                } else {
+                  // no relationship has question mark emoji
+                  relationship.emoji = "❓";
+                  relationship.desc = i18n.relationshipNotFollowing;
+                }
+                return div(
+                  { class: "mentions-container" },
+                  a(
+                    {
+                      class: "mentions-image",
+                      href: `/author/${encodeURIComponent(m.feed)}`,
+                    },
+                    img({ src: `/image/64/${encodeURIComponent(m.img)}` })
+                  ),
+                  a(
+                    {
+                      class: "mentions-name",
+                      href: `/author/${encodeURIComponent(m.feed)}`,
+                    },
+                    m.name
+                  ),
+                  div(
+                    { class: "emo-rel" },
+                    span(
+                      { class: "emoji", title: relationship.desc },
+                      relationship.emoji
+                    ),
+                    span(
+                      { class: "mentions-listing" },
+                      `[@${m.name}](${m.feed})`
+                    )
+                  )
+                );
+              })
+            );
           })
-        )
-      })
-    ),
-    section({ class: "post-preview" },
-      post({msg}),
+        ),
+    section(
+      { class: "post-preview" },
+      post({ msg }),
 
       // doesn't need blobs, preview adds them to the text
       form(
@@ -922,24 +966,28 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
           name: "contentWarning",
           type: "hidden",
           value: contentWarning,
-        }),  
-        input({
-            name: "text",
-            type: "hidden",
-            value: text,
         }),
-        button({ type: "submit" }, i18n.publish),
-      ),
+        input({
+          name: "text",
+          type: "hidden",
+          value: text,
+        }),
+        button({ type: "submit" }, i18n.publish)
+      )
     )
-    )
-}
+  );
+};
 
 exports.previewView = ({ previewData, contentWarning }) => {
   const publishAction = "/publish";
 
-  const preview = generatePreview({ previewData, contentWarning, action: publishAction })
-  return exports.publishView(preview, previewData.text, contentWarning)
-}
+  const preview = generatePreview({
+    previewData,
+    contentWarning,
+    action: publishAction,
+  });
+  return exports.publishView(preview, previewData.text, contentWarning);
+};
 
 /**
  * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
@@ -1173,14 +1221,33 @@ exports.threadsView = ({ messages }) => {
   });
 };
 
-exports.previewSubtopicView = async ({ previewData, messages, myFeedId, contentWarning }) => {
+exports.previewSubtopicView = async ({
+  previewData,
+  messages,
+  myFeedId,
+  contentWarning,
+}) => {
   const publishAction = `/subtopic/${encodeURIComponent(messages[0].key)}`;
 
-  const preview = generatePreview({ previewData, contentWarning, action: publishAction })
-  return exports.subtopicView({ messages, myFeedId }, preview, previewData.text, contentWarning)
+  const preview = generatePreview({
+    previewData,
+    contentWarning,
+    action: publishAction,
+  });
+  return exports.subtopicView(
+    { messages, myFeedId },
+    preview,
+    previewData.text,
+    contentWarning
+  );
 };
 
-exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarning) => {
+exports.subtopicView = async (
+  { messages, myFeedId },
+  preview,
+  text,
+  contentWarning
+) => {
   const subtopicForm = `/subtopic/preview/${encodeURIComponent(
     messages[messages.length - 1].key
   )}`;
@@ -1206,10 +1273,8 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
 
   return template(
     i18n.subtopicTitle({ authorName }),
-    div({ class: "thread-container" }, 
-      messageElements,
-    ),
-    preview !== undefined ? preview : '',
+    div({ class: "thread-container" }, messageElements),
+    preview !== undefined ? preview : "",
     p(i18n.subtopicLabel({ markdownUrl })),
     form(
       { action: subtopicForm, method: "post", enctype: "multipart/form-data" },
@@ -1227,12 +1292,12 @@ exports.subtopicView = async ({ messages, myFeedId }, preview, text, contentWarn
           name: "contentWarning",
           type: "text",
           class: "contentWarning",
-          value: contentWarning ? contentWarning : '',
+          value: contentWarning ? contentWarning : "",
           placeholder: i18n.contentWarningPlaceholder,
         })
       ),
-      button({ type: "submit" }, i18n.preview), 
-      label({ class: "file-button", for: "blob"}, i18n.attachFiles), 
+      button({ type: "submit" }, i18n.preview),
+      label({ class: "file-button", for: "blob" }, i18n.attachFiles),
       input({ type: "file", id: "blob", name: "blob" })
     )
   );

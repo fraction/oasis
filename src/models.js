@@ -121,114 +121,127 @@ module.exports = ({ cooler, isPublic }) => {
   // TODO: an alternative would be using ssb.names if available and just loading this as a fallback
 
   // Two lookup tables to remove old and duplicate names
-  const feeds_to_name = {}
-  let all_the_names = {}
+  const feeds_to_name = {};
+  let all_the_names = {};
 
-  let dirty = false // just stop mindless work (nothing changed) could be smarter thou
-  let running = false // don't run twice
+  let dirty = false; // just stop mindless work (nothing changed) could be smarter thou
+  let running = false; // don't run twice
 
   // transposeLookupTable flips the lookup around (form feed->name to name->feed)
   // and also enhances the entries with image and relationship info
   const transposeLookupTable = () => {
-    if (!dirty) return
-    if (running) return
-    running = true
+    if (!dirty) return;
+    if (running) return;
+    running = true;
 
     // invalidate old cache
     // regenerate a new thing because we don't know which entries will be gone
-    all_the_names = {}
+    all_the_names = {};
 
-    const allFeeds = Object.keys(feeds_to_name)
-    console.log(`updating ${allFeeds.length} feeds`)
-    console.time('transpose-name-index')
+    const allFeeds = Object.keys(feeds_to_name);
+    console.log(`updating ${allFeeds.length} feeds`);
+    console.time("transpose-name-index");
 
-    const lookups = []
+    const lookups = [];
     for (const feed of allFeeds) {
-      const e = feeds_to_name[feed]
-      let pair = { feed, name: e.name }
-      lookups.push(enhanceFeedInfo(pair))
+      const e = feeds_to_name[feed];
+      let pair = { feed, name: e.name };
+      lookups.push(enhanceFeedInfo(pair));
     }
 
     // wait for all image and follow lookups
-    Promise.all(lookups).then(() => {
-      dirty = false // all updated
-      running = false
-      console.timeEnd('transpose-name-index')
-    }).catch((err) => {
-      running = false
-      console.warn('lookup transposition failed:', err)
-    })
-  }
+    Promise.all(lookups)
+      .then(() => {
+        dirty = false; // all updated
+        running = false;
+        console.timeEnd("transpose-name-index");
+      })
+      .catch((err) => {
+        running = false;
+        console.warn("lookup transposition failed:", err);
+      });
+  };
 
   // this function adds the avater image and relationship to the all_the_names lookup table
-  const enhanceFeedInfo = ({feed, name}) => {
+  const enhanceFeedInfo = ({ feed, name }) => {
     return new Promise((resolve, reject) => {
-      getAbout({feedId: feed, key: "image"}).then((img) => {
-        if (img !== null && typeof img !== "string" && typeof img === "object" && typeof img.link === "string") {
-          img = img.link
-        } else if (img === null) {
-          img = nullImage // default empty image if we dont have one
-        }
+      getAbout({ feedId: feed, key: "image" })
+        .then((img) => {
+          if (
+            img !== null &&
+            typeof img !== "string" &&
+            typeof img === "object" &&
+            typeof img.link === "string"
+          ) {
+            img = img.link;
+          } else if (img === null) {
+            img = nullImage; // default empty image if we dont have one
+          }
 
-        models.friend.getRelationship(feed).then((rel) => {
-          // append and update lookup table
-          let feeds_named = all_the_names[name] || []
-          feeds_named.push({feed, name, rel, img })
-          all_the_names[name.toLowerCase()] = feeds_named
-          resolve()
+          models.friend
+            .getRelationship(feed)
+            .then((rel) => {
+              // append and update lookup table
+              let feeds_named = all_the_names[name] || [];
+              feeds_named.push({ feed, name, rel, img });
+              all_the_names[name.toLowerCase()] = feeds_named;
+              resolve();
 
-        // TODO: append if these fail!?
-        }).catch(reject)
-      }).catch(reject)
-    })
-  }
+              // TODO: append if these fail!?
+            })
+            .catch(reject);
+        })
+        .catch(reject);
+    });
+  };
 
   cooler.open().then((ssb) => {
-
-    console.time('about-name-warmup') // benchmark the time it takes to stream all existing abouts
+    console.time("about-name-warmup"); // benchmark the time it takes to stream all existing abouts
     pull(
       ssb.query.read({
         live: true, // keep streaming new messages as they arrive
         query: [
           {
-            $filter: { // all messages of type:about that have a name field that is typeof string
+            $filter: {
+              // all messages of type:about that have a name field that is typeof string
               value: {
                 content: {
                   type: "about",
-                  name: { $is: "string" }
+                  name: { $is: "string" },
                 },
               },
-            }
-          }
-        ]
+            },
+          },
+        ],
       }),
       pull.filter((msg) => {
         // backlog of data is done, only new values from now on
         if (msg.sync && msg.sync === true) {
-          console.timeEnd('about-name-warmup')
-          transposeLookupTable() // fire once now
-          setInterval(transposeLookupTable, 1000*60) // and then every 60 seconds
-          return false
+          console.timeEnd("about-name-warmup");
+          transposeLookupTable(); // fire once now
+          setInterval(transposeLookupTable, 1000 * 60); // and then every 60 seconds
+          return false;
         }
         // only pick messages about self
-        return msg.value.author == msg.value.content.about
+        return msg.value.author == msg.value.content.about;
       }),
       pull.drain((msg) => {
-        const name = msg.value.content.name
-        const ts = msg.value.timestamp
-        const feed = msg.value.author
+        const name = msg.value.content.name;
+        const ts = msg.value.timestamp;
+        const feed = msg.value.author;
 
-        const newEntry = { name, ts }
-        const currentEntry = feeds_to_name[feed]
-        if (typeof currentEntry == 'undefined') {
-          dirty = true
-          feeds_to_name[feed] = newEntry
-        } else if (currentEntry.ts < ts) { // overwrite entry if it's newer
-          dirty = true
-          feeds_to_name[feed] = newEntry
+        const newEntry = { name, ts };
+        const currentEntry = feeds_to_name[feed];
+        if (typeof currentEntry == "undefined") {
+          dirty = true;
+          feeds_to_name[feed] = newEntry;
+        } else if (currentEntry.ts < ts) {
+          // overwrite entry if it's newer
+          dirty = true;
+          feeds_to_name[feed] = newEntry;
         }
       })
-    )
+    );
   });
 
   models.about = {
@@ -253,14 +266,14 @@ module.exports = ({ cooler, isPublic }) => {
       ); // First 8 chars of public key
     },
     named: (name) => {
-      let found = []
-      let matched = Object.keys(all_the_names).filter(n => {
-        return n.startsWith(name.toLowerCase())
-      })
+      let found = [];
+      let matched = Object.keys(all_the_names).filter((n) => {
+        return n.startsWith(name.toLowerCase());
+      });
       for (const m of matched) {
-        found = found.concat(all_the_names[m])
+        found = found.concat(all_the_names[m]);
       }
-      return found
+      return found;
     },
     image: async (feedId) => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
@@ -321,13 +334,15 @@ module.exports = ({ cooler, isPublic }) => {
     },
     want: async ({ blobId }) => {
       debug("want blob: %s", blobId);
-      cooler.open().then(ssb => {
-
-        // This does not wait for the blob.
-        ssb.blobs.want(blobId);
-      }).catch(err => {
-        console.warn(`failed to want blob:${blobId}: ${err}`)
-      })
+      cooler
+        .open()
+        .then((ssb) => {
+          // This does not wait for the blob.
+          ssb.blobs.want(blobId);
+        })
+        .catch((err) => {
+          console.warn(`failed to want blob:${blobId}: ${err}`);
+        });
     },
     search: async ({ query }) => {
       debug("blob search: %s", query);
@@ -367,7 +382,7 @@ module.exports = ({ cooler, isPublic }) => {
         following,
         blocking,
       };
-      transposeLookupTable() // invalidate @mentions table
+      transposeLookupTable(); // invalidate @mentions table
       return ssb.publish(content);
     },
     follow: (feedId) =>
