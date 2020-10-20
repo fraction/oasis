@@ -157,7 +157,7 @@ const preparePreview = async function (ctx) {
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
   // also: re.exec is stateful => regex is consumed and thus needs to be re-instantiated for each call
-  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s\.,!?)~]{1}|$)/g;
+  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
   //                                  ^ sentence ^
   //                                   delimiters
 
@@ -242,7 +242,7 @@ const handleBlobUpload = async function (ctx) {
         // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
         data = Buffer.from(removeExif(dataString), "binary");
 
-        function removeExif(fileData) {
+        const removeExif = (fileData) => {
           const exifOrientation = exif.load(fileData);
           const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
           const clean = exif.remove(fileData);
@@ -255,7 +255,7 @@ const handleBlobUpload = async function (ctx) {
           } else {
             return clean;
           }
-        }
+        };
       } catch (e) {
         // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
       }
