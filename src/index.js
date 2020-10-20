@@ -257,10 +257,7 @@ const handleBlobUpload = async function (ctx) {
           }
         }
       } catch (e) {
-        console.warn(e);
-        console.warn(
-          "blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload"
-        );
+        // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
       }
 
       const addBlob = new Promise((resolve, reject) => {
