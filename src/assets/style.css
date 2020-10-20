@@ -138,26 +138,12 @@ button,
   margin: 0;
 }
 
-section.post-preview {
-  padding-top: 0;
-  background: var(--bg-selection);
-  border: var(--fg-alt) solid 1px;
-}
-
-section.post-preview > section > footer {
-  display: none;
-}
-
 section header a {
   display: flex;
   color: var(--fg-status);
   text-decoration: none;
   margin-right: var(--size--2);
   margin-left: var(--size--2);
-}
-
-section header a:hover {
-  text-decoration: underline;
 }
 
 /* For use with elements specific for
@@ -170,11 +156,6 @@ section header a:hover {
 section > footer > div > a,
 section > footer > div > form > button {
   color: var(--fg-status);
-}
-
-section > footer > div > a:hover,
-section > footer > div > form > button:hover {
-  text-decoration: underline;
 }
 
 section > footer > div > form > button {
@@ -354,6 +335,14 @@ nav > ul > li > a {
   text-decoration: none;
 }
 
+.author-action > a {
+  text-decoration: underline;
+}
+
+section header a:hover {
+  text-decoration: underline;
+}
+
 nav > ul > li > a:hover {
   text-decoration: underline;
 }
@@ -395,46 +384,6 @@ section {
   margin-bottom: var(--size-0);
 }
 
-.mentions-image {
-  grid-row: 1 / span 2;
-}
-.mentions-image > img {
-  border: var(--fg) solid 1px;
-}
-
-.mentions-container .emoji {
-  font-size: 1.5rem;
-}
-
-.mentions-name {
-  font-size: 1.25rem;
-  text-decoration: unset;
-}
-
-.mentions-name:hover {
-  text-decoration: underline;
-}
-
-.emo-rel {
-  display: inline-grid;
-  align-items: center;
-  grid-template-columns: 2rem auto;
-  grid-column-gap: 0.25rem;
-}
-
-.mentions-listing {
-  display: inline;
-  background-color: var(--bg);
-  padding: var(--size--1);
-  font-size: 92%;
-  border-radius: var(--common-radius);
-  border: var(--size--4) solid var(--bg-status);
-  user-select: all;
-  font-size: var(--size--1);
-  overflow-x: auto;
-  width: 24rem;
-}
-
 section > header {
   background: var(--bg);
   color: var(--fg-status);
@@ -445,14 +394,6 @@ section > header {
   position: sticky;
   top: 0;
   z-index: 1;
-}
-
-.author-action {
-  flex-grow: 1;
-}
-
-.author-action > a {
-  text-decoration: underline;
 }
 
 section > header > div {
@@ -470,11 +411,6 @@ section header a > .avatar {
 
 section header span {
   display: inline-flex;
-}
-section header .author > a:first-child {
-  margin-left: 0;
-  color: var(--fg-light);
-  font-weight: bold;
 }
 
 /*
@@ -679,6 +615,69 @@ hr {
 .indent {
   padding-left: 1rem;
   border-left: var(--size--2) solid var(--bg-selection);
+}
+
+.mentions-image {
+  grid-row: 1 / span 2;
+}
+.mentions-image > img {
+  border: var(--fg) solid 1px;
+}
+.mentions-container .emoji {
+  font-size: 1.5rem;
+}
+
+.mentions-name {
+  font-size: 1.25rem;
+  text-decoration: unset;
+}
+
+.mentions-name:hover {
+  text-decoration: underline;
+}
+
+.emo-rel {
+  display: inline-grid;
+  align-items: center;
+  grid-template-columns: 2rem auto;
+  grid-column-gap: 0.25rem;
+}
+
+.mentions-listing {
+  display: inline;
+  background-color: var(--bg);
+  padding: var(--size--1);
+  border-radius: var(--common-radius);
+  border: var(--size--4) solid var(--bg-status);
+  user-select: all;
+  font-size: var(--size--1);
+  overflow-x: auto;
+  width: 24rem;
+}
+
+section.post-preview {
+  padding-top: 0;
+  background: var(--bg-selection);
+  border: var(--fg-alt) solid 1px;
+}
+
+section.post-preview > section > footer {
+  display: none;
+}
+
+section > footer > div > a:hover,
+section > footer > div > form > button:hover {
+  text-decoration: underline;
+}
+
+.author-action {
+  flex-grow: 1;
+}
+
+section header .author > a:first-child {
+  margin-left: 0;
+  color: var(--fg-light);
+  font-weight: bold;
 }
 
 .theme-preview {
