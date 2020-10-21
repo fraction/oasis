@@ -113,11 +113,11 @@ module.exports = ({ cooler, isPublic }) => {
 
   // build a @mentions lookup cache
   // ==============================
-  // one gotcha with ssb-query is: if we add `name: "myname"` to that query below,
+  // one gotcha with ssb-query is: if we add `name: "my name"` to that query below,
   // it can trigger a full-scan of the database instead of better query planing
   // also doing multiple of those can be very slow (5 to 30s on my machine).
   // gotcha two is: there is no way to express (where msg.author == msg.value.content.about) so we need to do it as a pull.filter()
-  // one drawback: is, it gives us all the abouts from forever, not just the latest
+  // one drawback: is, it gives us all the about messages from forever, not just the latest
   // TODO: an alternative would be using ssb.names if available and just loading this as a fallback
 
   // Two lookup tables to remove old and duplicate names
@@ -162,7 +162,7 @@ module.exports = ({ cooler, isPublic }) => {
       });
   };
 
-  // this function adds the avater image and relationship to the all_the_names lookup table
+  // this function adds the avatar image and relationship to the all_the_names lookup table
   const enhanceFeedInfo = ({ feed, name }) => {
     return new Promise((resolve, reject) => {
       getAbout({ feedId: feed, key: "image" })
@@ -175,7 +175,7 @@ module.exports = ({ cooler, isPublic }) => {
           ) {
             img = img.link;
           } else if (img === null) {
-            img = nullImage; // default empty image if we dont have one
+            img = nullImage; // default empty image if we don't have one
           }
 
           models.friend
@@ -196,7 +196,7 @@ module.exports = ({ cooler, isPublic }) => {
   };
 
   cooler.open().then((ssb) => {
-    console.time("about-name-warmup"); // benchmark the time it takes to stream all existing abouts
+    console.time("about-name-warmup"); // benchmark the time it takes to stream all existing about messages
     pull(
       ssb.query.read({
         live: true, // keep streaming new messages as they arrive
@@ -440,6 +440,7 @@ module.exports = ({ cooler, isPublic }) => {
         me: false,
         following: isFollowing,
         blocking: isBlocking,
+        // @ts-ignore
         followsMe: followsMe,
       };
     },

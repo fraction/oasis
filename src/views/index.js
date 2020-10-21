@@ -71,6 +71,7 @@ const toAttributes = (obj) =>
 const nbsp = "\xa0";
 
 /**
+// @ts-ignore
  * @param {{href: string, emoji: string, text: string }} input
  */
 const template = (titlePrefix, ...elements) => {
@@ -815,7 +816,7 @@ exports.threadView = ({ messages }) => {
 };
 
 // this view is only used for the /settings/readme page.
-// To fix style glitches it uses the default MakrdownIt and not ssb-markdown.
+// To fix style glitches it uses the default MarkdownIt and not ssb-markdown.
 const md = new MarkdownIt();
 exports.markdownView = ({ text }) => {
   const rawHtml = md.render(text);
@@ -867,7 +868,7 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
   // craft message that looks like it came from the db
   // cb: this kinda fragile imo? this is for getting a proper post styling ya?
   const msg = {
-    key: "%non-existant.preview",
+    key: "%non-existent.preview",
     value: {
       author: authorMeta.id,
       // sequence: -1,

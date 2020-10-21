@@ -7,6 +7,7 @@ const path = require("path");
 const envPaths = require("env-paths");
 const cli = require("./cli");
 const fs = require("fs");
+// cspell:disable-next-line
 const exif = require("piexifjs");
 
 const defaultConfig = {};
@@ -156,7 +157,7 @@ const preparePreview = async function (ctx) {
 
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
-  // also: re.exec is stateful => regex is consumed and thus needs to be re-instantiated for each call
+  // also: re.exec has state => regex is consumed and thus needs to be re-instantiated for each call
   const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
   //                                  ^ sentence ^
   //                                   delimiters
@@ -214,12 +215,13 @@ const preparePreview = async function (ctx) {
   return { authorMeta, text, mentions };
 };
 
+// cspell:disable
 // handleBlobUpload ingests an uploaded form file.
 // it takes care of maximum blob size (5meg), exif stripping and mime detection.
 // finally it returns the correct markdown link for the blob depending on the mime-type.
 // it supports plain, image and also audio: and video: as understood by ssbMarkdown.
 const handleBlobUpload = async function (ctx) {
-  let blob = false;
+  let hasBlob = false;
   let text = "";
   if (!ctx.request.files) return "";
 
@@ -236,12 +238,6 @@ const handleBlobUpload = async function (ctx) {
       }
 
       try {
-        const dataString = data.toString("binary");
-        // implementation borrowed from ssb-blob-files
-        // (which operates on a slightly different data structure, sadly)
-        // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
-        data = Buffer.from(removeExif(dataString), "binary");
-
         const removeExif = (fileData) => {
           const exifOrientation = exif.load(fileData);
           const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
@@ -256,6 +252,12 @@ const handleBlobUpload = async function (ctx) {
             return clean;
           }
         };
+
+        const dataString = data.toString("binary");
+        // implementation borrowed from ssb-blob-files
+        // (which operates on a slightly different data structure, sadly)
+        // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
+        data = Buffer.from(removeExif(dataString), "binary");
       } catch (e) {
         // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
       }
@@ -269,10 +271,11 @@ const handleBlobUpload = async function (ctx) {
           })
         );
       });
-      blob = {
+      let blob = {
         id: await addBlob,
         name: blobUpload.name,
       };
+      hasBlob = true;
       const FileType = require("file-type");
       try {
         let ftype = await FileType.fromBuffer(data);
@@ -284,7 +287,7 @@ const handleBlobUpload = async function (ctx) {
     }
   }
   // append uploaded blob as markdown to the end of the input text
-  if (typeof blob !== "boolean") {
+  if (hasBlob) {
     if (blob.mime.startsWith("image/")) {
       text += `\n![${blob.name}](${blob.id})`;
     } else if (blob.mime.startsWith("audio/")) {
@@ -297,6 +300,7 @@ const handleBlobUpload = async function (ctx) {
   }
   return text;
 };
+// cspell:enable
 
 const resolveCommentComponents = async function (ctx) {
   const { message } = ctx.params;
