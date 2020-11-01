@@ -221,7 +221,6 @@ const preparePreview = async function (ctx) {
 // finally it returns the correct markdown link for the blob depending on the mime-type.
 // it supports plain, image and also audio: and video: as understood by ssbMarkdown.
 const handleBlobUpload = async function (ctx) {
-  let hasBlob = false;
   let text = "";
   if (!ctx.request.files) return "";
 
@@ -275,7 +274,8 @@ const handleBlobUpload = async function (ctx) {
         id: await addBlob,
         name: blobUpload.name,
       };
-      hasBlob = true;
+
+      // determain encoding to add the correct markdown link
       const FileType = require("file-type");
       try {
         let ftype = await FileType.fromBuffer(data);
@@ -284,18 +284,17 @@ const handleBlobUpload = async function (ctx) {
         console.warn(error);
         blob.mime = "application/octet-stream";
       }
-    }
-  }
-  // append uploaded blob as markdown to the end of the input text
-  if (hasBlob) {
-    if (blob.mime.startsWith("image/")) {
-      text += `\n![${blob.name}](${blob.id})`;
-    } else if (blob.mime.startsWith("audio/")) {
-      text += `\n![audio:${blob.name}](${blob.id})`;
-    } else if (blob.mime.startsWith("video/")) {
-      text += `\n![video:${blob.name}](${blob.id})`;
-    } else {
-      text += `\n[${blob.name}](${blob.id})`;
+
+      // append uploaded blob as markdown to the end of the input text
+      if (blob.mime.startsWith("image/")) {
+          text += `\n![${blob.name}](${blob.id})`;
+      } else if (blob.mime.startsWith("audio/")) {
+          text += `\n![audio:${blob.name}](${blob.id})`;
+      } else if (blob.mime.startsWith("video/")) {
+          text += `\n![video:${blob.name}](${blob.id})`;
+      } else {
+          text += `\n[${blob.name}](${blob.id})`;
+      }
     }
   }
   return text;
