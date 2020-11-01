@@ -221,83 +221,85 @@ const preparePreview = async function (ctx) {
 // finally it returns the correct markdown link for the blob depending on the mime-type.
 // it supports plain, image and also audio: and video: as understood by ssbMarkdown.
 const handleBlobUpload = async function (ctx) {
-  let text = "";
   if (!ctx.request.files) return "";
 
   const ssb = await cooler.open();
   const blobUpload = ctx.request.files.blob;
-  if (typeof blobUpload !== "undefined") {
-    let data = await fs.promises.readFile(blobUpload.path);
-    if (data.length > 0) {
-      // 5 MiB check
-      const mebibyte = Math.pow(2, 20);
-      const maxSize = 5 * mebibyte;
-      if (data.length > maxSize) {
-        throw new Error("Blob file is too big, maximum size is 5 mebibytes");
-      }
-
-      try {
-        const removeExif = (fileData) => {
-          const exifOrientation = exif.load(fileData);
-          const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
-          const clean = exif.remove(fileData);
-          if (orientation !== undefined) {
-            // preserve img orientation
-            const exifData = { "0th": {} };
-            exifData["0th"][exif.ImageIFD.Orientation] = orientation;
-            const exifStr = exif.dump(exifData);
-            return exif.insert(exifStr, clean);
-          } else {
-            return clean;
-          }
-        };
-
-        const dataString = data.toString("binary");
-        // implementation borrowed from ssb-blob-files
-        // (which operates on a slightly different data structure, sadly)
-        // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
-        data = Buffer.from(removeExif(dataString), "binary");
-      } catch (e) {
-        // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
-      }
-
-      const addBlob = new Promise((resolve, reject) => {
-        pull(
-          pull.values([data]),
-          ssb.blobs.add((err, hashedBlobRef) => {
-            if (err) return reject(err);
-            resolve(hashedBlobRef);
-          })
-        );
-      });
-      let blob = {
-        id: await addBlob,
-        name: blobUpload.name,
-      };
-
-      // determain encoding to add the correct markdown link
-      const FileType = require("file-type");
-      try {
-        let ftype = await FileType.fromBuffer(data);
-        blob.mime = ftype.mime;
-      } catch (error) {
-        console.warn(error);
-        blob.mime = "application/octet-stream";
-      }
-
-      // append uploaded blob as markdown to the end of the input text
-      if (blob.mime.startsWith("image/")) {
-          text += `\n![${blob.name}](${blob.id})`;
-      } else if (blob.mime.startsWith("audio/")) {
-          text += `\n![audio:${blob.name}](${blob.id})`;
-      } else if (blob.mime.startsWith("video/")) {
-          text += `\n![video:${blob.name}](${blob.id})`;
-      } else {
-          text += `\n[${blob.name}](${blob.id})`;
-      }
-    }
+  if (typeof blobUpload === "undefined") {
+    return "";
   }
-  return text;
+
+  let data = await fs.promises.readFile(blobUpload.path);
+  if (data.length == 0) {
+    return "";
+  }
+
+  // 5 MiB check
+  const mebibyte = Math.pow(2, 20);
+  const maxSize = 5 * mebibyte;
+  if (data.length > maxSize) {
+    throw new Error("Blob file is too big, maximum size is 5 mebibytes");
+  }
+
+  try {
+    const removeExif = (fileData) => {
+      const exifOrientation = exif.load(fileData);
+      const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
+      const clean = exif.remove(fileData);
+      if (orientation !== undefined) {
+        // preserve img orientation
+        const exifData = { "0th": {} };
+        exifData["0th"][exif.ImageIFD.Orientation] = orientation;
+        const exifStr = exif.dump(exifData);
+        return exif.insert(exifStr, clean);
+      } else {
+        return clean;
+      }
+    };
+
+    const dataString = data.toString("binary");
+    // implementation borrowed from ssb-blob-files
+    // (which operates on a slightly different data structure, sadly)
+    // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
+    data = Buffer.from(removeExif(dataString), "binary");
+  } catch (e) {
+    // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
+  }
+
+  const addBlob = new Promise((resolve, reject) => {
+    pull(
+      pull.values([data]),
+      ssb.blobs.add((err, hashedBlobRef) => {
+        if (err) return reject(err);
+        resolve(hashedBlobRef);
+      })
+    );
+  });
+  let blob = {
+    id: await addBlob,
+    name: blobUpload.name,
+  };
+
+  // determain encoding to add the correct markdown link
+  const FileType = require("file-type");
+  try {
+    let ftype = await FileType.fromBuffer(data);
+    blob.mime = ftype.mime;
+  } catch (error) {
+    console.warn(error);
+    blob.mime = "application/octet-stream";
+  }
+
+  // append uploaded blob as markdown to the end of the input text
+  if (blob.mime.startsWith("image/")) {
+    return `\n![${blob.name}](${blob.id})`;
+  } else if (blob.mime.startsWith("audio/")) {
+    return `\n![audio:${blob.name}](${blob.id})`;
+  } else if (blob.mime.startsWith("video/")) {
+    return `\n![video:${blob.name}](${blob.id})`;
+  } else {
+    return `\n[${blob.name}](${blob.id})`;
+  }
 };
 // cspell:enable
 
