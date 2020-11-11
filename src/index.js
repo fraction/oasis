@@ -1059,6 +1059,9 @@ const app = http({ host, port, middleware, allowHost });
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
   cooler.close();
+  setTimeout(() => {
+    process.exit();
+  }, 20000);
 };
 
 module.exports = app;
