@@ -1059,6 +1059,12 @@ const app = http({ host, port, middleware, allowHost });
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
   cooler.close();
+  // HACK: app._close is called when everything is supposed to have finished;
+  // cooler.close successfully stops the ssb-db process. we create a timeout
+  // to definitively kill the server and thereby circumvent the node process
+  // staying alive despite all signals pointing to the app exiting. more
+  // context when it was originally
+  // introduced in this PR: https://github.com/fraction/oasis/pull/462
   setTimeout(() => {
     process.exit();
   }, 20000);
