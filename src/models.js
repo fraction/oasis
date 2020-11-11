@@ -4,6 +4,7 @@ const debug = require("debug")("oasis");
 const { isRoot, isReply: isComment } = require("ssb-thread-schema");
 const lodash = require("lodash");
 const prettyMs = require("pretty-ms");
+const pullAbortable = require("pull-abortable");
 const pullParallelMap = require("pull-paramap");
 const pull = require("pull-stream");
 const pullSort = require("pull-sort");
@@ -195,55 +196,6 @@ module.exports = ({ cooler, isPublic }) => {
     });
   };
 
-  cooler.open().then((ssb) => {
-    console.time("about-name-warmup"); // benchmark the time it takes to stream all existing about messages
-    pull(
-      ssb.query.read({
-        live: true, // keep streaming new messages as they arrive
-        query: [
-          {
-            $filter: {
-              // all messages of type:about that have a name field that is typeof string
-              value: {
-                content: {
-                  type: "about",
-                  name: { $is: "string" },
-                },
-              },
-            },
-          },
-        ],
-      }),
-      pull.filter((msg) => {
-        // backlog of data is done, only new values from now on
-        if (msg.sync && msg.sync === true) {
-          console.timeEnd("about-name-warmup");
-          transposeLookupTable(); // fire once now
-          setInterval(transposeLookupTable, 1000 * 60); // and then every 60 seconds
-          return false;
-        }
-        // only pick messages about self
-        return msg.value.author == msg.value.content.about;
-      }),
-      pull.drain((msg) => {
-        const name = msg.value.content.name;
-        const ts = msg.value.timestamp;
-        const feed = msg.value.author;
-
-        const newEntry = { name, ts };
-        const currentEntry = feeds_to_name[feed];
-        if (typeof currentEntry == "undefined") {
-          dirty = true;
-          feeds_to_name[feed] = newEntry;
-        } else if (currentEntry.ts < ts) {
-          // overwrite entry if it's newer
-          dirty = true;
-          feeds_to_name[feed] = newEntry;
-        }
-      })
-    );
-  });
-
   models.about = {
     publicWebHosting: async (feedId) => {
       const result = await getAbout({
@@ -305,6 +257,70 @@ module.exports = ({ cooler, isPublic }) => {
           feedId,
         })) || "";
       return raw;
+    },
+    // This needs to run in the background but also needs to be aborted
+    // in index.js when the server closes. There's also an interval that
+    // needs to be cleared. TODO: Ensure that there's never more than
+    // one interval running at a time.
+    _startNameWarmup() {
+      const abortable = pullAbortable();
+      let intervals = [];
+      cooler.open().then((ssb) => {
+        console.time("about-name-warmup"); // benchmark the time it takes to stream all existing about messages
+        pull(
+          ssb.query.read({
+            live: true, // keep streaming new messages as they arrive
+            query: [
+              {
+                $filter: {
+                  // all messages of type:about that have a name field that is typeof string
+                  value: {
+                    content: {
+                      type: "about",
+                      name: { $is: "string" },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+          abortable,
+          pull.filter((msg) => {
+            // backlog of data is done, only new values from now on
+            if (msg.sync && msg.sync === true) {
+              console.timeEnd("about-name-warmup");
+              transposeLookupTable(); // fire once now
+              intervals.push(setInterval(transposeLookupTable, 1000 * 60)); // and then every 60 seconds
+              return false;
+            }
+            // only pick messages about self
+            return msg.value.author == msg.value.content.about;
+          }),
+          pull.drain((msg) => {
+            const name = msg.value.content.name;
+            const ts = msg.value.timestamp;
+            const feed = msg.value.author;
+
+            const newEntry = { name, ts };
+            const currentEntry = feeds_to_name[feed];
+            if (typeof currentEntry == "undefined") {
+              dirty = true;
+              feeds_to_name[feed] = newEntry;
+            } else if (currentEntry.ts < ts) {
+              // overwrite entry if it's newer
+              dirty = true;
+              feeds_to_name[feed] = newEntry;
+            }
+          })
+        );
+      });
+
+      return {
+        close: () => {
+          abortable.abort();
+          intervals.forEach((i) => clearInterval(i));
+        },
+      };
     },
   };
 

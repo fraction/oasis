@@ -145,6 +145,8 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+const nameWarmup = about._startNameWarmup();
+
 // enhance the users' input text by expanding @name to [@name](@feedPub.key)
 // and slurps up blob uploads and appends a markdown link for it to the text (see handleBlobUpload)
 const preparePreview = async function (ctx) {
@@ -1058,16 +1060,8 @@ const app = http({ host, port, middleware, allowHost });
 // If we close the database after each test it throws lots of really fun "parent
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
+  nameWarmup.close();
   cooler.close();
-  // HACK: app._close is called when everything is supposed to have finished;
-  // cooler.close successfully stops the ssb-db process. we create a timeout
-  // to definitively kill the server and thereby circumvent the node process
-  // staying alive despite all signals pointing to the app exiting. more
-  // context when it was originally
-  // introduced in this PR: https://github.com/fraction/oasis/pull/462
-  setTimeout(() => {
-    process.exit();
-  }, 20000);
 };
 
 module.exports = app;
