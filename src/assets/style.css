@@ -113,20 +113,35 @@ a {
   color: var(--fg-light);
 }
 
-button {
+button,
+.file-button {
   cursor: pointer;
   background: var(--fg);
   color: var(--bg);
   border: var(--size--4) solid var(--fg);
   padding: var(--size--1) var(--size-0);
   border-radius: var(--common-radius);
+  font-size: 8pt;
+}
+
+.file-button {
+  float: right;
+  margin: 0;
+  background: transparent;
+  color: var(--fg);
+}
+
+#blob {
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
 }
 
 section header a {
   display: flex;
   color: var(--fg-status);
   text-decoration: none;
-  font-weight: bold;
   margin-right: var(--size--2);
   margin-left: var(--size--2);
 }
@@ -141,7 +156,6 @@ section header a {
 section > footer > div > a,
 section > footer > div > form > button {
   color: var(--fg-status);
-  font-weight: bold;
 }
 
 section > footer > div > form > button {
@@ -319,11 +333,22 @@ nav {
 nav > ul > li > a {
   color: var(--fg);
   text-decoration: none;
-  font-weight: bold;
+}
+
+.author-action > a {
+  text-decoration: underline;
+}
+
+section header a:hover {
+  text-decoration: underline;
+}
+
+nav > ul > li > a:hover {
+  text-decoration: underline;
 }
 
 nav > ul > li > a.current {
-  text-decoration: underline;
+  font-weight: bold;
 }
 
 section {
@@ -336,6 +361,29 @@ section {
   box-sizing: border-box;
 }
 
+.indent section,
+.thread-container section {
+  margin: unset;
+  border-radius: unset;
+  border-bottom: var(--fg-alt) solid 1px;
+}
+
+.indent details[open] {
+  border-bottom: var(--fg-alt) solid 1px;
+}
+
+.indent section:last-of-type,
+.thread-container section:last-of-type {
+  border-bottom: unset;
+}
+
+.mentions-container {
+  display: grid;
+  grid-template-columns: 4rem auto;
+  grid-column-gap: 1rem;
+  margin-bottom: var(--size-0);
+}
+
 section > header {
   background: var(--bg);
   color: var(--fg-status);
@@ -346,10 +394,6 @@ section > header {
   position: sticky;
   top: 0;
   z-index: 1;
-}
-
-.author-action {
-  flex-grow: 1;
 }
 
 section > header > div {
@@ -367,10 +411,6 @@ section header a > .avatar {
 
 section header span {
   display: inline-flex;
-}
-section header .author > a:first-child {
-  margin-left: 0;
-  color: var(--fg-light);
 }
 
 /*
@@ -400,6 +440,7 @@ section > .centered-footer {
 
 section > footer {
   color: var(--fg-status);
+  margin-top: var(--size-0);
 }
 
 section > footer br {
@@ -413,6 +454,10 @@ section > footer > div {
 
 section > footer > div > * {
   text-decoration: none;
+}
+
+section > footer > div > form > button:first-of-type {
+  font-size: 100%;
 }
 
 section > footer > div > form > button.liked {
@@ -570,6 +615,69 @@ hr {
 .indent {
   padding-left: 1rem;
   border-left: var(--size--2) solid var(--bg-selection);
+}
+
+.mentions-image {
+  grid-row: 1 / span 2;
+}
+.mentions-image > img {
+  border: var(--fg) solid 1px;
+}
+.mentions-container .emoji {
+  font-size: 1.5rem;
+}
+
+.mentions-name {
+  font-size: 1.25rem;
+  text-decoration: unset;
+}
+
+.mentions-name:hover {
+  text-decoration: underline;
+}
+
+.emo-rel {
+  display: inline-grid;
+  align-items: center;
+  grid-template-columns: 2rem auto;
+  grid-column-gap: 0.25rem;
+}
+
+.mentions-listing {
+  display: inline;
+  background-color: var(--bg);
+  padding: var(--size--1);
+  border-radius: var(--common-radius);
+  border: var(--size--4) solid var(--bg-status);
+  user-select: all;
+  font-size: var(--size--1);
+  overflow-x: auto;
+  width: 24rem;
+}
+
+section.post-preview {
+  padding-top: 0;
+  background: var(--bg-selection);
+  border: var(--fg-alt) solid 1px;
+}
+
+section.post-preview > section > footer {
+  display: none;
+}
+
+section > footer > div > a:hover,
+section > footer > div > form > button:hover {
+  text-decoration: underline;
+}
+
+.author-action {
+  flex-grow: 1;
+}
+
+section header .author > a:first-child {
+  margin-left: 0;
+  color: var(--fg-light);
+  font-weight: bold;
 }
 
 .theme-preview {

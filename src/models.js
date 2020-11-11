@@ -8,7 +8,6 @@ const pullParallelMap = require("pull-paramap");
 const pull = require("pull-stream");
 const pullSort = require("pull-sort");
 const ssbRef = require("ssb-ref");
-const crypto = require("crypto");
 
 const isEncrypted = (message) => typeof message.value.content === "string";
 const isNotEncrypted = (message) => isEncrypted(message) === false;
@@ -112,6 +111,139 @@ module.exports = ({ cooler, isPublic }) => {
     );
   };
 
+  // build a @mentions lookup cache
+  // ==============================
+  // one gotcha with ssb-query is: if we add `name: "my name"` to that query below,
+  // it can trigger a full-scan of the database instead of better query planing
+  // also doing multiple of those can be very slow (5 to 30s on my machine).
+  // gotcha two is: there is no way to express (where msg.author == msg.value.content.about) so we need to do it as a pull.filter()
+  // one drawback: is, it gives us all the about messages from forever, not just the latest
+  // TODO: an alternative would be using ssb.names if available and just loading this as a fallback
+
+  // Two lookup tables to remove old and duplicate names
+  const feeds_to_name = {};
+  let all_the_names = {};
+
+  let dirty = false; // just stop mindless work (nothing changed) could be smarter thou
+  let running = false; // don't run twice
+
+  // transposeLookupTable flips the lookup around (form feed->name to name->feed)
+  // and also enhances the entries with image and relationship info
+  const transposeLookupTable = () => {
+    if (!dirty) return;
+    if (running) return;
+    running = true;
+
+    // invalidate old cache
+    // regenerate a new thing because we don't know which entries will be gone
+    all_the_names = {};
+
+    const allFeeds = Object.keys(feeds_to_name);
+    console.log(`updating ${allFeeds.length} feeds`);
+    console.time("transpose-name-index");
+
+    const lookups = [];
+    for (const feed of allFeeds) {
+      const e = feeds_to_name[feed];
+      let pair = { feed, name: e.name };
+      lookups.push(enhanceFeedInfo(pair));
+    }
+
+    // wait for all image and follow lookups
+    Promise.all(lookups)
+      .then(() => {
+        dirty = false; // all updated
+        running = false;
+        console.timeEnd("transpose-name-index");
+      })
+      .catch((err) => {
+        running = false;
+        console.warn("lookup transposition failed:", err);
+      });
+  };
+
+  // this function adds the avatar image and relationship to the all_the_names lookup table
+  const enhanceFeedInfo = ({ feed, name }) => {
+    return new Promise((resolve, reject) => {
+      getAbout({ feedId: feed, key: "image" })
+        .then((img) => {
+          if (
+            img !== null &&
+            typeof img !== "string" &&
+            typeof img === "object" &&
+            typeof img.link === "string"
+          ) {
+            img = img.link;
+          } else if (img === null) {
+            img = nullImage; // default empty image if we don't have one
+          }
+
+          models.friend
+            .getRelationship(feed)
+            .then((rel) => {
+              // append and update lookup table
+              let feeds_named = all_the_names[name] || [];
+              feeds_named.push({ feed, name, rel, img });
+              all_the_names[name.toLowerCase()] = feeds_named;
+              resolve();
+
+              // TODO: append if these fail!?
+            })
+            .catch(reject);
+        })
+        .catch(reject);
+    });
+  };
+
+  cooler.open().then((ssb) => {
+    console.time("about-name-warmup"); // benchmark the time it takes to stream all existing about messages
+    pull(
+      ssb.query.read({
+        live: true, // keep streaming new messages as they arrive
+        query: [
+          {
+            $filter: {
+              // all messages of type:about that have a name field that is typeof string
+              value: {
+                content: {
+                  type: "about",
+                  name: { $is: "string" },
+                },
+              },
+            },
+          },
+        ],
+      }),
+      pull.filter((msg) => {
+        // backlog of data is done, only new values from now on
+        if (msg.sync && msg.sync === true) {
+          console.timeEnd("about-name-warmup");
+          transposeLookupTable(); // fire once now
+          setInterval(transposeLookupTable, 1000 * 60); // and then every 60 seconds
+          return false;
+        }
+        // only pick messages about self
+        return msg.value.author == msg.value.content.about;
+      }),
+      pull.drain((msg) => {
+        const name = msg.value.content.name;
+        const ts = msg.value.timestamp;
+        const feed = msg.value.author;
+
+        const newEntry = { name, ts };
+        const currentEntry = feeds_to_name[feed];
+        if (typeof currentEntry == "undefined") {
+          dirty = true;
+          feeds_to_name[feed] = newEntry;
+        } else if (currentEntry.ts < ts) {
+          // overwrite entry if it's newer
+          dirty = true;
+          feeds_to_name[feed] = newEntry;
+        }
+      })
+    );
+  });
+
   models.about = {
     publicWebHosting: async (feedId) => {
       const result = await getAbout({
@@ -125,12 +257,23 @@ module.exports = ({ cooler, isPublic }) => {
         return "Redacted";
       }
 
+      // TODO: could possibly use all_the_names
       return (
         (await getAbout({
           key: "name",
           feedId,
         })) || feedId.slice(1, 1 + 8)
       ); // First 8 chars of public key
+    },
+    named: (name) => {
+      let found = [];
+      let matched = Object.keys(all_the_names).filter((n) => {
+        return n.startsWith(name.toLowerCase());
+      });
+      for (const m of matched) {
+        found = found.concat(all_the_names[m]);
+      }
+      return found;
     },
     image: async (feedId) => {
       if (isPublic && (await models.about.publicWebHosting(feedId)) === false) {
@@ -191,10 +334,15 @@ module.exports = ({ cooler, isPublic }) => {
     },
     want: async ({ blobId }) => {
       debug("want blob: %s", blobId);
-      const ssb = await cooler.open();
-
-      // This does not wait for the blob.
-      ssb.blobs.want(blobId);
+      cooler
+        .open()
+        .then((ssb) => {
+          // This does not wait for the blob.
+          ssb.blobs.want(blobId);
+        })
+        .catch((err) => {
+          console.warn(`failed to want blob:${blobId}: ${err}`);
+        });
     },
     search: async ({ query }) => {
       debug("blob search: %s", query);
@@ -234,7 +382,7 @@ module.exports = ({ cooler, isPublic }) => {
         following,
         blocking,
       };
-
+      transposeLookupTable(); // invalidate @mentions table
       return ssb.publish(content);
     },
     follow: (feedId) =>
@@ -283,10 +431,17 @@ module.exports = ({ cooler, isPublic }) => {
         dest: feedId,
       });
 
+      const followsMe = await ssb.friends.isFollowing({
+        source: feedId,
+        dest: id,
+      });
+
       return {
         me: false,
         following: isFollowing,
         blocking: isBlocking,
+        // @ts-ignore
+        followsMe: followsMe,
       };
     },
   };
@@ -1478,29 +1633,23 @@ module.exports = ({ cooler, isPublic }) => {
         if (image.length > maxSize) {
           throw new Error("Image file is too big, maximum size is 5 mebibytes");
         }
-        const algorithm = "sha256";
-        const hash = crypto
-          .createHash(algorithm)
-          .update(image)
-          .digest("base64");
 
-        const blobId = `&${hash}.${algorithm}`;
         return new Promise((resolve, reject) => {
           pull(
             pull.values([image]),
-            ssb.blobs.add(blobId, (err) => {
+            ssb.blobs.add((err, blobId) => {
               if (err) {
                 reject(err);
               } else {
-                const body = {
+                const content = {
                   type: "about",
                   about: ssb.id,
                   name,
                   description,
                   image: blobId,
                 };
-                debug("Published: %O", body);
-                resolve(ssb.publish(body));
+                debug("Published: %O", content);
+                resolve(ssb.publish(content));
               }
             })
           );

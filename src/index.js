@@ -7,6 +7,8 @@ const path = require("path");
 const envPaths = require("env-paths");
 const cli = require("./cli");
 const fs = require("fs");
+// cspell:disable-next-line
+const exif = require("piexifjs");
 
 const defaultConfig = {};
 const defaultConfigFile = path.join(
@@ -143,8 +145,198 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+// enhance the users' input text by expanding @name to [@name](@feedPub.key)
+// and slurps up blob uploads and appends a markdown link for it to the text (see handleBlobUpload)
+const preparePreview = async function (ctx) {
+  let text = String(ctx.request.body.text);
+
+  // find all the @mentions that are not inside a link already
+  // stores name:[matches...]
+  // TODO: sort by relationship
+  const mentions = {};
+
+  // This matches for @string followed by a space or other punctuations like ! , or .
+  // The idea here is to match a plain @name but not [@name](...)
+  // also: re.exec has state => regex is consumed and thus needs to be re-instantiated for each call
+  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
+  //                                  ^ sentence ^
+  //                                   delimiters
+
+  // find @mentions using rex and use about.named() to get the info for them
+  let m;
+  while ((m = rex.exec(text)) !== null) {
+    const name = m[1];
+    let matches = about.named(name);
+    for (const feed of matches) {
+      let found = mentions[name] || [];
+      found.push(feed);
+      mentions[name] = found;
+    }
+  }
+
+  // filter the matches depending on the follow relation
+  Object.keys(mentions).forEach((name) => {
+    let matches = mentions[name];
+    // if we find mention matches for a name, and we follow them / they follow us,
+    // then use those matches as suggestions
+    const meaningfulMatches = matches.filter((m) => {
+      return (m.rel.followsMe || m.rel.following) && m.rel.blocking === false;
+    });
+    if (meaningfulMatches.length > 0) {
+      matches = meaningfulMatches;
+    }
+    mentions[name] = matches;
+  });
+
+  // replace the text with a markdown link if we have unambiguous match
+  const replacer = (match, name, sign) => {
+    let matches = mentions[name];
+    if (matches && matches.length === 1) {
+      // we found an exact match, don't send it to frontend as a suggestion
+      delete mentions[name];
+      // format markdown link and put the correct sign back at the end
+      return `[@${matches[0].name}](${matches[0].feed})${sign ? sign : ""}`;
+    }
+    return match;
+  };
+  text = text.replace(rex, replacer);
+
+  // add blob new blob to the end of the document.
+  text += await handleBlobUpload(ctx);
+
+  // author metadata for the preview-post
+  const ssb = await cooler.open();
+  const authorMeta = {
+    id: ssb.id,
+    name: await about.name(ssb.id),
+    image: await about.image(ssb.id),
+  };
+
+  return { authorMeta, text, mentions };
+};
+
+// cspell:disable
+// handleBlobUpload ingests an uploaded form file.
+// it takes care of maximum blob size (5meg), exif stripping and mime detection.
+// finally it returns the correct markdown link for the blob depending on the mime-type.
+// it supports plain, image and also audio: and video: as understood by ssbMarkdown.
+const handleBlobUpload = async function (ctx) {
+  if (!ctx.request.files) return "";
+
+  const ssb = await cooler.open();
+  const blobUpload = ctx.request.files.blob;
+  if (typeof blobUpload === "undefined") {
+    return "";
+  }
+
+  let data = await fs.promises.readFile(blobUpload.path);
+  if (data.length == 0) {
+    return "";
+  }
+
+  // 5 MiB check
+  const mebibyte = Math.pow(2, 20);
+  const maxSize = 5 * mebibyte;
+  if (data.length > maxSize) {
+    throw new Error("Blob file is too big, maximum size is 5 mebibytes");
+  }
+
+  try {
+    const removeExif = (fileData) => {
+      const exifOrientation = exif.load(fileData);
+      const orientation = exifOrientation["0th"][exif.ImageIFD.Orientation];
+      const clean = exif.remove(fileData);
+      if (orientation !== undefined) {
+        // preserve img orientation
+        const exifData = { "0th": {} };
+        exifData["0th"][exif.ImageIFD.Orientation] = orientation;
+        const exifStr = exif.dump(exifData);
+        return exif.insert(exifStr, clean);
+      } else {
+        return clean;
+      }
+    };
+
+    const dataString = data.toString("binary");
+    // implementation borrowed from ssb-blob-files
+    // (which operates on a slightly different data structure, sadly)
+    // https://github.com/ssbc/ssb-blob-files/blob/master/async/image-process.js
+    data = Buffer.from(removeExif(dataString), "binary");
+  } catch (e) {
+    // blob was likely not a jpeg -- no exif data to remove. proceeding with blob upload
+  }
+
+  const addBlob = new Promise((resolve, reject) => {
+    pull(
+      pull.values([data]),
+      ssb.blobs.add((err, hashedBlobRef) => {
+        if (err) return reject(err);
+        resolve(hashedBlobRef);
+      })
+    );
+  });
+  let blob = {
+    id: await addBlob,
+    name: blobUpload.name,
+  };
+
+  // determain encoding to add the correct markdown link
+  const FileType = require("file-type");
+  try {
+    let ftype = await FileType.fromBuffer(data);
+    blob.mime = ftype.mime;
+  } catch (error) {
+    console.warn(error);
+    blob.mime = "application/octet-stream";
+  }
+
+  // append uploaded blob as markdown to the end of the input text
+  if (blob.mime.startsWith("image/")) {
+    return `\n![${blob.name}](${blob.id})`;
+  } else if (blob.mime.startsWith("audio/")) {
+    return `\n![audio:${blob.name}](${blob.id})`;
+  } else if (blob.mime.startsWith("video/")) {
+    return `\n![video:${blob.name}](${blob.id})`;
+  } else {
+    return `\n[${blob.name}](${blob.id})`;
+  }
+};
+// cspell:enable
+
+const resolveCommentComponents = async function (ctx) {
+  const { message } = ctx.params;
+  const parentId = message;
+  const parentMessage = await post.get(parentId);
+  const myFeedId = await meta.myFeedId();
+
+  const hasRoot =
+    typeof parentMessage.value.content.root === "string" &&
+    ssbRef.isMsg(parentMessage.value.content.root);
+  const hasFork =
+    typeof parentMessage.value.content.fork === "string" &&
+    ssbRef.isMsg(parentMessage.value.content.fork);
+
+  const rootMessage = hasRoot
+    ? hasFork
+      ? parentMessage
+      : await post.get(parentMessage.value.content.root)
+    : parentMessage;
+
+  const messages = await post.topicComments(rootMessage.key);
+
+  messages.push(rootMessage);
+  let contentWarning;
+  if (ctx.request.body) {
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+    contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+  }
+  return { messages, myFeedId, parentMessage, contentWarning };
+};
+
 const {
   authorView,
+  previewCommentView,
   commentView,
   editProfileView,
   indexingView,
@@ -156,9 +348,11 @@ const {
   markdownView,
   mentionsView,
   popularView,
+  previewView,
   privateView,
   publishCustomView,
   publishView,
+  previewSubtopicView,
   subtopicView,
   searchView,
   imageSearchView,
@@ -586,35 +780,45 @@ router
     ctx.body = await publishView();
   })
   .get("/comment/:message", async (ctx) => {
-    const { message } = ctx.params;
-    const comment = async (parentId) => {
-      const parentMessage = await post.get(parentId);
+    const {
+      messages,
+      myFeedId,
+      parentMessage,
+    } = await resolveCommentComponents(ctx);
+    ctx.body = await commentView({ messages, myFeedId, parentMessage });
+  })
+  .post(
+    "/subtopic/preview/:message",
+    koaBody({ multipart: true }),
+    async (ctx) => {
+      const { message } = ctx.params;
+      const rootMessage = await post.get(message);
       const myFeedId = await meta.myFeedId();
 
-      const hasRoot =
-        typeof parentMessage.value.content.root === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.root);
-      const hasFork =
-        typeof parentMessage.value.content.fork === "string" &&
-        ssbRef.isMsg(parentMessage.value.content.fork);
+      const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+      const contentWarning =
+        rawContentWarning.length > 0 ? rawContentWarning : undefined;
 
-      const rootMessage = hasRoot
-        ? hasFork
-          ? parentMessage
-          : await post.get(parentMessage.value.content.root)
-        : parentMessage;
+      const messages = [rootMessage];
 
-      const messages = await post.topicComments(rootMessage.key);
+      const previewData = await preparePreview(ctx);
 
-      messages.push(rootMessage);
-
-      return commentView({ messages, myFeedId, parentMessage });
-    };
-    ctx.body = await comment(message);
-  })
+      ctx.body = await previewSubtopicView({
+        messages,
+        myFeedId,
+        previewData,
+        contentWarning,
+      });
+    }
+  )
   .post("/subtopic/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
+
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
     const publishSubtopic = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
       const mentions = ssbMentions(text) || undefined;
@@ -622,15 +826,42 @@ router
       const parent = await post.get(message);
       return post.subtopic({
         parent,
-        message: { text, mentions },
+        message: { text, mentions, contentWarning },
       });
     };
     ctx.body = await publishSubtopic({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
   })
+  .post(
+    "/comment/preview/:message",
+    koaBody({ multipart: true }),
+    async (ctx) => {
+      const {
+        messages,
+        contentWarning,
+        myFeedId,
+        parentMessage,
+      } = await resolveCommentComponents(ctx);
+
+      const previewData = await preparePreview(ctx);
+
+      ctx.body = await previewCommentView({
+        messages,
+        myFeedId,
+        contentWarning,
+        parentMessage,
+        previewData,
+      });
+    }
+  )
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
+
+    const rawContentWarning = String(ctx.request.body.contentWarning);
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
     const publishComment = async ({ message, text }) => {
       // TODO: rename `message` to `parent` or `ancestor` or similar
       const mentions = ssbMentions(text) || undefined;
@@ -638,11 +869,21 @@ router
 
       return post.comment({
         parent,
-        message: { text, mentions },
+        message: { text, mentions, contentWarning },
       });
     };
     ctx.body = await publishComment({ message, text });
     ctx.redirect(`/thread/${encodeURIComponent(message)}`);
+  })
+  .post("/publish/preview", koaBody({ multipart: true }), async (ctx) => {
+    const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+
+    // Only submit content warning if it's a string with non-zero length.
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
+    const previewData = await preparePreview(ctx);
+    ctx.body = await previewView({ previewData, contentWarning });
   })
   .post("/publish/", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
@@ -818,6 +1059,15 @@ const app = http({ host, port, middleware, allowHost });
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
   cooler.close();
+  // HACK: app._close is called when everything is supposed to have finished;
+  // cooler.close successfully stops the ssb-db process. we create a timeout
+  // to definitively kill the server and thereby circumvent the node process
+  // staying alive despite all signals pointing to the app exiting. more
+  // context when it was originally
+  // introduced in this PR: https://github.com/fraction/oasis/pull/462
+  setTimeout(() => {
+    process.exit();
+  }, 20000);
 };
 
 module.exports = app;

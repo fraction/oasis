@@ -69,6 +69,9 @@ const i18n = {
     feedEmpty: "The local client has never seen posts from this account.",
     beginningOfFeed: "This is the beginning of the feed",
     noNewerPosts: "No newer posts have been received yet.",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "You are following",
     relationshipYou: "This is you",
     relationshipBlocking: "You are blocking",
@@ -79,6 +82,9 @@ const i18n = {
     // likes view
     likedBy: "'s likes",
     // composer
+    attachFiles: "Attach files",
+    mentionsMatching: "Matching Mentions",
+    preview: "Preview",
     publish: "Publish",
     contentWarningPlaceholder: "Optional content warning for this post",
     publishCustomDescription: [
@@ -87,7 +93,7 @@ const i18n = {
       " below. This may be useful for prototyping or publishing messages that Oasis doesn't support. This message cannot be edited or deleted.",
     ],
     commentWarning: [
-      " Comments cannot be edited or deleted. To respond to an individual message, select ",
+      " Published comments cannot be edited or deleted. To respond to an individual message, select ",
       strong("subtopic"),
       " instead.",
     ],
@@ -98,7 +104,7 @@ const i18n = {
       strong(`${publicOrPrivate} comment`),
       " on this thread with ",
       a({ href: markdownUrl }, "Markdown"),
-      ".",
+      ". Preview shows attached media.",
     ],
     publishLabel: ({ markdownUrl, linkTarget }) => [
       "Write a new public post in ",
@@ -109,7 +115,7 @@ const i18n = {
         },
         "Markdown"
       ),
-      ". Posts cannot be edited or deleted.",
+      ". Published posts cannot be edited or deleted. Preview to see attached media before publishing.",
     ],
     publishCustomInfo: ({ href }) => [
       "If you're an advanced user, you can also ",
@@ -130,7 +136,7 @@ const i18n = {
       a({ href: markdownUrl }, "Markdown"),
       ". Messages cannot be edited or deleted. To respond to an entire thread, select ",
       strong("comment"),
-      " instead.",
+      " instead. Preview shows attached media.",
     ],
     // settings
     settingsIntro: ({ readmeUrl, version }) => [
@@ -244,6 +250,9 @@ const i18n = {
     // relationships
     unfollow: "Dejar de seguir",
     follow: "Seguir",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Siguiendo",
     relationshipYou: "Vos",
     relationshipBlocking: "Bloqueado",
@@ -254,6 +263,9 @@ const i18n = {
     // likes view
     likedBy: "le gusta",
     // composer
+    attachFiles: "Agregar archivos",
+    mentionsMatching: "Menciones coincidentes",
+    preview: "Vista previa",
     publish: "Publicar",
     contentWarningPlaceholder: "Advertencia opcional para esta publicación",
     publishCustomDescription: [
@@ -414,6 +426,9 @@ const i18n = {
     // relationships
     unfollow: "Entfolgen",
     follow: "Folgen",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Du folgst",
     relationshipYou: "Das bist du",
     relationshipBlocking: "Du blockierst",
@@ -424,6 +439,9 @@ const i18n = {
     // likes view
     likedBy: "'s Likes",
     // composer
+    attachFiles: "Datei Hinzufügen",
+    mentionsMatching: "Matching Mentions",
+    preview: "Vorschau",
     publish: "Veröffentlichen",
     contentWarningPlaceholder: "Optionale Inhaltswarnung für diesen Beitrag",
     publishCustomDescription: [
@@ -587,6 +605,9 @@ const i18n = {
     // relationships
     unfollow: "Non seguire più",
     follow: "Segui",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "They follow you",
+    relationshipMutuals: "You are mutuals",
     relationshipFollowing: "Stai seguendo",
     relationshipYou: "Sei tu",
     relationshipBlocking: "Stai bloccando",
@@ -598,6 +619,9 @@ const i18n = {
     // likes view
     likedBy: "Like di ", // here the subject of the sentence should be put at the end (as if it were "liked by X" instead of "X's likes"
     // composer
+    attachFiles: "Aggiungere i file",
+    mentionsMatching: "Menzioni corrispondenti",
+    preview: "Visualizza l'anteprima",
     publish: "Pubblica",
     contentWarningPlaceholder:
       "Avviso su possibili contenuti per adulti nel post, opzionale",
@@ -766,6 +790,9 @@ const i18n = {
     follow: "Suivre",
     block: "Bloquer",
     unblock: "Débloquer",
+    relationshipNotFollowing: "No one is following the other",
+    relationshipTheyFollow: "Il/elle te suivent",
+    relationshipMutuals: "Vous êtes des mutuellements",
     relationshipFollowing: "Vous suivez",
     relationshipYou: "C'est vous",
     relationshipBlocking: "Vous bloquez",
@@ -777,6 +804,9 @@ const i18n = {
     // likes view
     likedBy: "a voté",
     // composer
+    attachFiles: "Ajouter des fichiers",
+    mentionsMatching: "Matching Mentions",
+    preview: "Examiner",
     publish: "Publier",
     contentWarningPlaceholder:
       "Avertissement de contenu facultatif pour ce poste",
