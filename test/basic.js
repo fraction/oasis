@@ -15,7 +15,7 @@ const paths = [
   "/profile/edit",
   "/public/latest",
   "/public/latest/extended",
-  // "/public/latest/summaries",
+  "/public/latest/summaries",
   "/public/latest/threads",
   "/public/latest/topics",
   "/public/popular/day",
