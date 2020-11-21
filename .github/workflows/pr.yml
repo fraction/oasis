@@ -1,0 +1,24 @@
+name: Node.js CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Set git to not change EoL
+        run: |
+          git config --global core.autocrlf false
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm test
