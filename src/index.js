@@ -160,14 +160,16 @@ const preparePreview = async function (ctx) {
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
   // also: re.exec has state => regex is consumed and thus needs to be re-instantiated for each call
-  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
-  //                                  ^ sentence ^
-  //                                   delimiters
+  //
+  // Change this link when the regex changes: https://regex101.com/r/j5rzSv/2
+  const rex = /(^|\s)(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
+  //                                        ^ sentence ^
+  //                                         delimiters
 
   // find @mentions using rex and use about.named() to get the info for them
   let m;
   while ((m = rex.exec(text)) !== null) {
-    const name = m[1];
+    const name = m[2];
     let matches = about.named(name);
     for (const feed of matches) {
       let found = mentions[name] || [];
