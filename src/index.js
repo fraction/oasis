@@ -145,6 +145,8 @@ const { about, blob, friend, meta, post, vote } = require("./models")({
   isPublic: config.public,
 });
 
+const nameWarmup = about._startNameWarmup();
+
 // enhance the users' input text by expanding @name to [@name](@feedPub.key)
 // and slurps up blob uploads and appends a markdown link for it to the text (see handleBlobUpload)
 const preparePreview = async function (ctx) {
@@ -158,14 +160,16 @@ const preparePreview = async function (ctx) {
   // This matches for @string followed by a space or other punctuations like ! , or .
   // The idea here is to match a plain @name but not [@name](...)
   // also: re.exec has state => regex is consumed and thus needs to be re-instantiated for each call
-  const rex = /(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
-  //                                  ^ sentence ^
-  //                                   delimiters
+  //
+  // Change this link when the regex changes: https://regex101.com/r/j5rzSv/2
+  const rex = /(^|\s)(?!\[)@([a-zA-Z0-9-]+)([\s.,!?)~]{1}|$)/g;
+  //                                        ^ sentence ^
+  //                                         delimiters
 
   // find @mentions using rex and use about.named() to get the info for them
   let m;
   while ((m = rex.exec(text)) !== null) {
-    const name = m[1];
+    const name = m[2];
     let matches = about.named(name);
     for (const feed of matches) {
       let found = mentions[name] || [];
@@ -1058,6 +1062,7 @@ const app = http({ host, port, middleware, allowHost });
 // If we close the database after each test it throws lots of really fun "parent
 // stream closing" errors everywhere and breaks the tests. :/
 app._close = () => {
+  nameWarmup.close();
   cooler.close();
 };
 

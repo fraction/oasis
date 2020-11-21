@@ -39,6 +39,7 @@
     "open": "^7.0.3",
     "piexifjs": "^1.0.4",
     "pretty-ms": "^6.0.0",
+    "pull-abortable": "^4.1.1",
     "pull-paramap": "^1.2.2",
     "pull-sort": "^1.0.2",
     "pull-stream": "^3.6.12",
