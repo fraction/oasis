@@ -493,7 +493,7 @@ router
     };
     ctx.body = await author(feed);
   })
-  .get("/search/", async (ctx) => {
+  .get("/search", async (ctx) => {
     let { query } = ctx.query;
 
     if (isMsg(query)) {
@@ -548,7 +548,7 @@ router
     ctx.type = "text/css";
     ctx.body = requireStyle(filePath);
   })
-  .get("/profile/", async (ctx) => {
+  .get("/profile", async (ctx) => {
     const myFeedId = await meta.myFeedId();
 
     const gt = Number(ctx.request.query["gt"] || -1);
@@ -600,7 +600,7 @@ router
     });
     ctx.redirect("/profile");
   })
-  .get("/publish/custom/", async (ctx) => {
+  .get("/publish/custom", async (ctx) => {
     ctx.body = await publishCustomView();
   })
   .get("/json/:message", async (ctx) => {
@@ -710,7 +710,7 @@ router
     };
     ctx.body = await image({ blobId, imageSize: Number(imageSize) });
   })
-  .get("/settings/", async (ctx) => {
+  .get("/settings", async (ctx) => {
     const theme = ctx.cookies.get("theme") || config.theme;
     const getMeta = async ({ theme }) => {
       const status = await meta.status();
@@ -745,13 +745,13 @@ router
     };
     ctx.body = await likes({ feed });
   })
-  .get("/settings/readme/", async (ctx) => {
+  .get("/settings/readme", async (ctx) => {
     const status = async (text) => {
       return markdownView({ text });
     };
     ctx.body = await status(readme);
   })
-  .get("/mentions/", async (ctx) => {
+  .get("/mentions", async (ctx) => {
     const mentions = async () => {
       const messages = await post.mentionsMe();
 
@@ -889,7 +889,7 @@ router
     const previewData = await preparePreview(ctx);
     ctx.body = await previewView({ previewData, contentWarning });
   })
-  .post("/publish/", koaBody(), async (ctx) => {
+  .post("/publish", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
     const rawContentWarning = String(ctx.request.body.contentWarning);
 
