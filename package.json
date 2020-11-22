@@ -51,7 +51,7 @@
     "ssb-mentions": "^0.5.2",
     "ssb-msgs": "^5.2.0",
     "ssb-ref": "^2.13.9",
-    "ssb-tangle": "^1.0.1",
+    "ssb-tangle": "^2.1.3",
     "ssb-thread-schema": "^1.1.1",
     "yargs": "^16.1.1"
   },
