@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
-    "@types/highlight.js": "^9.12.3",
+    "@types/highlight.js": "^10.1.0",
     "@types/koa": "^2.11.3",
     "@types/koa-mount": "^4.0.0",
     "@types/koa-static": "^4.0.1",
