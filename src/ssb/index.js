@@ -7,11 +7,12 @@
 const { promisify } = require("util");
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
-const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
 const debug = require("debug")("oasis");
 const path = require("path");
 const lodash = require("lodash");
+
+const flotilla = require("./flotilla");
 
 const socketPath = path.join(ssbConfig.path, "socket");
 const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
