@@ -44,7 +44,7 @@
     "pull-sort": "^1.0.2",
     "pull-stream": "^3.6.12",
     "require-style": "^1.1.0",
-    "sharp": "^0.25.2",
+    "sharp": "^0.26.3",
     "ssb-client": "^4.9.0",
     "ssb-config": "^3.4.4",
     "ssb-markdown": "^6.0.7",
@@ -79,7 +79,7 @@
     "tap": "^14.10.7"
   },
   "optionalDependencies": {
-    "sharp": "^0.25.2"
+    "sharp": "^0.26.3"
   },
   "bugs": {
     "url": "https://github.com/fraction/oasis/issues"
