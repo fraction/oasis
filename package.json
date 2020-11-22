@@ -38,7 +38,7 @@
     "markdown-it": "^12.0.2",
     "open": "^7.0.3",
     "piexifjs": "^1.0.4",
-    "pretty-ms": "^6.0.0",
+    "pretty-ms": "^7.0.1",
     "pull-abortable": "^4.1.1",
     "pull-paramap": "^1.2.2",
     "pull-sort": "^1.0.2",
