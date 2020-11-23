@@ -16,7 +16,7 @@
     "dev": "nodemon --inspect src/index.js --debug --no-open",
     "fix": "common-good fix",
     "start": "node src/index.js",
-    "test": "tap --timeout 240 && common-good check --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended'",
+    "test": "tap --timeout 240 && common-good check --dependency-check-suffix '-i changelog-version -i mkdirp -i nodemon -i stylelint-config-recommended -i husky'",
     "preversion": "npm test",
     "version": "mv docs/CHANGELOG.md ./ && changelog-version && mv CHANGELOG.md docs/ && git add docs/CHANGELOG.md"
   },
@@ -96,6 +96,7 @@
     "@types/yargs": "^15.0.4",
     "changelog-version": "^2.0.0",
     "common-good": "^2.0.3",
+    "husky": "^3.0.5",
     "mkdirp": "^1.0.4",
     "nodemon": "^2.0.3",
     "stylelint-config-recommended": "^3.0.0",

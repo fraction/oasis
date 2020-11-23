@@ -24,6 +24,9 @@ Please run `npm test` before writing a commit, because if there are errors then
 maintainers won't be able to merge your patch. Please ask for help if `npm test`
 is giving you any trouble.
 
+**Note:** `npm run fix` is run automatically as a pre-commit hook. You always
+have the option to disable pre-commit hooks with `git commit --no-verify`.
+
 ## Frequently Failed Tests
 
 ### Unknown word
