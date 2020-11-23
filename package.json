@@ -97,7 +97,7 @@
     "@types/yargs": "^15.0.4",
     "changelog-version": "^2.0.0",
     "common-good": "^2.0.3",
-    "husky": "^3.0.5",
+    "husky": "^4.3.0",
     "mkdirp": "^1.0.4",
     "nodemon": "^2.0.3",
     "stylelint-config-recommended": "^3.0.0",
