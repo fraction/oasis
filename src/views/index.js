@@ -70,10 +70,6 @@ const toAttributes = (obj) =>
 // non-breaking space
 const nbsp = "\xa0";
 
-/**
-// @ts-ignore
- * @param {{href: string, emoji: string, text: string }} input
- */
 const template = (titlePrefix, ...elements) => {
   const navLink = ({ href, emoji, text }) =>
     li(
