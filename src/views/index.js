@@ -1107,13 +1107,13 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         { action: "/language", method: "post" },
         select({ name: "language" }, [
           // Languages are sorted alphabetically by their 'long name'.
-          /* cspell:disable */
+          /* spell-checker:disable */
           languageOption("Deutsch", "de"),
           languageOption("English", "en"),
           languageOption("Español", "es"),
           languageOption("Français", "fr"),
           languageOption("Italiano", "it"),
-          /* cspell:enable */
+          /* spell-checker:enable */
         ]),
         button({ type: "submit" }, i18n.setLanguage)
       ),

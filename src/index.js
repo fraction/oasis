@@ -7,7 +7,6 @@ const path = require("path");
 const envPaths = require("env-paths");
 const cli = require("./cli");
 const fs = require("fs");
-// cspell:disable-next-line
 const exif = require("piexifjs");
 
 const defaultConfig = {};
@@ -219,7 +218,6 @@ const preparePreview = async function (ctx) {
   return { authorMeta, text, mentions };
 };
 
-// cspell:disable
 // handleBlobUpload ingests an uploaded form file.
 // it takes care of maximum blob size (5meg), exif stripping and mime detection.
 // finally it returns the correct markdown link for the blob depending on the mime-type.
@@ -284,11 +282,11 @@ const handleBlobUpload = async function (ctx) {
     name: blobUpload.name,
   };
 
-  // determain encoding to add the correct markdown link
+  // determine encoding to add the correct markdown link
   const FileType = require("file-type");
   try {
-    let ftype = await FileType.fromBuffer(data);
-    blob.mime = ftype.mime;
+    let fileType = await FileType.fromBuffer(data);
+    blob.mime = fileType.mime;
   } catch (error) {
     console.warn(error);
     blob.mime = "application/octet-stream";
@@ -305,7 +303,6 @@ const handleBlobUpload = async function (ctx) {
     return `\n[${blob.name}](${blob.id})`;
   }
 };
-// cspell:enable
 
 const resolveCommentComponents = async function (ctx) {
   const { message } = ctx.params;
