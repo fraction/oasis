@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@fraction/base16-css": "^1.1.0",
-    "@koa/router": "^8.0.0",
+    "@koa/router": "^10.0.0",
     "debug": "^4.1.1",
     "env-paths": "^2.2.0",
     "file-type": "^16.0.1",
