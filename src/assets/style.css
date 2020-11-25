@@ -144,6 +144,7 @@ section header a {
   text-decoration: none;
   margin-right: var(--size--2);
   margin-left: var(--size--2);
+  font-weight: bold;
 }
 
 /* For use with elements specific for
@@ -156,6 +157,7 @@ section header a {
 section > footer > div > a,
 section > footer > div > form > button {
   color: var(--fg-status);
+  font-weight: bold;
 }
 
 section > footer > div > form > button {
@@ -333,6 +335,7 @@ nav {
 nav > ul > li > a {
   color: var(--fg);
   text-decoration: none;
+  font-weight: bold;
 }
 
 .author-action > a {
@@ -440,7 +443,6 @@ section > .centered-footer {
 
 section > footer {
   color: var(--fg-status);
-  margin-top: var(--size-0);
 }
 
 section > footer br {

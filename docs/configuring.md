@@ -5,7 +5,6 @@ standard folder for configuration, depending on your operating system:
 
 - Linux: `$XDG_CONFIG_HOME/oasis/default.json`.
   Usually this is `/home/<your username>/.config/oasis/default.json`
-  <!-- cspell:disable-next-line -->
 - Windows `%APPDATA%\oasis\default.json`.
 - Mac OS, `/Users/<your username>/Library/Preferences/oasis/default.json`
 

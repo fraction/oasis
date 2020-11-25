@@ -7,11 +7,22 @@
 const { promisify } = require("util");
 const ssbClient = require("ssb-client");
 const ssbConfig = require("ssb-config");
-const flotilla = require("@fraction/flotilla");
 const ssbTangle = require("ssb-tangle");
+const ssbKeys = require("ssb-keys");
 const debug = require("debug")("oasis");
 const path = require("path");
 const lodash = require("lodash");
+const fs = require("fs");
+const os = require("os");
+
+const flotilla = require("./flotilla");
+
+// Use temporary path if we're running a test.
+// TODO: Refactor away 'OASIS_TEST' variable.
+if (process.env.OASIS_TEST) {
+  ssbConfig.path = fs.mkdtempSync(path.join(os.tmpdir(), "oasis-"));
+  ssbConfig.keys = ssbKeys.generate();
+}
 
 const socketPath = path.join(ssbConfig.path, "socket");
 const publicInteger = ssbConfig.keys.public.replace(".ed25519", "");
@@ -50,7 +61,9 @@ const connect = (options) =>
       resolve(api);
     };
 
-    ssbClient(null, options).then(onSuccess).catch(reject);
+    ssbClient(process.env.OASIS_TEST ? ssbConfig.keys : null, options)
+      .then(onSuccess)
+      .catch(reject);
   });
 
 let closing = false;
@@ -64,7 +77,15 @@ let clientHandle;
  */
 const attemptConnection = () =>
   new Promise((resolve, reject) => {
-    connect({ remote })
+    const originalConnect = process.env.OASIS_TEST
+      ? new Promise((resolve, reject) =>
+          reject({
+            message: "could not connect to sbot",
+          })
+        )
+      : connect({ remote });
+
+    originalConnect
       .then((ssb) => {
         debug("Connected to existing Scuttlebutt service over Unix socket");
         resolve(ssb);
