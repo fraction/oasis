@@ -989,15 +989,7 @@ exports.previewView = ({ previewData, contentWarning }) => {
 /**
  * @param {{status: object, peers: any[], theme: string, themeNames: string[], version: string }} input
  */
-exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
-  const max = status.sync.since;
-
-  const progressElements = Object.entries(status.sync.plugins).map((e) => {
-    const [key, val] = e;
-    const id = `progress-${key}`;
-    return div(label(key, progress({ id, value: val, max }, val)));
-  });
-
+exports.settingsView = ({ peers, theme, themeNames, version }) => {
   const startButton = form(
     { action: "/settings/conn/start", method: "post" },
     button({ type: "submit" }, i18n.startNetworking)
@@ -1075,6 +1067,11 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
       ? option({ value: shortName, selected: true }, longName)
       : option({ value: shortName }, longName);
 
+  const rebuildButton = form(
+    { action: "/settings/rebuild", method: "post" },
+    button({ type: "submit" }, i18n.rebuildName)
+  );
+
   return template(
     i18n.settings,
     section(
@@ -1118,7 +1115,8 @@ exports.settingsView = ({ status, peers, theme, themeNames, version }) => {
         button({ type: "submit" }, i18n.setLanguage)
       ),
       h2(i18n.indexes),
-      progressElements
+      p(i18n.indexesDescription),
+      rebuildButton
     )
   );
 };

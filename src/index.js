@@ -710,7 +710,6 @@ router
   .get("/settings", async (ctx) => {
     const theme = ctx.cookies.get("theme") || config.theme;
     const getMeta = async ({ theme }) => {
-      const status = await meta.status();
       const peers = await meta.connectedPeers();
       const peersWithNames = await Promise.all(
         peers.map(async ([key, value]) => {
@@ -720,7 +719,6 @@ router
       );
 
       return settingsView({
-        status,
         peers: peersWithNames,
         theme,
         themeNames,
@@ -1007,6 +1005,11 @@ router
   .post("/settings/invite/accept", koaBody(), async (ctx) => {
     const invite = String(ctx.request.body.invite);
     await meta.acceptInvite(invite);
+    ctx.redirect("/settings");
+  })
+  .post("/settings/rebuild", async (ctx) => {
+    // Do not wait for rebuild to finish.
+    meta.rebuild();
     ctx.redirect("/settings");
   });
 

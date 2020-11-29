@@ -586,6 +586,11 @@ module.exports = ({ cooler, isPublic }) => {
       const ssb = await cooler.open();
       return await ssb.invite.accept(invite);
     },
+    // Returns promise, does not wait for rebuild to finish.
+    rebuild: async () => {
+      const ssb = await cooler.open();
+      return ssb.rebuild();
+    },
   };
 
   const isLooseRoot = (message) => {
