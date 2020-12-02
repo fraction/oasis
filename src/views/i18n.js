@@ -165,6 +165,8 @@ const i18n = {
     restartNetworking: "Restart networking",
     sync: "Connect and Sync",
     indexes: "Indexes",
+    indexesDescription:
+      "Oasis keeps a cache of common calculations so that we can save time. Unfortunately this is a common source of bugs. Rebuilding your indexes is safe, and may fix some types of bugs.",
     invites: "Invites",
     invitesDescription:
       "Redeem an invite by pasting it below. If it works, you'll follow the feed and they'll follow you back.",
@@ -196,6 +198,7 @@ const i18n = {
     profileDescription: "Profile description (Markdown)",
     hashtagDescription:
       "Posts from people in your network that reference this hashtag, sorted by recency.",
+    rebuildName: "Rebuild database indexes",
   },
   /* spell-checker: disable */
   es: {
