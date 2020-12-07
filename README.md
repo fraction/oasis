@@ -78,7 +78,7 @@ Details: SSB apps have two parts: a "server" that manages the database (on your 
 - [Contributing](https://github.com/fraction/oasis/blob/master/docs/contributing.md)
 - [Help](https://github.com/fraction/oasis/issues/new)
 - [Security policy](https://github.com/fraction/oasis/blob/master/docs/security.md)
-- [Source code](https://github.com/fraction/oasis.git)
+- Source code: [Github](https://github.com/fraction/oasis.git) and [Gitlab](https://gitlab.com/fraction/oasis)
 
 ## See Also
 
