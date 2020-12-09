@@ -36,6 +36,24 @@ if (config.debug) {
   process.env.DEBUG = "oasis,oasis:*";
 }
 
+const customStyleFile = path.join(
+  envPaths("oasis", { suffix: "" }).config,
+  "/custom-style.css"
+);
+let haveCustomStyle;
+
+try {
+  fs.readFileSync(customStyleFile, "utf8");
+  haveCustomStyle = true;
+} catch (e) {
+  if (e.code === "ENOENT") {
+    haveCustomStyle = false;
+  } else {
+    console.log(`There was a problem loading ${customStyleFile}`);
+    throw e;
+  }
+}
+
 const nodeHttp = require("http");
 const debug = require("debug")("oasis");
 
@@ -58,6 +76,12 @@ if (haveConfig) {
 } else {
   log(
     `No configuration file found at ${defaultConfigFile}, using built-in default values.`
+  );
+}
+
+if (!haveCustomStyle) {
+  log(
+    `No custom style file found at ${customStyleFile}, ignoring this stylesheet.`
   );
 }
 
@@ -544,6 +568,10 @@ router
     const filePath = `${packageName}/src/base16-${theme}.css`;
     ctx.type = "text/css";
     ctx.body = requireStyle(filePath);
+  })
+  .get("/custom-style.css", (ctx) => {
+    ctx.type = "text/css";
+    ctx.body = requireStyle(customStyleFile);
   })
   .get("/profile", async (ctx) => {
     const myFeedId = await meta.myFeedId();

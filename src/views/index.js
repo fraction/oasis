@@ -1,5 +1,9 @@
 "use strict";
 
+const path = require("path");
+const envPaths = require("env-paths");
+const fs = require("fs");
+
 const debug = require("debug")("oasis");
 const highlightJs = require("highlight.js");
 
@@ -81,6 +85,20 @@ const template = (titlePrefix, ...elements) => {
       )
     );
 
+  const customCSS = (filename) => {
+    const customStyleFile = path.join(
+      envPaths("oasis", { suffix: "" }).config,
+      filename
+    );
+    try {
+      if (fs.existsSync(customStyleFile)) {
+        return link({ rel: "stylesheet", href: filename });
+      }
+    } catch (error) {
+      return "";
+    }
+  };
+
   const nodes = html(
     { lang: "en" },
     head(
@@ -88,6 +106,7 @@ const template = (titlePrefix, ...elements) => {
       link({ rel: "stylesheet", href: "/theme.css" }),
       link({ rel: "stylesheet", href: "/assets/style.css" }),
       link({ rel: "stylesheet", href: "/assets/highlight.css" }),
+      customCSS("/custom-style.css"),
       link({ rel: "icon", type: "image/svg+xml", href: "/assets/favicon.svg" }),
       meta({ charset: "utf-8" }),
       meta({
