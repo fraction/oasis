@@ -289,62 +289,68 @@ const i18n = {
       ".",
     ],
     publishBasicInfo: ({ href }) => [
-      "Si no eres un usuário avanzado, lo mejor es ",
+      "Si no eres un usuario avanzado, lo mejor es ",
       a({ href }, "publicar un mensaje normal."),
       ".",
     ],
     publishCustom: "Publicar avanzado",
 
     replyLabel: ({ markdownUrl }) => [
-      "Escribí una ",
-      strong("respuesta publica"),
+      "Escribe una ",
+      strong("respuesta pública"),
       " a este mensaje con ",
       a({ href: markdownUrl }, "Markdown"),
-      ". Los mensajes no podrán ser editados o borrados. Para responder a todo un hilo, seleccioná ",
-      strong("comentário"),
+      ". Los mensajes no podrán ser editados o borrados. Para responder a todo un hilo, selecciona ",
+      strong("comentario"),
       ".",
     ],
     // settings
     settingsIntro: ({ readmeUrl, version }) => [
-      `Estás usando Oasis ${version}. Leé `,
+      `Estás usando Oasis ${version}. Lee `,
       a({ href: readmeUrl }, "el Readme"),
-      ", configura un tema, o consultá información de debug abajo.",
+      ", configura un tema, o consulta información de debug abajo.",
     ],
     theme: "Tema",
-    themeIntro: "Eligí un tema. Atelier-SulphurPool-Light és el tema por defecto.",
-    setTheme: "Eligí el tema",
+    themeIntro: "Elige un tema. Atelier-SulphurPool-Light es el tema por defecto.",
+    setTheme: "Elige el tema",
     language: "Idioma",
     languageDescription:
-      "Sí queres usar Oasis en otro idioma, eligí acá. Atención, que esta funcionalidad és aún nueva y básica. Necesitamos ayuda con traducciones para otros idiomas y formatos.",
+      "Si queres usar Oasis en otro idioma, elige aquí. Atención, que esta funcionalidad es aún nueva y básica. Necesitamos ayuda con traducciones para otros idiomas y formatos.",
     setLanguage: "Seleccionar idioma",
 
-    status: "Status",
+    status: "Estado",
     peerConnections: "Conexiones de pares 💻⚡️💻",
     connectionsIntro:
-      "Tu computadora está sincronizando con las siguientes computadoras. Se conectará con cualquier par de scuttlebutt que encuentre a medida que busque informacion de tus amigos, mismo que no hayas establecido una relación prévia.",
+      "Tu computadora se está sincronizando con las siguientes computadoras. Se conectará con cualquier par de scuttlebutt que encuentre, aún si no los conoce, ya que podrían tener información de tus amigos.",
     noConnections: "Sin pares conectados.",
     connectionActionIntro:
-      "Podrás decidir cuando conectar tu computadora a la red de pares. Podrás arrancar, detener o reiniciar las conexiones siempre que quieras.",
-    startNetworking: "Arrancar las conexiones",
+      "Podrás decidir cuándo conectar tu computadora a la red de pares. Podrás iniciar, detener o reiniciar las conexiones siempre que quieras.",
+    startNetworking: "Iniciar las conexiones",
     stopNetworking: "Detener las conexiones",
     restartNetworking: "Reiniciar las conexiones",
-    indexes: "Indices",
+    indexes: "Índices",
     invites: "Invitaciones",
     invitesDescription:
-      "Utilizá una invitación pegando abajo. Sí funcionar, empezarás a seguir esa persona y ella te seguirá a vós también.",
+      "Utiliza una invitación aquí. Si funciona, empezarás a seguir a esa persona y ella te seguirá a ti también.",
     acceptInvite: "Aceptar la invitación",
     // search page
-    searchLabel: "Buscá las siguientes palabras por los mensajes que tenés descargados.",
+    searchLabel: "Busca con palabras clave entre las publicaciones que tienes descargadas.",
     // posts and comments
     commentDescription: ({ parentUrl }) => [" comentado en el hilo ", a({ href: parentUrl }, "")],
     replyDescription: ({ parentUrl }) => [" respondido al ", a({ href: parentUrl }, "mensaje ")],
+    // image search page
+    imageSearchLabel: "Busca con palabras clave entre los títulos de las fotos que tienes descargadas.",
+    // posts and comments
+    commentTitle: ({ authorName }) => [`Comentó en el mensaje de @${authorName}`],
+    subtopicDescription: ({ parentUrl }) => [" creó un nuevo hilo para ", a({ href: parentUrl }, "este mensaje")],
+    subtopicTitle: ({ authorName }) => [`Nuevo hilo en el mensaje de @${authorName}`],
     mysteryDescription: "publicó un mensaje misterioso",
     // misc
-    oasisDescription: "Interface del vecinario amistoso scuttlebutt",
+    oasisDescription: "Una bonita interfaz para el amigable vecindario de scuttlebutt",
     submit: "Enviar",
     editProfile: "Editar perfil",
     editProfileDescription:
-      "Editá tu perfil con Markdown. Los mensajes no podrán ser editados o borrados. La información en tu perfil será siempre publico, mismo aquella de versiones antiguas. La mayoria de los clientes de ssb no presentarán versiones antiguas de tu perfil",
+      "Edita tu perfil con Markdown. Los cambios serán publicados permanentemente, y habrá un registro de cada cambio disponeble públicamente, aunque la mayoría de las apps de scuttlebutt no muestran el historial.",
     profileName: "Nombre de perfil (texto)",
     profileImage: "Imagen de perfil",
     profileDescription: "Descripción de perfil (Markdown)",
