@@ -188,6 +188,7 @@ const i18n = {
     latest: "Novedades",
     profile: "Mi Perfil",
     search: "Buscar",
+    imageSearch: "Buscar fotos",
     settings: "Configuración",
     // navbar items
     extended: "Red extendida",
@@ -215,6 +216,11 @@ const i18n = {
       strong("Tópicos y algunos comentarios"),
       " de las personas que sigues, ordenados por los más recientes. Selecciona la hora de una publicación para leer el hilo completo.",
     ],
+    threads: "Hilos",
+    threadsDescription: [
+      strong("Posts que tienen comentarios"),
+      " de personas que sigues y de tu red extendida, ordenados por los más recientes. Selecciona la hora de una publicación para leer el hilo completo.",
+    ],
     manualMode: "Modo manual",
     mentions: "Menciones",
     mentionsDescription: [
@@ -231,6 +237,7 @@ const i18n = {
     // post actions
     comment: "Comentar",
     reply: "Responder",
+    subtopic: "Subhilo",
     json: "JSON",
     // relationships
     unfollow: "Dejar de seguir",
@@ -329,6 +336,8 @@ const i18n = {
     stopNetworking: "Detener las conexiones",
     restartNetworking: "Reiniciar las conexiones",
     indexes: "Índices",
+    indexesDescription:
+    "Oasis mantiene una caché con datos precalculados para ahorrar tiempo. Lamentablemente, esto es a menudo una causa de errores. Reconstruir esta chaché puede solucionar algunos errores si se presentan.",
     invites: "Invitaciones",
     invitesDescription:
       "Utiliza una invitación aquí. Si funciona, empezarás a seguir a esa persona y ella te seguirá a ti también.",
@@ -336,7 +345,7 @@ const i18n = {
     // search page
     searchLabel: "Busca con palabras clave entre las publicaciones que tienes descargadas.",
     // posts and comments
-    commentDescription: ({ parentUrl }) => [" comentado en el hilo ", a({ href: parentUrl }, "")],
+    commentDescription: ({ parentUrl }) => [" comentó en el hilo ", a({ href: parentUrl }, "")],
     replyDescription: ({ parentUrl }) => [" respondido al ", a({ href: parentUrl }, "mensaje ")],
     // image search page
     imageSearchLabel: "Busca con palabras clave entre los títulos de las fotos que tienes descargadas.",
@@ -355,6 +364,7 @@ const i18n = {
     profileImage: "Imagen de perfil",
     profileDescription: "Descripción de perfil (Markdown)",
     hashtagDescription: "Publicaciones de personas en tu red que mencionan este hashtag, ordenadas por las más recientes.",
+    rebuildName: "Reconstruir índices de la base de datos",
   },
   de: {
     extended: "Erweitert",
