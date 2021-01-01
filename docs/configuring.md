@@ -18,6 +18,8 @@ Here is an example customizing the port number and the "open" settings:
 }
 ```
 
+If you run `oasis --help` you'll see all of the parameters, which are also defined in the source code here: https://github.com/fraction/oasis/blob/master/src/cli.js
+
 ## Semantics
 
 Which value is given is decided like this:
