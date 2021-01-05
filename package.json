@@ -92,7 +92,7 @@
     "@types/mkdirp": "^1.0.0",
     "@types/nodemon": "^1.19.0",
     "@types/pull-stream": "^3.6.0",
-    "@types/sharp": "^0.26.1",
+    "@types/sharp": "^0.27.0",
     "@types/supertest": "^2.0.9",
     "@types/yargs": "^15.0.4",
     "changelog-version": "^2.0.0",
