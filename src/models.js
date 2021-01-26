@@ -691,6 +691,26 @@ module.exports = ({ cooler, isPublic }) => {
       }
     });
   };
+
+  const getUserInfo = async (feedId) => {
+    const id = feedId;
+
+    const pendingName = models.about.name(feedId);
+    const pendingAvatarMsg = models.about.image(feedId);
+
+    const pending = [pendingName, pendingAvatarMsg];
+    const [name, avatarMsg] = await Promise.all(pending);
+
+    const avatarId =
+      avatarMsg != null && typeof avatarMsg.link === "string"
+        ? avatarMsg.link || nullImage
+        : avatarMsg || nullImage;
+
+    const avatarUrl = `/image/64/${encodeURIComponent(avatarId)}`;
+
+    return { name, id, avatarId, avatarUrl };
+  };
+
   const transform = (ssb, messages, myFeedId) =>
     Promise.all(
       messages.map(async (msg) => {
@@ -767,11 +787,9 @@ module.exports = ({ cooler, isPublic }) => {
         );
         const voterNames = await Promise.all(pendingVoterNames);
 
-        const pendingName = models.about.name(msg.value.author);
-        const pendingAvatarMsg = models.about.image(msg.value.author);
-
-        const pending = [pendingName, pendingAvatarMsg];
-        const [name, avatarMsg] = await Promise.all(pending);
+        const { name, avatarId, avatarUrl } = await getUserInfo(
+          msg.value.author
+        );
 
         if (isPublic) {
           const publicOptIn = await models.about.publicWebHosting(
@@ -796,13 +814,6 @@ module.exports = ({ cooler, isPublic }) => {
         if (hasChannel && hasNoRoot(msg)) {
           msg.value.content.text += `\n\n#${channel}`;
         }
-
-        const avatarId =
-          avatarMsg != null && typeof avatarMsg.link === "string"
-            ? avatarMsg.link || nullImage
-            : avatarMsg || nullImage;
-
-        const avatarUrl = `/image/64/${encodeURIComponent(avatarId)}`;
 
         const ts = new Date(msg.value.timestamp);
         let isoTs;
@@ -839,6 +850,14 @@ module.exports = ({ cooler, isPublic }) => {
 
         lodash.set(msg, "value.meta.votes", voterNames);
         lodash.set(msg, "value.meta.voted", voters.includes(myFeedId));
+
+        if (isPrivate(msg)) {
+          msg.value.meta.recpsInfo = await Promise.all(
+            msg.value.content.recps.map((feedId) => {
+              return getUserInfo(feedId);
+            })
+          );
+        }
 
         return msg;
       })
