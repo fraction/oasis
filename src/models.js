@@ -1261,10 +1261,12 @@ module.exports = ({ cooler, isPublic }) => {
           ],
         })
       );
+      const basicSocialFilter = await socialFilter();
 
       const messages = await new Promise((resolve, reject) => {
         pull(
           source,
+          basicSocialFilter,
           pull.filter((message) => isNotPrivate(message) && hasNoRoot(message)),
           pull.take(maxMessages),
           pullParallelMap(async (message, cb) => {
