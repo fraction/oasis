@@ -393,8 +393,22 @@ const post = ({ msg, aside = false }) => {
 
   const messageClasses = ["post"];
 
+  const recps = [];
+
+  const addRecps = (recpsInfo) => {
+    recpsInfo.forEach(function (recp) {
+      recps.push(
+        a(
+          { href: `/author/${encodeURIComponent(recp.feedId)}` },
+          img({ class: "avatar", src: recp.avatarUrl, alt: "" })
+        )
+      );
+    });
+  };
+
   if (isPrivate) {
     messageClasses.push("private");
+    addRecps(msg.value.meta.recpsInfo);
   }
 
   if (isThreadTarget) {
@@ -449,6 +463,7 @@ const post = ({ msg, aside = false }) => {
             title: timeAbsolute,
           },
           isPrivate ? "🔒" : null,
+          isPrivate ? recps : null,
           a({ href: url.link }, nbsp, timeAgo)
         )
       )
