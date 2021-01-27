@@ -399,7 +399,7 @@ const post = ({ msg, aside = false }) => {
     recpsInfo.forEach(function (recp) {
       recps.push(
         a(
-          { href: `/author/${encodeURIComponent(recp.id)}` },
+          { href: `/author/${encodeURIComponent(recp.feedId)}` },
           img({ class: "avatar", src: recp.avatarUrl, alt: "" })
         )
       );

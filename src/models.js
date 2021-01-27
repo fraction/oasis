@@ -693,8 +693,6 @@ module.exports = ({ cooler, isPublic }) => {
   };
 
   const getUserInfo = async (feedId) => {
-    const id = feedId;
-
     const pendingName = models.about.name(feedId);
     const pendingAvatarMsg = models.about.image(feedId);
 
@@ -708,8 +706,16 @@ module.exports = ({ cooler, isPublic }) => {
 
     const avatarUrl = `/image/64/${encodeURIComponent(avatarId)}`;
 
-    return { name, id, avatarId, avatarUrl };
+    return { name, feedId, avatarId, avatarUrl };
   };
+
+  function getRecipientFeedId(recipient) {
+    if (typeof recipient === "string") {
+      return recipient;
+    } else {
+      return recipient.link;
+    }
+  }
 
   const transform = (ssb, messages, myFeedId) =>
     Promise.all(
@@ -853,8 +859,8 @@ module.exports = ({ cooler, isPublic }) => {
 
         if (isPrivate(msg)) {
           msg.value.meta.recpsInfo = await Promise.all(
-            msg.value.content.recps.map((feedId) => {
-              return getUserInfo(feedId);
+            msg.value.content.recps.map((recipient) => {
+              return getUserInfo(getRecipientFeedId(recipient));
             })
           );
         }
