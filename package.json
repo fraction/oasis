@@ -94,7 +94,7 @@
     "@types/pull-stream": "^3.6.0",
     "@types/sharp": "^0.27.0",
     "@types/supertest": "^2.0.9",
-    "@types/yargs": "^15.0.4",
+    "@types/yargs": "^16.0.0",
     "changelog-version": "^2.0.0",
     "common-good": "^4.0.3",
     "husky": "^4.3.0",
