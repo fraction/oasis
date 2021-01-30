@@ -39,6 +39,7 @@ const isBlogPost = (message) =>
   ssbRef.isBlob(lodash.get(message, "value.content.blog", null));
 
 const isTextLike = (message) => isPost(message) || isBlogPost(message);
+const hasVote = (message) => lodash.get(message, "value.meta.voted") === true;
 
 // HACK: https://github.com/ssbc/ssb-thread-schema/issues/4
 const isSubtopic = require("ssb-thread-schema/post/nested-reply/validator");
@@ -1048,6 +1049,7 @@ module.exports = ({ cooler, isPublic }) => {
             const msg = await post.get(val.value.content.vote.link);
             cb(null, msg);
           }),
+          pull.filter(hasVote),
           pull.collect((err, collectedMessages) => {
             if (err) {
               reject(err);
