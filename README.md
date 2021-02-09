@@ -71,6 +71,10 @@ Details: SSB apps have two parts: a "server" that manages the database (on your 
 | Patchbay  | Yes                                | No, only uses its own server                   |
 | Patchfox  | No                                 | Yes, depends on other apps to provide a server |
 
+### Can I use Oasis as a desktop app?
+
+Yes! Check out [Oasis-Desktop](https://github.com/fraction/oasis-desktop)!
+
 ## Resources
 
 - [Architecture](https://github.com/fraction/oasis/blob/master/docs/architecture.md)
@@ -82,6 +86,7 @@ Details: SSB apps have two parts: a "server" that manages the database (on your 
 
 ## See Also
 
+- [Oasis-Desktop](https://github.com/fraction/oasis-desktop)
 - [Patchbay](https://github.com/ssbc/patchbay)
 - [Patchwork](https://github.com/ssbc/patchwork)
 - [SSB-Browser](https://github.com/arj03/ssb-browser-demo)
