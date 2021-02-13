@@ -789,10 +789,9 @@ module.exports = ({ cooler, isPublic }) => {
 
         // get an array of voter names, for display on hovers
         const pendingVoterNames = voters.map(async (author) => ({
-            name: await models.about.name(author),
-            key: author
-          })
-        );
+          name: await models.about.name(author),
+          key: author,
+        }));
         const voterNames = await Promise.all(pendingVoterNames);
 
         const { name, avatarId, avatarUrl } = await getUserInfo(
@@ -1046,12 +1045,14 @@ module.exports = ({ cooler, isPublic }) => {
             );
           }),
           pull.take(maxMessages),
-          pull.unique(message => message.value.content.vote.link),
+          pull.unique((message) => message.value.content.vote.link),
           pullParallelMap(async (val, cb) => {
             const msg = await post.get(val.value.content.vote.link);
             cb(null, msg);
           }),
-          pull.filter((message) => message.value.meta.votes.map(voter => voter.key).includes(feed)),
+          pull.filter((message) =>
+            message.value.meta.votes.map((voter) => voter.key).includes(feed)
+          ),
           pull.collect((err, collectedMessages) => {
             if (err) {
               reject(err);
