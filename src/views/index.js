@@ -382,6 +382,7 @@ const post = ({ msg, aside = false }) => {
 
   const likedByNames = msg.value.meta.votes
     .slice(0, maxLikedNames)
+    .map((person) => person.name)
     .map((name) => name.slice(0, maxLikedNameLength))
     .join(", ");
 
