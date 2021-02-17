@@ -131,6 +131,12 @@ button,
   color: var(--fg);
 }
 
+.edit-button {
+  float: right;
+  margin: 0;
+  margin-top: -1.9rem; /* This is not the best way to solve this but I couldn't think of anyother way atm, please let me know if anyone have any suggestions :) */
+}
+
 #blob {
   visibility: hidden;
   height: 0;
