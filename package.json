@@ -57,7 +57,7 @@
     "ssb-friends": "^4.3.0",
     "ssb-invite": "^2.1.6",
     "ssb-keys": "^8.0.0",
-    "ssb-lan": "^0.2.0",
+    "ssb-lan": "^1.0.0",
     "ssb-logging": "^1.0.0",
     "ssb-markdown": "^6.0.7",
     "ssb-master": "^1.0.3",
