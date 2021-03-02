@@ -220,6 +220,7 @@ const thread = (messages) => {
       const isAncestor = Boolean(
         lodash.get(currentMsg, "value.meta.thread.ancestorOfTarget", false)
       );
+      const isBlocked = Boolean(nextMsg.value.meta.blocking);
       msgList.push(`<div class="indent"><details ${isAncestor ? "open" : ""}>`);
 
       const nextAuthor = lodash.get(nextMsg, "value.meta.author.name");
@@ -228,8 +229,13 @@ const thread = (messages) => {
           ? lodash.get(nextMsg, "value.content.contentWarning")
           : lodash.get(nextMsg, "value.content.text")
       );
-
-      msgList.push(summary(`${nextAuthor}: ${nextSnippet}`).outerHTML);
+      msgList.push(
+        summary(
+          isBlocked
+            ? i18n.relationshipBlockingPost
+            : `${nextAuthor}: ${nextSnippet}`
+        ).outerHTML
+      );
     } else if (depth(currentMsg) > depth(nextMsg)) {
       // getting more shallow
       const diffDepth = depth(currentMsg) - depth(nextMsg);
@@ -353,6 +359,7 @@ const post = ({ msg, aside = false }) => {
   };
 
   const isPrivate = Boolean(msg.value.meta.private);
+  const isBlocked = Boolean(msg.value.meta.blocking);
   const isRoot = msg.value.content.root == null;
   const isFork = msg.value.meta.postType === "subtopic";
   const hasContentWarning =
@@ -437,6 +444,17 @@ const post = ({ msg, aside = false }) => {
           })
         )
       : article({ class: "content", innerHTML: markdownContent });
+
+  if (isBlocked) {
+    messageClasses.push("blocked");
+    return section(
+      {
+        id: msg.key,
+        class: messageClasses.join(" "),
+      },
+      i18n.relationshipBlockingPost
+    );
+  }
 
   const articleContent = hasContentWarning
     ? details(summary(msg.value.content.contentWarning), articleElement)

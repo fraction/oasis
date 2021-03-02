@@ -866,6 +866,11 @@ module.exports = ({ cooler, isPublic }) => {
           );
         }
 
+        const { blocking } = await models.friend.getRelationship(
+          msg.value.author
+        );
+        lodash.set(msg, "value.meta.blocking", blocking);
+
         return msg;
       })
     );

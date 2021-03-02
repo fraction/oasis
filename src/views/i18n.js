@@ -75,6 +75,7 @@ const i18n = {
     relationshipFollowing: "You are following",
     relationshipYou: "This is you",
     relationshipBlocking: "You are blocking",
+    relationshipBlockingPost: "This message hides content from a blocked user.",
     relationshipNone: "You are neither following or blocking",
     relationshipConflict: "You are somehow both following and blocking",
     // author view

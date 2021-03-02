@@ -667,6 +667,10 @@ section.post-preview > section > footer {
   display: none;
 }
 
+section.post.blocked {
+  font-style: italic;
+}
+
 section > footer > div > a:hover,
 section > footer > div > form > button:hover {
   text-decoration: underline;
