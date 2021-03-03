@@ -1795,6 +1795,49 @@ module.exports = ({ cooler, isPublic }) => {
 
       return keys;
     },
+    channels: async () => {
+      const ssb = await cooler.open();
+
+      const source = ssb.createUserStream({ id: ssb.id });
+
+      const messages = await new Promise((resolve, reject) => {
+        pull(
+          source,
+          pull.filter((message) => {
+            return lodash.get(message, "value.content.type") === "channel"
+              ? true
+              : false;
+          }),
+          pull.collect((err, collectedMessages) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(transform(ssb, collectedMessages, ssb.id));
+            }
+          })
+        );
+      });
+
+      const channels = messages.map((msg) => {
+        return {
+          channel: msg.value.content.channel,
+          subscribed: msg.value.content.subscribed,
+        };
+      });
+
+      let subbedChannels = [];
+
+      channels.forEach((ch) => {
+        if (ch.subscribed && !subbedChannels.includes(ch.channel)) {
+          subbedChannels.push(ch.channel);
+        }
+        if (ch.subscribed === false && subbedChannels.includes(ch.channel)) {
+          subbedChannels = lodash.pull(subbedChannels, ch.channel);
+        }
+      });
+
+      return subbedChannels;
+    },
     inbox: async (customOptions = {}) => {
       const ssb = await cooler.open();
 
