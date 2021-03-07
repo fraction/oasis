@@ -1243,11 +1243,12 @@ exports.latestView = ({ messages }) => {
   });
 };
 
-exports.topicsView = ({ messages }) => {
+exports.topicsView = ({ messages, prefix }) => {
   return messageListView({
     messages,
     viewTitle: i18n.topics,
     viewDescription: i18n.topicsDescription,
+    viewElements: prefix,
   });
 };
 

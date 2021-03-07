@@ -471,7 +471,12 @@ router
   })
   .get("/public/latest/topics", async (ctx) => {
     const messages = await post.latestTopics();
-    ctx.body = await topicsView({ messages });
+    const channels = await post.channels();
+    const list = channels.map((c) => {
+      return li(a({ href: `/hashtag/${c}` }, `#${c}`));
+    });
+    const prefix = nav(ul(list));
+    ctx.body = await topicsView({ messages, prefix });
   })
   .get("/public/latest/summaries", async (ctx) => {
     const messages = await post.latestSummaries();
