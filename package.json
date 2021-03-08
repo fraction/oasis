@@ -100,7 +100,7 @@
     "husky": "^5.0.9",
     "mkdirp": "^1.0.4",
     "nodemon": "^2.0.3",
-    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-recommended": "^4.0.0",
     "supertest": "^6.0.1",
     "tap": "^14.10.7"
   },
