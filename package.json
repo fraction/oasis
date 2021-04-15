@@ -53,7 +53,7 @@
     "ssb-config": "^3.4.4",
     "ssb-conn": "^2.0.0",
     "ssb-db": "^20.3.0",
-    "ssb-ebt": "^5.6.7",
+    "ssb-ebt": "^6.0.0",
     "ssb-friends": "^4.3.0",
     "ssb-invite": "^2.1.6",
     "ssb-keys": "^8.0.0",
