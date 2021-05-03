@@ -78,7 +78,7 @@
     "ssb-thread-schema": "^1.1.1",
     "ssb-unix-socket": "^1.0.0",
     "ssb-ws": "^6.2.3",
-    "yargs": "^16.1.1"
+    "yargs": "^17.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
