@@ -102,7 +102,7 @@
     "nodemon": "^2.0.3",
     "stylelint-config-recommended": "^5.0.0",
     "supertest": "^6.0.1",
-    "tap": "^14.10.7"
+    "tap": "^15.0.9"
   },
   "optionalDependencies": {
     "sharp": "^0.28.0"
