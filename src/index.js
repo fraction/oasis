@@ -834,11 +834,39 @@ router
       const messages = [rootMessage];
 
       const previewData = await preparePreview(ctx);
+      const showPreview = true;
 
       ctx.body = await previewSubtopicView({
         messages,
         myFeedId,
         previewData,
+        showPreview,
+        contentWarning,
+      });
+    }
+  )
+  .post(
+    "/subtopic/edit/:message",
+    koaBody({ multipart: true }),
+    async (ctx) => {
+      const { message } = ctx.params;
+      const rootMessage = await post.get(message);
+      const myFeedId = await meta.myFeedId();
+
+      const rawContentWarning = String(ctx.request.body.contentWarning).trim();
+      const contentWarning =
+        rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
+      const messages = [rootMessage];
+
+      const previewData = await preparePreview(ctx);
+      const showPreview = false;
+
+      ctx.body = await previewSubtopicView({
+        messages,
+        myFeedId,
+        previewData,
+        showPreview,
         contentWarning,
       });
     }
@@ -876,6 +904,7 @@ router
       } = await resolveCommentComponents(ctx);
 
       const previewData = await preparePreview(ctx);
+      const showPreview = true;
 
       ctx.body = await previewCommentView({
         messages,
@@ -883,9 +912,30 @@ router
         contentWarning,
         parentMessage,
         previewData,
+        showPreview,
       });
     }
   )
+  .post("/comment/edit/:message", koaBody({ multipart: true }), async (ctx) => {
+    const {
+      messages,
+      contentWarning,
+      myFeedId,
+      parentMessage,
+    } = await resolveCommentComponents(ctx);
+
+    const previewData = await preparePreview(ctx);
+    const showPreview = false;
+
+    ctx.body = await previewCommentView({
+      messages,
+      myFeedId,
+      contentWarning,
+      parentMessage,
+      previewData,
+      showPreview,
+    });
+  })
   .post("/comment/:message", koaBody(), async (ctx) => {
     const { message } = ctx.params;
     const text = String(ctx.request.body.text);
@@ -916,6 +966,16 @@ router
 
     const previewData = await preparePreview(ctx);
     ctx.body = await previewView({ previewData, contentWarning });
+  })
+  .post("/publish/edit", koaBody(), async (ctx) => {
+    const rawContentWarning = String(ctx.request.body.contentWarning);
+
+    // Only submit content warning if it's a string with non-zero length.
+    const contentWarning =
+      rawContentWarning.length > 0 ? rawContentWarning : undefined;
+
+    const previewData = await preparePreview(ctx);
+    ctx.body = await publishView(previewData, previewData.text, contentWarning);
   })
   .post("/publish", koaBody(), async (ctx) => {
     const text = String(ctx.request.body.text);
