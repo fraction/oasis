@@ -666,15 +666,15 @@ module.exports = ({ cooler, isPublic }) => {
   } = {}) => {
     const ssb = await cooler.open();
     const { id } = ssb;
-    const relationshipObject = await (new Promise((resolve, reject) => {
+    const relationshipObject = await new Promise((resolve, reject) => {
       ssb.friends.graph((err, graph) => {
         if (err) {
-          console.error(err)
-          reject(err)
+          console.error(err);
+          reject(err);
         }
-        resolve(graph[id] || {})
-      })
-    }))
+        resolve(graph[id] || {});
+      });
+    });
 
     const followingList = Object.entries(relationshipObject)
       .filter(([, val]) => val >= 0)
