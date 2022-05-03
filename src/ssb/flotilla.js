@@ -8,8 +8,10 @@ const plugins = [
   require("ssb-master"),
   // Methods often used during init().
   require("ssb-db"),
+  require("ssb-ebt"),
+  require("ssb-friends"),
   // Method `replicate()` often hooked for improvements.
-  require("ssb-replicate"),
+  require("ssb-replication-scheduler"),
   // Required by ssb-about, ssb-tangle, etc.
   require("ssb-backlinks"),
   // Required by ssb-room
