@@ -87,6 +87,7 @@ const i18n = {
     mentionsMatching: "Matching Mentions",
     preview: "Preview",
     publish: "Publish",
+    edit: "Edit",
     contentWarningPlaceholder: "Optional content warning for this post",
     publishCustomDescription: [
       "Publish a custom message by entering ",

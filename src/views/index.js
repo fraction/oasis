@@ -718,21 +718,25 @@ exports.authorView = ({
 
 exports.previewCommentView = async ({
   previewData,
+  showPreview,
   messages,
   myFeedId,
   parentMessage,
   contentWarning,
 }) => {
   const publishAction = `/comment/${encodeURIComponent(messages[0].key)}`;
+  const editAction = `/comment/edit/${encodeURIComponent(messages[0].key)}`;
 
   const preview = generatePreview({
     previewData,
     contentWarning,
     action: publishAction,
+    editAction,
   });
   return exports.commentView(
     { messages, myFeedId, parentMessage },
     preview,
+    showPreview,
     previewData.text,
     contentWarning
   );
@@ -741,6 +745,7 @@ exports.previewCommentView = async ({
 exports.commentView = async (
   { messages, myFeedId, parentMessage },
   preview,
+  showPreview,
   text,
   contentWarning
 ) => {
@@ -773,35 +778,39 @@ exports.commentView = async (
   return template(
     i18n.commentTitle({ authorName }),
     div({ class: "thread-container" }, messageElements),
-    preview !== undefined ? preview : "",
-    p(
-      ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
-      ...maybeSubtopicText
-    ),
-    form(
-      { action, method, enctype: "multipart/form-data" },
-      textarea(
-        {
-          autofocus: true,
-          required: true,
-          name: "text",
-        },
-        text ? text : isPrivate ? null : markdownMention
-      ),
-      label(
-        i18n.contentWarningLabel,
-        input({
-          name: "contentWarning",
-          type: "text",
-          class: "contentWarning",
-          value: contentWarning ? contentWarning : "",
-          placeholder: i18n.contentWarningPlaceholder,
-        })
-      ),
-      button({ type: "submit" }, i18n.preview),
-      label({ class: "file-button", for: "blob" }, i18n.attachFiles),
-      input({ type: "file", id: "blob", name: "blob" })
-    )
+    showPreview && preview !== undefined ? preview : "",
+    showPreview
+      ? ""
+      : p(
+          ...i18n.commentLabel({ publicOrPrivate, markdownUrl }),
+          ...maybeSubtopicText
+        ),
+    showPreview
+      ? ""
+      : form(
+          { action, method, enctype: "multipart/form-data" },
+          textarea(
+            {
+              autofocus: true,
+              required: true,
+              name: "text",
+            },
+            text ? text : isPrivate ? null : markdownMention
+          ),
+          label(
+            i18n.contentWarningLabel,
+            input({
+              name: "contentWarning",
+              type: "text",
+              class: "contentWarning",
+              value: contentWarning ? contentWarning : "",
+              placeholder: i18n.contentWarningPlaceholder,
+            })
+          ),
+          button({ type: "submit" }, i18n.preview),
+          label({ class: "file-button", for: "blob" }, i18n.attachFiles),
+          input({ type: "file", id: "blob", name: "blob" })
+        )
   );
 };
 
@@ -911,7 +920,12 @@ exports.publishView = (preview, text, contentWarning) => {
   );
 };
 
-const generatePreview = ({ previewData, contentWarning, action }) => {
+const generatePreview = ({
+  previewData,
+  contentWarning,
+  action,
+  editAction,
+}) => {
   const { authorMeta, text, mentions } = previewData;
 
   // craft message that looks like it came from the db
@@ -1023,6 +1037,20 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
           value: text,
         }),
         button({ type: "submit" }, i18n.publish)
+      ),
+      form(
+        { action: editAction, method: "post" },
+        input({
+          name: "contentWarning",
+          type: "hidden",
+          value: contentWarning,
+        }),
+        input({
+          name: "text",
+          type: "hidden",
+          value: text,
+        }),
+        button({ type: "submit", class: "edit-button" }, i18n.edit)
       )
     )
   );
@@ -1030,13 +1058,15 @@ const generatePreview = ({ previewData, contentWarning, action }) => {
 
 exports.previewView = ({ previewData, contentWarning }) => {
   const publishAction = "/publish";
+  const editAction = "/publish/edit";
 
   const preview = generatePreview({
     previewData,
     contentWarning,
     action: publishAction,
+    editAction,
   });
-  return exports.publishView(preview, previewData.text, contentWarning);
+  return template("Preview", preview);
 };
 
 /**
@@ -1272,20 +1302,24 @@ exports.threadsView = ({ messages }) => {
 
 exports.previewSubtopicView = async ({
   previewData,
+  showPreview,
   messages,
   myFeedId,
   contentWarning,
 }) => {
   const publishAction = `/subtopic/${encodeURIComponent(messages[0].key)}`;
+  const editAction = `/subtopic/edit/${encodeURIComponent(messages[0].key)}`;
 
   const preview = generatePreview({
     previewData,
     contentWarning,
     action: publishAction,
+    editAction,
   });
   return exports.subtopicView(
     { messages, myFeedId },
     preview,
+    showPreview,
     previewData.text,
     contentWarning
   );
@@ -1294,6 +1328,7 @@ exports.previewSubtopicView = async ({
 exports.subtopicView = async (
   { messages, myFeedId },
   preview,
+  showPreview,
   text,
   contentWarning
 ) => {
@@ -1323,32 +1358,38 @@ exports.subtopicView = async (
   return template(
     i18n.subtopicTitle({ authorName }),
     div({ class: "thread-container" }, messageElements),
-    preview !== undefined ? preview : "",
-    p(i18n.subtopicLabel({ markdownUrl })),
-    form(
-      { action: subtopicForm, method: "post", enctype: "multipart/form-data" },
-      textarea(
-        {
-          autofocus: true,
-          required: true,
-          name: "text",
-        },
-        text ? text : markdownMention
-      ),
-      label(
-        i18n.contentWarningLabel,
-        input({
-          name: "contentWarning",
-          type: "text",
-          class: "contentWarning",
-          value: contentWarning ? contentWarning : "",
-          placeholder: i18n.contentWarningPlaceholder,
-        })
-      ),
-      button({ type: "submit" }, i18n.preview),
-      label({ class: "file-button", for: "blob" }, i18n.attachFiles),
-      input({ type: "file", id: "blob", name: "blob" })
-    )
+    showPreview && preview !== undefined ? preview : "",
+    showPreview ? "" : p(i18n.subtopicLabel({ markdownUrl })),
+    showPreview
+      ? ""
+      : form(
+          {
+            action: subtopicForm,
+            method: "post",
+            enctype: "multipart/form-data",
+          },
+          textarea(
+            {
+              autofocus: true,
+              required: true,
+              name: "text",
+            },
+            text ? text : markdownMention
+          ),
+          label(
+            i18n.contentWarningLabel,
+            input({
+              name: "contentWarning",
+              type: "text",
+              class: "contentWarning",
+              value: contentWarning ? contentWarning : "",
+              placeholder: i18n.contentWarningPlaceholder,
+            })
+          ),
+          button({ type: "submit" }, i18n.preview),
+          label({ class: "file-button", for: "blob" }, i18n.attachFiles),
+          input({ type: "file", id: "blob", name: "blob" })
+        )
   );
 };
 
